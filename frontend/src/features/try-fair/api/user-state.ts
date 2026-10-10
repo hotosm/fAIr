@@ -69,7 +69,10 @@ export const useSaveUserState = () => {
 export const useUpdateUserState = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ pid, payload }: {
+    mutationFn: async ({
+      pid,
+      payload,
+    }: {
       pid: number;
       payload: MappingUserState;
     }) => {

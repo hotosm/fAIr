@@ -27,8 +27,6 @@ const getPredictionName = (prediction: TOfflinePrediction): string =>
   prediction.local_model_stac_id ||
   `Prediction #${prediction.id}`;
 
-
-
 /** Info card shown over the map — styled like the Try fAIr sidebar. */
 const ResultInfoCard = ({
   imageryName,
@@ -204,10 +202,10 @@ export const MapRequestResultPage = () => {
     prediction.bbox ??
     (prediction.geometry
       ? getGeoJSONFeatureBounds({
-        type: "Feature",
-        geometry: prediction.geometry,
-        properties: {},
-      })
+          type: "Feature",
+          geometry: prediction.geometry,
+          properties: {},
+        })
       : null);
 
   return (
@@ -234,7 +232,7 @@ export const MapRequestResultPage = () => {
             <div className="absolute top-4 left-4 z-10">
               <ResultInfoCard
                 imageryName={oamItem?.title || "Custom Imagery"}
-                featureMapped={prediction?.category ?? '-'}
+                featureMapped={prediction?.category ?? "-"}
                 outputType={outputType}
                 onOutputTypeChange={setOutputType}
                 zoom={prediction.zoom}
@@ -256,7 +254,7 @@ export const MapRequestResultPage = () => {
               >
                 <ResultInfoCard
                   imageryName={oamItem?.title || "Custom Imagery"}
-                  featureMapped={prediction?.category ?? ''}
+                  featureMapped={prediction?.category ?? ""}
                   outputType={outputType}
                   onOutputTypeChange={setOutputType}
                   zoom={prediction.zoom}

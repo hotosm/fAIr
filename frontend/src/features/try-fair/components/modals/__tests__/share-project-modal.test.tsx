@@ -10,8 +10,13 @@ vi.mock("@/hooks/use-clipboard", () => ({
 }));
 
 vi.mock("@/components/ui/dialog/dialog", () => ({
-  default: ({ isOpened, children }: { isOpened: boolean; children: React.ReactNode }) =>
-    isOpened ? <div>{children}</div> : null,
+  default: ({
+    isOpened,
+    children,
+  }: {
+    isOpened: boolean;
+    children: React.ReactNode;
+  }) => (isOpened ? <div>{children}</div> : null),
 }));
 
 describe("ShareProjectModal", () => {
@@ -21,16 +26,15 @@ describe("ShareProjectModal", () => {
   it("shares a protected project through the public Try fAIr route", () => {
     render(
       <MemoryRouter
-        initialEntries={[
-          "/try-fair/42?model=tree-model&mode=imagery#map",
-        ]}
+        initialEntries={["/try-fair/42?model=tree-model&mode=imagery#map"]}
       >
         <ShareProjectModal isOpened closeDialog={vi.fn()} />
       </MemoryRouter>,
     );
 
-    expect(screen.getByText(/\/try-fair\?model=tree-model&mode=imagery#map$/))
-      .toBeInTheDocument();
+    expect(
+      screen.getByText(/\/try-fair\?model=tree-model&mode=imagery#map$/),
+    ).toBeInTheDocument();
 
     fireEvent.click(screen.getByText("Copy link").closest("sl-button")!);
 

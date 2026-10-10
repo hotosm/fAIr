@@ -9,7 +9,8 @@ export function useNavbarState() {
   const { pathname } = useLocation();
   const { isAuthenticated } = useAuth();
 
-  const isTryFair = isUnder(pathname, APPLICATION_ROUTES.TRY_FAIR) ||
+  const isTryFair =
+    isUnder(pathname, APPLICATION_ROUTES.TRY_FAIR) ||
     Boolean(matchPath(APPLICATION_ROUTES.TRY_FAIR_PROJECT, pathname));
   const isProfile = isUnder(pathname, APPLICATION_ROUTES.PROFILE_BASE);
   const isMapRequests = isUnder(pathname, APPLICATION_ROUTES.MAP_REQUEST_BASE);

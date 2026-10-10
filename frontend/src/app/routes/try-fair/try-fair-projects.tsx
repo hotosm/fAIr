@@ -60,7 +60,9 @@ const RestoreProject = ({ saved }: { saved: SavedUserState }) => {
     store.setPredictionBBox(null);
     store.setPredictionGridZoom(null);
     store.setCurrentModelType(
-      search.get("mode") === ModelType.DEMO ? ModelType.DEMO : ModelType.IMAGERY,
+      search.get("mode") === ModelType.DEMO
+        ? ModelType.DEMO
+        : ModelType.IMAGERY,
     );
     setSearchParams(search, { replace: true });
     setReady(true);

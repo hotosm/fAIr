@@ -49,9 +49,17 @@ import { useParams } from "react-router-dom";
 import { MappingProjectAutosave } from "@/features/try-fair/components/mapping-project-autosave";
 import type { SavedUserState } from "@/features/try-fair/api/user-state";
 
-export const TryFairPage = ({ initialProject }: { initialProject?: SavedUserState }) => {
+export const TryFairPage = ({
+  initialProject,
+}: {
+  initialProject?: SavedUserState;
+}) => {
   const { map, mapContainerRef } = useMapInstance(
-    false, false, "default", undefined, initialProject?.state.bbox,
+    false,
+    false,
+    "default",
+    undefined,
+    initialProject?.state.bbox,
   );
   const { isSmallViewport } = useScreenSize();
   const { isAuthenticated, user } = useAuth();
@@ -189,15 +197,22 @@ export const TryFairPage = ({ initialProject }: { initialProject?: SavedUserStat
     }
   }, [imageryModelId, selectedModelId, setSelectedModelId]);
 
-  const [latestBBox, setLatestBBox] = useState<BBOX | null>(initialProject?.state.bbox ?? null);
+  const [latestBBox, setLatestBBox] = useState<BBOX | null>(
+    initialProject?.state.bbox ?? null,
+  );
 
-  const [latestGridZoom, setLatestGridZoom] = useState<number | null>(initialProject?.state.zoom ?? null);
+  const [latestGridZoom, setLatestGridZoom] = useState<number | null>(
+    initialProject?.state.zoom ?? null,
+  );
   const [parameterOverrides, setParameterOverrides] = useState<
     Record<string, number | string | boolean>
-  >(() => Object.fromEntries(
-    Object.entries(initialProject?.state.params ?? {})
-      .filter(([key]) => key !== "confidence_threshold"),
-  ));
+  >(() =>
+    Object.fromEntries(
+      Object.entries(initialProject?.state.params ?? {}).filter(
+        ([key]) => key !== "confidence_threshold",
+      ),
+    ),
+  );
   const paramValues = useMemo(
     () => ({ ...defaultParamValues, ...parameterOverrides }),
     [defaultParamValues, parameterOverrides],
@@ -208,7 +223,10 @@ export const TryFairPage = ({ initialProject }: { initialProject?: SavedUserStat
   const previousMappingModel = useRef(initialProject?.state.model.id);
   useEffect(() => {
     if (!mappingModelId) return;
-    if (previousMappingModel.current && previousMappingModel.current !== mappingModelId) {
+    if (
+      previousMappingModel.current &&
+      previousMappingModel.current !== mappingModelId
+    ) {
       setParameterOverrides({});
     }
     previousMappingModel.current = mappingModelId;
@@ -221,7 +239,9 @@ export const TryFairPage = ({ initialProject }: { initialProject?: SavedUserStat
     if (!saved?.bbox) return undefined;
     const original = saved.url_params;
     const sameImagery = original
-      ? mode === original.mode && imageryUrl === original.imagery && oamItemId === original.oamItem
+      ? mode === original.mode &&
+        imageryUrl === original.imagery &&
+        oamItemId === original.oamItem
       : mode === ModelType.IMAGERY && imageryUrl === saved.imagery.url;
     if (!sameImagery) return undefined;
     const [w, s, e, n] = saved.bbox;
@@ -230,13 +250,15 @@ export const TryFairPage = ({ initialProject }: { initialProject?: SavedUserStat
   // Snapshot of the current prediction inputs vs what was last submitted,
   const restoredPrediction = initialProject?.state.prediction_result;
   const lastPredictedInputsRef = useRef<string | null>(
-    restoredPrediction ? JSON.stringify({
-      mappingModelId: restoredPrediction.modelId,
-      bbox: restoredPrediction.bbox,
-      gridZoom: restoredPrediction.gridZoom,
-      resolution: restoredPrediction.resolution,
-      paramValues: restoredPrediction.params,
-    }) : null,
+    restoredPrediction
+      ? JSON.stringify({
+          mappingModelId: restoredPrediction.modelId,
+          bbox: restoredPrediction.bbox,
+          gridZoom: restoredPrediction.gridZoom,
+          resolution: restoredPrediction.resolution,
+          paramValues: restoredPrediction.params,
+        })
+      : null,
   );
 
   const predictionInputsSnapshot = useMemo(() => {
@@ -580,32 +602,44 @@ export const TryFairPage = ({ initialProject }: { initialProject?: SavedUserStat
           }
           initialPid={projectId ? Number(projectId) : undefined}
           skipInitialSave={Boolean(initialProject)}
-          payload={modelForMapping ? {
-            state: {
-              type: "mapping",
-              category: mode === ModelType.IMAGERY
-                ? feature
-                : modelForMapping.properties["fair:category"],
-              name: selectedImagery?.source === ImagerySource.OPEN_AERIAL_MAP
-                ? selectedImagery.item.title
-                : (modelForMapping.properties.title ?? "Mapping project"),
-              model: {
-                id: modelForMapping.id,
-                title: modelForMapping.properties.title ?? modelForMapping.id,
-              },
-              imagery: {
-                name: selectedImagery?.source === ImagerySource.OPEN_AERIAL_MAP
-                  ? selectedImagery.item.title
-                  : mode === ModelType.IMAGERY ? "Custom Imagery" : "Demo Imagery",
-                url: tileserverURL,
-              },
-              zoom: latestGridZoom,
-              bbox: latestBBox,
-              url_params: urlState,
-              params: paramValues,
-              prediction_result: predictionResult,
-            },
-          } : null}
+          payload={
+            modelForMapping
+              ? {
+                  state: {
+                    type: "mapping",
+                    category:
+                      mode === ModelType.IMAGERY
+                        ? feature
+                        : modelForMapping.properties["fair:category"],
+                    name:
+                      selectedImagery?.source === ImagerySource.OPEN_AERIAL_MAP
+                        ? selectedImagery.item.title
+                        : (modelForMapping.properties.title ??
+                          "Mapping project"),
+                    model: {
+                      id: modelForMapping.id,
+                      title:
+                        modelForMapping.properties.title ?? modelForMapping.id,
+                    },
+                    imagery: {
+                      name:
+                        selectedImagery?.source ===
+                        ImagerySource.OPEN_AERIAL_MAP
+                          ? selectedImagery.item.title
+                          : mode === ModelType.IMAGERY
+                            ? "Custom Imagery"
+                            : "Demo Imagery",
+                      url: tileserverURL,
+                    },
+                    zoom: latestGridZoom,
+                    bbox: latestBBox,
+                    url_params: urlState,
+                    params: paramValues,
+                    prediction_result: predictionResult,
+                  },
+                }
+              : null
+          }
         />
       )}
 
@@ -660,9 +694,7 @@ export const TryFairPage = ({ initialProject }: { initialProject?: SavedUserStat
       {/* Imagery/location dialog – rendered at page level */}
       <ImageryLocationDialog
         isOpened={isChooseLocationOpen}
-        isCustomImageryEnabled={
-           mappingMode === "advanced"
-        }
+        isCustomImageryEnabled={mappingMode === "advanced"}
         closeDialog={() => {
           setChooseLocation(false);
           setIsChoosingImageryFromModelPicker(false);

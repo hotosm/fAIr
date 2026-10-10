@@ -11,17 +11,17 @@ import { useGetUserStates } from "@/features/user-profile/api/user-state";
 import { TableSkeleton } from "@/features/models/components/skeletons";
 
 const getProjectPath = ({ pid }: SavedUserState) =>
-  APPLICATION_ROUTES.TRY_FAIR_PROJECT.replace(
-    ":pid",
-    String(pid),
-  );
+  APPLICATION_ROUTES.TRY_FAIR_PROJECT.replace(":pid", String(pid));
 
 const columns: ColumnDef<SavedUserState>[] = [
   {
     accessorKey: "state.name",
     header: "Name",
     cell: ({ row }) => (
-      <span className="block max-w-[220px] truncate text-sm" title={row.original.state.name}>
+      <span
+        className="block max-w-[220px] truncate text-sm"
+        title={row.original.state.name}
+      >
         {row.original.state.name}
       </span>
     ),
@@ -32,9 +32,10 @@ const columns: ColumnDef<SavedUserState>[] = [
     cell: ({ row }) => {
       const { type, category } = row.original.state;
       const label = category || type;
-      const Icon = label === "mapping" || label === "prediction"
-        ? MapIcon
-        : getFeatureIcon(label);
+      const Icon =
+        label === "mapping" || label === "prediction"
+          ? MapIcon
+          : getFeatureIcon(label);
       return (
         <span className="inline-flex min-w-[84px] items-center gap-1.5 whitespace-nowrap rounded bg-grey px-2 py-0.5 text-xs capitalize leading-4 text-white">
           <Icon className="size-3 shrink-0" aria-hidden="true" />
@@ -90,7 +91,11 @@ export const RecentActivities = ({
         )}
       </div>
       {isPending ? (
-        <div role="status" aria-label="Loading activities" className="max-w-full overflow-hidden">
+        <div
+          role="status"
+          aria-label="Loading activities"
+          className="max-w-full overflow-hidden"
+        >
           <span className="sr-only">Loading activities…</span>
           <div aria-hidden="true">
             <TableSkeleton rows={5} columns={3} />
@@ -104,7 +109,7 @@ export const RecentActivities = ({
         <div className="max-w-full overflow-x-auto [&_tbody_tr]:cursor-pointer">
           <DataTable
             columns={columns}
-            data={data.results.slice(0,4)}
+            data={data.results.slice(0, 4)}
             onRowClick={(item) => navigate(getProjectPath(item))}
           />
         </div>

@@ -51,17 +51,25 @@ const payload: MappingUserState = {
   },
 };
 const changed: MappingUserState = {
-  state: { ...payload.state, category: "trees", params: { confidence_threshold: 0 } },
+  state: {
+    ...payload.state,
+    category: "trees",
+    params: { confidence_threshold: 0 },
+  },
 };
 
 const wrapper = () => {
-  const client = new QueryClient({ defaultOptions: { mutations: { retry: false } } });
+  const client = new QueryClient({
+    defaultOptions: { mutations: { retry: false } },
+  });
   return ({ children }: PropsWithChildren) => (
     <QueryClientProvider client={client}>{children}</QueryClientProvider>
   );
 };
 const tick = async () => {
-  await act(async () => { await vi.advanceTimersByTimeAsync(800); });
+  await act(async () => {
+    await vi.advanceTimersByTimeAsync(800);
+  });
 };
 
 describe("MappingProjectAutosave", () => {
@@ -78,7 +86,10 @@ describe("MappingProjectAutosave", () => {
   });
 
   it("creates only after a successful prediction enables saving, then updates that pid", async () => {
-    const view = render(<MappingProjectAutosave enabled={false} payload={payload} />, { wrapper: wrapper() });
+    const view = render(
+      <MappingProjectAutosave enabled={false} payload={payload} />,
+      { wrapper: wrapper() },
+    );
     await tick();
     expect(post).not.toHaveBeenCalled();
     view.rerender(<MappingProjectAutosave enabled payload={payload} />);
@@ -91,7 +102,10 @@ describe("MappingProjectAutosave", () => {
   });
 
   it("updates an existing project without creating a new record", async () => {
-    render(<MappingProjectAutosave enabled initialPid={42} payload={payload} />, { wrapper: wrapper() });
+    render(
+      <MappingProjectAutosave enabled initialPid={42} payload={payload} />,
+      { wrapper: wrapper() },
+    );
     await tick();
     expect(post).not.toHaveBeenCalled();
     expect(patch).toHaveBeenCalledExactlyOnceWith("/user-state/42/", payload);
@@ -99,13 +113,25 @@ describe("MappingProjectAutosave", () => {
 
   it("does not patch during restoration but saves subsequent edits to the existing pid", async () => {
     const view = render(
-      <MappingProjectAutosave enabled initialPid={42} payload={payload} skipInitialSave />,
+      <MappingProjectAutosave
+        enabled
+        initialPid={42}
+        payload={payload}
+        skipInitialSave
+      />,
       { wrapper: wrapper() },
     );
     await tick();
     expect(post).not.toHaveBeenCalled();
     expect(patch).not.toHaveBeenCalled();
-    view.rerender(<MappingProjectAutosave enabled initialPid={42} payload={changed} skipInitialSave />);
+    view.rerender(
+      <MappingProjectAutosave
+        enabled
+        initialPid={42}
+        payload={changed}
+        skipInitialSave
+      />,
+    );
     await tick();
     expect(patch).toHaveBeenCalledExactlyOnceWith("/user-state/42/", changed);
     expect(post).not.toHaveBeenCalled();
@@ -113,21 +139,31 @@ describe("MappingProjectAutosave", () => {
 
   it("keeps edits made during creation and saves them after receiving the pid", async () => {
     let finish: (value: unknown) => void = () => {};
-    post.mockReturnValue(new Promise((resolve) => { finish = resolve; }));
-    const view = render(<MappingProjectAutosave enabled payload={payload} />, { wrapper: wrapper() });
+    post.mockReturnValue(
+      new Promise((resolve) => {
+        finish = resolve;
+      }),
+    );
+    const view = render(<MappingProjectAutosave enabled payload={payload} />, {
+      wrapper: wrapper(),
+    });
     await tick();
     view.rerender(<MappingProjectAutosave enabled payload={changed} />);
     await tick();
     expect(post).toHaveBeenCalledTimes(1);
     expect(patch).not.toHaveBeenCalled();
-    await act(async () => { finish({ data: { ...payload, pid: 42 } }); });
+    await act(async () => {
+      finish({ data: { ...payload, pid: 42 } });
+    });
     await tick();
     await tick();
     expect(patch).toHaveBeenCalledExactlyOnceWith("/user-state/42/", changed);
   });
 
   it("retains the created pid while another model is loading", async () => {
-    const view = render(<MappingProjectAutosave enabled payload={payload} />, { wrapper: wrapper() });
+    const view = render(<MappingProjectAutosave enabled payload={payload} />, {
+      wrapper: wrapper(),
+    });
     await tick();
     view.rerender(<MappingProjectAutosave enabled={false} payload={null} />);
     await tick();
@@ -139,7 +175,9 @@ describe("MappingProjectAutosave", () => {
 
   it("does not repeat unchanged saves or loop on a failed save", async () => {
     post.mockRejectedValue(new Error("Offline"));
-    const view = render(<MappingProjectAutosave enabled payload={payload} />, { wrapper: wrapper() });
+    const view = render(<MappingProjectAutosave enabled payload={payload} />, {
+      wrapper: wrapper(),
+    });
     await tick();
     view.rerender(<MappingProjectAutosave enabled payload={{ ...payload }} />);
     await tick();

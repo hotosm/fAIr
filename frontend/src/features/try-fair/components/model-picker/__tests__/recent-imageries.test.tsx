@@ -27,7 +27,10 @@ vi.mock("@/features/try-fair/api/features-to-map", () => ({
 vi.mock(
   "@/features/try-fair/components/model-picker/imagery-preview-card",
   () => ({
-    ImageryPreviewCard: ({ selectedImagery, onChangeImagery }: {
+    ImageryPreviewCard: ({
+      selectedImagery,
+      onChangeImagery,
+    }: {
       selectedImagery: ImagerySelection;
       onChangeImagery: () => void;
     }) => (
@@ -126,8 +129,12 @@ describe("Recent imagery", () => {
       ...entry.selection,
       tileUrl: "https://example.com/new/{z}/{x}/{y}.png",
     };
-    view.rerender(<ModelPickerContent {...props} stagedImagery={browserSelection} />);
-    expect(screen.getByTestId("preview-url")).toHaveTextContent(browserSelection.tileUrl);
+    view.rerender(
+      <ModelPickerContent {...props} stagedImagery={browserSelection} />,
+    );
+    expect(screen.getByTestId("preview-url")).toHaveTextContent(
+      browserSelection.tileUrl,
+    );
     expect(onApplyStagedImagery).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole("button", { name: "Apply" }));
     expect(onApplyStagedImagery).toHaveBeenCalledWith(browserSelection);

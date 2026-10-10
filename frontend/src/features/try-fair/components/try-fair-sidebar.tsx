@@ -237,7 +237,7 @@ export const TryFairSidebar = ({
           <div className="flex items-center gap-2">
             <ParametersIcon />
             <p className="text-dark font-bold uppercase text-xs">
-              { TRY_FAIR_PAGE_CONTENT.sidebar.parameters.label}
+              {TRY_FAIR_PAGE_CONTENT.sidebar.parameters.label}
             </p>
           </div>
 
@@ -261,7 +261,10 @@ export const TryFairSidebar = ({
         <div className="flex items-start gap-2">
           <div>
             <p className="text-grey text-xs leading-relaxed">
-              {isAdvancedMode ? TRY_FAIR_PAGE_CONTENT.sidebar.parameters.advancedModeDescription : TRY_FAIR_PAGE_CONTENT.sidebar.parameters.description}{" "}
+              {isAdvancedMode
+                ? TRY_FAIR_PAGE_CONTENT.sidebar.parameters
+                    .advancedModeDescription
+                : TRY_FAIR_PAGE_CONTENT.sidebar.parameters.description}{" "}
             </p>
           </div>
         </div>

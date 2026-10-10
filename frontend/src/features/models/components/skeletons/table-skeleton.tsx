@@ -1,6 +1,9 @@
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 
-const TableSkeleton = ({ rows = 15, columns = 6 }: {
+const TableSkeleton = ({
+  rows = 15,
+  columns = 6,
+}: {
   rows?: number;
   columns?: number;
 }) => {

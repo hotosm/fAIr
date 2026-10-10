@@ -86,10 +86,7 @@ export const DesktopAuthSection = ({
   returnTo,
 }: AuthSectionProps) => {
   const { pathname } = useLocation();
-  const {
-    showDownloadResult,
-    showDashboardLink,
-  } = useNavbarState();
+  const { showDownloadResult, showDashboardLink } = useNavbarState();
   const dashboardButton =
     isAuthenticated &&
     (pathname === APPLICATION_ROUTES.HOMEPAGE ||

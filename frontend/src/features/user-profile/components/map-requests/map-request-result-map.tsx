@@ -80,24 +80,22 @@ export const MapRequestResultMap = ({
   // The parent query (useGetSinglePrediction) has refetchOnWindowFocus: false
   // and staleTime: Infinity, which keeps geojsonUrl stable across tab switches
   // and prevents this cache key from changing — no loading flash on return.
-  const {
-    data: predictions = null,
-    isPending: resultsLoading,
-  } = useQuery<GeoJSON.FeatureCollection>({
-    queryKey: ["geojson", geojsonUrl],
-    queryFn: async () => {
-      const res = await fetch(geojsonUrl);
-      if (!res.ok) {
-        showErrorToast(undefined, errorMessages.MAP_LOAD_FAILURE);
-        throw new Error(String(res.status));
-      }
-      return res.json() as Promise<GeoJSON.FeatureCollection>;
-    },
-    enabled: Boolean(geojsonUrl),
-    staleTime: Infinity,
-    gcTime: Infinity,
-    refetchOnWindowFocus: false,
-  });
+  const { data: predictions = null, isPending: resultsLoading } =
+    useQuery<GeoJSON.FeatureCollection>({
+      queryKey: ["geojson", geojsonUrl],
+      queryFn: async () => {
+        const res = await fetch(geojsonUrl);
+        if (!res.ok) {
+          showErrorToast(undefined, errorMessages.MAP_LOAD_FAILURE);
+          throw new Error(String(res.status));
+        }
+        return res.json() as Promise<GeoJSON.FeatureCollection>;
+      },
+      enabled: Boolean(geojsonUrl),
+      staleTime: Infinity,
+      gcTime: Infinity,
+      refetchOnWindowFocus: false,
+    });
 
   // Derive a fallback bbox from the loaded predictions so the polygon/points
   // layers still have a usable extent even when prediction.bbox is absent.

@@ -2,7 +2,6 @@ import type { SavedUserState as UserStateRecord } from "@/features/try-fair/api/
 import { API_ENDPOINTS, apiClient } from "@/services";
 import { skipToken, useQuery } from "@tanstack/react-query";
 
-
 export type SavedUserState = {
   count: number;
   next: string | null;
@@ -13,7 +12,6 @@ export type SavedUserState = {
 const getUserState = async (): Promise<SavedUserState> => {
   const res = await apiClient.get<SavedUserState>(
     API_ENDPOINTS.SAVE_USER_STATE,
-  
   );
   return res.data;
 };

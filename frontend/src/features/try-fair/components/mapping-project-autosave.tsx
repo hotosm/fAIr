@@ -25,7 +25,8 @@ export const MappingProjectAutosave = ({
   const isPending = isCreating || isUpdating;
 
   useEffect(() => {
-    if (!enabled || !payload || isPending || lastAttempt.current === snapshot) return;
+    if (!enabled || !payload || isPending || lastAttempt.current === snapshot)
+      return;
     if (skipInitialSave && lastAttempt.current === null) {
       lastAttempt.current = snapshot;
       return;

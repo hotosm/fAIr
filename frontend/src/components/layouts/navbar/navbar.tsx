@@ -40,8 +40,7 @@ export const NavBar = () => {
     showDownloadResult,
     showMappingMode,
     showDashboardLink,
-    isMapRequestResult
-    
+    isMapRequestResult,
   } = useNavbarState();
 
   const isTryFairPage = location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR);
@@ -70,7 +69,7 @@ export const NavBar = () => {
             </button>
           </div>
 
-          {!isTryFairPage && !isMapRequestResult &&(
+          {!isTryFairPage && !isMapRequestResult && (
             <div className={styles.navLinksContainer}>
               <NavBarLinks
                 className={styles.mobileNavLinks}
