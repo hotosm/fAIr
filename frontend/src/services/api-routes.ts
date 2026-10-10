@@ -142,5 +142,11 @@ export const API_ENDPOINTS = {
   // Map large area
   MAP_LARGE_AREA_REQUEST: "/predictions/submit/",
 
+  SAVE_USER_STATE: "/user-state/",
+  GET_SINGLE_USER_STATE: (pid: string) =>
+    `/user-state/${encodeURIComponent(pid)}/`,
+  GET_USER_STATE: "/user-state/",
+  EDIT_USER_STATE: (pid: number) => `/user-state/${pid}/`,
+
   // Base
 };

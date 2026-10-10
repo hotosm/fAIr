@@ -46,11 +46,13 @@ export const useImageryMappingModel = ({
       ...(apiBaseModels?.results ?? []),
       ...(apiLocalModels?.results ?? []),
     ];
-    return (
-      apiModels.find((model) => model.stac_item_id === selectedModelId) ??
-      apiModels[0] ??
-      null
-    );
+    if (selectedModelId) {
+      return (
+        apiModels.find((model) => model.stac_item_id === selectedModelId) ??
+        null
+      );
+    }
+    return apiModels[0] ?? null;
   }, [apiBaseModels, apiLocalModels, selectedModelId]);
 
   const modelForMapping = isImageryMode
@@ -81,6 +83,8 @@ export const useImageryMappingModel = ({
   }, [confidence, inferenceParams]);
 
   return {
+    modelsReady:
+      !isImageryMode || (hasLoadedApiBaseModels && hasLoadedApiLocalModels),
     modelForMapping,
     mappingModelId,
     imageryModelId: isImageryMode ? mappingModelId : null,

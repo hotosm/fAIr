@@ -9,7 +9,7 @@ import { APPLICATION_ROUTES, SHARED_CONTENT } from "@/constants";
 import { useAuth } from "@/app/providers/auth-provider";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { UserNotifications } from "@/features/user-profile/components/notifications/user-notifications";
+// import { UserNotifications } from "@/features/user-profile/components/notifications/user-notifications";
 import { AUTH_PROVIDER, FRONTEND_URL } from "@/config";
 import "@hotosm/ui/dist/components/tool-menu/tool-menu.js";
 import { Divider } from "@/components/ui/divider";
@@ -40,6 +40,7 @@ export const NavBar = () => {
     showDownloadResult,
     showMappingMode,
     showDashboardLink,
+    isMapRequestResult,
   } = useNavbarState();
 
   const isTryFairPage = location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR);
@@ -68,7 +69,7 @@ export const NavBar = () => {
             </button>
           </div>
 
-          {!isTryFairPage && (
+          {!isTryFairPage && !isMapRequestResult && (
             <div className={styles.navLinksContainer}>
               <NavBarLinks
                 className={styles.mobileNavLinks}
@@ -101,7 +102,7 @@ export const NavBar = () => {
         </div>
 
         <div className="flex-1 hidden sm:flex items-center justify-center">
-          {!isTryFairPage && !isProfilePage && (
+          {!isTryFairPage && !isProfilePage && !isMapRequestResult && (
             <NavBarLinks className={styles.webNavLinks} />
           )}
         </div>
@@ -119,7 +120,7 @@ export const NavBar = () => {
 
         <div className="flex items-center gap-x-2 sm:hidden">
           {showDashboardLink && <DashboardLink />}
-          {isAuthenticated && <UserNotifications />}
+          {/* {isAuthenticated && <UserNotifications />} */}
           {showDownloadResult && <DownloadResultButton />}
 
           <button

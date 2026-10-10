@@ -6,7 +6,7 @@ import { UserProfile } from "@/components/layouts/navbar/user-profile";
 import { AUTH_PROVIDER, IS_DEV } from "@/config";
 import { APP_TOUR_IDS } from "@/constants/site-tour";
 import { StartMappingNavlinks } from "@/features/try-fair/components/try-fair-nav-links";
-import { UserNotifications } from "@/features/user-profile/components/notifications/user-notifications";
+// import { UserNotifications } from "@/features/user-profile/components/notifications/user-notifications";
 import { DownloadResultButton } from "@/features/user-profile/components/map-requests/download-result-button";
 import { APPLICATION_ROUTES } from "@/constants";
 import { useLocation } from "react-router-dom";
@@ -86,11 +86,7 @@ export const DesktopAuthSection = ({
   returnTo,
 }: AuthSectionProps) => {
   const { pathname } = useLocation();
-  const {
-    isMapRequests: isMapRequestsPage,
-    showDownloadResult,
-    showDashboardLink,
-  } = useNavbarState();
+  const { showDownloadResult, showDashboardLink } = useNavbarState();
   const dashboardButton =
     isAuthenticated &&
     (pathname === APPLICATION_ROUTES.HOMEPAGE ||
@@ -105,7 +101,7 @@ export const DesktopAuthSection = ({
   if (showHankoBar) {
     return (
       <>
-        {isAuthenticated && <UserNotifications />}
+        {/* {isAuthenticated && <UserNotifications />} */}
         {dashboardButton}
         {showDownloadResult && <DownloadResultButton />}
         <div
@@ -121,7 +117,7 @@ export const DesktopAuthSection = ({
     return (
       <div className="flex items-center gap-x-2">
         {isTryFairPage && <StartMappingNavlinks />}
-        {!isTryFairPage && !isMapRequestsPage && <UserNotifications />}
+        {/* {!isTryFairPage && !isMapRequestsPage && <UserNotifications />} */}
         {dashboardButton}
         {showDownloadResult && <DownloadResultButton />}
 

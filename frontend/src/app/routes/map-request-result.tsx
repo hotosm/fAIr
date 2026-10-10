@@ -27,25 +27,22 @@ const getPredictionName = (prediction: TOfflinePrediction): string =>
   prediction.local_model_stac_id ||
   `Prediction #${prediction.id}`;
 
-/** Best-effort feature label derived from the model id (e.g. "…-buildings"). */
-const getFeatureMapped = (prediction: TOfflinePrediction): string => {
-  const slug = prediction.local_model_stac_id ?? "";
-  const last = slug.split("-").pop() ?? "";
-  return last ? last.charAt(0).toUpperCase() + last.slice(1) : "—";
-};
-
 /** Info card shown over the map — styled like the Try fAIr sidebar. */
 const ResultInfoCard = ({
   imageryName,
   featureMapped,
   outputType,
   onOutputTypeChange,
+  zoom,
+  params,
   className,
 }: {
   imageryName: string;
   featureMapped: string;
   outputType: TryFairMapOutputType;
   onOutputTypeChange: (type: TryFairMapOutputType) => void;
+  zoom: TOfflinePrediction["zoom"];
+  params: TOfflinePrediction["params"];
   className?: string;
 }) => (
   <div
@@ -109,6 +106,36 @@ const ResultInfoCard = ({
         ))}
       </div>
     </div>
+    <details
+      aria-label="Prediction configuration"
+      className="border-t border-gray-border pt-4"
+    >
+      <summary className="cursor-pointer text-dark text-xs font-semibold">
+        Prediction configuration
+      </summary>
+      <dl className="mt-3 space-y-3 text-xs">
+        <div className="flex items-start justify-between gap-3">
+          <dt className="text-grey">Zoom level</dt>
+          <dd className="text-dark font-medium tabular-nums">{zoom}</dd>
+        </div>
+        {Object.entries(params ?? {}).map(([key, value]) => (
+          <div key={key} className="flex items-start justify-between gap-3">
+            <dt
+              className="min-w-0 break-words capitalize text-grey"
+              title={key}
+            >
+              {key.replace(/_/g, " ")}
+            </dt>
+            <dd className="max-w-[45%] break-words text-right font-medium tabular-nums text-dark">
+              {value}
+            </dd>
+          </div>
+        ))}
+      </dl>
+      {Object.keys(params ?? {}).length === 0 && (
+        <p className="mt-3 text-xs text-grey">No parameters recorded.</p>
+      )}
+    </details>
   </div>
 );
 
@@ -205,9 +232,12 @@ export const MapRequestResultPage = () => {
             <div className="absolute top-4 left-4 z-10">
               <ResultInfoCard
                 imageryName={oamItem?.title || "Custom Imagery"}
-                featureMapped={getFeatureMapped(prediction)}
+                featureMapped={prediction?.category ?? "-"}
                 outputType={outputType}
                 onOutputTypeChange={setOutputType}
+                zoom={prediction.zoom}
+                params={prediction.params}
+                className="max-h-[calc(92vh-2rem)] overflow-y-auto"
               />
             </div>
           )}
@@ -224,9 +254,11 @@ export const MapRequestResultPage = () => {
               >
                 <ResultInfoCard
                   imageryName={oamItem?.title || "Custom Imagery"}
-                  featureMapped={getFeatureMapped(prediction)}
+                  featureMapped={prediction?.category ?? ""}
                   outputType={outputType}
                   onOutputTypeChange={setOutputType}
+                  zoom={prediction.zoom}
+                  params={prediction.params}
                   className="w-full shadow-none"
                 />
               </MobileDrawer>

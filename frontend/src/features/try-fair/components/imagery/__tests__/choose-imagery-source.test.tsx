@@ -64,4 +64,17 @@ describe("ImagerySourceToggle", () => {
 
     expect(handleChange).toHaveBeenCalledWith(ImagerySource.CUSTOM);
   });
+
+  it("should hide Custom Imagery when it is not enabled for the mapping mode", () => {
+    render(
+      <ImagerySourceToggle
+        value={ImagerySource.OPEN_AERIAL_MAP}
+        onChange={vi.fn()}
+        isCustomImageryEnabled={false}
+      />,
+    );
+
+    expect(screen.queryByText("Custom Imagery")).not.toBeInTheDocument();
+    expect(screen.getAllByRole("radio")).toHaveLength(1);
+  });
 });

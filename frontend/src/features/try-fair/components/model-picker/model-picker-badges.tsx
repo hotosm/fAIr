@@ -39,6 +39,16 @@ export const ExperimentalModelBadge = ({
   );
 };
 
+export const SelectedModelBadge = ({ selected }: { selected: boolean }) => {
+  if (!selected) return null;
+
+  return (
+    <span className="inline-flex shrink-0 items-center rounded border border-primary bg-primary/10 px-2 py-0.5 text-[10px] font-semibold leading-tight text-primary">
+      Selected
+    </span>
+  );
+};
+
 /** Radio indicator dot. */
 export const RadioDot = ({
   selected,

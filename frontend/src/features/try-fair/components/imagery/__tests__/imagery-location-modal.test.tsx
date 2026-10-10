@@ -146,6 +146,19 @@ describe.each([false, true])(
       expect(screen.getByText("XYZ Tile Server URL")).toBeInTheDocument();
     });
 
+    it("should hide Custom Imagery when it is unavailable in Basic mode", () => {
+      render(
+        <ImageryLocationDialog
+          isOpened={true}
+          closeDialog={mockCloseDialog}
+          onApply={mockOnApply}
+          isCustomImageryEnabled={false}
+        />,
+      );
+
+      expect(screen.queryByText("Custom Imagery")).not.toBeInTheDocument();
+    });
+
     it("should return to the model picker when opened from it", () => {
       const onBackToModelPicker = vi.fn();
 

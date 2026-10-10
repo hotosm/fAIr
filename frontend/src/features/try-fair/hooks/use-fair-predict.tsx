@@ -3,11 +3,15 @@ import { BaseModelStacItem, runPredict } from "../api/stac";
 import { TryFairResolution } from "@/enums/try-fair";
 import { BBOX } from "@/types";
 import { TRY_FAIR_RESOLUTION_ZOOM } from "@/features/try-fair/utils/common";
-import { useRef } from "react";
-type PredictResult = {
+import { useCallback, useRef, useState } from "react";
+export type PredictResult = {
   predictions: GeoJSON.FeatureCollection;
   bbox: BBOX;
-  gridZoom: number | undefined;
+  gridZoom: number;
+  modelId: string;
+  imageUri: string;
+  resolution: TryFairResolution;
+  params: Record<string, number | string | boolean>;
 };
 
 type PredictArgs = {
@@ -22,9 +26,10 @@ type PredictArgs = {
   params: Record<string, number | string | boolean>;
 };
 
-export const useFairPredict = () => {
+export const useFairPredict = (initialResult: PredictResult | null = null) => {
   const abortControllerRef = useRef<AbortController | null>(null);
-  const { mutate, isPending, data, error, reset } = useMutation<
+  const [result, setResult] = useState(initialResult);
+  const { mutate, isPending, error, reset } = useMutation<
     PredictResult,
     Error,
     PredictArgs
@@ -57,23 +62,38 @@ export const useFairPredict = () => {
           },
           controller.signal,
         );
-        return { predictions, bbox, gridZoom };
+        return {
+          predictions,
+          bbox,
+          gridZoom: gridZoom ?? TRY_FAIR_RESOLUTION_ZOOM[resolution],
+          modelId: model.id,
+          imageUri,
+          resolution,
+          params,
+        };
       } finally {
         if (abortControllerRef.current === controller) {
           abortControllerRef.current = null;
         }
       }
     },
+    onSuccess: setResult,
   });
+
+  const clearPredictions = useCallback(() => {
+    setResult(null);
+    reset();
+  }, [reset]);
 
   return {
     predict: mutate,
     isPredicting: isPending,
-    predictions: data?.predictions ?? null,
-    predictionBBox: data?.bbox ?? null,
-    predictionGridZoom: data?.gridZoom ?? null,
+    result,
+    predictions: result?.predictions ?? null,
+    predictionBBox: result?.bbox ?? null,
+    predictionGridZoom: result?.gridZoom ?? null,
     error: error?.message ?? null,
-    clearPredictions: reset,
+    clearPredictions,
     cancelPrediction: () => abortControllerRef.current?.abort(),
   };
 };

@@ -13,6 +13,7 @@ import { useRecentImageries } from "@/features/try-fair/hooks/use-recent-imageri
 import type { RecentImageryEntry } from "@/features/try-fair/hooks/use-recent-imageries";
 import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
 import { ImagerySource, ModelType, TileServiceType } from "@/enums";
+import type { ImagerySelection } from "@/features/try-fair/types/imagery-types";
 
 vi.mock("@/features/try-fair/hooks/use-try-fair-params", () => ({
   useTryFairParams: () => ({ mode: "imagery", setChooseLocation: vi.fn() }),
@@ -26,7 +27,19 @@ vi.mock("@/features/try-fair/api/features-to-map", () => ({
 vi.mock(
   "@/features/try-fair/components/model-picker/imagery-preview-card",
   () => ({
-    ImageryPreviewCard: () => <p>Imagery preview</p>,
+    ImageryPreviewCard: ({
+      selectedImagery,
+      onChangeImagery,
+    }: {
+      selectedImagery: ImagerySelection;
+      onChangeImagery: () => void;
+    }) => (
+      <div>
+        <p>Imagery preview</p>
+        <span data-testid="preview-url">{selectedImagery.tileUrl}</span>
+        <button onClick={onChangeImagery}>Change</button>
+      </div>
+    ),
   }),
 );
 vi.mock("@/components/ui/button", () => ({
@@ -92,6 +105,42 @@ afterEach(() => {
 });
 
 describe("Recent imagery", () => {
+  it("replaces an unapplied recent choice with the newer browser selection", () => {
+    const onApplyRecentImagery = vi.fn();
+    const onApplyStagedImagery = vi.fn();
+    const onChooseImagery = vi.fn();
+    const props = {
+      selectedModel: null,
+      models: [],
+      onSelect: vi.fn(),
+      recentImageries: [entry],
+      onClearRecentImageries: vi.fn(),
+      onApplyRecentImagery,
+      onApplyStagedImagery,
+      onChooseImagery,
+    };
+    const view = render(<ModelPickerContent {...props} />);
+    fireEvent.click(screen.getByRole("button", { name: "Recent" }));
+    fireEvent.click(screen.getByRole("button", { name: /Test imagery/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Change" }));
+    expect(onChooseImagery).toHaveBeenCalledOnce();
+
+    const browserSelection: ImagerySelection = {
+      ...entry.selection,
+      tileUrl: "https://example.com/new/{z}/{x}/{y}.png",
+    };
+    view.rerender(
+      <ModelPickerContent {...props} stagedImagery={browserSelection} />,
+    );
+    expect(screen.getByTestId("preview-url")).toHaveTextContent(
+      browserSelection.tileUrl,
+    );
+    expect(onApplyStagedImagery).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Apply" }));
+    expect(onApplyStagedImagery).toHaveBeenCalledWith(browserSelection);
+    expect(onApplyRecentImagery).not.toHaveBeenCalled();
+  });
+
   it("labels the back button with its destination and returns to the preview", () => {
     render(<Picker />);
     fireEvent.click(screen.getByRole("button", { name: "Recent" }));

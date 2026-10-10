@@ -158,6 +158,15 @@ export const useTryFairParams = () => {
     });
 
   return {
+    /** Complete URL-backed state, including effective defaults and preferences. */
+    urlState: {
+      ...params,
+      output: outputType,
+      resolution,
+      confidence,
+      mode,
+      mappingMode,
+    },
     modelId: params.model,
     selectedModelId: params.selectedModelId,
     selectedModel,

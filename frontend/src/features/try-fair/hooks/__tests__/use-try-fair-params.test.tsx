@@ -58,6 +58,8 @@ describe("useTryFairParams", () => {
         imageryType: "XYZ",
         oamItem: "item-123",
         chooseLocation: "true",
+        mappingMode: "advanced",
+        selectedModelId: "chosen-model",
       }),
     });
 
@@ -74,6 +76,20 @@ describe("useTryFairParams", () => {
     expect(result.current.oamItemId).toBe("item-123");
     expect(result.current.chooseLocation).toBe(true);
     expect(result.current.isParametersDefault).toBe(false);
+    expect(result.current.urlState).toEqual({
+      model: "custom-model",
+      output: "points",
+      resolution: "mid",
+      confidence: 0.85,
+      feature: "roads",
+      mode: "imagery",
+      imagery: "https://example.com/tiles/{z}/{x}/{y}.png",
+      imageryType: "XYZ",
+      oamItem: "item-123",
+      chooseLocation: true,
+      mappingMode: "advanced",
+      selectedModelId: "chosen-model",
+    });
   });
 
   it("should handle chooseLocation state updates correctly", () => {

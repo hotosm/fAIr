@@ -19,6 +19,15 @@ export const truncateString = (string?: string, maxLength: number = 30) => {
 };
 
 export const extractTileJSONURL = (OAMTMSURL: string) => {
+  const hotRasterTileURL = OAMTMSURL.match(
+    /^https:\/\/api\.imagery\.hotosm\.org\/raster\/collections\/openaerialmap\/items\/([^\/?#]+)\/tiles\/WebMercatorQuad\/\{z\}\/\{x\}\/\{y\}(?:\?([^#]*))?$/,
+  );
+  if (hotRasterTileURL) {
+    const [, itemId, query] = hotRasterTileURL;
+    const assetName = new URLSearchParams(query).get("assets") ?? "visual";
+    return `https://api.imagery.hotosm.org/raster/collections/openaerialmap/items/${itemId}/WebMercatorQuad/tilejson.json?assets=${encodeURIComponent(assetName)}&tilesize=256`;
+  }
+
   // Before, when we hit this url https://tiles.openaerialmap.org/63b457ba3fb8c100063c55f0/0/63b457ba3fb8c100063c55f1/{z}/{x}/{y} (without the /{z}/{x}/{y}),
   // we get the TileJSON which is passed to Maplibre GL JS to render the aerial imagery, but with the recent OAM updates
   // we have to grab the unique id of the aerial imagery, construct the new S3 bucket location and give it to titiler to get the new TileJSON.

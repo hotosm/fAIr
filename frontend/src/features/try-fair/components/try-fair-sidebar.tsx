@@ -261,7 +261,10 @@ export const TryFairSidebar = ({
         <div className="flex items-start gap-2">
           <div>
             <p className="text-grey text-xs leading-relaxed">
-              {TRY_FAIR_PAGE_CONTENT.sidebar.parameters.description}{" "}
+              {isAdvancedMode
+                ? TRY_FAIR_PAGE_CONTENT.sidebar.parameters
+                    .advancedModeDescription
+                : TRY_FAIR_PAGE_CONTENT.sidebar.parameters.description}{" "}
             </p>
           </div>
         </div>
