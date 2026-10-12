@@ -8,7 +8,7 @@ sl-dialog::part(title) {
 }
 
 sl-dialog.rounded::part(panel) {
-  border-radius: 20px;
+  border-radius: 9px;
 }
 
 sl-dialog.primary::part(title) {

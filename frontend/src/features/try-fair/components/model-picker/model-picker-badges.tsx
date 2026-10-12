@@ -14,16 +14,25 @@ const FEATURE_ICONS: Record<string, React.FC<IconProps>> = {
   buildings: BuildingIcon,
   tree: TreesIcon,
   trees: TreesIcon,
-  swimming_pool: SwimmingPoolIcon,
   "swimming-pool": SwimmingPoolIcon,
+  "swimming-pools": SwimmingPoolIcon,
   parking: ParkingIcon,
+  road: RoadsIcon,
   roads: RoadsIcon,
+  "solar-panel": SolarPanelIcon,
   "solar-panels": SolarPanelIcon,
-  solar_panels: SolarPanelIcon,
 };
 
-export const getFeatureIcon = (slug: string): React.FC<IconProps> =>
-  FEATURE_ICONS[slug] ?? BuildingIcon;
+const normalizeFeatureSlug = (slug: string) =>
+  slug
+    .trim()
+    .toLowerCase()
+    .replace(/[\s_]+/g, "-");
+
+export const getFeatureIcon = (
+  slug: string,
+  fallback: React.FC<IconProps> = BuildingIcon,
+): React.FC<IconProps> => FEATURE_ICONS[normalizeFeatureSlug(slug)] ?? fallback;
 
 export const ExperimentalModelBadge = ({
   category,
@@ -72,7 +81,7 @@ export const RadioDot = ({
 );
 
 export const FeatureBadge = ({ label }: { label: string | undefined }) => {
-  const Icon = FEATURE_ICONS[label ?? ""] ?? BuildingIcon;
+  const Icon = getFeatureIcon(label ?? "");
   const featureLabel = (label ?? "").replace(/[-_]/g, " ");
   return (
     <span className="inline-flex gap-2 items-center px-2 py-0.5 capitalize rounded bg-grey text-white text-xs font-medium">

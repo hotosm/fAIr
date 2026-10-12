@@ -80,7 +80,11 @@ export const NavBar = () => {
 
           {isAuthenticated && <Divider />}
 
-          {showMappingMode && <MappingMode tourTarget={false} />}
+          {showMappingMode && (
+            <div className="px-[var(--body-spacing)]">
+              <MappingMode tourTarget={false} fullWidth />
+            </div>
+          )}
 
           <div className={styles.loginButtonContainer}>
             <MobileAuthSection
@@ -107,7 +111,7 @@ export const NavBar = () => {
           )}
         </div>
 
-        <div className="flex-1 hidden sm:flex items-center justify-end gap-x-3">
+        <div className="hidden flex-1 items-center justify-end gap-x-6 sm:flex">
           {showMappingMode && <MappingMode />}
           <DesktopAuthSection
             isAuthenticated={isAuthenticated}
@@ -119,7 +123,9 @@ export const NavBar = () => {
         </div>
 
         <div className="flex items-center gap-x-2 sm:hidden">
-          {showDashboardLink && <DashboardLink />}
+          {showDashboardLink && (
+            <DashboardLink className="!h-7 !min-w-0 !px-2.5" />
+          )}
           {/* {isAuthenticated && <UserNotifications />} */}
           {showDownloadResult && <DownloadResultButton />}
 

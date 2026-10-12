@@ -2,6 +2,7 @@ import { Head } from "@/components/seo";
 import { Button } from "@/components/ui/button";
 import { LocationSearchIcon } from "@/components/ui/icons/location-search-icon";
 import { MapPlayIcon } from "@/components/ui/icons/map-play-icon";
+import { ChevronDownIcon } from "@/components/ui/icons";
 import { APPLICATION_ROUTES } from "@/constants/routes";
 import { ButtonVariant, TryFairMapOutputType } from "@/enums";
 import { getImageryTileJSONUrl } from "@/features/try-fair/api/hot-imagery";
@@ -108,10 +109,14 @@ const ResultInfoCard = ({
     </div>
     <details
       aria-label="Prediction configuration"
-      className="border-t border-gray-border pt-4"
+      className="group border-t border-gray-border pt-4"
     >
-      <summary className="cursor-pointer text-dark text-xs font-semibold">
-        Prediction configuration
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-xs font-semibold text-dark [&::-webkit-details-marker]:hidden">
+        <span>Prediction configuration</span>
+        <ChevronDownIcon
+          className="size-3 shrink-0 transition-transform group-open:rotate-180"
+          aria-hidden="true"
+        />
       </summary>
       <dl className="mt-3 space-y-3 text-xs">
         <div className="flex items-start justify-between gap-3">

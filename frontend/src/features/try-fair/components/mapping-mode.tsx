@@ -11,6 +11,7 @@ import {
   useTryFairParams,
   type MappingModeType,
 } from "@/features/try-fair/hooks/use-try-fair-params";
+import { cn } from "@/utils";
 
 const MODES = {
   basic: { label: "Basic", Icon: ModeIcon },
@@ -19,7 +20,13 @@ const MODES = {
 
 type ModeKey = keyof typeof MODES;
 
-const MappingMode = ({ tourTarget = true }: { tourTarget?: boolean }) => {
+const MappingMode = ({
+  tourTarget = true,
+  fullWidth = false,
+}: {
+  tourTarget?: boolean;
+  fullWidth?: boolean;
+}) => {
   const { mappingMode, setMappingMode } = useTryFairParams();
   const { isAuthenticated } = useAuth();
   const mode: ModeKey = isAuthenticated ? mappingMode : "basic";
@@ -32,10 +39,15 @@ const MappingMode = ({ tourTarget = true }: { tourTarget?: boolean }) => {
       ref={dropdownRef}
       placement={DropdownPlacement.BOTTOM_START}
       disableCheveronIcon
+      className={fullWidth ? "w-full" : undefined}
+      sync={fullWidth ? "width" : undefined}
       triggerComponent={
         <div
           id={tourTarget ? APP_TOUR_IDS.TRY_FAIR_MAPPING_MODE : undefined}
-          className="bg-light-gray cursor-pointer w-[136px] h-8 rounded-[55px] justify-between px-3 items-center flex gap-2"
+          className={cn(
+            "flex h-8 cursor-pointer items-center justify-between gap-2 rounded-[55px] bg-light-gray px-3",
+            fullWidth ? "w-full" : "w-[136px]",
+          )}
         >
           <div className="gap-2 items-center flex ">
             <CurrentIcon className="size-4 shrink-0" />
@@ -45,7 +57,12 @@ const MappingMode = ({ tourTarget = true }: { tourTarget?: boolean }) => {
         </div>
       }
     >
-      <div className="bg-white rounded-lg p-1 w-[155px]">
+      <div
+        className={cn(
+          "rounded-lg bg-white p-1",
+          fullWidth ? "w-full" : "w-[155px]",
+        )}
+      >
         {Object.entries(availableModes).map(([key, { label, Icon }]) => {
           const isSelected = key === mode;
           return (

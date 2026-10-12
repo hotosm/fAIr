@@ -102,7 +102,7 @@ export const RecentImageriesList = ({
       <button
         type="button"
         onClick={onBack}
-        className="self-start flex items-center gap-1 pb-2 text-xs font-semibold text-dark hover:text-primary transition-colors"
+        className="mb-4 self-start flex items-center gap-1 pb-2 text-xs font-semibold text-dark transition-colors hover:text-primary"
       >
         <ChevronDownIcon className="size-3 rotate-90" />
         Back to imagery

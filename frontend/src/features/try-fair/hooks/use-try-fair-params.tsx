@@ -7,11 +7,12 @@ import {
 import {
   parseAsBoolean,
   parseAsFloat,
+  parseAsJson,
   parseAsString,
   useQueryStates,
 } from "nuqs";
 import { useStacBaseModels, useStacLocalModels } from "./use-base-models";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { getSelectedModel } from "@/features/try-fair/utils/models";
 import { getInferenceParams } from "@/features/try-fair/api/stac";
 
@@ -30,6 +31,22 @@ export const TRY_FAIR_PARAM_DEFAULTS = {
 } as const;
 
 export type MappingModeType = "basic" | "advanced";
+export type InferenceParamValues = Record<string, number | string | boolean>;
+
+const parseInferenceParamValues = (
+  value: unknown,
+): InferenceParamValues | null => {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+
+  const isValid = Object.values(value).every(
+    (entry) =>
+      typeof entry === "string" ||
+      typeof entry === "boolean" ||
+      (typeof entry === "number" && Number.isFinite(entry)),
+  );
+
+  return isValid ? (value as InferenceParamValues) : null;
+};
 
 /**
  * Mapping mode is a user preference, so it's persisted to localStorage in
@@ -69,6 +86,7 @@ const writeStoredMappingMode = (mode: MappingModeType) => {
  *   imageryType    — selected custom imagery service type
  *   oamItem        — OpenAerialMap item ID; its URL and bbox are hydrated on load
  *   chooseLocation — boolean indicating whether the change location imagery modal is open
+ *   params         — advanced inference parameter overrides
  */
 export const useTryFairParams = () => {
   const [params, setParams] = useQueryStates(
@@ -87,6 +105,7 @@ export const useTryFairParams = () => {
       oamItem: parseAsString,
       chooseLocation: parseAsBoolean.withDefault(false),
       selectedModelId: parseAsString,
+      params: parseAsJson<InferenceParamValues>(parseInferenceParamValues),
     },
     { history: "replace" },
   );
@@ -157,6 +176,19 @@ export const useTryFairParams = () => {
       confidence: defaultConfidence,
     });
 
+  const setParameterOverride = useCallback(
+    (key: string, value: number | string | boolean) =>
+      setParams((current) => ({
+        params: { ...(current.params ?? {}), [key]: value },
+      })),
+    [setParams],
+  );
+
+  const resetParameterOverrides = useCallback(
+    () => setParams({ params: null }),
+    [setParams],
+  );
+
   return {
     /** Complete URL-backed state, including effective defaults and preferences. */
     urlState: {
@@ -181,6 +213,7 @@ export const useTryFairParams = () => {
     imageryTileServiceType,
     oamItemId: params.oamItem,
     chooseLocation: params.chooseLocation,
+    parameterOverrides: params.params ?? {},
 
     setModelId: (id: string) => setParams({ model: id }),
     setSelectedModelId: (id: string | null) =>
@@ -188,6 +221,8 @@ export const useTryFairParams = () => {
     setOutputType: (type: TryFairMapOutputType) => setParams({ output: type }),
     setResolution: (res: TryFairResolution) => setParams({ resolution: res }),
     setConfidence: (val: number | null) => setParams({ confidence: val }),
+    setParameterOverride,
+    resetParameterOverrides,
     setFeature: (feature: string) => setParams({ feature }),
     setMode: (mode: ModelType) => setParams({ mode }),
     setMappingMode: (mappingMode: MappingModeType) => {

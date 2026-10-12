@@ -141,6 +141,7 @@ export const ImageryLocationDialog = ({
         label="Imagery to map"
         isOpened={isOpened}
         closeDialog={closeDialog}
+        borderRadius="rounded"
         size={SHOELACE_SIZES.LARGE}
       >
         {isOpened && (
@@ -156,18 +157,16 @@ export const ImageryLocationDialog = ({
               </button>
             )}
             <p className="text-grey text-sm w-full md:w-1/2 -mt-6 shrink-0">
-              Select an imagery source to preview and map your location. You can
-              choose pre-existing imagery from OpenAerialMap or enter a custom
-              tile server URL.
+              {isCustomImageryEnabled
+                ? "Select an imagery source to preview and map your location. Choose imagery from OpenAerialMap or enter a custom tile server URL."
+                : "Search OpenAerialMap, preview available imagery, and select an image to start mapping."}
             </p>
-            <div className="shrink-0">
-              <ImagerySourceToggle
-                value={source}
-                onChange={setSource}
-                isCustomImageryEnabled={isCustomImageryEnabled}
-              />
-              {!isOAM && <Divider />}
-            </div>
+            {isCustomImageryEnabled && (
+              <div className="shrink-0">
+                <ImagerySourceToggle value={source} onChange={setSource} />
+                {!isOAM && <Divider />}
+              </div>
+            )}
 
             <div
               className="relative w-full rounded-lg overflow-hidden"
@@ -241,7 +240,13 @@ export const ImageryLocationDialog = ({
     >
       {isOpened && (
         <div className="imagery-selector">
-          <header className="imagery-selector__header">
+          <header
+            className={cn(
+              "imagery-selector__header",
+              !isCustomImageryEnabled &&
+                "imagery-selector__header--single-source",
+            )}
+          >
             <div className="flex items-center gap-3 min-w-0">
               {onBackToModelPicker && (
                 <button
@@ -258,18 +263,21 @@ export const ImageryLocationDialog = ({
                   Choose imagery
                 </h2>
                 <p className="text-grey text-xs hidden xl:block">
-                  Find a location, preview an image, and start mapping.
+                  {isCustomImageryEnabled
+                    ? "Choose OpenAerialMap or custom imagery to start mapping."
+                    : "Search OpenAerialMap, preview available imagery, and start mapping."}
                 </p>
               </div>
             </div>
-            <div className="imagery-selector__tabs">
-              <ImagerySourceToggle
-                expanded
-                value={source}
-                onChange={setSource}
-                isCustomImageryEnabled={isCustomImageryEnabled}
-              />
-            </div>
+            {isCustomImageryEnabled && (
+              <div className="imagery-selector__tabs">
+                <ImagerySourceToggle
+                  expanded
+                  value={source}
+                  onChange={setSource}
+                />
+              </div>
+            )}
             <button
               type="button"
               aria-label="Close imagery selector"

@@ -1,6 +1,9 @@
 import { act, renderHook } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { NuqsTestingAdapter } from "nuqs/adapters/testing";
+import {
+  NuqsTestingAdapter,
+  type OnUrlUpdateFunction,
+} from "nuqs/adapters/testing";
 import {
   TRY_FAIR_PARAM_DEFAULTS,
   useTryFairParams,
@@ -19,9 +22,12 @@ vi.mock("../use-base-models", () => ({
 }));
 
 describe("useTryFairParams", () => {
-  const createWrapper = (searchParams?: Record<string, string>) => {
+  const createWrapper = (
+    searchParams?: Record<string, string>,
+    onUrlUpdate?: OnUrlUpdateFunction,
+  ) => {
     return ({ children }: { children: React.ReactNode }) => (
-      <NuqsTestingAdapter searchParams={searchParams}>
+      <NuqsTestingAdapter searchParams={searchParams} onUrlUpdate={onUrlUpdate}>
         {children}
       </NuqsTestingAdapter>
     );
@@ -60,6 +66,7 @@ describe("useTryFairParams", () => {
         chooseLocation: "true",
         mappingMode: "advanced",
         selectedModelId: "chosen-model",
+        params: JSON.stringify({ simplify_m: 1.25, seed_min_distance: 8 }),
       }),
     });
 
@@ -76,6 +83,10 @@ describe("useTryFairParams", () => {
     expect(result.current.oamItemId).toBe("item-123");
     expect(result.current.chooseLocation).toBe(true);
     expect(result.current.isParametersDefault).toBe(false);
+    expect(result.current.parameterOverrides).toEqual({
+      simplify_m: 1.25,
+      seed_min_distance: 8,
+    });
     expect(result.current.urlState).toEqual({
       model: "custom-model",
       output: "points",
@@ -89,6 +100,7 @@ describe("useTryFairParams", () => {
       chooseLocation: true,
       mappingMode: "advanced",
       selectedModelId: "chosen-model",
+      params: { simplify_m: 1.25, seed_min_distance: 8 },
     });
   });
 
@@ -169,5 +181,32 @@ describe("useTryFairParams", () => {
     expect(result.current.resolution).toBe(TRY_FAIR_PARAM_DEFAULTS.resolution);
     expect(result.current.confidence).toBe(TRY_FAIR_PARAM_DEFAULTS.confidence);
     expect(result.current.isParametersDefault).toBe(true);
+  });
+
+  it("stores advanced inference parameter overrides in URL state", async () => {
+    const onUrlUpdate = vi.fn<OnUrlUpdateFunction>();
+    const { result } = renderHook(() => useTryFairParams(), {
+      wrapper: createWrapper(undefined, onUrlUpdate),
+    });
+
+    await act(async () => {
+      await result.current.setParameterOverride("simplify_m", 0.9626);
+      await result.current.setParameterOverride("seed_min_distance", 6);
+    });
+
+    expect(result.current.parameterOverrides).toEqual({
+      simplify_m: 0.9626,
+      seed_min_distance: 6,
+    });
+    const lastUrlUpdate =
+      onUrlUpdate.mock.calls[onUrlUpdate.mock.calls.length - 1]?.[0];
+    expect(
+      JSON.parse(lastUrlUpdate?.searchParams.get("params") ?? "{}"),
+    ).toEqual({ simplify_m: 0.9626, seed_min_distance: 6 });
+
+    await act(async () => {
+      await result.current.resetParameterOverrides();
+    });
+    expect(result.current.parameterOverrides).toEqual({});
   });
 });
