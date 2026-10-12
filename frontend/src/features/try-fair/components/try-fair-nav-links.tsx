@@ -40,7 +40,7 @@ export const StartMappingNavlinks: React.FC = () => {
     setDownloadType(value);
   };
   return (
-    <div className="hidden lg:flex shrink-0 items-center gap-3">
+    <div className="hidden shrink-0 items-center gap-4 lg:flex">
       {/* Help — text link */}
 
       {/* Download — icon button */}

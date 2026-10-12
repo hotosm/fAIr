@@ -47,6 +47,7 @@ const payload: MappingUserState = {
       oamItem: null,
       chooseLocation: false,
       selectedModelId: null,
+      params: null,
     },
   },
 };

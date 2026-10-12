@@ -35,7 +35,7 @@ const columns: ColumnDef<SavedUserState>[] = [
       const Icon =
         label === "mapping" || label === "prediction"
           ? MapIcon
-          : getFeatureIcon(label);
+          : getFeatureIcon(label, MapIcon);
       return (
         <span className="inline-flex min-w-[84px] items-center gap-1.5 whitespace-nowrap rounded bg-grey px-2 py-0.5 text-xs capitalize leading-4 text-white">
           <Icon className="size-3 shrink-0" aria-hidden="true" />
@@ -70,6 +70,7 @@ export const RecentActivities = ({
 }) => {
   const { data, isPending, isError } = useGetUserStates();
   const navigate = useNavigate();
+  const activities = data?.results.slice(1, 5) ?? [];
   return (
     <section
       className={cn(
@@ -105,16 +106,23 @@ export const RecentActivities = ({
         <p role="alert" className="py-4 text-sm text-grey">
           Couldn't load mapping activities.
         </p>
-      ) : data?.results.length ? (
+      ) : activities.length ? (
         <div className="max-w-full overflow-x-auto [&_tbody_tr]:cursor-pointer">
           <DataTable
             columns={columns}
-            data={data.results.slice(0, 4)}
+            data={activities}
             onRowClick={(item) => navigate(getProjectPath(item))}
           />
         </div>
       ) : (
-        <OverviewEmptyState message="No activities yet" className="flex-1" />
+        <OverviewEmptyState
+          message={
+            data?.results.length
+              ? "No other activities yet"
+              : "No activities yet"
+          }
+          className="flex-1"
+        />
       )}
     </section>
   );

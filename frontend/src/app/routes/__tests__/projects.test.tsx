@@ -86,6 +86,7 @@ describe("Saved Try fAIr project", () => {
             imageryType: "TileJSON",
             oamItem: null,
             chooseLocation: false,
+            params: { simplify_m: 0.75 },
           },
         },
       },
@@ -103,6 +104,9 @@ describe("Saved Try fAIr project", () => {
     expect(search.get("imagery")).toBe("https://example.com/tilejson.json");
     expect(search.get("confidence")).toBe("0.42");
     expect(search.get("mappingMode")).toBe("advanced");
+    expect(JSON.parse(search.get("params") ?? "{}")).toEqual({
+      simplify_m: 0.75,
+    });
   });
 
   it("shows an error instead of the workspace when fetching fails", async () => {

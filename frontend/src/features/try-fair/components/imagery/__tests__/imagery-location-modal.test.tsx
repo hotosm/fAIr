@@ -146,7 +146,7 @@ describe.each([false, true])(
       expect(screen.getByText("XYZ Tile Server URL")).toBeInTheDocument();
     });
 
-    it("should hide Custom Imagery when it is unavailable in Basic mode", () => {
+    it("should open OAM directly without a source toggle in Basic mode", () => {
       render(
         <ImageryLocationDialog
           isOpened={true}
@@ -157,6 +157,13 @@ describe.each([false, true])(
       );
 
       expect(screen.queryByText("Custom Imagery")).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("radiogroup", { name: /imagery source/i }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.getByText(/Search OpenAerialMap, preview available imagery/i),
+      ).toBeInTheDocument();
+      expect(screen.getByTestId("mock-oam-imagery-map")).toBeInTheDocument();
     });
 
     it("should return to the model picker when opened from it", () => {

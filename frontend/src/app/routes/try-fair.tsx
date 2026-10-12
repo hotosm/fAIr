@@ -104,6 +104,9 @@ export const TryFairPage = ({
     setOutputType,
     setResolution,
     setConfidence,
+    parameterOverrides,
+    setParameterOverride,
+    resetParameterOverrides,
     feature,
     setFeature,
     mode,
@@ -121,10 +124,6 @@ export const TryFairPage = ({
   } = useTryFairParams();
 
   const isChooseLocationOpen = Boolean(chooseLocation);
-
-  useEffect(() => {
-    if (mode === ModelType.DEMO) setHasSuccessfulPrediction(false);
-  }, [mode]);
 
   const { recentImageries, addRecentImagery, clearRecentImageries } =
     useRecentImageries();
@@ -180,10 +179,9 @@ export const TryFairPage = ({
     [modelForMapping],
   );
 
+  const modelPreview = modelForMapping?.properties["fair:preview"];
   const preImageryUrl =
-    mode === ModelType.DEMO
-      ? (modelForMapping?.properties["fair:preview"]?.pre_imagery?.url ?? null)
-      : null;
+    mode === ModelType.DEMO ? (modelPreview?.pre_imagery?.url ?? null) : null;
 
   useEffect(() => {
     if (modelForMapping?.id && modelForMapping.id !== modelId) {
@@ -204,15 +202,6 @@ export const TryFairPage = ({
   const [latestGridZoom, setLatestGridZoom] = useState<number | null>(
     initialProject?.state.zoom ?? null,
   );
-  const [parameterOverrides, setParameterOverrides] = useState<
-    Record<string, number | string | boolean>
-  >(() =>
-    Object.fromEntries(
-      Object.entries(initialProject?.state.params ?? {}).filter(
-        ([key]) => key !== "confidence_threshold",
-      ),
-    ),
-  );
   const paramValues = useMemo(
     () => ({ ...defaultParamValues, ...parameterOverrides }),
     [defaultParamValues, parameterOverrides],
@@ -227,10 +216,10 @@ export const TryFairPage = ({
       previousMappingModel.current &&
       previousMappingModel.current !== mappingModelId
     ) {
-      setParameterOverrides({});
+      resetParameterOverrides();
     }
     previousMappingModel.current = mappingModelId;
-  }, [mappingModelId]);
+  }, [mappingModelId, resetParameterOverrides]);
 
   // Keep the saved AOI centered while imagery metadata loads. A new imagery
   // selection releases this override and uses that imagery's normal center.
@@ -411,15 +400,15 @@ export const TryFairPage = ({
         setConfidence(value as number);
         return;
       }
-      setParameterOverrides((current) => ({ ...current, [key]: value }));
+      setParameterOverride(key, value);
     },
-    [setConfidence],
+    [setConfidence, setParameterOverride],
   );
 
   const handleResetAllParameters = useCallback(() => {
     resetParameters();
-    setParameterOverrides({});
-  }, [resetParameters]);
+    resetParameterOverrides();
+  }, [resetParameterOverrides, resetParameters]);
 
   const handleBBoxChange = useCallback((bbox: BBOX, tileZoom: number) => {
     setLatestBBox(bbox);
@@ -460,9 +449,7 @@ export const TryFairPage = ({
         params: apiParams,
       },
       {
-        onSuccess: () => {
-          if (mode === ModelType.IMAGERY) setHasSuccessfulPrediction(true);
-        },
+        onSuccess: () => setHasSuccessfulPrediction(true),
         onError: (error) => {
           if ((error as { code?: string }).code === "ERR_CANCELED") return;
           showErrorToast(error ?? "An Error Occured.");
@@ -484,7 +471,6 @@ export const TryFairPage = ({
     closeGuidedTour,
     recordMapRun,
     hasNoModelsForFeature,
-    mode,
   ]);
 
   const isMapButtonDisabled =
@@ -592,11 +578,10 @@ export const TryFairPage = ({
         <MappingProjectAutosave
           key={`${user.osm_id}:${projectId ?? "new"}`}
           enabled={
-            mode === ModelType.IMAGERY &&
             hasSuccessfulPrediction &&
             modelsReady &&
-            Boolean(selectedImagery) &&
-            tileServiceTypeValidity.valid &&
+            (mode === ModelType.DEMO ||
+              (Boolean(selectedImagery) && tileServiceTypeValidity.valid)) &&
             !isPredicting &&
             !tileLoading
           }
@@ -612,10 +597,16 @@ export const TryFairPage = ({
                         ? feature
                         : modelForMapping.properties["fair:category"],
                     name:
-                      selectedImagery?.source === ImagerySource.OPEN_AERIAL_MAP
-                        ? selectedImagery.item.title
-                        : (modelForMapping.properties.title ??
-                          "Mapping project"),
+                      mode === ModelType.DEMO
+                        ? (modelPreview?.imagery.name ??
+                          modelPreview?.place?.name ??
+                          modelForMapping.properties.title ??
+                          "Mapping project")
+                        : selectedImagery?.source ===
+                            ImagerySource.OPEN_AERIAL_MAP
+                          ? selectedImagery.item.title
+                          : (modelForMapping.properties.title ??
+                            "Mapping project"),
                     model: {
                       id: modelForMapping.id,
                       title:
@@ -623,12 +614,12 @@ export const TryFairPage = ({
                     },
                     imagery: {
                       name:
-                        selectedImagery?.source ===
-                        ImagerySource.OPEN_AERIAL_MAP
-                          ? selectedImagery.item.title
-                          : mode === ModelType.IMAGERY
-                            ? "Custom Imagery"
-                            : "Demo Imagery",
+                        mode === ModelType.DEMO
+                          ? (modelPreview?.imagery.name ?? "Demo Imagery")
+                          : selectedImagery?.source ===
+                              ImagerySource.OPEN_AERIAL_MAP
+                            ? selectedImagery.item.title
+                            : "Custom Imagery",
                       url: tileserverURL,
                     },
                     zoom: latestGridZoom,
@@ -645,6 +636,7 @@ export const TryFairPage = ({
 
       {/* Model picker dialog – rendered at page level so it's not trapped inside MobileDrawer */}
       <Dialog
+        borderRadius="rounded"
         label="What do you want to map?"
         isOpened={isModelPickerDialogOpened}
         closeDialog={closeModelPickerDialog}
@@ -678,6 +670,7 @@ export const TryFairPage = ({
       {/* Advanced Model picker dialog */}
       <Dialog
         // size={SHOELACE_SIZES.LARGE}
+        borderRadius="rounded"
         label="Which model do you want to use?"
         isOpened={isAdvancedModelPickerDialogOpened}
         preventClose

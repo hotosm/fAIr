@@ -17,7 +17,7 @@ const UserSidebar = () => {
   const { pathname } = useLocation();
 
   return (
-    <aside className="w-full min-w-0 rounded-xl bg-frosted-blue p-2 shadow-sm flex flex-col gap-4 lg:py-4 lg:gap-6">
+    <aside className="flex w-full min-w-0 flex-col gap-4 rounded-xl bg-frosted-blue p-2 shadow-sm lg:min-h-[calc(100dvh-9.75rem)] lg:gap-6 lg:py-4">
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-1">
         {SIDEBAR_LINKS.map((link) => {
           const isActive = pathname === link.href;
@@ -51,54 +51,56 @@ const UserSidebar = () => {
         })}
       </div>
 
-      <Link
-        href="https://slack.hotosm.org/"
-        title="Join the Community"
-        blank
-        disableLinkStyle
-        className="hidden p-3 bg-white justify-between rounded-xl lg:flex lg:flex-col"
-      >
-        <div className="flex justify-between wave-bg items-center py-8 px-3">
-          <h4 className="font-semibold text-lg text-gray">
-            Join the <br />
-            Community
-          </h4>
-          <div className="p-4 rounded-full bg-white">
-            <ChevronDownIcon className="size-4 -rotate-90 text-primary" />
-          </div>
-        </div>
-        <div className={`w-full h-[150px] rounded-xl overflow-hidden `}>
-          <Image
-            src={HOTTeamTwo}
-            alt={"Join community"}
-            className={`h-full w-full object-cover`}
-          />
-        </div>
-      </Link>
-
-      <div className="px-2 py-2 lg:p-3">
+      <div className="lg:mt-auto lg:flex lg:flex-col lg:gap-3">
         <Link
-          nativeAnchor={false}
-          href={APPLICATION_ROUTES.PROFILE_SETTINGS}
-          title={"Settings"}
+          href="https://slack.hotosm.org/"
+          title="Join the Community"
+          blank
           disableLinkStyle
-          className={cn(
-            "flex items-center gap-4 transition-all duration-300 ",
-            pathname === APPLICATION_ROUTES.PROFILE_SETTINGS
-              ? "text-primary font-medium"
-              : "text-lighter-ink hover:text-primary",
-          )}
+          className="hidden rounded-xl bg-white p-3 lg:flex lg:flex-col lg:justify-between"
         >
-          <SettingsIcon
-            className={cn(
-              "size-5 transition-all duration-300",
-              pathname === APPLICATION_ROUTES.PROFILE_SETTINGS
-                ? "text-primary"
-                : "text-lighter-ink",
-            )}
-          />
-          Settings
+          <div className="wave-bg flex items-center justify-between px-3 py-8">
+            <h4 className="text-lg font-semibold text-gray">
+              Join the <br />
+              Community
+            </h4>
+            <div className="rounded-full bg-white p-4">
+              <ChevronDownIcon className="size-4 -rotate-90 text-primary" />
+            </div>
+          </div>
+          <div className="h-[150px] w-full overflow-hidden rounded-xl">
+            <Image
+              src={HOTTeamTwo}
+              alt="Join community"
+              className="h-full w-full object-cover"
+            />
+          </div>
         </Link>
+
+        <div className="px-2 py-2 lg:p-3">
+          <Link
+            nativeAnchor={false}
+            href={APPLICATION_ROUTES.PROFILE_SETTINGS}
+            title="Settings"
+            disableLinkStyle
+            className={cn(
+              "flex items-center gap-4 transition-all duration-300",
+              pathname === APPLICATION_ROUTES.PROFILE_SETTINGS
+                ? "font-medium text-primary"
+                : "text-lighter-ink hover:text-primary",
+            )}
+          >
+            <SettingsIcon
+              className={cn(
+                "size-5 transition-all duration-300",
+                pathname === APPLICATION_ROUTES.PROFILE_SETTINGS
+                  ? "text-primary"
+                  : "text-lighter-ink",
+              )}
+            />
+            Settings
+          </Link>
+        </div>
       </div>
     </aside>
   );
