@@ -190,7 +190,7 @@ class ModelMetadataSerializer(serializers.Serializer):
 
 
 class StacPropertiesPatchSerializer(serializers.Serializer):
-    """Admin patch of a published model's STAC item properties.
+    """Admin patch of a published model's STAC item properties and assets.
 
     ``properties`` is shallow-merged onto the item's existing properties, so an
     admin can sync changed metadata or imagery from an updated source. The merged
@@ -198,13 +198,17 @@ class StacPropertiesPatchSerializer(serializers.Serializer):
     the database mirrors (``mlm:name``, ``fair:category``) are rejected, so the row
     and the STAC item cannot drift apart. ``stac_extensions`` lists schema URLs to add,
     so newly patched fields such as ``cube:variables`` are validated by their extension.
+    ``assets`` merges fields onto each named asset, or adds it when it carries an ``href``.
     """
 
     _DENIED_KEYS = frozenset({"mlm:name", "fair:category"})
     # Validation fetches each listed schema, so only the official extension host is accepted.
     _EXTENSION_HOST = "https://stac-extensions.github.io/"
 
-    properties = serializers.JSONField()
+    properties = serializers.JSONField(required=False)
+    assets = serializers.DictField(
+        child=serializers.DictField(allow_empty=False), allow_empty=False, required=False
+    )
     stac_extensions = serializers.ListField(
         child=serializers.URLField(), required=False, default=list
     )
@@ -218,6 +222,11 @@ class StacPropertiesPatchSerializer(serializers.Serializer):
                 f"These identity keys cannot be patched here: {', '.join(sorted(denied))}."
             )
         return properties
+
+    def validate(self, attrs: dict[str, Any]) -> dict[str, Any]:
+        if "properties" not in attrs and "assets" not in attrs:
+            raise serializers.ValidationError("Provide properties, assets, or both.")
+        return attrs
 
     def validate_stac_extensions(self, value: list[str]) -> list[str]:
         if outside := [url for url in value if not url.startswith(self._EXTENSION_HOST)]:

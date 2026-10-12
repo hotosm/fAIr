@@ -37,11 +37,11 @@ from shared.integrations.stac import (
     FAIR_PREVIEW_LOCATION_PROPERTY,
     FAIR_SOURCE_IMAGERY_PROPERTY,
     LOCAL_MODELS_COLLECTION,
-    add_stac_extensions,
+    apply_item_patch,
     bulk_get_cached_items,
     get_cached_item,
     get_item,
-    set_item_properties,
+    patch_item,
 )
 from shared.integrations.zenml import list_runs_for_model
 from shared.stars import annotate_stars
@@ -92,19 +92,25 @@ def _apply_pin(model, collection: str, data: dict) -> None:
 
 
 def _merge_validate_write(
-    collection: str, item_id: str, properties: dict, stac_extensions: Sequence[str] = ()
+    collection: str,
+    item_id: str,
+    properties: dict,
+    stac_extensions: Sequence[str] = (),
+    assets: dict[str, dict] | None = None,
 ) -> None:
-    """Shallow-merge `properties` onto the item, re-validate the merged item against
-    the fAIr schema, then write. The single read-validate-write path, so a metadata
-    edit or an arbitrary property patch can never leave the item invalid."""
+    """Shallow-merge `properties` and `assets` onto the item, re-validate the merged item
+    against the fAIr schema, then write. The single read-validate-write path, so a metadata
+    edit or an arbitrary patch can never leave the item invalid."""
     from fair.stac.validators import validate_item
 
     item = get_item(collection, item_id)
-    item.properties.update(properties)
-    add_stac_extensions(item, stac_extensions)
+    try:
+        apply_item_patch(item, properties, assets=assets, stac_extensions=stac_extensions)
+    except ValueError as exc:
+        raise ValidationError({"assets": [str(exc)]}) from exc
     if errors := validate_item(item):
         raise ValidationError({"stac": errors})
-    set_item_properties(collection, item_id, properties, stac_extensions=stac_extensions)
+    patch_item(collection, item_id, properties, assets=assets, stac_extensions=stac_extensions)
 
 
 def _apply_metadata(collection: str, item_id: str, data: dict) -> None:
@@ -121,7 +127,7 @@ def _apply_metadata(collection: str, item_id: str, data: dict) -> None:
 
 class ModelMetadataMixin:
     """Adds two admin actions on a published model's STAC item: `metadata` (title,
-    description, fair:preview) and `stac` (a general property patch). Both re-validate
+    description, fair:preview) and `stac` (a general property and asset patch). Both re-validate
     against the fAIr schema. Host viewset sets `stac_collection`."""
 
     stac_collection: str = ""
@@ -183,11 +189,31 @@ class ModelMetadataMixin:
                 },
                 request_only=True,
             ),
+            OpenApiExample(
+                "Point the model asset at its ONNX export",
+                value={
+                    "assets": {
+                        "model": {
+                            "href": "https://example.com/model.onnx",
+                            "type": "application/octet-stream; framework=onnx",
+                            "roles": ["mlm:model", "mlm:compiled"],
+                            "mlm:artifact_type": "onnx",
+                        },
+                        "checkpoint": {
+                            "href": "https://example.com/model.ckpt",
+                            "type": "application/octet-stream; framework=pytorch",
+                            "roles": ["mlm:model", "mlm:weights"],
+                            "mlm:artifact_type": "torch.save",
+                        },
+                    }
+                },
+                request_only=True,
+            ),
         ],
     )
     @action(detail=True, methods=["patch"], url_path="stac")
     def stac_properties(self, request, pk: int | None = None) -> Response:
-        """Admin patch of arbitrary STAC item properties (shallow merge, re-validated)."""
+        """Admin patch of STAC item properties and assets (shallow merge, re-validated)."""
         model = self.get_object()
         if not model.stac_item_id:
             raise ValidationError("Model has no published STAC item to patch.")
@@ -196,8 +222,9 @@ class ModelMetadataMixin:
         _merge_validate_write(
             self.stac_collection,
             model.stac_item_id,
-            serializer.validated_data["properties"],
-            serializer.validated_data["stac_extensions"],
+            serializer.validated_data.get("properties", {}),
+            stac_extensions=serializer.validated_data["stac_extensions"],
+            assets=serializer.validated_data.get("assets"),
         )
         return Response(self.get_serializer(model).data)
 

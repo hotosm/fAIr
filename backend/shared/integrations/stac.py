@@ -1,8 +1,8 @@
 """STAC catalog access for the fAIr backend.
 
 Wraps fair-py-ops' backend Protocol with a Django LocMem cache layer and
-helpers used by the API serializers and pin/unpin actions. Property mutations
-read-modify-write the item (``get_item`` then ``publish_item``/PUT) because the
+helpers used by the API serializers and pin/unpin actions. Property and asset
+mutations read-modify-write the item (``get_item`` then ``publish_item``/PUT) because the
 STAC API does not accept HTTP PATCH; ``set_item_property`` is the single-key
 convenience wrapper.
 """
@@ -32,6 +32,7 @@ __all__ = [
     "FAIR_SOURCE_IMAGERY_PROPERTY",
     "LOCAL_MODELS_COLLECTION",
     "add_stac_extensions",
+    "apply_item_patch",
     "bulk_get_cached_items",
     "get_active_local_model_item",
     "get_base_model",
@@ -44,8 +45,8 @@ __all__ = [
     "list_datasets",
     "list_local_models",
     "mirror_and_relink_assets",
+    "patch_item",
     "serialize_item",
-    "set_item_properties",
     "set_item_property",
 ]
 
@@ -196,24 +197,43 @@ def add_stac_extensions(item: pystac.Item, stac_extensions: Sequence[str]) -> No
     item.stac_extensions.extend(url for url in stac_extensions if url not in item.stac_extensions)
 
 
+def apply_item_patch(
+    item: pystac.Item,
+    properties: dict,
+    *,
+    assets: dict[str, dict] | None = None,
+    stac_extensions: Sequence[str] = (),
+) -> None:
+    """Shallow-merge `properties` and each asset's fields onto `item`; an asset not yet on the
+    item is added and must carry an `href`."""
+    item.properties.update(properties)
+    for key, fields in (assets or {}).items():
+        existing = item.assets.get(key)
+        merged = {**(existing.to_dict() if existing else {}), **fields}
+        if not isinstance(merged.get("href"), str):
+            raise ValueError(f"Asset '{key}' needs a string href.")
+        item.add_asset(key, pystac.Asset.from_dict(merged))
+    add_stac_extensions(item, stac_extensions)
+
+
 def set_item_property(collection_id: str, item_id: str, key: str, value: object) -> dict:
     # Single-key convenience wrapper over the read-modify-write below.
-    return set_item_properties(collection_id, item_id, {key: value})
+    return patch_item(collection_id, item_id, {key: value})
 
 
-def set_item_properties(
+def patch_item(
     collection_id: str,
     item_id: str,
     properties: dict,
     *,
+    assets: dict[str, dict] | None = None,
     stac_extensions: Sequence[str] = (),
 ) -> dict:
     # Read-modify-write: the STAC API rejects PATCH, so merge onto the current
     # item and PUT it back via publish_item. Refreshes the cache.
     backend = _backend()
     item = backend.get_item(collection_id, item_id)
-    item.properties.update(properties)
-    add_stac_extensions(item, stac_extensions)
+    apply_item_patch(item, properties, assets=assets, stac_extensions=stac_extensions)
     published = backend.publish_item(collection_id, item)
     payload = serialize_item(published)
     cache.set(_cache_key(collection_id, item_id), payload, _CACHE_TTL_SECONDS)
