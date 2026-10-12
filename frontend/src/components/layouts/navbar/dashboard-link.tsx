@@ -2,13 +2,13 @@ import { SolidButton } from "@/components/shared/solid-button";
 import { APPLICATION_ROUTES } from "@/constants";
 import { useNavigate } from "react-router-dom";
 
-export const DashboardLink = ({ compact = false }: { compact?: boolean }) => {
+export const DashboardLink = ({ className }: { className?: string }) => {
   const navigate = useNavigate();
   return (
     <SolidButton
       onClick={() => navigate(APPLICATION_ROUTES.PROFILE_BASE)}
       variant="dark"
-      className={compact ? "!h-7 !min-w-0 !px-2.5" : undefined}
+      className={className}
     >
       Dashboard
     </SolidButton>

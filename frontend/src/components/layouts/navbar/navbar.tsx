@@ -123,7 +123,9 @@ export const NavBar = () => {
         </div>
 
         <div className="flex items-center gap-x-2 sm:hidden">
-          {showDashboardLink && <DashboardLink compact />}
+          {showDashboardLink && (
+            <DashboardLink className="!h-7 !min-w-0 !px-2.5" />
+          )}
           {/* {isAuthenticated && <UserNotifications />} */}
           {showDownloadResult && <DownloadResultButton />}
 
