@@ -104,7 +104,7 @@ export const TryFairPredictionsLayer = ({
 
     // Colour features by their predicted class when a coloured class style is
     // provided; otherwise fall back to the default single colour.
-    const polygonFillColor = classStyle?.colored
+    const polygonColor = classStyle?.colored
       ? buildClassColorExpression(classStyle)
       : "#A243DC";
     const circleColor = classStyle?.colored
@@ -118,7 +118,7 @@ export const TryFairPredictionsLayer = ({
         id: FILL_LAYER,
         type: "fill",
         source: SOURCE_ID,
-        paint: { "fill-color": polygonFillColor, "fill-opacity": 0.3 },
+        paint: { "fill-color": polygonColor, "fill-opacity": 0.3 },
       });
       map.addLayer({
         id: CASING_LAYER,
@@ -134,7 +134,7 @@ export const TryFairPredictionsLayer = ({
         id: OUTLINE_LAYER,
         type: "line",
         source: SOURCE_ID,
-        paint: { "line-color": "#A243DC", "line-width": 1.5 },
+        paint: { "line-color": polygonColor, "line-width": 1.5 },
       });
 
       // ── Points ───────────────────────────────────────────────────────────────
