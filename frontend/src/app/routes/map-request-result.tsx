@@ -1,6 +1,7 @@
 import { Head } from "@/components/seo";
+import { useAuth } from "@/app/providers/auth-provider";
+import { DownloadResultButton } from "@/features/user-profile/components/map-requests/download-result-button";
 import { Button } from "@/components/ui/button";
-import { LocationSearchIcon } from "@/components/ui/icons/location-search-icon";
 import { MapPlayIcon } from "@/components/ui/icons/map-play-icon";
 import { ChevronDownIcon } from "@/components/ui/icons";
 import { APPLICATION_ROUTES } from "@/constants/routes";
@@ -22,6 +23,7 @@ import { BBOX, TOfflinePrediction } from "@/types";
 import { cn, getGeoJSONFeatureBounds } from "@/utils";
 import { useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
+import { ParametersIcon } from "@/components/ui/icons/parameters-icon";
 
 const getPredictionName = (prediction: TOfflinePrediction): string =>
   prediction.description ||
@@ -36,6 +38,7 @@ const ResultInfoCard = ({
   onOutputTypeChange,
   zoom,
   params,
+  showDownloadResult,
   className,
 }: {
   imageryName: string;
@@ -44,6 +47,7 @@ const ResultInfoCard = ({
   onOutputTypeChange: (type: TryFairMapOutputType) => void;
   zoom: TOfflinePrediction["zoom"];
   params: TOfflinePrediction["params"];
+  showDownloadResult: boolean;
   className?: string;
 }) => (
   <div
@@ -54,7 +58,6 @@ const ResultInfoCard = ({
   >
     <div className="flex items-stretch overflow-hidden rounded-lg border border-[#687075] bg-gray-white">
       <div className="flex flex-1 min-w-0 items-center gap-2 pl-2.5 pr-2 py-2">
-        <LocationSearchIcon className="size-5 shrink-0 hidden md:inline-block" />
         <p className="flex-1 min-w-0 truncate text-xs font-semibold capitalize leading-tight text-dark">
           {imageryName}
         </p>
@@ -107,12 +110,21 @@ const ResultInfoCard = ({
         ))}
       </div>
     </div>
+    {showDownloadResult && (
+      <div className="[&>button]:!w-full">
+        <DownloadResultButton className="justify-center" />
+      </div>
+    )}
     <details
       aria-label="Prediction configuration"
       className="group border-t border-gray-border pt-4"
     >
       <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-xs font-semibold text-dark [&::-webkit-details-marker]:hidden">
-        <span>Prediction configuration</span>
+
+        <span className="flex gap-2 items-center">
+          <ParametersIcon />
+          Prediction configuration
+        </span>
         <ChevronDownIcon
           className="size-3 shrink-0 transition-transform group-open:rotate-180"
           aria-hidden="true"
@@ -145,6 +157,7 @@ const ResultInfoCard = ({
 );
 
 export const MapRequestResultPage = () => {
+  const { isAuthenticated } = useAuth();
   const { id } = useParams();
   const location = useLocation();
   // The row the user clicked seeds the query so it renders instantly; a direct
@@ -242,6 +255,7 @@ export const MapRequestResultPage = () => {
                 onOutputTypeChange={setOutputType}
                 zoom={prediction.zoom}
                 params={prediction.params}
+                showDownloadResult={isAuthenticated}
                 className="max-h-[calc(92vh-2rem)] overflow-y-auto"
               />
             </div>
@@ -264,6 +278,7 @@ export const MapRequestResultPage = () => {
                   onOutputTypeChange={setOutputType}
                   zoom={prediction.zoom}
                   params={prediction.params}
+                  showDownloadResult={isAuthenticated}
                   className="w-full shadow-none"
                 />
               </MobileDrawer>

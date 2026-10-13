@@ -51,16 +51,16 @@ describe("navbar mode switcher", () => {
   );
 });
 
-describe("navbar result download", () => {
+describe("navbar result route", () => {
   it.each([
     ["/profile/map-requests", true, false],
     ["/profile", true, false],
     ["/map-requests", true, false],
     ["/map-requests/42", true, true],
     ["/map-requests/42/extra", true, false],
-    ["/map-requests/42", false, false],
+    ["/map-requests/42", false, true],
   ])(
-    "shows download only on an authenticated result page (%s)",
+    "identifies the result page (%s) with authentication %s",
     (path, signedIn, expected) => {
       auth.isAuthenticated = signedIn;
       const { result } = renderHook(useNavbarState, {
@@ -68,7 +68,7 @@ describe("navbar result download", () => {
           <MemoryRouter initialEntries={[path]}>{children}</MemoryRouter>
         ),
       });
-      expect(result.current.showDownloadResult).toBe(expected);
+      expect(result.current.isMapRequestResult).toBe(expected);
     },
   );
 });

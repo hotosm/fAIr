@@ -21,7 +21,6 @@ import {
   DesktopAuthSection,
 } from "@/components/layouts/navbar/device-navbars";
 import { BackButton } from "@/components/ui/button";
-import { DownloadResultButton } from "@/features/user-profile/components/map-requests/download-result-button";
 import { useNavbarState } from "@/components/layouts/navbar/hooks/use-navbar-state";
 
 const IS_HANKO_AUTH = AUTH_PROVIDER === "hanko";
@@ -37,7 +36,6 @@ export const NavBar = () => {
   const location = useLocation();
   const {
     showBackButton,
-    showDownloadResult,
     showMappingMode,
     showDashboardLink,
     isMapRequestResult,
@@ -127,7 +125,6 @@ export const NavBar = () => {
             <DashboardLink className="!h-7 !min-w-0 !px-2.5" />
           )}
           {/* {isAuthenticated && <UserNotifications />} */}
-          {showDownloadResult && <DownloadResultButton />}
 
           <button
             className={styles.hamburgerMenu}
