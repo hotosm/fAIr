@@ -120,7 +120,6 @@ const ResultInfoCard = ({
       className="group border-t border-gray-border pt-4"
     >
       <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-xs font-semibold text-dark [&::-webkit-details-marker]:hidden">
-
         <span className="flex gap-2 items-center">
           <ParametersIcon />
           Prediction configuration

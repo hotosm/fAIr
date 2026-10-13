@@ -40,7 +40,7 @@ export const DownloadResultButton = ({ className }: { className?: string }) => {
         className,
       )}
     >
-      <CloudDownloadIcon  className="size-3.5 "/>
+      <CloudDownloadIcon className="size-3.5 " />
       Download Result
     </SolidButton>
   );

@@ -126,9 +126,7 @@ const columnDefinitions = ({
             onClick={() => onViewResult(row.original)}
             className={cn(
               "rounded-[9.3px] text-off-white  bg-grey  px-3 py-1.5 transition-colors",
-              resultReady
-                ? "cursor-pointer "
-                : "cursor-not-allowed opacity-40",
+              resultReady ? "cursor-pointer " : "cursor-not-allowed opacity-40",
             )}
           >
             View result
