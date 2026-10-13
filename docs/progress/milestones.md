@@ -11,15 +11,11 @@ A summary of what fAIr is working toward and where each effort stands. It is mea
 
 ## At a glance
 
-| Goal                                                      | Target       | Status (October 2026)                                                    |
-| --------------------------------------------------------- | ------------ | ------------------------------------------------------------------------ |
-| Open geo-AI model library                                 | 20 models    | 4 features available (6 model variants), more in development and planned |
-| Open Mapping Gurus (manual training datasets)             | 12 locations | 4 complete, 6 ongoing, 2 planned                                         |
-| fAIrSwipe community projects (MapSwipe training datasets) | 12 projects  | 23 underway                                                              |
-
-## Model pipeline
-
-Each model and its status is listed on the [Models](../overview/models.md) page; the [catalog](https://hotosm.github.io/fAIr-models/) is the source of truth.
+| Goal                                                      | Target       | Status (October 2026)                                                                             |
+| --------------------------------------------------------- | ------------ | ------------------------------------------------------------------------------------------------- |
+| Open geo-AI model library                                 | 20 models    | [4 features available](../overview/models.md) (6 model variants), more in development and planned |
+| Open Mapping Gurus (manual training datasets)             | 12 locations | [4 complete, 6 ongoing, 2 planned](../datasets/index.md#open-mapping-gurus)                       |
+| fAIrSwipe community projects (MapSwipe training datasets) | 12 projects  | [23 underway](field-projects.md)                                                                  |
 
 ## Open Mapping Gurus
 
@@ -33,12 +29,6 @@ Cumulative mapping output from Open Mapping Gurus to date:
 | Tree points       | 5,876  |
 | Tree polygons     | 5,822  |
 | Seagrass polygons | 18,549 |
-
-The per-location breakdown is on the [Datasets](../datasets/index.md#open-mapping-gurus) page.
-
-## fAIrSwipe projects
-
-The full list is on the [Field projects](field-projects.md) page.
 
 ## Reach
 

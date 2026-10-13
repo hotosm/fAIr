@@ -26,7 +26,7 @@ Alongside the models themselves, fAIr provides:
 
 - **3** organisations have added base models, and **59** of fAIr's **775** users have published **139** fine-tuned models.
 - fAIr has supported **3 [activations](../progress/activations.md)** for flood and earthquake response.
-- fAIr predictions have been reviewed by **249** users in fAIr and, across **47** [MapSwipe](https://mapswipe.org/) validation projects, by over **9,300** contributors counted once per project.
+- **249** users have reviewed fAIr predictions in fAIr, and over **9,300** [MapSwipe](https://mapswipe.org/) contributors, counted per project, have validated them across **47** projects.
 - fAIr's training datasets have been downloaded more than **23,000 times** on Hugging Face, and datasets with fAIr outputs more than **1,800 times** on HDX.
 - Model, dataset, and prediction metadata is cataloged in STAC, so the collection stays open and discoverable.
 
