@@ -11,22 +11,19 @@ A summary of what fAIr is working toward and where each effort stands. It is mea
 
 ## At a glance
 
-| Goal                                                      | Target       | Status (September 2026)                                                  |
+| Goal                                                      | Target       | Status (October 2026)                                                    |
 | --------------------------------------------------------- | ------------ | ------------------------------------------------------------------------ |
 | Open geo-AI model library                                 | 20 models    | 4 features available (6 model variants), more in development and planned |
-| Open Mapping Gurus (manual training datasets)             | 12 locations | 5 secured, 63 Gurus deployed                                             |
-| fAIrSwipe community projects (MapSwipe training datasets) | 12 projects  | 6 underway                                                               |
+| Open Mapping Gurus (manual training datasets)             | 12 locations | 4 complete, 6 ongoing, 2 planned                                         |
+| fAIrSwipe community projects (MapSwipe training datasets) | 12 projects  | 23 underway                                                              |
 
 ## Model pipeline
 
-fAIr is building an open library of geo-AI models across features, working toward around 20. Four features are available today (six model variants, since the buildings model covers RAMP, DINO, and YOLO), with more in development and planned. The full list and status is on the [Models](../overview/models.md) page, and the [catalog](https://hotosm.github.io/fAIr-models/) is the source of truth.
+Each model and its status is listed on the [Models](../overview/models.md) page; the [catalog](https://hotosm.github.io/fAIr-models/) is the source of truth.
 
 ## Open Mapping Gurus
 
-Training data is created by community mappers organized through HOT's regional hubs. As of 9 September 2026:
-
-- **63** unique Gurus deployed globally.
-- **5 of 12** deployment locations secured; further locations are in the pipeline, including 4 being set up in the Philippines.
+**63** unique Gurus have been deployed globally (9 September 2026).
 
 Cumulative mapping output from Open Mapping Gurus to date:
 
@@ -37,8 +34,48 @@ Cumulative mapping output from Open Mapping Gurus to date:
 | Tree polygons     | 5,822  |
 | Seagrass polygons | 18,549 |
 
-The per-location breakdown is on the [Field projects](field-projects.md) page.
+The per-location breakdown is on the [Datasets](../datasets/index.md#open-mapping-gurus) page.
 
 ## fAIrSwipe projects
 
-The target is **12** community fAIrSwipe projects; **6** are underway. The full list is on the [Field projects](field-projects.md) page.
+The full list is on the [Field projects](field-projects.md) page.
+
+## Reach
+
+Who has taken part in fAIr, as of 13 October 2026.
+
+### Model developers
+
+**3** organisations have added base models to the [catalog](https://hotosm.github.io/fAIr-models/): HOT, HeiGIT, and Mozilla AI. More are being developed through the Omdena and Zindi challenges and the community call; see [Models](../overview/models.md).
+
+### Model creators
+
+| Measure                               | Count |
+| ------------------------------------- | ----- |
+| Users who published fine-tuned models | 59    |
+| Fine-tuned models published           | 139   |
+| Users who created at least one model  | 149   |
+| Models created, published or not      | 341   |
+
+### Mappers and validators
+
+| Measure                                                                     | Count   |
+| --------------------------------------------------------------------------- | ------- |
+| Users who reviewed predictions in fAIr                                      | 249     |
+| Accept and reject labels given in fAIr (10,203 accepts)                     | 20,411  |
+| MapSwipe contributors in fAIr validation projects, counted once per project | 9,379   |
+| MapSwipe projects validating fAIr predictions                               | 47      |
+| MapSwipe results in those projects                                          | 852,667 |
+
+Together that is **9,628** reviewer engagements across fAIr and MapSwipe, each person counted once per project. The MapSwipe projects include validation runs for activations as well as the community projects.
+
+### Platform and data
+
+| Measure                                         | Count  |
+| ----------------------------------------------- | ------ |
+| Registered users                                | 775    |
+| Activations supported                           | 3      |
+| Hugging Face downloads of the training datasets | 23,894 |
+| HDX downloads of datasets with fAIr outputs     | 1,893  |
+
+Platform figures come from the fAIr API; MapSwipe counts come from [MapSwipe's open data](https://mapswipe.org/en/data/). Download counts are cumulative, as reported by [Hugging Face](https://huggingface.co/hotosm) and the [Humanitarian Data Exchange](https://data.humdata.org/).

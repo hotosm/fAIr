@@ -16,7 +16,7 @@ The models available in fAIr today and those planned, with their current status.
 | #   | Model                          | Feature        | Task type        | Contributor    | Status                                                    |
 | --- | ------------------------------ | -------------- | ---------------- | -------------- | --------------------------------------------------------- |
 | 1   | Buildings (RAMP, DINO, YOLO)   | Buildings      | Segmentation     | HOT            | <span class="status available">Available</span>           |
-| 2   | Swimming pools                 | Swimming pools | Object detection | HOT            | <span class="status available">Available</span>           |
+| 2   | Swimming pools                 | Swimming pools | Object detection | Mozilla AI     | <span class="status available">Available</span>           |
 | 3   | Parking spaces                 | Parking spaces | Object detection | HOT            | <span class="status available">Available</span>           |
 | 4   | Solid waste                    | Solid waste    | Classification   | HeiGIT         | <span class="status available">Available</span>           |
 | 5   | Trees                          | Trees          | Object detection | Omdena         | <span class="status in-development">In development</span> |
@@ -45,7 +45,7 @@ Several models are being built through two open geo-AI challenges launching in 2
 - **[Omdena](https://www.omdena.com/)** (around 50 participants): trees, solar panels, bridges, and land use and land cover.
 - **[Zindi](https://zindi.africa/)** (100+ participants expected): seagrass and highway segmentation, with a third model in planning.
 
-Contributions also come from **[HeiGIT](https://heigit.org/)** (solid waste, road surface) alongside HOT's own models.
+Contributions also come from **[HeiGIT](https://heigit.org/)** (solid waste, road surface) and **[Mozilla AI](https://www.mozilla.ai/)** (swimming pools), alongside HOT's own models.
 
 Need a different feature? Ask the team in **#fair-coord** on [Slack](https://slack.hotosm.org/), or contribute a model (see below).
 

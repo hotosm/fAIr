@@ -24,13 +24,17 @@ Alongside the models themselves, fAIr provides:
 
 ## Where fAIr is today
 
-- More than **750 users** have published over **130 fine-tuned models**.
-- fAIr is being connected with [MapSwipe](https://mapswipe.org/)'s community of over **100,000 mappers** to help create and validate training data.
+- **3** organisations have added base models, and **59** of fAIr's **775** users have published **139** fine-tuned models.
+- fAIr has supported **3 [activations](../progress/activations.md)** for flood and earthquake response.
+- fAIr predictions have been reviewed by **249** users in fAIr and, across **47** [MapSwipe](https://mapswipe.org/) validation projects, by over **9,300** contributors counted once per project.
+- fAIr's training datasets have been downloaded more than **23,000 times** on Hugging Face, and datasets with fAIr outputs more than **1,800 times** on HDX.
 - Model, dataset, and prediction metadata is cataloged in STAC, so the collection stays open and discoverable.
+
+Figures as of 13 October 2026; the dated breakdown is on [Milestones](../progress/milestones.md#reach).
 
 ## Current initiatives
 
-- **Community training data.** fAIrSwipe and the Open Mapping Gurus program create open training data with community mappers; see [Field projects](../progress/field-projects.md).
+- **Community training data.** fAIrSwipe and the Open Mapping Gurus program create open training data with community mappers; see [Field projects](../progress/field-projects.md) and [Datasets](../datasets/index.md#open-mapping-gurus).
 - **Crisis response.** Prediction outputs are published as open data for flood and earthquake response; see [Datasets](../datasets/index.md).
 - **Integrating open-source models.** An [open call](https://hotosm.org/en/request-for-proposals/open-call-for-earth-observation-geoai-models/) brings existing open-source geo-AI models into fAIr, so the platform serves as a shared home for many models.
 
