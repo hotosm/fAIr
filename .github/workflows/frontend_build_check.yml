@@ -54,7 +54,7 @@ jobs:
         working-directory: ./frontend
         run: pnpm run build
 
-  # Build-only checks for PRs. Push happens in docker_publish_image.yml on
+  # Build-only checks for PRs. Push happens in publish_container_image.yml on
   # merge to main/stage/develop.
   docker-build-dev:
     needs: [frontend-unit-test]
