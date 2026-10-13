@@ -3,6 +3,7 @@ import { TRY_FAIR_PAGE_CONTENT } from "@/constants/ui-contents/try-fair-contents
 import {
   ImagerySource,
   ModelType,
+  SHOELACE_SIZES,
   TryFairMapOutputType,
   TryFairResolution,
 } from "@/enums";
@@ -669,7 +670,7 @@ export const TryFairPage = ({
 
       {/* Advanced Model picker dialog */}
       <Dialog
-        // size={SHOELACE_SIZES.LARGE}
+        size={SHOELACE_SIZES.LARGE}
         borderRadius="rounded"
         label="Which model do you want to use?"
         isOpened={isAdvancedModelPickerDialogOpened}

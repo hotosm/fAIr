@@ -161,9 +161,10 @@ export const ModelPickerContent = ({
   const isImageryModeActive =
     currentModelType === ModelType.IMAGERY || mode === ModelType.IMAGERY;
 
-  const tabs = isImageryModeActive
-    ? [TAB_CHOOSE, TAB_SAMPLES]
-    : [TAB_SAMPLES, TAB_CHOOSE];
+  // Keep the navigation stable; only the initially selected tab reflects the
+  // current selection. Samples use demo imagery, while a user-selected
+  // imagery source opens the custom-setup tab.
+  const tabs = [TAB_SAMPLES, TAB_CHOOSE];
 
   // Active tab: defaults to whichever mode is currently active
   const [activeTab, setActiveTab] = useState<string>(() =>

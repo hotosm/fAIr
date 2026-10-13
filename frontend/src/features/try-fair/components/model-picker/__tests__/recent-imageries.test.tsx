@@ -8,15 +8,24 @@ import {
 } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { ComponentProps } from "react";
-import { ModelPickerContent } from "@/features/try-fair/components/model-picker-modal";
+import {
+  ModelPickerContent,
+  TAB_CHOOSE,
+  TAB_SAMPLES,
+} from "@/features/try-fair/components/model-picker-modal";
 import { useRecentImageries } from "@/features/try-fair/hooks/use-recent-imageries";
 import type { RecentImageryEntry } from "@/features/try-fair/hooks/use-recent-imageries";
 import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
 import { ImagerySource, ModelType, TileServiceType } from "@/enums";
 import type { ImagerySelection } from "@/features/try-fair/types/imagery-types";
 
+const tryFairParams = vi.hoisted(() => ({ mode: "imagery" }));
+
 vi.mock("@/features/try-fair/hooks/use-try-fair-params", () => ({
-  useTryFairParams: () => ({ mode: "imagery", setChooseLocation: vi.fn() }),
+  useTryFairParams: () => ({
+    mode: tryFairParams.mode,
+    setChooseLocation: vi.fn(),
+  }),
 }));
 vi.mock("@/features/try-fair/hooks/use-imagery-country", () => ({
   useImageryCountry: () => null,
@@ -82,6 +91,7 @@ function Picker() {
 }
 
 beforeEach(() => {
+  tryFairParams.mode = ModelType.IMAGERY;
   localStorage.clear();
   const { result, unmount } = renderHook(() => useRecentImageries());
   act(() => {
@@ -105,6 +115,28 @@ afterEach(() => {
 });
 
 describe("Recent imagery", () => {
+  it("keeps Samples first and opens the tab for the active selection", () => {
+    const customView = render(<Picker />);
+    const customTabs = [
+      screen.getByRole("button", { name: TAB_SAMPLES }),
+      screen.getByRole("button", { name: TAB_CHOOSE }),
+    ];
+    expect(customTabs.map((tab) => tab.textContent)).toEqual([
+      TAB_SAMPLES,
+      TAB_CHOOSE,
+    ]);
+    expect(screen.getByText("Imagery preview")).toBeInTheDocument();
+    customView.unmount();
+
+    tryFairParams.mode = ModelType.DEMO;
+    useStartMappingStore.setState({
+      currentModelType: ModelType.DEMO,
+      selectedImagery: null,
+    });
+    render(<Picker />);
+    expect(screen.getByText("No models available")).toBeInTheDocument();
+  });
+
   it("replaces an unapplied recent choice with the newer browser selection", () => {
     const onApplyRecentImagery = vi.fn();
     const onApplyStagedImagery = vi.fn();

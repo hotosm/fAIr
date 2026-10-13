@@ -206,6 +206,7 @@ export const AdvancedModelPickerContent = ({
           </div>
         </div>
         <div className="flex-1 space-y-4">
+          <p className="text-xs pb-2">Models</p>
           {/* Toolbar */}
           <div className="flex items-center  gap-3">
             {/* Search */}
@@ -281,7 +282,6 @@ export const AdvancedModelPickerContent = ({
               </button>
             </div>
           </div>
-
           {/* Model cards */}
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
