@@ -351,7 +351,7 @@ export const TryFairSidebar = ({
             placement={
               isSmallViewport
                 ? DropdownPlacement.BOTTOM_START
-                : DropdownPlacement.RIGHT_START
+                : DropdownPlacement.RIGHT_END
             }
             distance={20}
             hoist

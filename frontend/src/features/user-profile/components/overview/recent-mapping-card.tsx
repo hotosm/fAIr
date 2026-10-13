@@ -103,7 +103,14 @@ export const RecentMappingCard = ({
             title="Resume Mapping"
             className="w-full"
           >
-            <Button rounded capitalize={false} className="w-full">
+            <Button
+              rounded
+              capitalize={false}
+              size="medium"
+              fontSize="12px"
+              className="w-full
+              "
+            >
               Resume Mapping
             </Button>
           </Link>
@@ -114,9 +121,11 @@ export const RecentMappingCard = ({
             className="w-full"
           >
             <Button
+              variant={ButtonVariant.SECONDARY}
               rounded
               capitalize={false}
-              variant={ButtonVariant.SECONDARY}
+              size="medium"
+              fontSize="12px"
               className="w-full"
             >
               Start New Mapping

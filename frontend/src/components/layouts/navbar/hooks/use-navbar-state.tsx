@@ -33,6 +33,5 @@ export function useNavbarState() {
     showMappingMode:
       isAuthenticated && (isTryFair || isProfile) && !isMapRequests,
     showNotifications: isAuthenticated,
-    showDownloadResult: isAuthenticated && isMapRequestResult,
   };
 }

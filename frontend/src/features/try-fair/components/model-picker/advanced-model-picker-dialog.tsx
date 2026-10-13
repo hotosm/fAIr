@@ -60,11 +60,6 @@ export const AdvancedModelPicker: React.FC<AdvancedModelPickerProps> = ({
               (selectedModel?.properties.title ?? "Select a model")
             )}
           </span>
-          {!loading && (
-            <ExperimentalModelBadge
-              category={selectedModel?.properties["fair:category"]}
-            />
-          )}
         </span>
         <ChevronDownIcon className="size-4 text-grey shrink-0" />
       </button>
