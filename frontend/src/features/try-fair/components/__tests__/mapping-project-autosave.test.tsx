@@ -1,12 +1,19 @@
-import { act, cleanup, render } from "@testing-library/react";
+import { CloudSaveStatus } from "@/components/layouts/navbar/cloud-save-status";
+import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
+import { act, cleanup, render, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { PropsWithChildren } from "react";
-import { MappingProjectAutosave } from "../mapping-project-autosave";
-import type { MappingUserState } from "../../api/user-state";
+import { MappingProjectAutosave } from "@/features/try-fair/components/mapping-project-autosave";
+import type { MappingUserState } from "@/features/try-fair/api/user-state";
 import { ModelType, TryFairMapOutputType, TryFairResolution } from "@/enums";
 
-const { post, patch } = vi.hoisted(() => ({ post: vi.fn(), patch: vi.fn() }));
+const { post, patch, showErrorToast } = vi.hoisted(() => ({
+  post: vi.fn(),
+  patch: vi.fn(),
+  showErrorToast: vi.fn(),
+}));
+vi.mock("@/utils", () => ({ showErrorToast }));
 vi.mock("@/services", () => ({
   apiClient: { post, patch },
   API_ENDPOINTS: {
@@ -76,6 +83,8 @@ const tick = async () => {
 describe("MappingProjectAutosave", () => {
   beforeEach(() => {
     vi.useFakeTimers();
+    useStartMappingStore.setState({ lastSavedAt: null });
+    showErrorToast.mockReset();
     post.mockReset();
     patch.mockReset();
     post.mockResolvedValue({ data: { ...payload, pid: 42 } });
@@ -85,6 +94,58 @@ describe("MappingProjectAutosave", () => {
     cleanup();
     vi.useRealTimers();
   });
+
+  it("shows successful saves for three seconds and restarts the timer after updates", async () => {
+    const content = (state: MappingUserState) => (
+      <>
+        <CloudSaveStatus />
+        <MappingProjectAutosave enabled payload={state} />
+      </>
+    );
+    const view = render(content(payload), { wrapper: wrapper() });
+    expect(screen.queryByText("Saved to cloud")).not.toBeInTheDocument();
+    await tick();
+    expect(screen.getByRole("status")).toHaveTextContent("Saved to cloud");
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(2000);
+    });
+    view.rerender(content(changed));
+    await tick();
+    expect(patch).toHaveBeenCalledOnce();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(2200);
+    });
+    expect(screen.getByText("Saved to cloud")).toBeInTheDocument();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(800);
+    });
+    expect(screen.queryByText("Saved to cloud")).not.toBeInTheDocument();
+    view.unmount();
+    render(<CloudSaveStatus />);
+    expect(screen.queryByText("Saved to cloud")).not.toBeInTheDocument();
+  });
+
+  it.each([undefined, 42])(
+    "does not announce a failed save (pid %s)",
+    async (initialPid) => {
+      post.mockRejectedValue(new Error("Failed"));
+      patch.mockRejectedValue(new Error("Failed"));
+      render(
+        <>
+          <CloudSaveStatus />
+          <MappingProjectAutosave
+            enabled
+            initialPid={initialPid}
+            payload={payload}
+          />
+        </>,
+        { wrapper: wrapper() },
+      );
+      await tick();
+      expect(showErrorToast).toHaveBeenCalled();
+      expect(screen.queryByText("Saved to cloud")).not.toBeInTheDocument();
+    },
+  );
 
   it("creates only after a successful prediction enables saving, then updates that pid", async () => {
     const view = render(
@@ -161,6 +222,44 @@ describe("MappingProjectAutosave", () => {
     expect(patch).toHaveBeenCalledExactlyOnceWith("/user-state/42/", changed);
   });
 
+  it("saves multiple prediction snapshots in the same project and retains them when viewing an older run", async () => {
+    const predictionResult = payload.state.prediction_result!;
+    const entries = ["first", "second"].map((id) => ({
+      id,
+      created_at: "2026-10-20T12:00:00Z",
+      snapshot: {
+        ...payload.state,
+        name: id,
+        prediction_result: predictionResult,
+      },
+    }));
+    const state = {
+      ...payload.state,
+      prediction_result: undefined,
+      prediction_history: entries,
+      active_prediction_id: "second",
+    };
+    const view = render(
+      <MappingProjectAutosave enabled initialPid={42} payload={{ state }} />,
+      { wrapper: wrapper() },
+    );
+    await tick();
+    expect(patch).toHaveBeenLastCalledWith("/user-state/42/", { state });
+    const restored = { ...state, active_prediction_id: "first" };
+    view.rerender(
+      <MappingProjectAutosave
+        enabled
+        initialPid={42}
+        payload={{ state: restored }}
+      />,
+    );
+    await tick();
+    expect(patch).toHaveBeenLastCalledWith("/user-state/42/", {
+      state: restored,
+    });
+    expect(post).not.toHaveBeenCalled();
+  });
+
   it("retains the created pid while another model is loading", async () => {
     const view = render(<MappingProjectAutosave enabled payload={payload} />, {
       wrapper: wrapper(),
@@ -187,5 +286,6 @@ describe("MappingProjectAutosave", () => {
     view.rerender(<MappingProjectAutosave enabled payload={changed} />);
     await tick();
     expect(post).toHaveBeenCalledTimes(2);
+    expect(showErrorToast).toHaveBeenCalledOnce();
   });
 });

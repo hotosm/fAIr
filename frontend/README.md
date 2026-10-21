@@ -231,3 +231,22 @@ the build-time value. The search/zoom overlap fix applies to both layouts.
 
 Signed-in users on Try fAIr see the dark Dashboard button beside the profile
 controls by default. No environment variable is needed.
+
+### Prediction history
+
+Try fAIr keeps successful predictions in the current mapping project, including
+each run's result, model, imagery, parameters, output type, and map bounds. The
+navbar history button opens the list; choosing a run restores it without another
+inference request. Only one result is displayed at a time. Signed-in users save
+this history through the existing user-state API. Anonymous history lasts for the
+current page session.
+
+Set `VITE_PREDICTION_HISTORY_LIMIT` to the number of predictions to retain per
+project (default **5**, minimum **1**). This supports the existing frontend runtime
+configuration as well as Vite environment configuration. At capacity, completing
+a new prediction removes the oldest run; viewing a run does not reorder it.
+
+The existing backend JSON payload limit still applies. Results are stored only
+once in the history, with the current result referenced by its entry ID. If saving
+fails (including an oversized project), the frontend reports the failure and keeps
+the history available in memory while the page remains open.

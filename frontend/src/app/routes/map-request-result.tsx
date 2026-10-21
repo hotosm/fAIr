@@ -7,6 +7,7 @@ import { ChevronDownIcon } from "@/components/ui/icons";
 import { APPLICATION_ROUTES } from "@/constants/routes";
 import { ButtonVariant, TryFairMapOutputType } from "@/enums";
 import { getImageryTileJSONUrl } from "@/features/try-fair/api/hot-imagery";
+import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
 import { useOAMItem } from "@/features/try-fair/hooks/use-oam-item";
 import { OUTPUT_TYPES } from "@/features/try-fair/utils/common";
 
@@ -49,111 +50,117 @@ const ResultInfoCard = ({
   params: TOfflinePrediction["params"];
   showDownloadResult: boolean;
   className?: string;
-}) => (
-  <div
-    className={cn(
-      "relative w-[300px] rounded-lg bg-white p-2 shadow-lg sm:px-3 sm:py-4 space-y-4 overflow-visible",
-      className,
-    )}
-  >
-    <div className="flex items-stretch overflow-hidden rounded-lg border border-[#687075] bg-gray-white">
-      <div className="flex flex-1 min-w-0 items-center gap-2 pl-2.5 pr-2 py-2">
-        <p className="flex-1 min-w-0 truncate text-xs font-semibold capitalize leading-tight text-dark">
-          {imageryName}
-        </p>
-      </div>
+}) => {
+  const { mappingMode } = useTryFairParams();
 
-      <div className="my-2 w-px shrink-0 bg-gray-border" />
-
-      <div className="flex items-center gap-2 p-2.5">
-        <Button
-          type="button"
-          size="medium"
-          rounded
-          variant={ButtonVariant.TERTIARY}
-          disabled
-          className="flex items-center opacity-50 gap-2"
-          fontSize="12px"
-        >
-          <MapPlayIcon className="size-4" />
-          Map
-        </Button>
-      </div>
-    </div>
-
-    <div>
-      <p className="text-dark text-xs mb-2">Feature Mapped</p>
-      <div className="flex items-center gap-2 rounded-lg border border-gray-border bg-gray-white px-3 py-2.5 text-xs capitalize text-dark">
-        {featureMapped}
-      </div>
-    </div>
-
-    <div>
-      <p className="text-dark text-xs mb-2">Map Output</p>
-      <div className="flex items-center gap-2">
-        {MAP_REQUEST_OUTPUT_TYPES.map(({ type, label, icon }) => (
-          <button
-            key={type}
-            type="button"
-            title={label}
-            aria-label={label}
-            onClick={() => onOutputTypeChange(type)}
-            className={cn(
-              "flex-1 flex items-center justify-center py-2 rounded-lg",
-              outputType === type
-                ? "bg-secondary text-primary border-[#D63F4080] border"
-                : "bg-off-white",
-            )}
-          >
-            {icon}
-          </button>
-        ))}
-      </div>
-    </div>
-    {showDownloadResult && (
-      <div className="[&>button]:!w-full">
-        <DownloadResultButton className="justify-center" />
-      </div>
-    )}
-    <details
-      aria-label="Prediction configuration"
-      className="group border-t border-gray-border pt-4"
-    >
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-xs font-semibold text-dark [&::-webkit-details-marker]:hidden">
-        <span className="flex gap-2 items-center">
-          <ParametersIcon />
-          Prediction configuration
-        </span>
-        <ChevronDownIcon
-          className="size-3 shrink-0 transition-transform group-open:rotate-180"
-          aria-hidden="true"
-        />
-      </summary>
-      <dl className="mt-3 space-y-3 text-xs">
-        <div className="flex items-start justify-between gap-3">
-          <dt className="text-grey">Zoom level</dt>
-          <dd className="text-dark font-medium tabular-nums">{zoom}</dd>
-        </div>
-        {Object.entries(params ?? {}).map(([key, value]) => (
-          <div key={key} className="flex items-start justify-between gap-3">
-            <dt
-              className="min-w-0 break-words capitalize text-grey"
-              title={key}
-            >
-              {key.replace(/_/g, " ")}
-            </dt>
-            <dd className="max-w-[45%] break-words text-right font-medium tabular-nums text-dark">
-              {value}
-            </dd>
-          </div>
-        ))}
-      </dl>
-      {Object.keys(params ?? {}).length === 0 && (
-        <p className="mt-3 text-xs text-grey">No parameters recorded.</p>
+  return (
+    <div
+      className={cn(
+        "relative w-[300px] rounded-lg bg-white p-2 shadow-lg sm:px-3 sm:py-4 space-y-4 overflow-visible",
+        className,
       )}
-    </details>
-  </div>
-);
+    >
+      <div className="flex items-stretch overflow-hidden rounded-lg border border-[#687075] bg-gray-white">
+        <div className="flex flex-1 min-w-0 items-center gap-2 pl-2.5 pr-2 py-2">
+          <p className="flex-1 min-w-0 truncate text-xs font-semibold capitalize leading-tight text-dark">
+            {imageryName}
+          </p>
+        </div>
+
+        <div className="my-2 w-px shrink-0 bg-gray-border" />
+
+        <div className="flex items-center gap-2 p-2.5">
+          <Button
+            type="button"
+            size="medium"
+            rounded
+            variant={ButtonVariant.TERTIARY}
+            disabled
+            className="flex items-center opacity-50 gap-2"
+            fontSize="12px"
+          >
+            <MapPlayIcon className="size-4" />
+            Map
+          </Button>
+        </div>
+      </div>
+
+      <div>
+        <p className="text-dark text-xs mb-2">Feature Mapped</p>
+        <div className="flex items-center gap-2 rounded-lg border border-gray-border bg-gray-white px-3 py-2.5 text-xs capitalize text-dark">
+          {featureMapped}
+        </div>
+      </div>
+
+      <div>
+        <p className="text-dark text-xs mb-2">Map Output</p>
+        <div className="flex items-center gap-2">
+          {MAP_REQUEST_OUTPUT_TYPES.map(({ type, label, icon }) => (
+            <button
+              key={type}
+              type="button"
+              title={label}
+              aria-label={label}
+              onClick={() => onOutputTypeChange(type)}
+              className={cn(
+                "flex-1 flex items-center justify-center py-2 rounded-lg",
+                outputType === type
+                  ? "bg-secondary text-primary border-[#D63F4080] border"
+                  : "bg-off-white",
+              )}
+            >
+              {icon}
+            </button>
+          ))}
+        </div>
+      </div>
+      {showDownloadResult && (
+        <div className="[&>button]:!w-full">
+          <DownloadResultButton className="justify-center" />
+        </div>
+      )}
+      {mappingMode === "advanced" && (
+        <details
+          aria-label="Prediction configuration"
+          className="group border-t border-gray-border pt-4"
+        >
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-xs font-semibold text-dark [&::-webkit-details-marker]:hidden">
+            <span className="flex gap-2 items-center">
+              <ParametersIcon />
+              Prediction configuration
+            </span>
+            <ChevronDownIcon
+              className="size-3 shrink-0 transition-transform group-open:rotate-180"
+              aria-hidden="true"
+            />
+          </summary>
+          <dl className="mt-3 space-y-3 text-xs">
+            <div className="flex items-start justify-between gap-3">
+              <dt className="text-grey">Zoom level</dt>
+              <dd className="text-dark font-medium tabular-nums">{zoom}</dd>
+            </div>
+            {Object.entries(params ?? {}).map(([key, value]) => (
+              <div key={key} className="flex items-start justify-between gap-3">
+                <dt
+                  className="min-w-0 break-words capitalize text-grey"
+                  title={key}
+                >
+                  {key.replace(/_/g, " ")}
+                </dt>
+                <dd className="max-w-[45%] break-words text-right font-medium tabular-nums text-dark">
+                  {value}
+                </dd>
+              </div>
+            ))}
+          </dl>
+          {Object.keys(params ?? {}).length === 0 && (
+            <p className="mt-3 text-xs text-grey">No parameters recorded.</p>
+          )}
+        </details>
+      )}
+    </div>
+  );
+};
 
 export const MapRequestResultPage = () => {
   const { isAuthenticated } = useAuth();

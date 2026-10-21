@@ -11,10 +11,14 @@ import {
   parseAsString,
   useQueryStates,
 } from "nuqs";
-import { useStacBaseModels, useStacLocalModels } from "./use-base-models";
+import {
+  useStacBaseModels,
+  useStacLocalModels,
+} from "@/features/try-fair/hooks/use-base-models";
 import { useCallback, useMemo } from "react";
 import { getSelectedModel } from "@/features/try-fair/utils/models";
 import { getInferenceParams } from "@/features/try-fair/api/stac";
+import { getModelDefaultResolution } from "@/features/try-fair/utils/common";
 
 const VALID_OUTPUTS = Object.values(TryFairMapOutputType) as string[];
 const VALID_RESOLUTIONS = Object.values(TryFairResolution) as string[];
@@ -93,7 +97,7 @@ export const useTryFairParams = () => {
     {
       model: parseAsString.withDefault(TRY_FAIR_PARAM_DEFAULTS.model),
       output: parseAsString.withDefault(TRY_FAIR_PARAM_DEFAULTS.output),
-      resolution: parseAsString.withDefault(TRY_FAIR_PARAM_DEFAULTS.resolution),
+      resolution: parseAsString,
       confidence: parseAsFloat,
       feature: parseAsString.withDefault(TRY_FAIR_PARAM_DEFAULTS.feature),
       mode: parseAsString.withDefault(TRY_FAIR_PARAM_DEFAULTS.mode),
@@ -142,9 +146,11 @@ export const useTryFairParams = () => {
     ? (params.output as TryFairMapOutputType)
     : TryFairMapOutputType.POINTS;
 
-  const resolution = VALID_RESOLUTIONS.includes(params.resolution)
-    ? (params.resolution as TryFairResolution)
-    : TryFairResolution.LOW;
+  const defaultResolution = getModelDefaultResolution(selectedModel);
+  const resolution =
+    params.resolution !== null && VALID_RESOLUTIONS.includes(params.resolution)
+      ? (params.resolution as TryFairResolution)
+      : defaultResolution;
 
   const confidence = params.confidence ?? defaultConfidence;
 
@@ -167,12 +173,12 @@ export const useTryFairParams = () => {
     : null;
 
   const isParametersDefault =
-    resolution === TRY_FAIR_PARAM_DEFAULTS.resolution &&
+    resolution === defaultResolution &&
     (params.confidence === null || params.confidence === defaultConfidence);
 
   const resetParameters = () =>
     setParams({
-      resolution: TRY_FAIR_PARAM_DEFAULTS.resolution,
+      resolution: null,
       confidence: defaultConfidence,
     });
 
@@ -215,6 +221,7 @@ export const useTryFairParams = () => {
     chooseLocation: params.chooseLocation,
     parameterOverrides: params.params ?? {},
 
+    restoreParams: (snapshot: typeof params) => setParams(snapshot),
     setModelId: (id: string) => setParams({ model: id }),
     setSelectedModelId: (id: string | null) =>
       setParams({ selectedModelId: id }),

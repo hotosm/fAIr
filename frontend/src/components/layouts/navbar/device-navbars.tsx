@@ -118,10 +118,11 @@ export const DesktopAuthSection = ({
         {/* {!isTryFairPage && !isMapRequestsPage && <UserNotifications />} */}
         {dashboardButton}
 
-        {showDashboardLink && <DashboardLink />}
         <div
-          className={`${styles.headerHankoAuth} ${isAuthenticated && isTryFairPage ? "border-l border-gray-border pl-3 ml-1 !w-auto" : ""}`}
+          className={`${styles.headerHankoAuth} flex items-center gap-x-2 ${isAuthenticated && isTryFairPage ? "border-l border-gray-border pl-3 ml-1 !w-auto" : ""}`}
         >
+          {showDashboardLink && <DashboardLink />}
+
           <HankoAuthComponent redirectAfterLogin={returnTo} />
         </div>
       </div>

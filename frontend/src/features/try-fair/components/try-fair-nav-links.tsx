@@ -8,6 +8,7 @@ import { getDownloadData } from "@/features/try-fair/components/start-mapping/ex
 import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
 import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
 import { geoJSONDowloader } from "@/utils";
+import { PredictionHistoryButton } from "@/features/try-fair/components/prediction-history-button";
 
 export const StartMappingNavlinks: React.FC = () => {
   const { setChooseLocation } = useTryFairParams();
@@ -42,7 +43,7 @@ export const StartMappingNavlinks: React.FC = () => {
   return (
     <div className="hidden shrink-0 items-center gap-4 lg:flex">
       {/* Help — text link */}
-
+      <PredictionHistoryButton />
       {/* Download — icon button */}
       <ToolTip
         content={
@@ -77,7 +78,7 @@ export const StartMappingNavlinks: React.FC = () => {
           onClick={() => {
             setChooseLocation(true);
           }}
-          className="border border-dark bg-white text-dark hover:bg-off-white transition-colors text-xs px-3 flex shrink-0 items-center whitespace-nowrap !w-fit !h-8 md:min-w-fit !rounded-md min-w-[7.5rem]"
+          className="border border-light-gray bg-[#EEF1F7] text-[#2E2929] hover:bg-off-white transition-colors text-xs px-3 flex shrink-0 items-center whitespace-nowrap !w-fit !h-8 md:min-w-fit !rounded-md min-w-[7.5rem]"
           aria-label="Change imagery"
         >
           Change imagery
