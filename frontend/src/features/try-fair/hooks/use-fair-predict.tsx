@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { BaseModelStacItem, runPredict } from "../api/stac";
+import { BaseModelStacItem, runPredict } from "@/features/try-fair/api/stac";
 import { TryFairResolution } from "@/enums/try-fair";
 import { BBOX } from "@/types";
 import { TRY_FAIR_RESOLUTION_ZOOM } from "@/features/try-fair/utils/common";
@@ -93,6 +93,7 @@ export const useFairPredict = (initialResult: PredictResult | null = null) => {
     predictionBBox: result?.bbox ?? null,
     predictionGridZoom: result?.gridZoom ?? null,
     error: error?.message ?? null,
+    restoreResult: setResult,
     clearPredictions,
     cancelPrediction: () => abortControllerRef.current?.abort(),
   };

@@ -1,3 +1,7 @@
+import {
+  SwitchSampleDialog,
+  shouldShowSwitchWarning,
+} from "@/features/try-fair/components/model-picker/switch-sample-dialog";
 import { useState, useMemo, useEffect, useRef } from "react";
 import {
   useGetAPIBaseModels,
@@ -12,7 +16,7 @@ import {
 import { SearchIcon } from "@/components/ui/icons/search-icon";
 import { ChevronDownIcon } from "@/components/ui/icons";
 import { DropDown } from "@/components/ui/dropdown";
-import { DropdownPlacement } from "@/enums";
+import { DropdownPlacement, ModelType } from "@/enums";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import type { BaseModelStacItem } from "@/features/try-fair/api/stac";
 import { StarredIcon } from "@/components/ui/icons/starred-icon";
@@ -69,9 +73,7 @@ export const AdvancedModelPicker: React.FC<AdvancedModelPickerProps> = ({
 
 type AdvancedModelPickerContentProps = {
   feature: string;
-  selectedModelId: string | null;
   onSelect: (model: BaseModelStacItem) => void;
-  onClose?: () => void;
   onFeatureChange?: (slug: string) => void;
 };
 
@@ -79,12 +81,17 @@ export const AdvancedModelPickerContent = ({
   feature,
   onSelect,
   onFeatureChange,
-}: Omit<AdvancedModelPickerContentProps, "selectedModelId">) => {
+}: AdvancedModelPickerContentProps) => {
   const [source, setSource] = useState<ModelSource>("base");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(0);
   const { onDropdownHide, dropdownRef } = useDropdownMenu();
-  const { selectedModelId, setSelectedModelId } = useTryFairParams();
+  const { selectedModelId, setSelectedModelId, mode } = useTryFairParams();
+  const [pendingChange, setPendingChange] = useState<
+    | { type: "feature"; slug: string }
+    | { type: "model"; item: APIBaseModelItem }
+    | null
+  >(null);
 
   // Feature list from API
   const { data: featuresData } = useGetFeaturesToMap();
@@ -142,13 +149,27 @@ export const AdvancedModelPickerContent = ({
   };
 
   const handleSelectModel = (item: APIBaseModelItem) => {
-    applyModel(item, stagedFeature ?? undefined);
+    if (item.stac_item_id === selectedModelId) return;
+    if (mode === ModelType.DEMO && shouldShowSwitchWarning()) {
+      setPendingChange({ type: "model", item });
+    } else {
+      applyModel(item, stagedFeature ?? undefined);
+    }
   };
 
-  const handleFeatureSelect = (slug: string) => {
+  const applyFeature = (slug: string) => {
     setStagedFeature(slug);
     setPage(0);
     setSearch("");
+  };
+
+  const handleFeatureSelect = (slug: string) => {
+    if (slug === effectiveFeatureSlug) return;
+    if (mode === ModelType.DEMO && shouldShowSwitchWarning()) {
+      setPendingChange({ type: "feature", slug });
+    } else {
+      applyFeature(slug);
+    }
   };
 
   // Auto-change the model to the selected feature's default, mirroring the
@@ -190,6 +211,20 @@ export const AdvancedModelPickerContent = ({
   ]);
   return (
     <div className="flex flex-col min-h-[428px]">
+      {pendingChange && (
+        <SwitchSampleDialog
+          message="Changing the feature or model in Samples mode will switch your imagery and map location to the selected sample’s imagery location and clear your current progress. You can restore saved predictions from History."
+          onCancel={() => setPendingChange(null)}
+          onConfirm={() => {
+            if (pendingChange.type === "feature") {
+              applyFeature(pendingChange.slug);
+            } else {
+              applyModel(pendingChange.item, stagedFeature ?? undefined);
+            }
+            setPendingChange(null);
+          }}
+        />
+      )}
       <div className="flex gap-4 flex-1">
         <div className="w-[180px] shrink-0 overflow-hidden flex flex-col">
           <p className="text-xs pb-2">Feature to map</p>

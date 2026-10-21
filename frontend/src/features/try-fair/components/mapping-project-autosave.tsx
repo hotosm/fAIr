@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { showErrorToast } from "@/utils";
 import {
   type MappingUserState,
   useSaveUserState,
@@ -42,6 +43,9 @@ export const MappingProjectAutosave = ({
           setPid(saved.pid);
         }
       } catch {
+        showErrorToast(
+          "Couldn’t save this project’s prediction history. Keep this page open and try again after your next change.",
+        );
         // Keep mapping usable. A subsequent change can try saving again;
         // never repeatedly submit the same failing snapshot.
       }

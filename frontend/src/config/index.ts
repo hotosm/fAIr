@@ -693,3 +693,9 @@ export const NOMINATIM_API_URL: string = parseStringEnv(
   ENVS.NOMINATIM_API_URL,
   "https://nominatim.openstreetmap.org",
 );
+
+/** Maximum successful predictions retained in each mapping project. */
+export const PREDICTION_HISTORY_LIMIT = Math.max(
+  1,
+  parseIntEnv(ENVS.PREDICTION_HISTORY_LIMIT, 5),
+);

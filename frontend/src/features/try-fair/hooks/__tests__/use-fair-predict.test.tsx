@@ -2,11 +2,17 @@ import { act, cleanup, renderHook, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { PropsWithChildren } from "react";
-import { useFairPredict, type PredictResult } from "../use-fair-predict";
-import { runPredict, type BaseModelStacItem } from "../../api/stac";
+import {
+  useFairPredict,
+  type PredictResult,
+} from "@/features/try-fair/hooks/use-fair-predict";
+import {
+  runPredict,
+  type BaseModelStacItem,
+} from "@/features/try-fair/api/stac";
 import { TryFairResolution } from "@/enums";
 
-vi.mock("../../api/stac", () => ({ runPredict: vi.fn() }));
+vi.mock("@/features/try-fair/api/stac", () => ({ runPredict: vi.fn() }));
 
 const saved: PredictResult = {
   predictions: {
@@ -49,6 +55,23 @@ describe("saved prediction results", () => {
     expect(result.current.predictions).toEqual(saved.predictions);
     expect(result.current.predictionBBox).toEqual(saved.bbox);
     expect(result.current.predictionGridZoom).toBe(19);
+    expect(runPredict).not.toHaveBeenCalled();
+  });
+
+  it("replaces the visible result when restoring history without submitting inference", () => {
+    const { result } = renderHook(() => useFairPredict(saved), {
+      wrapper: wrapper(),
+    });
+    const other: PredictResult = {
+      ...saved,
+      modelId: "trees",
+      predictions: { type: "FeatureCollection", features: [] },
+    };
+    act(() => result.current.restoreResult(other));
+    expect(result.current.result).toEqual(other);
+    expect(result.current.predictions?.features).toHaveLength(0);
+    act(() => result.current.restoreResult(saved));
+    expect(result.current.result).toEqual(saved);
     expect(runPredict).not.toHaveBeenCalled();
   });
 

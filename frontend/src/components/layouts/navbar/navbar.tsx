@@ -22,6 +22,7 @@ import {
 } from "@/components/layouts/navbar/device-navbars";
 import { BackButton } from "@/components/ui/button";
 import { useNavbarState } from "@/components/layouts/navbar/hooks/use-navbar-state";
+import { CloudSaveStatus } from "@/components/layouts/navbar/cloud-save-status";
 
 const IS_HANKO_AUTH = AUTH_PROVIDER === "hanko";
 
@@ -101,6 +102,8 @@ export const NavBar = () => {
       >
         <div className="flex-1 flex gap-4 items-center justify-start">
           {showBackButton ? <BackButton /> : <NavLogo />}
+
+          <CloudSaveStatus />
         </div>
 
         <div className="flex-1 hidden sm:flex items-center justify-center">

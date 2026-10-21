@@ -1,5 +1,5 @@
 import { act, renderHook } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   NuqsTestingAdapter,
   type OnUrlUpdateFunction,
@@ -15,10 +15,41 @@ import {
   TryFairResolution,
 } from "@/enums";
 import React from "react";
+import type { BaseModelStacItem } from "@/features/try-fair/api/stac";
 
-vi.mock("../use-base-models", () => ({
-  useStacBaseModels: () => ({ models: [], loading: false }),
-  useStacLocalModels: () => ({ models: [], loading: false }),
+const catalogue = vi.hoisted(() => ({
+  base: [] as BaseModelStacItem[],
+  local: [] as BaseModelStacItem[],
+}));
+const modelWithZoom = (zoom?: number): BaseModelStacItem => ({
+  id: "recommended-model",
+  type: "Feature",
+  assets: {},
+  properties: {
+    title: "Recommended model",
+    description: "",
+    deprecated: false,
+    "mlm:name": "Recommended model",
+    "mlm:architecture": "",
+    "mlm:tasks": [],
+    "mlm:framework": "",
+    "fair:pinned": false,
+    "mlm:hyperparameters": {},
+    "fair:hyperparameters_spec": [],
+    "fair:category": "buildings",
+    "fair:recommended_zoom": zoom,
+    keywords: ["buildings"],
+    providers: [],
+  },
+});
+beforeEach(() => {
+  catalogue.base = [];
+  catalogue.local = [];
+});
+
+vi.mock("@/features/try-fair/hooks/use-base-models", () => ({
+  useStacBaseModels: () => ({ models: catalogue.base, loading: false }),
+  useStacLocalModels: () => ({ models: catalogue.local, loading: false }),
 }));
 
 describe("useTryFairParams", () => {
@@ -32,6 +63,103 @@ describe("useTryFairParams", () => {
       </NuqsTestingAdapter>
     );
   };
+
+  it.each([
+    [20, TryFairResolution.LOW],
+    [19, TryFairResolution.MID],
+    [18, TryFairResolution.HIGH],
+    [undefined, TryFairResolution.LOW],
+    [17, TryFairResolution.LOW],
+  ])("uses recommended zoom %s for the default size %s", (zoom, expected) => {
+    catalogue.base = [modelWithZoom(zoom)];
+    const { result } = renderHook(() => useTryFairParams(), {
+      wrapper: createWrapper({ model: "recommended-model" }),
+    });
+    expect(result.current.resolution).toBe(expected);
+    expect(result.current.urlState.resolution).toBe(expected);
+    expect(result.current.isParametersDefault).toBe(true);
+  });
+
+  it("uses local-model recommendations when the catalogue finishes loading", () => {
+    const { result, rerender } = renderHook(() => useTryFairParams(), {
+      wrapper: createWrapper({ model: "recommended-model" }),
+    });
+    expect(result.current.resolution).toBe(TryFairResolution.LOW);
+    catalogue.local = [modelWithZoom(18)];
+    rerender();
+    expect(result.current.resolution).toBe(TryFairResolution.HIGH);
+  });
+
+  it("keeps an explicit URL size, including Low, over the model recommendation", () => {
+    catalogue.base = [modelWithZoom(18)];
+    const { result } = renderHook(() => useTryFairParams(), {
+      wrapper: createWrapper({ model: "recommended-model", resolution: "low" }),
+    });
+    expect(result.current.resolution).toBe(TryFairResolution.LOW);
+    expect(result.current.isParametersDefault).toBe(false);
+    act(() => {
+      result.current.resetParameters();
+    });
+    expect(result.current.resolution).toBe(TryFairResolution.HIGH);
+    expect(result.current.isParametersDefault).toBe(true);
+  });
+
+  it("uses the recommendation when a URL size is invalid", () => {
+    catalogue.base = [modelWithZoom(19)];
+    const { result } = renderHook(() => useTryFairParams(), {
+      wrapper: createWrapper({
+        model: "recommended-model",
+        resolution: "invalid",
+      }),
+    });
+    expect(result.current.resolution).toBe(TryFairResolution.MID);
+  });
+
+  it("keeps a restored prediction's size instead of replacing it with the recommendation", async () => {
+    catalogue.base = [modelWithZoom(18)];
+    const { result } = renderHook(() => useTryFairParams(), {
+      wrapper: createWrapper({ model: "recommended-model" }),
+    });
+    await act(async () => {
+      await result.current.restoreParams({
+        ...result.current.urlState,
+        resolution: TryFairResolution.MID,
+      });
+    });
+    expect(result.current.resolution).toBe(TryFairResolution.MID);
+  });
+
+  it("restores a history entry's model, imagery, output, and parameters atomically", async () => {
+    const onUrlUpdate = vi.fn();
+    const { result } = renderHook(() => useTryFairParams(), {
+      wrapper: createWrapper({}, onUrlUpdate),
+    });
+    const snapshot = {
+      ...result.current.urlState,
+      model: "saved-model",
+      selectedModelId: "saved-model",
+      output: TryFairMapOutputType.POINTS,
+      resolution: TryFairResolution.HIGH,
+      confidence: 0.23,
+      feature: "trees",
+      mode: ModelType.IMAGERY,
+      imagery: "https://example.com/saved/{z}/{x}/{y}.png",
+      imageryType: TileServiceType.XYZ,
+      oamItem: null,
+      chooseLocation: false,
+      params: { confidence_threshold: 0.23, seed_min_distance: 8 },
+    };
+    await act(async () => {
+      await result.current.restoreParams(snapshot);
+    });
+    expect(onUrlUpdate).toHaveBeenCalledOnce();
+    const search = onUrlUpdate.mock.calls[0][0].searchParams as URLSearchParams;
+    expect(search.get("model")).toBe("saved-model");
+    expect(search.get("imagery")).toBe(snapshot.imagery);
+    expect(search.get("output")).toBe(TryFairMapOutputType.POINTS);
+    expect(search.get("resolution")).toBe(TryFairResolution.HIGH);
+    expect(JSON.parse(search.get("params")!)).toEqual(snapshot.params);
+  });
 
   it("should initialize with default parameters when no query params are supplied", () => {
     const { result } = renderHook(() => useTryFairParams(), {
