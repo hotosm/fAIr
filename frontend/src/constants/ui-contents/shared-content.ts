@@ -1,3 +1,4 @@
+import { FAIR_DOCS_URL } from "@/constants/routes";
 import { TSharedContent } from "@/types";
 
 export const SHARED_CONTENT: TSharedContent = {
@@ -112,6 +113,10 @@ export const SHARED_CONTENT: TSharedContent = {
             "A platform connecting mappers and AI models. It lets mappers find geo-AI models and use or adapt them in their own area. It is not a single AI doing the mapping.",
         },
         {
+          question: "Where can I find the fAIr documentation?",
+          answer: `The [fAIr documentation](${FAIR_DOCS_URL}) explains how fAIr works, its models and datasets, and how to contribute.`,
+        },
+        {
           question: "For whom is fAIr?",
           answer: `People meet fAIr at different levels:
 - Model developers: can share and publish their models on fAIr
@@ -131,7 +136,7 @@ export const SHARED_CONTENT: TSharedContent = {
         {
           question: "How do I validate its output? I don't trust AI.",
           answer:
-            "You will get the GeoJSON as output, and you have flexibility on what to use for validation. You can: confirm features in MapSwipe, verify on the ground with field mapping tools like Chatmap or Field TM or trace and fix manually in the mapping editors.",
+            "You will get the GeoJSON as output, and you have flexibility on what to use for validation. You can: confirm features in MapSwipe, verify on the ground with field mapping tools like Chatmap or FieldTM or trace and fix manually in the mapping editors.",
         },
         {
           question: "Do I have to be an advanced user to start?",

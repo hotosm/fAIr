@@ -199,7 +199,7 @@ class StacPropertiesPatchSerializer(serializers.Serializer):
     ``assets`` merges fields onto each named asset, or adds it when it carries an ``href``.
     """
 
-    _DENIED_KEYS = frozenset({"mlm:name", "fair:category"})
+    _DENIED_KEYS = frozenset({"mlm:name", "fair:category", "fair:pinned"})
     # Validation fetches each listed schema, so only the official extension host is accepted.
     _EXTENSION_HOST = "https://stac-extensions.github.io/"
 

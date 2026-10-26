@@ -75,6 +75,7 @@ export const APPLICATION_ROUTES = {
 };
 
 export const HOT_PRIVACY_POLICY_URL: string = "https://www.hotosm.org/privacy";
+export const FAIR_DOCS_URL: string = "https://hotosm.github.io/fAIr/";
 /**
  * The navigation tabs used in the profile layout.
  */

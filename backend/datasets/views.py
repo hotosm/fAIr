@@ -37,6 +37,7 @@ from shared.integrations.stac import (
     set_item_property,
 )
 
+from .deletion import delete_dataset
 from .models import AOI, Dataset
 from .serializers import AOISerializer, DatasetCreateSerializer, DatasetSerializer
 from .tasks import build_dataset
@@ -60,7 +61,12 @@ def _wants_expand_stac(request) -> bool:
     ),
     update=extend_schema(description="Replace a dataset (owner/admin only)."),
     partial_update=extend_schema(description="Patch a dataset (owner/admin only)."),
-    destroy=extend_schema(description="Delete a dataset (owner/admin only)."),
+    destroy=extend_schema(
+        description=(
+            "Delete a dataset and its STAC versions (owner/admin only). 409 while it is "
+            "building or training runs use it."
+        )
+    ),
     pin=extend_schema(
         description=(
             "Toggle the `fair:pinned` STAC property on the dataset (admin only). "
@@ -104,6 +110,9 @@ class DatasetViewSet(
         if self.action in {"publish", "unpublish", "build"}:
             return [IsAuthenticated(), IsOwnerOrAdmin()]
         return super().get_permissions()
+
+    def perform_destroy(self, instance: Dataset) -> None:
+        delete_dataset(instance)
 
     def get_serializer_context(self):
         context = super().get_serializer_context()

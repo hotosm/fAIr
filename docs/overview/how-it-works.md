@@ -41,7 +41,7 @@ Labels and imagery are used to train a model. A trained model then predicts matc
 
 ### 3. Validate
 
-Predictions are reviewed before they are used. A mapper can give feedback in the editor by accepting or rejecting each prediction, verify them on the ground with the Field Mapping Tasking Manager (FMTM, with QField) or Chatmap, or confirm them at scale through [MapSwipe](https://mapswipe.org/). Validating predictions by swiping is the Validate project of fAIrSwipe (fAIr plus MapSwipe), shown in the pipeline above.
+Predictions are reviewed before they are used. A mapper can give feedback in the editor by accepting or rejecting each prediction, verify them on the ground with [FieldTM](https://field.hotosm.org/) (with QField) or Chatmap, or confirm them at scale through [MapSwipe](https://mapswipe.org/). Validating predictions by swiping is the Validate project of fAIrSwipe (fAIr plus MapSwipe), shown in the pipeline above.
 
 ### 4. Use and share
 

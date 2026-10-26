@@ -4,6 +4,7 @@ from collections.abc import Sequence
 
 import httpx
 from django.conf import settings
+from django.db import transaction
 from django.db.models import Count, Q
 from django.http import HttpResponse, HttpResponseRedirect
 from django_filters.rest_framework import DjangoFilterBackend
@@ -46,6 +47,7 @@ from shared.integrations.stac import (
 from shared.integrations.zenml import list_runs_for_model
 from shared.stars import annotate_stars
 
+from .deletion import delete_base_model
 from .models import BaseModel, Category, LocalModel
 from .serializers import (
     BaseModelRegisterSerializer,
@@ -95,9 +97,11 @@ def _updated_preview(collection: str, item_id: str, data: dict) -> dict:
     return preview
 
 
+@transaction.atomic
 def _apply_pin(model, collection: str, data: dict) -> None:
     """Flip the DB flag, then mirror it (plus optional preview imagery and location) onto
     the model's STAC item when the model has been published."""
+    type(model).objects.select_for_update().get(pk=model.pk)
     properties: dict = {FAIR_PINNED_PROPERTY: data["is_pinned"]}
     if model.stac_item_id and (data.get("preview_imagery") or data.get("preview_location")):
         properties[FAIR_PREVIEW_PROPERTY] = _updated_preview(collection, model.stac_item_id, data)
@@ -110,16 +114,15 @@ def _apply_pin(model, collection: str, data: dict) -> None:
     _merge_validate_write(collection, model.stac_item_id, properties)
 
 
-def _merge_validate_write(
+def _validate_merge(
     collection: str,
     item_id: str,
     properties: dict,
     stac_extensions: Sequence[str] = (),
     assets: dict[str, dict] | None = None,
 ) -> None:
-    """Shallow-merge `properties` and `assets` onto the item, re-validate the merged item
-    against the fAIr schema, then write. The single read-validate-write path, so a metadata
-    edit or an arbitrary patch can never leave the item invalid."""
+    """Shallow-merge `properties` and `assets` onto a copy of the item and validate it
+    against the fAIr schema, raising `ValidationError` without writing."""
     from fair.stac.validators import validate_item
 
     item = get_item(collection, item_id)
@@ -129,11 +132,22 @@ def _merge_validate_write(
         raise ValidationError({"assets": [str(exc)]}) from exc
     if errors := validate_item(item):
         raise ValidationError({"stac": errors})
+
+
+def _merge_validate_write(
+    collection: str,
+    item_id: str,
+    properties: dict,
+    stac_extensions: Sequence[str] = (),
+    assets: dict[str, dict] | None = None,
+) -> None:
+    """The single read-validate-write path, so a metadata edit or an arbitrary patch can
+    never leave the item invalid."""
+    _validate_merge(collection, item_id, properties, stac_extensions, assets)
     patch_item(collection, item_id, properties, assets=assets, stac_extensions=stac_extensions)
 
 
-def _apply_metadata(collection: str, item_id: str, data: dict) -> None:
-    """Write the supplied title/description/fair:preview fields onto the item."""
+def _metadata_properties(data: dict) -> dict:
     properties: dict = {}
     if data.get("title"):
         properties["title"] = data["title"]
@@ -141,7 +155,12 @@ def _apply_metadata(collection: str, item_id: str, data: dict) -> None:
         properties["description"] = data["description"]
     if data.get("fair_preview") is not None:
         properties[FAIR_PREVIEW_PROPERTY] = data["fair_preview"]
-    _merge_validate_write(collection, item_id, properties)
+    return properties
+
+
+def _apply_metadata(collection: str, item_id: str, data: dict) -> None:
+    """Write the supplied title/description/fair:preview fields onto the item."""
+    _merge_validate_write(collection, item_id, _metadata_properties(data))
 
 
 class ModelMetadataMixin:
@@ -431,6 +450,12 @@ class LocalModelViewSet(StacExpandMixin, ModelMetadataMixin, viewsets.ReadOnlyMo
     retrieve=extend_schema(
         description="Retrieve one base model by id. `?expand=stac` inlines the STAC item."
     ),
+    destroy=extend_schema(
+        description=(
+            "Delete a base model with its STAC versions and inference service (admin only). "
+            "409 while it is registering or local models are built on it."
+        )
+    ),
     create=extend_schema(
         description=(
             "Register a base model from an inline STAC item JSON or a URL to one "
@@ -485,6 +510,7 @@ class BaseModelViewSet(
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
+    mixins.DestroyModelMixin,
     viewsets.GenericViewSet,
 ):
     stac_collection = BASE_MODELS_COLLECTION
@@ -508,7 +534,7 @@ class BaseModelViewSet(
         return annotate_stars(qs, self.request, key_field="name")
 
     def get_permissions(self):
-        if self.action in {"create", "pin", "metadata", "stac_properties"}:
+        if self.action in {"create", "destroy", "pin", "metadata", "stac_properties"}:
             return [IsAuthenticated(), IsAdmin()]
         if self.action in {"list", "retrieve"}:
             return [AllowAny()]
@@ -557,7 +583,8 @@ class BaseModelViewSet(
         register_base_model.enqueue(base_model_id=base_model.id, stac_item=stac_item)
         return Response(BaseModelSerializer(base_model).data, status=status.HTTP_202_ACCEPTED)
 
-    # TODO(E): on delete, deprovision the ksvc via fair.delete_knative_service.
+    def perform_destroy(self, instance: BaseModel) -> None:
+        delete_base_model(instance)
 
 
 class PinnedModelsView(APIView):

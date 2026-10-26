@@ -126,9 +126,11 @@ curl -s "https://<stac-host>/collections/base-models/items/<mlm:name>" | jq '.pr
 
 ## Re-registering
 
-The "Register / re-register" admin action re-publishes an already-published model
-from its STAC item. A model that never published (no `stac_item_id`) must be
-submitted again through the API.
+The "Re-register selected from STAC" admin action re-publishes an already-published
+model from its STAC item. A model that never published (no `stac_item_id`) must be
+submitted again through the API. Every registration writes the row's `is_pinned` to
+the new item's `fair:pinned`. Registering from the fAIr-models item replaces the title,
+description and `fair:preview` set since the last registration.
 
 ## Optional: feature the model (pin)
 
@@ -151,3 +153,33 @@ This flips `is_pinned` in the database and, for a published model, writes
 the imagery, center and place of the item's `fair:preview`, which the model
 must already have. A new `preview_location` also clears the preview `bbox`. All pinned models (base and local) are listed together at
 `/api/v1/pinned-models/`.
+
+## Edit the title, description and preview
+
+`PATCH /api/v1/base-models/<id>/metadata/` takes any of `title`, `description` and
+`fair_preview`, and writes them to the STAC item after validating the merged item.
+The Django admin change form edits the same three fields, and its "Pin selected" and
+"Unpin selected" actions behave like the pin endpoint.
+
+## Remove a model
+
+```bash
+curl -X DELETE https://<host>/api/v1/base-models/<id>/ \
+  -H "Authorization: Bearer <admin-token>"
+```
+
+This removes the database row, the inference service (when the backend has a Kubernetes
+configuration), and the STAC item with its archived versions. If removing the STAC item
+fails after the service is gone, the row is restored and `reconcile_knative` redeploys the
+service. It returns `409` while the model is registering or
+local models are built on it. Deleting from the Django admin does the same.
+
+## Check that the database and STAC agree
+
+```bash
+docker compose exec api python manage.py check_stac_drift
+```
+
+It compares base models, local models and built datasets with their STAC collections.
+It lists rows without a live STAC item, live STAC items without a row, and model pin
+flags that differ, and exits non-zero when it finds any.

@@ -617,7 +617,6 @@ def test_base_model_stac_patch_merges_arbitrary_properties(
         {
             "properties": {
                 "fair:coverage": "Nepal",
-                "fair:pinned": True,
                 "description": "Synced",
             }
         },
@@ -628,7 +627,6 @@ def test_base_model_stac_patch_merges_arbitrary_properties(
     assert collection == "base-models"
     assert item_id == "meta-model"
     assert props["fair:coverage"] == "Nepal"
-    assert props["fair:pinned"] is True
     assert props["description"] == "Synced"
     mock_get.assert_called_once_with("base-models", "meta-model")
     validated = mock_validate.call_args.args[0]

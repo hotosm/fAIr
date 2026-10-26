@@ -1,3 +1,4 @@
+from django.conf import settings
 from drf_spectacular.utils import OpenApiExample, extend_schema, extend_schema_view
 from rest_framework import viewsets
 from rest_framework.exceptions import ValidationError
@@ -7,9 +8,10 @@ from accounts.authentication import OsmAuthentication
 from accounts.permissions import IsOwnerOrAdmin, _is_admin
 
 from .models import UserState
-from .serializers import MAX_STATE_BYTES, UserStateSerializer
+from .serializers import UserStateSerializer
 
-MAX_BODY_BYTES = MAX_STATE_BYTES + 1024
+# Room for the request envelope around `state`.
+BODY_OVERHEAD_BYTES = 1024
 
 _STATE_EXAMPLE = OpenApiExample(
     "Save a past prediction for the profile",
@@ -38,7 +40,7 @@ _STATE_EXAMPLE = OpenApiExample(
     create=extend_schema(
         description=(
             "Save a new state for the caller. `state` is any JSON value except null, "
-            f"up to {MAX_STATE_BYTES // 1024} KB."
+            f"up to {settings.USER_STATE_MAX_BYTES} bytes."
         ),
         examples=[_STATE_EXAMPLE],
     ),
@@ -63,8 +65,9 @@ class UserStateViewSet(viewsets.ModelViewSet):
 
     def initial(self, request, *args, **kwargs) -> None:
         super().initial(request, *args, **kwargs)
-        if int(request.META.get("CONTENT_LENGTH") or 0) > MAX_BODY_BYTES:
-            raise ValidationError(f"Request body must be at most {MAX_BODY_BYTES} bytes.")
+        max_body_bytes = settings.USER_STATE_MAX_BYTES + BODY_OVERHEAD_BYTES
+        if int(request.META.get("CONTENT_LENGTH") or 0) > max_body_bytes:
+            raise ValidationError(f"Request body must be at most {max_body_bytes} bytes.")
 
     def get_queryset(self):
         if getattr(self, "swagger_fake_view", False):

@@ -158,13 +158,14 @@ Only checked when `DEBUG=false`.
 
 ### Logging + pagination
 
-| Name                             | Required | Default  | Description                                                     |
-| -------------------------------- | -------- | -------- | --------------------------------------------------------------- |
-| `LOG_PATH`                       | no       | `./logs` | Directory for rotating log files.                               |
-| `DEFAULT_PAGINATION_SIZE`        | no       | `50`     | DRF page size.                                                  |
-| `SESSION_COOKIE_AGE`             | no       | `3600`   | Session cookie TTL in seconds.                                  |
-| `CACHE_TIMEOUT_MINUTES`          | no       | `5`      | Default LocMem cache TTL for non-STAC entries.                  |
-| `LOG_LINE_STREAM_TRUNCATE_VALUE` | no       | `10`     | Per-step log-line truncation factor for streamed pipeline logs. |
+| Name                             | Required | Default   | Description                                                                                                             |
+| -------------------------------- | -------- | --------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `LOG_PATH`                       | no       | `./logs`  | Directory for rotating log files.                                                                                       |
+| `DEFAULT_PAGINATION_SIZE`        | no       | `50`      | DRF page size.                                                                                                          |
+| `SESSION_COOKIE_AGE`             | no       | `3600`    | Session cookie TTL in seconds.                                                                                          |
+| `CACHE_TIMEOUT_MINUTES`          | no       | `5`       | Default LocMem cache TTL for non-STAC entries.                                                                          |
+| `LOG_LINE_STREAM_TRUNCATE_VALUE` | no       | `10`      | Per-step log-line truncation factor for streamed pipeline logs.                                                         |
+| `USER_STATE_MAX_BYTES`           | no       | `2097152` | Largest saved user state in bytes of compact JSON; a request body over this plus 1024 bytes is rejected before parsing. |
 
 ### Operational tuning
 

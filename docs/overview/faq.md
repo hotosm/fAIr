@@ -19,7 +19,7 @@ fAIr works with RGB high-resolution imagery (CC BY 4.0), ideally hosted on [Open
 
 ### How do I validate the output? I do not trust AI.
 
-You get the predictions as GeoJSON, and you choose how to check them. You can confirm features in [MapSwipe](https://mapswipe.org/), verify them on the ground with the [Field Mapping Tasking Manager](https://fmtm.hotosm.org/), or trace and fix them by hand in the editor.
+You get the predictions as GeoJSON, and you choose how to check them. You can confirm features in [MapSwipe](https://mapswipe.org/), verify them on the ground with [FieldTM](https://field.hotosm.org/), or trace and fix them by hand in the editor.
 
 ### Do I have to be advanced to start?
 

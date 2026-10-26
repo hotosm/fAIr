@@ -323,6 +323,7 @@ CACHES = {
 
 CACHE_TIMEOUT_MINUTES = settings.cache_timeout_minutes
 LOG_LINE_STREAM_TRUNCATE_VALUE = settings.log_line_stream_truncate_value
+USER_STATE_MAX_BYTES = settings.user_state_max_bytes
 
 HEALTH_PROBE_TIMEOUT = settings.health_probe_timeout
 PREDICTION_SYNC_INTERVAL = settings.prediction_sync_interval
