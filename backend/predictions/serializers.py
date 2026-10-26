@@ -1,15 +1,38 @@
+from django.utils.http import MAX_URL_LENGTH
+from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from notifications.serializers import UserSerializer
-from shared.serializers import MAX_ZOOM, MIN_ZOOM
+from shared.serializers import (
+    MAX_ZOOM,
+    MIN_ZOOM,
+    imagery_from_shorthand,
+    validate_input_imagery,
+    validate_public_url,
+)
 
 from .models import Prediction
 
 
 class PredictionSubmitSerializer(serializers.Serializer):
     model_stac_id = serializers.CharField(max_length=64)
-    image_uri = serializers.URLField()
+    imagery = serializers.DictField(
+        child=serializers.URLField(max_length=MAX_URL_LENGTH),
+        required=False,
+        allow_empty=False,
+        help_text=(
+            "Imagery for each model input, keyed by the input's name, e.g. "
+            '{"post": "https://.../{z}/{x}/{y}", "pre": "https://.../{z}/{x}/{y}"}; a single-image '
+            'model reads {"image": ...}. Each is a TMS template or a TileJSON URL, and the '
+            "prediction keeps the tiles that every input has imagery for."
+        ),
+    )
+    image_uri = serializers.URLField(
+        max_length=MAX_URL_LENGTH,
+        required=False,
+        help_text='Shorthand for imagery {"image": ...}; give either imagery or image_uri.',
+    )
     bbox = serializers.ListField(
         child=serializers.FloatField(), min_length=4, max_length=4, required=False
     )
@@ -27,12 +50,21 @@ class PredictionSubmitSerializer(serializers.Serializer):
     )
     description = serializers.CharField(required=False, allow_blank=True, default="")
 
+    def validate_image_uri(self, value: str) -> str:
+        return validate_public_url(value, ("http", "https"))
+
+    def validate_imagery(self, value: dict[str, str]) -> dict[str, str]:
+        return validate_input_imagery(
+            value, lambda url: validate_public_url(url, ("http", "https"))
+        )
+
     def validate_geometry(self, value):
         if not isinstance(value, dict) or value.get("type") not in ("Polygon", "MultiPolygon"):
             raise serializers.ValidationError("geometry must be a GeoJSON Polygon or MultiPolygon.")
         return value
 
     def validate(self, attrs):
+        attrs = imagery_from_shorthand(attrs, "image_uri")
         bbox = attrs.pop("bbox", None)
         geometry = attrs.get("geometry")
         if bool(bbox) == bool(geometry):
@@ -80,6 +112,11 @@ class PredictionSerializer(serializers.ModelSerializer):
         read_only=True, allow_null=True, help_text="Category slug of the model that ran."
     )
     assets = serializers.SerializerMethodField()
+    image_uri = serializers.SerializerMethodField(help_text="Imagery of the model's first input.")
+
+    @extend_schema_field(OpenApiTypes.URI)
+    def get_image_uri(self, obj: Prediction) -> str:
+        return obj.primary_imagery
 
     @extend_schema_field(PredictionAssetsSerializer(allow_null=True))
     def get_assets(self, obj: Prediction) -> dict[str, str] | None:
@@ -101,6 +138,7 @@ class PredictionSerializer(serializers.ModelSerializer):
             "zenml_run_id",
             "local_model_stac_id",
             "category",
+            "imagery",
             "image_uri",
             "geometry",
             "zoom",
@@ -119,6 +157,7 @@ class PredictionSerializer(serializers.ModelSerializer):
         read_only_fields = [
             "id",
             "zenml_run_id",
+            "imagery",
             "category",
             "status",
             "results_ready",

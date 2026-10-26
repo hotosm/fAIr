@@ -1,6 +1,6 @@
 ---
 icon: lucide/help-circle
-description: What fAIr is, why it exists, and how it works as a collection of models.
+description: What fAIr is, why it exists, how it works as a collection of models, and its position on OpenStreetMap.
 ---
 
 # What is fAIr
@@ -22,6 +22,12 @@ fAIr is built so that the communities who will use a model are the ones who trai
 - **Local adaptation.** Advanced users fine-tune a model to their own area, producing a local version that reflects local conditions.
 - **Built with communities.** Models are trained and validated by the communities that use them, close to the area being mapped.
 - **Open source and discoverable.** Models, training datasets, and outputs are published openly (for example on [Hugging Face](https://huggingface.co/hotosm) and the [Humanitarian Data Exchange](https://data.humdata.org/)) and cataloged in STAC, so they can be found and reused.
+
+## fAIr and OpenStreetMap
+
+fAIr offers its outputs as open data layers: HOT publishes validated outputs on the [Humanitarian Data Exchange](https://data.humdata.org/) and [Hugging Face](https://huggingface.co/hotosm) (see [Datasets](../datasets/index.md)). Bringing AI-generated features into OpenStreetMap (OSM) is outside fAIr's aim, given the sensitivity around AI-generated data. The outputs are open data, so a mapper may choose to review them by hand in JOSM; that choice, and respecting the license of the outputs and the imagery, rests with the mapper.
+
+HOT values the human-generated data that makes OSM useful, and would weigh that value critically in any future decision to bring AI-generated features into OSM.
 
 ## Where it fits
 

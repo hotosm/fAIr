@@ -29,7 +29,8 @@ def published_dataset(db, authed_user: OsmUser) -> Dataset:
     return Dataset.objects.create(
         stac_id="buildings-banepa",
         title="Buildings Banepa",
-        source_imagery="https://tiles.example/{z}/{x}/{y}.png",
+        imagery={"image": "https://tiles.example/{z}/{x}/{y}.png"},
+        primary_input="image",
         status=Dataset.Status.BUILT,
         user=authed_user,
     )
@@ -130,7 +131,8 @@ def test_training_submit_404s_dataset_not_published(
     Dataset.objects.create(
         stac_id="building-ds",
         title="Building",
-        source_imagery="https://tiles.example/{z}/{x}/{y}.png",
+        imagery={"image": "https://tiles.example/{z}/{x}/{y}.png"},
+        primary_input="image",
         status=Dataset.Status.BUILDING,
         user=authed_user,
     )

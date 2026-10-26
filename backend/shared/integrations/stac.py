@@ -28,8 +28,7 @@ __all__ = [
     "DATASETS_COLLECTION",
     "FAIR_CATEGORY_PROPERTY",
     "FAIR_PINNED_PROPERTY",
-    "FAIR_PREVIEW_LOCATION_PROPERTY",
-    "FAIR_SOURCE_IMAGERY_PROPERTY",
+    "FAIR_PREVIEW_PROPERTY",
     "LOCAL_MODELS_COLLECTION",
     "add_stac_extensions",
     "apply_item_patch",
@@ -56,8 +55,7 @@ DOWNLOADABLE_STAC_ASSETS = ("model", "checkpoint", "training-metrics", "download
 _ASSET_MIRROR_TIMEOUT_S = 900
 
 FAIR_PINNED_PROPERTY = "fair:pinned"
-FAIR_SOURCE_IMAGERY_PROPERTY = "fair:source_imagery"
-FAIR_PREVIEW_LOCATION_PROPERTY = "fair:preview_location"
+FAIR_PREVIEW_PROPERTY = "fair:preview"
 FAIR_CATEGORY_PROPERTY = "fair:category"
 
 _CACHE_TTL_SECONDS = settings.STAC_CACHE_TTL

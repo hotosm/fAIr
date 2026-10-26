@@ -146,12 +146,12 @@ export const SHARED_CONTENT: TSharedContent = {
         {
           question: "Where does the finished data go?",
           answer:
-            "It's your choice: You can bring it into OpenStreetMap or other open platforms like HDX, or download outputs as points, lines or polygons.",
+            "You can download the outputs as points, lines or polygons. HOT publishes validated outputs as open data layers on the Humanitarian Data Exchange and Hugging Face.",
         },
         {
-          question: "Is merging with OSM data automatic?",
+          question: "Does fAIr add its data to OpenStreetMap?",
           answer:
-            "No, not at the moment. fAIr doesn't push data to OSM; it's the user who decides what to do with it. We are working with MapSwipe on a project to assist with this.",
+            "No. Bringing AI-generated features into OpenStreetMap is outside fAIr's aim, given the sensitivity around AI-generated data. The outputs are open data, so a mapper may choose to review them by hand in JOSM; that choice, and respecting the license of the outputs and the imagery, rests with the mapper.",
         },
       ],
     },

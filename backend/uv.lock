@@ -1065,7 +1065,7 @@ requires-dist = [
     { name = "djangorestframework", specifier = ">=3.15" },
     { name = "djangorestframework-gis", specifier = ">=1.1" },
     { name = "drf-spectacular", specifier = ">=0.29" },
-    { name = "fair-py-ops", extras = ["k8s"], specifier = "==0.3.16" },
+    { name = "fair-py-ops", extras = ["k8s"], specifier = "==0.3.17" },
     { name = "geomltoolkits", specifier = ">=2.1.0" },
     { name = "geopandas", specifier = ">=1.0" },
     { name = "gpxpy", specifier = ">=1.6" },
@@ -1099,9 +1099,10 @@ test = [
 
 [[package]]
 name = "fair-py-ops"
-version = "0.3.16"
+version = "0.3.17"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
+    { name = "aiohttp" },
     { name = "httpx" },
     { name = "mlflow" },
     { name = "onnxruntime" },
@@ -1111,9 +1112,9 @@ dependencies = [
     { name = "universal-pathlib" },
     { name = "zenml" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ac/54/84def37e240a323f9f5b4c14709b3320e1e7b4c8cda341a263272c070c03/fair_py_ops-0.3.16.tar.gz", hash = "sha256:0e8a8835c2a29bed4dfa0d5fea82ddddd0ac92cefce2214f670c2957451a6b8a", size = 3964626, upload-time = "2026-10-06T19:40:12.567Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a0/60/1a8b7ff3e293d4f76adee1da6f5779bd654e4093ca48a0e74e1f634a0968/fair_py_ops-0.3.17.tar.gz", hash = "sha256:cde2e8ad643d54943a2c4fc7f7611cd5b009ab2bd749bb323f0c80f8c56ef4c2", size = 3987237, upload-time = "2026-10-26T03:56:29.394Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b0/38/6b04251b39b6dcca73d9372f1aed4dcc3583e9008b7fe3c3e38c2c9c97f0/fair_py_ops-0.3.16-py3-none-any.whl", hash = "sha256:887f9d1af8cd317dd946034403b243da557f97f0fa8fa5cbc5d5504c4e151c4d", size = 4127882, upload-time = "2026-10-06T19:40:10.86Z" },
+    { url = "https://files.pythonhosted.org/packages/b3/a1/443ab10e522e26fbc83dcb98ebb93d32e5517815c0132f65b76b7f72ebba/fair_py_ops-0.3.17-py3-none-any.whl", hash = "sha256:37ef8ec9a9e2542f45a8b5b1f1744a8820a322dd763f61d12faf09222ac2d120", size = 4132017, upload-time = "2026-10-26T03:56:27.459Z" },
 ]
 
 [package.optional-dependencies]

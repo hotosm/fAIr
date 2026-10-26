@@ -1,3 +1,4 @@
+import copy
 import importlib.util
 from collections.abc import Sequence
 
@@ -34,8 +35,7 @@ from shared.integrations.stac import (
     DOWNLOADABLE_STAC_ASSETS,
     FAIR_CATEGORY_PROPERTY,
     FAIR_PINNED_PROPERTY,
-    FAIR_PREVIEW_LOCATION_PROPERTY,
-    FAIR_SOURCE_IMAGERY_PROPERTY,
+    FAIR_PREVIEW_PROPERTY,
     LOCAL_MODELS_COLLECTION,
     apply_item_patch,
     bulk_get_cached_items,
@@ -63,8 +63,8 @@ _STAC_FETCH_TIMEOUT_S = 30
 
 
 def _derive_preview_props(collection: str, item_id: str, properties: dict) -> dict:
-    """Reverse-geocode place/country from the pinned location via fair-py-ops so
-    the preview props stay consistent with how registration derives them."""
+    """Reverse-geocode place/country from the preview center via fair-py-ops so
+    the location props stay consistent with how registration derives them."""
     from fair.stac.location import derive_location_props
     from shapely.geometry import shape
 
@@ -74,19 +74,38 @@ def _derive_preview_props(collection: str, item_id: str, properties: dict) -> di
     return derive_location_props(properties, list(shape(geometry).bounds))
 
 
+def _updated_preview(collection: str, item_id: str, data: dict) -> dict:
+    """The item's `fair:preview` with the supplied imagery and location applied; a new
+    location also replaces the place, so the preview stays one consistent record."""
+    from fair.stac.location import place_from_center
+
+    preview = get_item(collection, item_id).properties.get(FAIR_PREVIEW_PROPERTY)
+    if preview is None:
+        raise ValidationError(
+            f"Model has no {FAIR_PREVIEW_PROPERTY} to update; set it with the metadata action."
+        )
+    preview = copy.deepcopy(preview)
+    if imagery := data.get("preview_imagery"):
+        preview["imagery"] = {"url": imagery, "type": "tms"}
+    if location := data.get("preview_location"):
+        lon, lat = location["coordinates"]
+        preview["center"] = [lon, lat]
+        preview["place"] = place_from_center(lon, lat)
+        preview.pop("bbox", None)
+    return preview
+
+
 def _apply_pin(model, collection: str, data: dict) -> None:
-    """Flip the DB flag, then mirror it (plus optional preview metadata) onto
-    the model's STAC item when the model has been published. A new preview
-    location re-derives the place/country props so they stay consistent."""
+    """Flip the DB flag, then mirror it (plus optional preview imagery and location) onto
+    the model's STAC item when the model has been published."""
+    properties: dict = {FAIR_PINNED_PROPERTY: data["is_pinned"]}
+    if model.stac_item_id and (data.get("preview_imagery") or data.get("preview_location")):
+        properties[FAIR_PREVIEW_PROPERTY] = _updated_preview(collection, model.stac_item_id, data)
     model.is_pinned = data["is_pinned"]
     model.save(update_fields=["is_pinned", "last_modified"])
     if not model.stac_item_id:
         return
-    properties: dict = {FAIR_PINNED_PROPERTY: model.is_pinned}
-    if data.get("source_imagery"):
-        properties[FAIR_SOURCE_IMAGERY_PROPERTY] = data["source_imagery"]
-    if location := data.get("pinned_location"):
-        properties[FAIR_PREVIEW_LOCATION_PROPERTY] = location
+    if data.get("preview_location"):
         properties.update(_derive_preview_props(collection, model.stac_item_id, properties))
     _merge_validate_write(collection, model.stac_item_id, properties)
 
@@ -121,7 +140,7 @@ def _apply_metadata(collection: str, item_id: str, data: dict) -> None:
     if data.get("description"):
         properties["description"] = data["description"]
     if data.get("fair_preview") is not None:
-        properties["fair:preview"] = data["fair_preview"]
+        properties[FAIR_PREVIEW_PROPERTY] = data["fair_preview"]
     _merge_validate_write(collection, item_id, properties)
 
 
@@ -166,10 +185,9 @@ class ModelMetadataMixin:
         responses={200: OpenApiTypes.OBJECT},
         examples=[
             OpenApiExample(
-                "Sync imagery and description",
+                "Sync the description",
                 value={
                     "properties": {
-                        "fair:source_imagery": "https://tiles.example/{z}/{x}/{y}.png",
                         "description": "Synced from the updated model card.",
                     }
                 },
@@ -325,8 +343,8 @@ def _fetch_stac_item(url: str) -> dict:
         description=(
             "Pin/unpin a model (admin only). Flips the DB `is_pinned` flag and, "
             "for a published model, mirrors it to `fair:pinned` on the STAC item. "
-            "Optional `source_imagery` (TMS) and `pinned_location` (GeoJSON Point) "
-            "are written as `fair:source_imagery` / `fair:preview_location`."
+            "Optional `preview_imagery` (TMS) and `preview_location` (GeoJSON Point) "
+            "update `fair:preview` imagery, center and place."
         ),
     ),
     runs=extend_schema(description="List ZenML pipeline runs that produced this model."),
@@ -543,12 +561,8 @@ class BaseModelViewSet(
 
 
 class PinnedModelsView(APIView):
-    """One feed of all pinned models (base + local) for a featured view.
-
-    Public read, visibility-filtered. `?expand=stac` inlines each STAC item so
-    the pin preview metadata (`fair:source_imagery` / `fair:preview_location`)
-    comes back in the same call.
-    """
+    """Public, visibility-filtered feed of pinned base and local models; `?expand=stac` inlines
+    each STAC item with its `fair:preview`."""
 
     authentication_classes = [OsmAuthentication]
     permission_classes = [AllowAny]

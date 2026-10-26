@@ -5,6 +5,7 @@ from django.db.models.functions import Coalesce
 from accounts.models import OsmUser
 from modelregistry.models import BaseModel, LocalModel
 from shared.enums import PipelineRunStatus, Visibility
+from shared.imagery import InputImagery
 
 
 def _model_category(model: type[BaseModel] | type[LocalModel]) -> Subquery:
@@ -19,10 +20,9 @@ class PredictionQuerySet(models.QuerySet):
         return self.annotate(category=category)
 
 
-class Prediction(models.Model):
+class Prediction(InputImagery):
     zenml_run_id = models.CharField(max_length=64, unique=True, null=True, blank=True)
     local_model_stac_id = models.CharField(max_length=64)
-    image_uri = models.URLField()
     geometry = models.JSONField()
     zoom = models.PositiveSmallIntegerField()
     params = models.JSONField(default=dict, blank=True)

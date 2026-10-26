@@ -31,8 +31,8 @@ Yes. Developers write model code and publish it to fAIr, where it becomes availa
 
 ### Where does the finished data go?
 
-It is your choice. You can bring it into OpenStreetMap, publish it to open platforms like the [Humanitarian Data Exchange](https://data.humdata.org/), or download the outputs as points, lines, or polygons.
+You can download the outputs as points, lines, or polygons. HOT publishes validated outputs as open data layers on the [Humanitarian Data Exchange](https://data.humdata.org/) and [Hugging Face](https://huggingface.co/hotosm); see [Datasets](../datasets/index.md).
 
-### Is merging with OpenStreetMap automatic?
+### Does fAIr add its data to OpenStreetMap?
 
-No. Merging is a manual step: the mapper decides what to add to OpenStreetMap, and a MapSwipe project to assist with this is in progress. See [How it works](how-it-works.md#4-use-and-share).
+No. Bringing AI-generated features into OpenStreetMap is outside fAIr's aim, given the sensitivity around AI-generated data. The outputs are open data, so a mapper may choose to review them by hand in JOSM; that choice, and respecting the license of the outputs and the imagery, rests with the mapper. See [fAIr and OpenStreetMap](what-is-fair.md#fair-and-openstreetmap).

@@ -145,28 +145,26 @@ class BaseModelRegisterSerializer(serializers.Serializer):
 
 
 class ModelPinSerializer(serializers.Serializer):
-    """Pin/unpin a model. `is_pinned` flips the DB flag; when supplied,
-    `source_imagery` (a TMS template) and `pinned_location` (a GeoJSON Point)
-    are written onto the model's STAC item as `fair:source_imagery` and
-    `fair:preview_location`."""
+    """Pin or unpin a model; `preview_imagery` (TMS template) and `preview_location` (GeoJSON
+    Point) update the imagery, center and place of its STAC `fair:preview`."""
 
     is_pinned = serializers.BooleanField(default=True)
-    source_imagery = serializers.CharField(required=False, allow_blank=True, default="")
-    pinned_location = serializers.JSONField(required=False)
+    preview_imagery = serializers.CharField(required=False)
+    preview_location = serializers.JSONField(required=False)
 
-    def validate_source_imagery(self, value: str) -> str:
-        if value and any(p not in value for p in TMS_PLACEHOLDERS):
+    def validate_preview_imagery(self, value: str) -> str:
+        if any(p not in value for p in TMS_PLACEHOLDERS):
             raise serializers.ValidationError(
-                f"source_imagery must contain placeholders: {', '.join(TMS_PLACEHOLDERS)}"
+                f"preview_imagery must contain placeholders: {', '.join(TMS_PLACEHOLDERS)}"
             )
         return value
 
-    def validate_pinned_location(self, value: object) -> dict[str, Any]:
+    def validate_preview_location(self, value: object) -> dict[str, Any]:
         if not isinstance(value, dict):
-            raise serializers.ValidationError("pinned_location must be a GeoJSON Point.")
+            raise serializers.ValidationError("preview_location must be a GeoJSON Point.")
         location = cast("dict[str, Any]", value)
         if location.get("type") != "Point":
-            raise serializers.ValidationError("pinned_location must be a GeoJSON Point.")
+            raise serializers.ValidationError("preview_location must be a GeoJSON Point.")
         coordinates = location.get("coordinates")
         if not (isinstance(coordinates, list) and len(coordinates) == 2):
             raise serializers.ValidationError("Point coordinates must be [lon, lat].")

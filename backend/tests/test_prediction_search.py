@@ -16,7 +16,8 @@ def owner(db) -> OsmUser:
 def _prediction(owner: OsmUser, description: str, visibility: str = Visibility.PRIVATE) -> Prediction:
     return Prediction.objects.create(
         local_model_stac_id="dinov3s-buildings",
-        image_uri="https://tile.example.com/{z}/{x}/{y}.png",
+        imagery={"image": "https://tile.example.com/{z}/{x}/{y}.png"},
+        primary_input="image",
         geometry=_SQUARE,
         zoom=19,
         user=owner,

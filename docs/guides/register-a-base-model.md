@@ -141,12 +141,13 @@ curl -X PATCH https://<host>/api/v1/base-models/<id>/pin/ \
   -H "Content-Type: application/json" \
   -d '{
     "is_pinned": true,
-    "source_imagery": "https://tiles.example/{z}/{x}/{y}.png",
-    "pinned_location": {"type": "Point", "coordinates": [<lon>, <lat>]}
+    "preview_imagery": "https://tiles.example/{z}/{x}/{y}.png",
+    "preview_location": {"type": "Point", "coordinates": [<lon>, <lat>]}
   }'
 ```
 
 This flips `is_pinned` in the database and, for a published model, writes
-`fair:pinned`, `fair:source_imagery`, and `fair:preview_location` to the STAC
-item. All pinned models (base and local) are listed together at
+`fair:pinned` to the STAC item. `preview_imagery` and `preview_location` update
+the imagery, center and place of the item's `fair:preview`, which the model
+must already have. A new `preview_location` also clears the preview `bbox`. All pinned models (base and local) are listed together at
 `/api/v1/pinned-models/`.

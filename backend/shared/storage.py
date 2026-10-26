@@ -1,4 +1,5 @@
 from django.conf import settings
+from fair.stac.inputs import IMAGE_INPUT, SINGLE_CHIPS_ASSET, input_chips_asset
 from fair.utils.storage import DatasetStoragePaths, LocalModelStoragePaths
 
 
@@ -55,12 +56,14 @@ class StoragePaths:
     #  datasets
 
     @classmethod
-    def dataset_chips_dir_key(cls, stac_id: str) -> str:
-        return f"{_folder()}{cls.DATASETS_ROOT}/{stac_id}/chips"
+    def dataset_chips_dir_key(cls, stac_id: str, input_name: str) -> str:
+        # Built single-input datasets hold their chips in `chips/`; asset URLs derive from it.
+        folder = SINGLE_CHIPS_ASSET if input_name == IMAGE_INPUT else input_chips_asset(input_name)
+        return f"{_folder()}{cls.DATASETS_ROOT}/{stac_id}/{folder}"
 
     @classmethod
-    def dataset_chips_dir_uri(cls, stac_id: str) -> str:
-        return cls._uri(cls.dataset_chips_dir_key(stac_id))
+    def dataset_chips_dir_uri(cls, stac_id: str, input_name: str) -> str:
+        return cls._uri(cls.dataset_chips_dir_key(stac_id, input_name))
 
     @classmethod
     def dataset_labels_dir_key(cls, stac_id: str) -> str:
@@ -85,12 +88,12 @@ class StoragePaths:
     #  predictions: input chips
 
     @classmethod
-    def prediction_input_dir_key(cls, prediction_id: int) -> str:
-        return f"{_folder()}{cls.PREDICTIONS_ROOT}/{prediction_id}/input"
+    def prediction_input_dir_key(cls, prediction_id: int, input_name: str) -> str:
+        return f"{_folder()}{cls.PREDICTIONS_ROOT}/{prediction_id}/input/{input_name}"
 
     @classmethod
-    def prediction_input_dir_uri(cls, prediction_id: int) -> str:
-        return cls._uri(cls.prediction_input_dir_key(prediction_id))
+    def prediction_input_dir_uri(cls, prediction_id: int, input_name: str) -> str:
+        return cls._uri(cls.prediction_input_dir_key(prediction_id, input_name))
 
     #  predictions: outputs (deterministic; populated by post_run)
 

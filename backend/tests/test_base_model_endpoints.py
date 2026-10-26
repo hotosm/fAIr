@@ -1,3 +1,4 @@
+import copy
 from unittest.mock import MagicMock, patch
 
 import pystac
@@ -274,14 +275,29 @@ def test_base_model_pin_sets_db_flag_and_stac(
     assert props == {"fair:pinned": True}
 
 
+_PREVIEW = {
+    "center": [85.52, 27.63],
+    "bbox": [85.51, 27.62, 85.53, 27.64],
+    "zoom": {"recommended": 19},
+    "imagery": {"url": "https://old.example/{z}/{x}/{y}", "type": "tms", "name": "Old imagery"},
+    "place": {"name": "Banepa", "country": "Nepal", "country_code": "NP"},
+}
+
+
+def _stac_item_with_preview(*_: object) -> pystac.Item:
+    item = _stac_item()
+    item.properties["fair:preview"] = copy.deepcopy(_PREVIEW)
+    return item
+
+
 @patch("modelregistry.views.patch_item")
-@patch("modelregistry.views.get_item", side_effect=_stac_item)
+@patch("modelregistry.views.get_item", side_effect=_stac_item_with_preview)
 @patch("fair.stac.validators.validate_item", return_value=[])
 @patch(
     "modelregistry.views.get_cached_item",
     return_value={"geometry": {"type": "Point", "coordinates": [-13.23723, 8.47532]}},
 )
-def test_base_model_pin_writes_imagery_and_location_to_stac(
+def test_base_model_pin_writes_preview_imagery_and_location(
     mock_cached, mock_validate, mock_getitem, mock_stac, admin: OsmUser
 ) -> None:
     base_model = BaseModel.objects.create(name="pin-me", user=admin, stac_item_id="pin-me")
@@ -289,20 +305,59 @@ def test_base_model_pin_writes_imagery_and_location_to_stac(
         f"/api/v1/base-models/{base_model.id}/pin/",
         {
             "is_pinned": True,
-            "source_imagery": "https://tiles.example/{z}/{x}/{y}.png",
-            "pinned_location": {"type": "Point", "coordinates": [-13.23723, 8.47532]},
+            "preview_imagery": "https://tiles.example/{z}/{x}/{y}.png",
+            "preview_location": {"type": "Point", "coordinates": [-13.23723, 8.47532]},
         },
         format="json",
     )
     assert resp.status_code == 200
     props = mock_stac.call_args.args[2]
     assert props["fair:pinned"] is True
-    assert props["fair:source_imagery"] == "https://tiles.example/{z}/{x}/{y}.png"
-    assert props["fair:preview_location"] == {"type": "Point", "coordinates": [-13.23723, 8.47532]}
-    # place/country reverse-geocoded from the location (kept consistent)
-    assert props["fair:preview_country"]
-    assert props["fair:preview_place"]
-    assert props["fair:preview_country_code"]
+    preview = props["fair:preview"]
+    assert preview["imagery"] == {"url": "https://tiles.example/{z}/{x}/{y}.png", "type": "tms"}
+    assert preview["center"] == [-13.23723, 8.47532]
+    assert "bbox" not in preview
+    assert preview["zoom"] == _PREVIEW["zoom"]
+    assert preview["place"]["country"] == "Sierra Leone"
+    assert props["fair:preview_country"] == "Sierra Leone"
+
+
+@patch("modelregistry.views.patch_item")
+@patch("modelregistry.views.get_item", side_effect=_stac_item_with_preview)
+@patch("fair.stac.validators.validate_item", return_value=[])
+def test_base_model_pin_imagery_only_keeps_preview_location(
+    mock_validate, mock_getitem, mock_stac, admin: OsmUser
+) -> None:
+    base_model = BaseModel.objects.create(name="pin-me", user=admin, stac_item_id="pin-me")
+    resp = _client(admin).patch(
+        f"/api/v1/base-models/{base_model.id}/pin/",
+        {"is_pinned": True, "preview_imagery": "https://tiles.example/{z}/{x}/{y}.png"},
+        format="json",
+    )
+    assert resp.status_code == 200
+    props = mock_stac.call_args.args[2]
+    assert props["fair:preview"]["center"] == _PREVIEW["center"]
+    assert props["fair:preview"]["bbox"] == _PREVIEW["bbox"]
+    assert props["fair:preview"]["place"] == _PREVIEW["place"]
+    assert "fair:preview_country" not in props
+
+
+@patch("modelregistry.views.patch_item")
+@patch("modelregistry.views.get_item", side_effect=_stac_item)
+def test_base_model_pin_preview_rejected_without_existing_preview(
+    mock_getitem, mock_stac, admin: OsmUser
+) -> None:
+    base_model = BaseModel.objects.create(name="pin-me", user=admin, stac_item_id="pin-me")
+    resp = _client(admin).patch(
+        f"/api/v1/base-models/{base_model.id}/pin/",
+        {"is_pinned": True, "preview_imagery": "https://tiles.example/{z}/{x}/{y}.png"},
+        format="json",
+    )
+    assert resp.status_code == 400
+    assert "fair:preview" in str(resp.data)
+    mock_stac.assert_not_called()
+    base_model.refresh_from_db()
+    assert base_model.is_pinned is False
 
 
 @patch("modelregistry.views.patch_item")
@@ -321,7 +376,7 @@ def test_base_model_pin_rejects_invalid_location(admin: OsmUser) -> None:
     base_model = BaseModel.objects.create(name="pin-me", user=admin, stac_item_id="pin-me")
     resp = _client(admin).patch(
         f"/api/v1/base-models/{base_model.id}/pin/",
-        {"is_pinned": True, "pinned_location": {"type": "Polygon", "coordinates": []}},
+        {"is_pinned": True, "preview_location": {"type": "Polygon", "coordinates": []}},
         format="json",
     )
     assert resp.status_code == 400
@@ -561,8 +616,8 @@ def test_base_model_stac_patch_merges_arbitrary_properties(
         f"/api/v1/base-models/{model.id}/stac/",
         {
             "properties": {
-                "fair:source_imagery": "https://tiles.example/{z}/{x}/{y}.png",
-                "fair:preview_location": {"type": "Point", "coordinates": [85.3, 27.7]},
+                "fair:coverage": "Nepal",
+                "fair:pinned": True,
                 "description": "Synced",
             }
         },
@@ -572,13 +627,13 @@ def test_base_model_stac_patch_merges_arbitrary_properties(
     collection, item_id, props = mock_set.call_args.args
     assert collection == "base-models"
     assert item_id == "meta-model"
-    assert props["fair:source_imagery"] == "https://tiles.example/{z}/{x}/{y}.png"
-    assert props["fair:preview_location"] == {"type": "Point", "coordinates": [85.3, 27.7]}
+    assert props["fair:coverage"] == "Nepal"
+    assert props["fair:pinned"] is True
     assert props["description"] == "Synced"
     mock_get.assert_called_once_with("base-models", "meta-model")
     validated = mock_validate.call_args.args[0]
     assert isinstance(validated, pystac.Item)
-    assert validated.properties["fair:source_imagery"] == "https://tiles.example/{z}/{x}/{y}.png"
+    assert validated.properties["fair:coverage"] == "Nepal"
 
 
 _DATACUBE_SCHEMA = "https://stac-extensions.github.io/datacube/v2.3.0/schema.json"

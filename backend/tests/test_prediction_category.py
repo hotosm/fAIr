@@ -1,5 +1,7 @@
+from datetime import UTC, datetime
 from unittest.mock import patch
 
+import pystac
 import pytest
 from django.db import connection
 from django.test.utils import CaptureQueriesContext
@@ -42,7 +44,8 @@ def local_model(owner: OsmUser, base_model: BaseModel) -> LocalModel:
 def _prediction(owner: OsmUser, model_id: str, visibility: str = Visibility.PRIVATE) -> Prediction:
     return Prediction.objects.create(
         local_model_stac_id=model_id,
-        image_uri="https://tile.example.com/{z}/{x}/{y}.png",
+        imagery={"image": "https://tile.example.com/{z}/{x}/{y}.png"},
+        primary_input="image",
         geometry=_SQUARE,
         zoom=19,
         user=owner,
@@ -75,9 +78,16 @@ def test_prediction_list_category_costs_no_query_per_row(client: APIClient, owne
     assert len(five_rows) == len(one_row)
 
 
+def _single_image_model() -> pystac.Item:
+    return pystac.Item("banepa-local", None, None, datetime.now(UTC), {"mlm:input": [{"name": "image"}]})
+
+
+@patch("predictions.views.get_item", return_value=_single_image_model())
 @patch("predictions.views.submit_prediction")
 @patch("predictions.views.item_exists", return_value=True)
-def test_submit_response_includes_the_category(mock_exists, mock_task, client: APIClient, local_model: LocalModel) -> None:
+def test_submit_response_includes_the_category(
+    mock_exists, mock_task, mock_get_item, client: APIClient, local_model: LocalModel
+) -> None:
     response = client.post(
         "/api/v1/predictions/submit/",
         {"model_stac_id": "banepa-local", "image_uri": "https://tile.example.com/{z}/{x}/{y}.png", "bbox": [85.5, 27.6, 85.51, 27.61], "zoom": 19},

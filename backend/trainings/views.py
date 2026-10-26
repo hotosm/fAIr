@@ -286,6 +286,7 @@ class TrainingViewSet(viewsets.ReadOnlyModelViewSet):
             keywords=keywords,
             pipeline_run_id=run_ref.zenml_run_id,
             paths=BackendLocalModelPaths,
+            providers=[request.user.stac_producer()],
         )
         run_ref.local_model.status = LocalModel.Status.ACTIVE
         run_ref.local_model.stac_item_id = local_id

@@ -3,16 +3,16 @@ from django.db import models, transaction
 
 from accounts.models import OsmUser
 from shared.enums import DatasetStatus, Visibility
+from shared.imagery import InputImagery
 from shared.validators import validate_geometry
 
 
-class Dataset(models.Model):
+class Dataset(InputImagery):
     # Module-level enum: a nested class body cannot see it from inside Meta.
     Status = DatasetStatus
 
     stac_id = models.CharField(max_length=200, unique=True)
     title = models.CharField(max_length=200)
-    source_imagery = models.URLField()
     category = models.ForeignKey(
         "modelregistry.Category",
         to_field="slug",
