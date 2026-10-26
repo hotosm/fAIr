@@ -132,6 +132,18 @@ def test_fetch_rejects_a_nat64_address(monkeypatch):
         fetch_labels_geojson("https://example.org/labels.geojson")
 
 
+def test_a_nat64_address_of_a_public_host_is_accepted(monkeypatch):
+    monkeypatch.setattr(
+        public_urls.socket,
+        "getaddrinfo",
+        lambda host, port, type: [
+            (socket.AF_INET6, type, 6, "", ("64:ff9b::22c7:9476", port, 0, 0))
+        ],
+    )
+
+    public_urls.require_public_url("https://api.imagery.example/tiles/{z}/{x}/{y}", ("https",))
+
+
 @pytest.mark.parametrize(
     "addresses",
     [

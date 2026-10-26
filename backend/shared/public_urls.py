@@ -5,12 +5,18 @@ import socket
 
 import httpx
 
-# `is_global` accepts these IPv6 ranges, yet both can reach IPv4 hosts behind them.
+# `is_global` accepts these IPv6 ranges; their last 32 bits are an IPv4 host, judged instead.
 _IPV4_EMBEDDING_NETWORKS = (ipaddress.ip_network("64:ff9b::/96"), ipaddress.ip_network("::/96"))
 
 
 class NonPublicURLError(ValueError):
     pass
+
+
+def _is_public(address: ipaddress.IPv4Address | ipaddress.IPv6Address) -> bool:
+    if any(address in network for network in _IPV4_EMBEDDING_NETWORKS):
+        address = ipaddress.IPv4Address(int(address) & 0xFFFFFFFF)
+    return address.is_global
 
 
 def require_public_url(url: str, schemes: tuple[str, ...]) -> None:
@@ -28,6 +34,5 @@ def require_public_url(url: str, schemes: tuple[str, ...]) -> None:
     except socket.gaierror as exc:
         raise NonPublicURLError(f"host {host!r} does not resolve") from exc
     for *_, socket_address in addresses:
-        address = ipaddress.ip_address(socket_address[0])
-        if not address.is_global or any(address in network for network in _IPV4_EMBEDDING_NETWORKS):
+        if not _is_public(ipaddress.ip_address(socket_address[0])):
             raise NonPublicURLError(f"host {host!r} resolves to a non-public address")
