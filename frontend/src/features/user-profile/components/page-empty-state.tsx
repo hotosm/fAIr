@@ -16,7 +16,7 @@ const PageEmptyState = ({
 }) => {
   const navigate = useNavigate();
   return (
-    <div className="flex flex-col space-y-4 jusitfy-center items-center ">
+    <div className="flex flex-col items-center justify-center space-y-4">
       <ProfileEmptyStateIcon />
       <h1 className="text-title-2 font-medium text-dark">{heading}</h1>
       <p className="text-center text-sm text-grey max-w-sm">{subHeading}</p>

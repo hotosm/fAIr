@@ -18,7 +18,7 @@ const columns: ColumnDef<SavedUserState>[] = [
     accessorKey: "state.name",
     header: "Name",
     cell: ({ row }) => (
-      <span className="block truncate text-sm" title={row.original.state.name}>
+      <span className="block truncate" title={row.original.state.name}>
         {row.original.state.name}
       </span>
     ),
@@ -35,7 +35,7 @@ const columns: ColumnDef<SavedUserState>[] = [
           : getFeatureIcon(label, MapIcon);
       return (
         <span
-          className="inline-flex max-w-full items-center gap-1.5 rounded bg-grey px-2 py-0.5 text-xs capitalize leading-4 text-white"
+          className="inline-flex max-w-full items-center gap-1.5 rounded bg-grey px-2 py-0.5 capitalize leading-4 text-white"
           title={label.replace(/[-_]/g, " ")}
         >
           <Icon className="size-3 shrink-0" aria-hidden="true" />
@@ -107,7 +107,7 @@ export const RecentActivities = ({
           Couldn't load history.
         </p>
       ) : activities.length ? (
-        <div className="min-w-0 max-w-full [&_table]:table-fixed [&_tbody_tr]:cursor-pointer [&_td]:p-2.5 [&_th]:h-9 [&_th]:p-2.5 [&_th:last-child]:w-[52px] [&_th:nth-child(2)]:w-[40%]">
+        <div className="min-w-0 max-w-full [&_table]:table-fixed [&_tbody_tr]:cursor-pointer [&_td]:p-2.5 [&_td]:text-[13px] [&_td]:font-medium [&_td]:text-[#404446] [&_th]:h-9 [&_th]:p-2.5 [&_th]:text-[12px] [&_th]:font-normal [&_th]:text-[#404446] [&_th:last-child]:w-[52px] [&_th:nth-child(2)]:w-[40%]">
           <DataTable
             columns={columns}
             data={activities}
