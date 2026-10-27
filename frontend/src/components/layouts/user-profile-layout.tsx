@@ -9,7 +9,7 @@ export const UserProfileLayout = () => {
     return (
       <main className="my-6 min-w-0">
         <div className="flex min-w-0 flex-col items-start gap-4 lg:flex-row lg:gap-6">
-          <div className="w-full min-w-0 lg:w-60 lg:shrink-0 xl:w-64">
+          <div className="w-full min-w-0 lg:w-60 lg:shrink-0 xl:w-60">
             <UserSidebar />
           </div>
           <div className="w-full min-w-0 flex-1">

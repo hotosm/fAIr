@@ -22,7 +22,7 @@ export function PredictionHistoryButton() {
             : "flex items-center  p-1 text-dark hover:text-primary"
         }
       >
-        <HistoryIcon />
+        <HistoryIcon className="size-6" />
       </button>
     </ToolTip>
   );

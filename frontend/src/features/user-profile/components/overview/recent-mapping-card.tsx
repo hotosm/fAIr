@@ -79,7 +79,7 @@ export const RecentMappingCard = ({
       : getFeatureIcon(label, MapIcon);
 
   return (
-    <section className="contour-bg grid min-h-[410px] min-w-0 grid-cols-1 gap-4 overflow-hidden rounded-xl bg-dark p-4 font-archivo text-white sm:grid-cols-[minmax(180px,0.72fr)_minmax(0,1.5fr)]">
+    <section className="contour-bg grid min-h-[410px] min-w-0 grid-cols-1 gap-4 overflow-hidden rounded-xl bg-dark p-4 font-archivo text-white sm:grid-cols-[200px_minmax(0,1fr)]">
       <div className="flex min-w-0 flex-col p-1 sm:p-1">
         <p className="text-sm font-semibold">Recent Mapping</p>
 
@@ -101,16 +101,9 @@ export const RecentMappingCard = ({
             href={getProjectPath(activity.pid)}
             nativeAnchor={false}
             title="Resume Mapping"
-            className="w-full"
+            className="w-40"
           >
-            <Button
-              rounded
-              capitalize={false}
-              size="medium"
-              fontSize="12px"
-              className="w-full
-              "
-            >
+            <Button rounded capitalize={false} size="medium" fontSize="12px">
               Resume Mapping
             </Button>
           </Link>
@@ -118,7 +111,7 @@ export const RecentMappingCard = ({
             href={APPLICATION_ROUTES.TRY_FAIR}
             nativeAnchor={false}
             title="Start New Mapping"
-            className="w-full"
+            className="w-40"
           >
             <Button
               variant={ButtonVariant.SECONDARY}
@@ -126,7 +119,6 @@ export const RecentMappingCard = ({
               capitalize={false}
               size="medium"
               fontSize="12px"
-              className="w-full"
             >
               Start New Mapping
             </Button>

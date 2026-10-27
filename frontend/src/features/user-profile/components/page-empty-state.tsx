@@ -18,7 +18,7 @@ const PageEmptyState = ({
   return (
     <div className="flex flex-col space-y-4 jusitfy-center items-center ">
       <ProfileEmptyStateIcon />
-      <h1 className="text-lg text-dark font-semibold">{heading}</h1>
+      <h1 className="text-title-2 font-medium text-dark">{heading}</h1>
       <p className="text-center text-sm text-grey max-w-sm">{subHeading}</p>
 
       {ctaText && ctaHref && (

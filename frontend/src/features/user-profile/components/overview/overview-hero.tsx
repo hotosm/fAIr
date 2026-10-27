@@ -38,7 +38,7 @@ const RecentMappingSkeleton = () => (
   <section
     role="status"
     aria-label="Loading recent mapping"
-    className="contour-bg grid min-h-[410px] min-w-0 grid-cols-1 gap-4 overflow-hidden rounded-xl bg-dark p-4 font-archivo text-white sm:grid-cols-[minmax(180px,0.72fr)_minmax(0,1.5fr)]"
+    className="contour-bg grid min-h-[410px] min-w-0 grid-cols-1 gap-4 overflow-hidden rounded-xl bg-dark p-4 font-archivo text-white sm:grid-cols-[180px_minmax(0,1fr)]"
   >
     <div className="flex min-w-0 flex-col p-1">
       <p className="text-sm font-semibold">Recent Mapping</p>
@@ -90,7 +90,7 @@ export const OverviewHero = () => {
           title=""
           className="w-fit"
         >
-          <Button fontSize={"14px"} rounded capitalize={false}>
+          <Button fontSize={"14px"} className="w-fit">
             Start Mapping
           </Button>
         </Link>
