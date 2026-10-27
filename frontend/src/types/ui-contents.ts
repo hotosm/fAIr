@@ -591,6 +591,7 @@ export type TAboutPageContent = {
     firstParagraph: string;
     secondParagraph: string;
   };
+  documentationLink: string;
 };
 
 // About page content types ends.

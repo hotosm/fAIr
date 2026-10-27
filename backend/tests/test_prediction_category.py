@@ -1,5 +1,7 @@
+from datetime import UTC, datetime
 from unittest.mock import patch
 
+import pystac
 import pytest
 from django.db import connection
 from django.test.utils import CaptureQueriesContext
@@ -42,7 +44,8 @@ def local_model(owner: OsmUser, base_model: BaseModel) -> LocalModel:
 def _prediction(owner: OsmUser, model_id: str, visibility: str = Visibility.PRIVATE) -> Prediction:
     return Prediction.objects.create(
         local_model_stac_id=model_id,
-        image_uri="https://tile.example.com/{z}/{x}/{y}.png",
+        imagery={"image": "https://tile.example.com/{z}/{x}/{y}.png"},
+        primary_input="image",
         geometry=_SQUARE,
         zoom=19,
         user=owner,
@@ -62,6 +65,18 @@ def test_prediction_detail_reports_the_model_category(
     assert response.json()["category"] == expected
 
 
+@pytest.mark.parametrize(("model_id", "expected"), [("banepa-local", "banepa"), ("waste-base", "waste"), ("removed-model", None)])
+def test_prediction_detail_reports_the_model_name(
+    client: APIClient, owner: OsmUser, local_model: LocalModel, model_id: str, expected: str | None
+) -> None:
+    prediction = _prediction(owner, model_id)
+
+    response = client.get(f"/api/v1/predictions/{prediction.id}/")
+
+    assert response.status_code == 200
+    assert response.json()["model_name"] == expected
+
+
 def test_prediction_list_category_costs_no_query_per_row(client: APIClient, owner: OsmUser, local_model: LocalModel) -> None:
     _prediction(owner, "banepa-local")
     with CaptureQueriesContext(connection) as one_row:
@@ -75,9 +90,16 @@ def test_prediction_list_category_costs_no_query_per_row(client: APIClient, owne
     assert len(five_rows) == len(one_row)
 
 
+def _single_image_model() -> pystac.Item:
+    return pystac.Item("banepa-local", None, None, datetime.now(UTC), {"mlm:input": [{"name": "image"}]})
+
+
+@patch("predictions.views.get_item", return_value=_single_image_model())
 @patch("predictions.views.submit_prediction")
 @patch("predictions.views.item_exists", return_value=True)
-def test_submit_response_includes_the_category(mock_exists, mock_task, client: APIClient, local_model: LocalModel) -> None:
+def test_submit_response_includes_the_category(
+    mock_exists, mock_task, mock_get_item, client: APIClient, local_model: LocalModel
+) -> None:
     response = client.post(
         "/api/v1/predictions/submit/",
         {"model_stac_id": "banepa-local", "image_uri": "https://tile.example.com/{z}/{x}/{y}.png", "bbox": [85.5, 27.6, 85.51, 27.61], "zoom": 19},
@@ -116,3 +138,18 @@ def test_publish_response_includes_the_category(client: APIClient, owner: OsmUse
 
     assert response.status_code == 200
     assert response.json()["category"] == "buildings"
+
+
+def test_a_failure_error_is_shown_to_the_owner_and_hidden_from_everyone_else(
+    client: APIClient, owner: OsmUser, local_model: LocalModel
+) -> None:
+    prediction = _prediction(owner, "banepa-local", visibility=Visibility.PUBLIC)
+    prediction.status = "failed"
+    prediction.error = "RuntimeError: tiles at http://minio:9000/fair-data timed out"
+    prediction.save(update_fields=["status", "error"])
+
+    as_owner = client.get(f"/api/v1/predictions/{prediction.id}/").json()
+    as_anonymous = APIClient().get(f"/api/v1/predictions/{prediction.id}/").json()
+
+    assert as_owner["error"] == prediction.error
+    assert as_anonymous["error"] == ""

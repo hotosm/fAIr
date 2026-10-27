@@ -25,7 +25,8 @@ def aoi(db, authed_user: OsmUser) -> AOI:
     placeholder = Dataset.objects.create(
         stac_id="placeholder",
         title="placeholder",
-        source_imagery="https://tiles.example/{z}/{x}/{y}.png",
+        imagery={"image": "https://tiles.example/{z}/{x}/{y}.png"},
+        primary_input="image",
         user=authed_user,
     )
     polygon = Polygon(((0, 0), (0, 1), (1, 1), (1, 0), (0, 0)), srid=4326)
@@ -36,7 +37,8 @@ def test_dataset_list_returns_owned_records(client, authed_user):
     Dataset.objects.create(
         stac_id="ds-1",
         title="Test 1",
-        source_imagery="https://tiles.example/{z}/{x}/{y}.png",
+        imagery={"image": "https://tiles.example/{z}/{x}/{y}.png"},
+        primary_input="image",
         user=authed_user,
     )
     response = client.get("/api/v1/datasets/")
@@ -157,3 +159,8 @@ def test_unauthenticated_dataset_list_returns_only_public(db):
     response = api.get("/api/v1/datasets/")
     assert response.status_code == 200
     assert response.json()["results"] == []
+
+
+def test_generic_dataset_create_is_not_offered(client):
+    response = client.post("/api/v1/datasets/", data={"title": "Direct"}, format="json")
+    assert response.status_code == 405

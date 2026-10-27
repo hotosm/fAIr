@@ -31,6 +31,9 @@ class TrainingRunRef(models.Model):
         choices=PipelineRunStatus.choices,
         default=PipelineRunStatus.INITIALIZING,
     )
+    error = models.TextField(
+        blank=True, help_text="Why the run failed; empty unless status is failed."
+    )
     user = models.ForeignKey(
         OsmUser,
         to_field="osm_id",

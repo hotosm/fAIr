@@ -7,7 +7,7 @@ description: fAIr is an open, AI-assisted mapping service from the Humanitarian 
 
 fAIr is an open, AI-assisted mapping service for humanitarian and development work, from the Humanitarian OpenStreetMap Team (HOT). It is a marketplace and connector for geo-AI models: a mapper picks a model, runs it over their own area to detect features such as buildings or trees, reviews the results, and can adapt the model to local conditions. A mapper stays in control at each step.
 
-The software is free and open source. Predictions are suggestions for a mapper to review, and a mapper chooses what to add to OpenStreetMap.
+The software is free and open source. Predictions are suggestions for a mapper to review. fAIr offers its outputs as open data layers, and bringing AI-generated features into OpenStreetMap is outside its aim; see [fAIr and OpenStreetMap](overview/what-is-fair.md#fair-and-openstreetmap).
 
 ![The fAIr loop: a model is run over an area, results are validated, and improved versions return to the collection.](assets/flyer/loop.png)
 

@@ -21,6 +21,21 @@ nav = [
     { "Evaluation" = "overview/evaluation.md" },
     { "FAQ" = "overview/faq.md" },
   ] },
+  { "Roadmap" = [
+    { "Roadmap" = "roadmap/index.md" },
+    { "Milestones" = "progress/milestones.md" },
+    { "Vision" = "overview/where-fair-is-going.md" },
+    { "About" = "overview/about.md" },
+  ] },
+  { "Progress" = [
+    { "Datasets" = "datasets/index.md" },
+    { "Field projects" = "progress/field-projects.md" },
+    { "Activations" = "progress/activations.md" },
+  ] },
+  { "Community" = [
+    { "Contributing" = "community/contributing.md" },
+    { "Code of conduct" = "community/code-of-conduct.md" },
+  ] },
   { "Guides" = [
     { "Using fAIr" = "guides/using-fair.md" },
     { "Run locally" = "guides/run-locally.md" },
@@ -37,21 +52,6 @@ nav = [
       { "Dev environment" = "architecture/dev-environment.md" },
       { "Decision records" = "architecture/decisions/index.md" },
     ] },
-  ] },
-  { "Progress" = [
-    { "Field projects" = "progress/field-projects.md" },
-    { "Activations" = "progress/activations.md" },
-    { "Datasets" = "datasets/index.md" },
-  ] },
-  { "Roadmap" = [
-    { "Roadmap" = "roadmap/index.md" },
-    { "Milestones" = "progress/milestones.md" },
-    { "Vision" = "overview/where-fair-is-going.md" },
-    { "About" = "overview/about.md" },
-  ] },
-  { "Community" = [
-    { "Contributing" = "community/contributing.md" },
-    { "Code of conduct" = "community/code-of-conduct.md" },
   ] },
 ]
 

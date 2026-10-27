@@ -1,3 +1,4 @@
+import { FAIR_DOCS_URL } from "@/constants/routes";
 import { TResourcesPageContent } from "@/types";
 
 export const RESOURCES_PAGE_CONTENT: TResourcesPageContent = {
@@ -15,6 +16,10 @@ export const RESOURCES_PAGE_CONTENT: TResourcesPageContent = {
         question: "What is fAIr?",
         answer:
           "fAIr is a free and open source AI assisted mapping tool that gives local communities the ability to create their localized AI models to amplify their humanitarian mapping efforts.",
+      },
+      {
+        question: "Where can I find the fAIr documentation?",
+        answer: `The [fAIr documentation](${FAIR_DOCS_URL}) explains how fAIr works, its models and datasets, and how to contribute.`,
       },
       {
         question: "Who can use fAIr?",

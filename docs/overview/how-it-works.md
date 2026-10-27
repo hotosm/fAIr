@@ -41,12 +41,12 @@ Labels and imagery are used to train a model. A trained model then predicts matc
 
 ### 3. Validate
 
-Predictions are reviewed before they are used. A mapper can give feedback in the editor by accepting or rejecting each prediction, verify them on the ground with the Field Mapping Tasking Manager (FMTM, with QField) or Chatmap, or confirm them at scale through [MapSwipe](https://mapswipe.org/). Validating predictions by swiping is the Validate project of fAIrSwipe (fAIr plus MapSwipe), shown in the pipeline above.
+Predictions are reviewed before they are used. A mapper can give feedback in the editor by accepting or rejecting each prediction, verify them on the ground with [FieldTM](https://field.hotosm.org/) (with QField) or Chatmap, or confirm them at scale through [MapSwipe](https://mapswipe.org/). Validating predictions by swiping is the Validate project of fAIrSwipe (fAIr plus MapSwipe), shown in the pipeline above.
 
 ### 4. Use and share
 
-Validated data can be published to the [Humanitarian Data Exchange](https://data.humdata.org/), manually added to OpenStreetMap by an expert mapper, or downloaded as points, lines, or polygons. See [Datasets](../datasets/index.md) for the published outputs.
+Predictions can be downloaded as points, lines, or polygons. HOT publishes validated outputs as open data layers on the [Humanitarian Data Exchange](https://data.humdata.org/) and [Hugging Face](https://huggingface.co/hotosm). See [Datasets](../datasets/index.md) for the published outputs.
 
-!!! note "OSM merges stay manual"
+!!! note "fAIr and OpenStreetMap"
 
-    The mapper reviews predictions and decides what to add to OpenStreetMap.
+    Bringing AI-generated features into OpenStreetMap is outside fAIr's aim, given the sensitivity around AI-generated data. See [fAIr and OpenStreetMap](what-is-fair.md#fair-and-openstreetmap).
