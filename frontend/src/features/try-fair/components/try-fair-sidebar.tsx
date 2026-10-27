@@ -3,7 +3,7 @@ import {
   TryFairMapOutputType,
   TryFairResolution,
 } from "@/enums";
-import { ModelPicker } from "./model-picker-modal";
+import { ModelPicker } from "@/features/try-fair/components/model-picker-modal";
 import { TRY_FAIR_PAGE_CONTENT } from "@/constants/ui-contents/try-fair-contents";
 import { APP_TOUR_IDS } from "@/constants/site-tour";
 import { Button } from "@/components/ui/button";

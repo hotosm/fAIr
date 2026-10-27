@@ -2,8 +2,8 @@ import { LegendBookIcon } from "@/components/ui/icons";
 import { Link } from "@/components/ui/link";
 import { APPLICATION_ROUTES } from "@/constants/routes";
 import { MapRequestsSection } from "./map-requests-section";
-import { OverviewHero } from "./overview-hero";
-import { RecentActivities } from "./recent-activities";
+import { OverviewHero } from "@/features/user-profile/components/overview/overview-hero";
+import { RecentActivities } from "@/features/user-profile/components/overview/recent-activities";
 import { GlobeIcon } from "@/components/ui/icons/globe-icon";
 
 const HeaderAction = ({
