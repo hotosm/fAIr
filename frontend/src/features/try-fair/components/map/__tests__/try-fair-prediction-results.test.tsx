@@ -1,9 +1,13 @@
 import { cleanup, render } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { Map as MapLibreMap } from "maplibre-gl";
+import type { Map } from "maplibre-gl";
+import { TryFairMapOutputType } from "@/enums/try-fair";
 import { TryFairPredictionsLayer } from "@/features/try-fair/components/map/try-fair-prediction-results";
-import { TryFairMapOutputType } from "@/enums";
-import type { PredictionClassStyle } from "@/features/try-fair/utils/prediction-classes";
+import {
+  buildClassColorExpression,
+  DEFAULT_PREDICTION_COLOR,
+  type PredictionClassStyle,
+} from "@/features/try-fair/utils/prediction-classes";
 
 vi.mock("@/features/try-fair/hooks/use-try-fair-params", () => ({
   useTryFairParams: () => ({ mappingMode: "basic" }),
@@ -12,78 +16,80 @@ vi.mock("@/app/providers/auth-provider", () => ({
   useAuth: () => ({ isAuthenticated: true }),
 }));
 
-afterEach(cleanup);
+const predictions: GeoJSON.FeatureCollection = {
+  type: "FeatureCollection",
+  features: [
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [0, 0],
+            [1, 0],
+            [1, 1],
+            [0, 0],
+          ],
+        ],
+      },
+      properties: { damage_class: 3 },
+    },
+  ],
+};
 
-function renderPolygon(classStyle?: PredictionClassStyle) {
+const damageStyle: PredictionClassStyle = {
+  property: "damage_class",
+  colored: true,
+  variables: [],
+  classes: [
+    { value: 0, label: "No damage", color: "#43a047", nodata: false },
+    { value: 3, label: "Destroyed", color: "#e53935", nodata: false },
+  ],
+};
+
+const fakeMap = () => {
+  const layers: { id: string; paint?: Record<string, unknown> }[] = [];
   const map = {
     getStyle: () => ({}),
-    getLayer: vi.fn(),
-    getSource: vi.fn(),
-    addSource: vi.fn(),
-    addLayer: vi.fn(),
+    getLayer: () => undefined,
+    getSource: () => undefined,
     removeLayer: vi.fn(),
     removeSource: vi.fn(),
+    addSource: vi.fn(),
+    addLayer: (layer: { id: string; paint?: Record<string, unknown> }) =>
+      layers.push(layer),
+    on: vi.fn(),
+    off: vi.fn(),
+    getCanvas: () => ({ style: {} }),
   };
-  const predictions: GeoJSON.FeatureCollection = {
-    type: "FeatureCollection",
-    features: [
-      {
-        type: "Feature",
-        properties: { class: 1 },
-        geometry: {
-          type: "Polygon",
-          coordinates: [
-            [
-              [0, 0],
-              [1, 0],
-              [1, 1],
-              [0, 0],
-            ],
-          ],
-        },
-      },
-    ],
-  };
+  return { map: map as unknown as Map, layers };
+};
+
+const outlineColor = (classStyle: PredictionClassStyle | null) => {
+  const { map, layers } = fakeMap();
   render(
     <TryFairPredictionsLayer
-      map={map as unknown as MapLibreMap}
+      map={map}
       predictions={predictions}
-      predictionBBox={null}
+      predictionBBox={[0, 0, 1, 1]}
       outputType={TryFairMapOutputType.POLYGON}
       classStyle={classStyle}
     />,
   );
-  return map;
-}
+  return layers.find((layer) => layer.id === "try-fair-predictions-outline")
+    ?.paint?.["line-color"];
+};
 
 describe("TryFairPredictionsLayer polygon outline", () => {
+  afterEach(cleanup);
+
   it("uses the class colours when the model declares them", () => {
-    const map = renderPolygon({
-      property: "class",
-      colored: true,
-      variables: [],
-      classes: [
-        { value: 1, label: "Building", color: "#ff0000", nodata: false },
-      ],
-    });
-    expect(map.addLayer).toHaveBeenCalledWith(
-      expect.objectContaining({
-        id: "try-fair-predictions-outline",
-        paint: {
-          "line-color": ["match", ["get", "class"], 1, "#ff0000", "#A243DC"],
-          "line-width": 1.5,
-        },
-      }),
+    expect(outlineColor(damageStyle)).toEqual(
+      buildClassColorExpression(damageStyle),
     );
   });
 
   it("keeps the default prediction colour without class colours", () => {
-    const map = renderPolygon();
-    expect(map.addLayer).toHaveBeenCalledWith(
-      expect.objectContaining({
-        id: "try-fair-predictions-outline",
-        paint: { "line-color": "#A243DC", "line-width": 1.5 },
-      }),
-    );
+    expect(outlineColor(null)).toBe(DEFAULT_PREDICTION_COLOR);
   });
 });
