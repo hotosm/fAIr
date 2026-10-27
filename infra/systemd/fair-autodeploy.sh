@@ -8,11 +8,14 @@ STATE_FILE=/var/lib/fair-autodeploy/deployed
 SERVICES="api frontend-assets"
 IMAGES="ghcr.io/hotosm/fair/api:develop ghcr.io/hotosm/fair/frontend:develop"
 
-git fetch --quiet origin develop
-git merge --ff-only --quiet origin/develop
+CHECKOUT_OWNER=$(stat -c %U .)
+as_owner() { runuser -u "$CHECKOUT_OWNER" -- "$@"; }
+
+as_owner git fetch --quiet origin develop
+as_owner git merge --ff-only --quiet origin/develop
 docker compose pull --quiet $SERVICES
 
-current="$(git rev-parse HEAD) $(docker image inspect --format '{{.Id}}' $IMAGES | tr '\n' ' ')"
+current="$(as_owner git rev-parse HEAD) $(docker image inspect --format '{{.Id}}' $IMAGES | tr '\n' ' ')"
 if [ -f "$STATE_FILE" ] && [ "$(cat "$STATE_FILE")" = "$current" ]; then
   echo "$(date -Is) no change"
   exit 0
