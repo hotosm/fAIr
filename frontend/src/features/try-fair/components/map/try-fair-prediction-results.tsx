@@ -139,7 +139,7 @@ export const TryFairPredictionsLayer = ({
         id: OUTLINE_LAYER,
         type: "line",
         source: SOURCE_ID,
-        paint: { "line-color": "#A243DC", "line-width": 1.5 },
+        paint: { "line-color": polygonFillColor, "line-width": 1.5 },
       });
 
       // ── Points ───────────────────────────────────────────────────────────────
