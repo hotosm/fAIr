@@ -191,7 +191,7 @@ export const MapRequestsTable = ({
   if (isPending || isError) return <TableSkeleton />;
 
   return (
-    <div className="max-w-full  overflow-auto">
+    <div className="max-w-full overflow-auto [&_th]:text-[12px] [&_th]:font-normal [&_th]:text-[#404446] [&_td]:text-[13px] [&_td]:font-medium [&_td]:text-[#404446]">
       <DataTable
         // @ts-ignore
         data={requests}

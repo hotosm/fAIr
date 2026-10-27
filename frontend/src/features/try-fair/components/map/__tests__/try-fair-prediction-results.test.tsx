@@ -9,6 +9,13 @@ import {
   type PredictionClassStyle,
 } from "@/features/try-fair/utils/prediction-classes";
 
+vi.mock("@/features/try-fair/hooks/use-try-fair-params", () => ({
+  useTryFairParams: () => ({ mappingMode: "basic" }),
+}));
+vi.mock("@/app/providers/auth-provider", () => ({
+  useAuth: () => ({ isAuthenticated: true }),
+}));
+
 const predictions: GeoJSON.FeatureCollection = {
   type: "FeatureCollection",
   features: [

@@ -59,7 +59,7 @@ export const RootLayout = () => {
 
         <div
           // Disable global padding on landing page.
-          className={`flex-1 mx-auto w-full ${pathname === APPLICATION_ROUTES.HOMEPAGE ? "" : "app-padding"} ${pathname.includes(MODELS_ROUTES.CREATE_MODEL_BASE) || modelId ? "bg-frosted-blue" : ""}`}
+          className={`flex-1 mx-auto w-full ${pathname.includes(APPLICATION_ROUTES.PROFILE_BASE) ? "flex flex-col" : ""} ${pathname === APPLICATION_ROUTES.HOMEPAGE ? "" : "app-padding"} ${pathname.includes(MODELS_ROUTES.CREATE_MODEL_BASE) || modelId ? "bg-frosted-blue" : ""}`}
         >
           <Outlet />
         </div>

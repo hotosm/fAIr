@@ -17,7 +17,7 @@ const UserSidebar = () => {
   const { pathname } = useLocation();
 
   return (
-    <aside className="flex w-full min-w-0 flex-col gap-4 rounded-xl bg-frosted-blue p-2 shadow-sm lg:min-h-[calc(100dvh-9.75rem)] lg:gap-6 lg:py-4">
+    <aside className="flex w-full min-w-0 flex-col gap-4 rounded-xl bg-frosted-blue p-2 shadow-sm lg:min-h-[calc(100dvh-8.75rem)] lg:gap-6 lg:py-4">
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-1">
         {SIDEBAR_LINKS.map((link) => {
           const isActive = pathname === link.href;

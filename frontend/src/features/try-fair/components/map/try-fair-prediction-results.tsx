@@ -1,3 +1,5 @@
+import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
+import { useAuth } from "@/app/providers/auth-provider";
 import { TryFairMapOutputType } from "@/enums/try-fair";
 import { BBOX } from "@/types";
 import { ExpressionSpecification, Map, MapMouseEvent } from "maplibre-gl";
@@ -71,6 +73,9 @@ export const TryFairPredictionsLayer = ({
   onChoroplethBucketsChange,
   classStyle,
 }: Props) => {
+  const { mappingMode } = useTryFairParams();
+  const { isAuthenticated } = useAuth();
+  const showConfidence = isAuthenticated && mappingMode === "advanced";
   const { choropleth, buckets } = useMemo(() => {
     if (
       outputType !== TryFairMapOutputType.CLUSTER ||
@@ -287,7 +292,7 @@ export const TryFairPredictionsLayer = ({
         : outputType === TryFairMapOutputType.POLYGON
           ? FILL_LAYER
           : null;
-    if (!map || !predictionLayer) {
+    if (!map || !predictionLayer || !showConfidence) {
       setTooltip(null);
       return;
     }
@@ -326,7 +331,7 @@ export const TryFairPredictionsLayer = ({
       map.getCanvas().style.cursor = "";
       setTooltip(null);
     };
-  }, [map, outputType]);
+  }, [map, outputType, showConfidence]);
 
   if (!tooltip) return null;
 

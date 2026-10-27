@@ -1,6 +1,6 @@
 import type { InferenceParam } from "@/features/try-fair/api/stac";
 import { CloseIcon, InfoIcon, RefreshIcon } from "@/components/ui/icons";
-import { RedoIcon, UndoIcon } from "@/components/ui/icons/undo-icon";
+// import { RedoIcon, UndoIcon } from "@/components/ui/icons/undo-icon";
 import { ToolTip } from "@/components/ui/tooltip";
 
 type AdvancedSettingsPanelProps = {
@@ -185,7 +185,7 @@ export const AdvancedSettingsPanel = ({
         </div>
 
         <div className="-mx-4 flex items-center justify-between border-t border-gray-border px-4 pt-3">
-          <div className="flex items-center gap-2">
+          {/* <div className="flex items-center gap-2">
             <button
               type="button"
               disabled
@@ -200,7 +200,7 @@ export const AdvancedSettingsPanel = ({
             >
               <UndoIcon />
             </button>
-          </div>
+          </div> */}
           <button
             type="button"
             onClick={onReset}

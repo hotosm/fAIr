@@ -41,7 +41,7 @@ const activity = (pid: number, name: string): SavedUserState => ({
   },
 });
 
-describe("overview mapping activities", () => {
+describe("overview mapping history", () => {
   beforeEach(() => {
     useGetUserStates.mockReturnValue({
       data: {

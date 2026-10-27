@@ -7,12 +7,12 @@ export const UserProfileLayout = () => {
 
   if (mappingMode === "advanced") {
     return (
-      <main className="my-6 min-w-0">
-        <div className="flex min-w-0 flex-col items-start gap-4 lg:flex-row lg:gap-6">
-          <div className="w-full min-w-0 lg:w-60 lg:shrink-0 xl:w-64">
+      <main className="my-6 flex min-w-0 flex-1 flex-col">
+        <div className="flex min-w-0 flex-1 flex-col items-stretch gap-4 lg:flex-row lg:gap-6">
+          <div className="w-full min-w-0 lg:sticky lg:top-6 lg:max-h-[calc(100dvh-3rem)] lg:w-60 lg:shrink-0 lg:self-start lg:overflow-y-auto xl:w-60">
             <UserSidebar />
           </div>
-          <div className="w-full min-w-0 flex-1">
+          <div className="flex w-full min-w-0 flex-1 flex-col">
             <Outlet />
           </div>
         </div>
@@ -21,7 +21,7 @@ export const UserProfileLayout = () => {
   }
 
   return (
-    <main className="min-w-0 mt-6 mb-10">
+    <main className="mt-6 mb-10 flex min-w-0 flex-1 flex-col">
       <Outlet />
     </main>
   );
