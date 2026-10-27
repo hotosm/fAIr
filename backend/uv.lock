@@ -1065,7 +1065,7 @@ requires-dist = [
     { name = "djangorestframework", specifier = ">=3.15" },
     { name = "djangorestframework-gis", specifier = ">=1.1" },
     { name = "drf-spectacular", specifier = ">=0.29" },
-    { name = "fair-py-ops", extras = ["k8s"], specifier = "==0.3.22" },
+    { name = "fair-py-ops", extras = ["k8s"], specifier = "==0.3.23" },
     { name = "geomltoolkits", specifier = ">=2.1.0" },
     { name = "geopandas", specifier = ">=1.0" },
     { name = "gpxpy", specifier = ">=1.6" },
@@ -1099,7 +1099,7 @@ test = [
 
 [[package]]
 name = "fair-py-ops"
-version = "0.3.22"
+version = "0.3.23"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiohttp" },
@@ -1112,9 +1112,9 @@ dependencies = [
     { name = "universal-pathlib" },
     { name = "zenml" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/4e/4c/ba5c210fa6932a49e8c87737fab13c084b36a65b8f5d437b3b0ff16dbe69/fair_py_ops-0.3.22.tar.gz", hash = "sha256:d65b278ae36162b1a252ed227441fbe72f2c026311d256e1daa26557fa8b4b0a", size = 3989710, upload-time = "2026-10-27T13:01:07.978Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/e7/07/223d4f693a5dcd5887e81e57fc43ba28fd7737d4051b179c51fbd95aed46/fair_py_ops-0.3.23.tar.gz", hash = "sha256:2a83e616d4a4eb1f50f798a26d44b9392539e96b17ff3ac32e80745389626818", size = 3990005, upload-time = "2026-10-27T15:45:41.046Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d8/6c/032e34bfdf3a5053769609ce005df861da312f545aeb2182cecb9ea3a3c2/fair_py_ops-0.3.22-py3-none-any.whl", hash = "sha256:cb3e5558c81d3a713d8dbb7f2c70726f3fb239a4bb65dfe21baae8204a14badd", size = 4133211, upload-time = "2026-10-27T13:01:06.334Z" },
+    { url = "https://files.pythonhosted.org/packages/15/4f/5b6555ade53bef2416e2f6823ff8cdd5179ae9f90124f8ab2d2ce3d15928/fair_py_ops-0.3.23-py3-none-any.whl", hash = "sha256:345d19e0b7b9e0adaf8138f3beebb20f57588f536875f0b5263ad9e42df56144", size = 4133491, upload-time = "2026-10-27T15:45:39.347Z" },
 ]
 
 [package.optional-dependencies]
