@@ -41,6 +41,7 @@ def test_failed_submission_marks_prediction_failed(prediction: Prediction) -> No
 
     prediction.refresh_from_db()
     assert prediction.status == PipelineRunStatus.FAILED
+    assert prediction.error == "RuntimeError: no tiles"
 
 
 class _DownloadRequested(Exception):

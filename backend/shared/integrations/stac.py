@@ -1,6 +1,6 @@
 """STAC catalog access for the fAIr backend.
 
-Wraps fair-py-ops' backend Protocol with a Django LocMem cache layer and
+Wraps fair-py-ops' backend Protocol with a shared Django cache layer and
 helpers used by the API serializers and pin/unpin actions. Property and asset
 mutations read-modify-write the item (``get_item`` then ``publish_item``/PUT) because the
 STAC API does not accept HTTP PATCH; ``set_item_property`` is the single-key
@@ -131,7 +131,7 @@ def _cache_key(collection_id: str, item_id: str) -> str:
 
 
 def get_cached_item(collection_id: str, item_id: str) -> dict:
-    """Fetch a STAC item through the LocMem cache. Raises on STAC error."""
+    """Fetch a STAC item through the shared cache. Raises on STAC error."""
     key = _cache_key(collection_id, item_id)
     hit = cache.get(key)
     if hit is not None:

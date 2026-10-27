@@ -316,8 +316,10 @@ TASKS = {
 
 CACHES = {
     "default": {
-        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-        "LOCATION": "fair-locmem",
+        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+        "LOCATION": "django_cache",
+        # Culling evicts the lowest keys first, and STAC keys sort before throttle keys.
+        "OPTIONS": {"MAX_ENTRIES": 10000},
     },
 }
 

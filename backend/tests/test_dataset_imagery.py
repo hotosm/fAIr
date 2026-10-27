@@ -243,3 +243,24 @@ def test_build_registers_the_primary_imagery_as_source_imagery(mock_materialize,
     params = mock_for_user.return_value.register_dataset.call_args.args[0]
     assert params.source_imagery == POST_TMS
     assert params.imagery_hrefs == {"post": POST_TMS, "pre": PRE_TMS}
+
+
+@patch("datasets.tasks._materialize_dataset_assets", side_effect=RuntimeError("no tile has every input"))
+def test_a_failed_build_marks_the_dataset_failed_with_the_error(mock_materialize, user, aoi):
+    dataset = _dataset(user, aoi)
+
+    with pytest.raises(RuntimeError):
+        build_dataset.call(
+            dataset_id=dataset.id,
+            description="damage",
+            label_tasks=["segmentation"],
+            label_classes=[{"name": "building", "classes": ["*"]}],
+            keywords=["building"],
+            label_type="vector",
+            zoom=19,
+            geometry_type="polygon",
+        )
+
+    dataset.refresh_from_db()
+    assert dataset.status == Dataset.Status.FAILED
+    assert dataset.error == "RuntimeError: no tile has every input"

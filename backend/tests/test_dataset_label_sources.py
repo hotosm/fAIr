@@ -197,12 +197,33 @@ def test_fetch_returns_a_feature_collection(monkeypatch):
     assert fetch_labels_geojson("https://example.org/labels.geojson") == collection
 
 
-def test_fetch_does_not_follow_redirects(monkeypatch):
+def test_fetch_follows_a_redirect_to_a_public_https_host(monkeypatch):
+    collection = {"type": "FeatureCollection", "features": [_feature(_square(85.5, 27.6), {})]}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.url.path == "/labels.geojson":
+            return httpx.Response(307, headers={"Location": "https://example.com/cdn/labels.geojson"})
+        return httpx.Response(200, json=collection)
+
+    _serve(monkeypatch, handler)
+    assert fetch_labels_geojson("https://example.org/labels.geojson") == collection
+
+
+def test_fetch_rejects_a_redirect_to_a_private_host(monkeypatch):
     _serve(
         monkeypatch,
         lambda request: httpx.Response(302, headers={"Location": "https://169.254.169.254/"}),
     )
-    with pytest.raises(LabelsSourceError, match="HTTP 302"):
+    with pytest.raises(public_urls.NonPublicURLError, match="non-public"):
+        fetch_labels_geojson("https://example.org/labels.geojson")
+
+
+def test_fetch_stops_after_too_many_redirects(monkeypatch):
+    _serve(
+        monkeypatch,
+        lambda request: httpx.Response(302, headers={"Location": "https://example.org/again"}),
+    )
+    with pytest.raises(LabelsSourceError, match="redirected more than 5 times"):
         fetch_labels_geojson("https://example.org/labels.geojson")
 
 

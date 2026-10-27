@@ -12,13 +12,18 @@ from shared.serializers import (
     MAX_ZOOM,
     MIN_ZOOM,
     TMS_PLACEHOLDERS,
+    OwnerOnlyErrorMixin,
     StacFacetSerializer,
     imagery_from_shorthand,
     validate_input_imagery,
     validate_public_url,
 )
 
-from .label_sources import LABELS_URL_MAX_BYTES, LABELS_URL_TOTAL_SECONDS
+from .label_sources import (
+    LABELS_URL_MAX_BYTES,
+    LABELS_URL_MAX_REDIRECTS,
+    LABELS_URL_TOTAL_SECONDS,
+)
 from .models import AOI, Dataset
 
 
@@ -80,9 +85,9 @@ class DatasetCreateSerializer(serializers.Serializer):
         help_text=(
             "Public https URL of a GeoJSON FeatureCollection; when set, labels come from it and "
             "OSM is skipped. It is downloaded when the dataset builds, up to "
-            f"{LABELS_URL_MAX_BYTES // 2**20} MB within {LABELS_URL_TOTAL_SECONDS} s, and a "
-            "redirect fails the build. Features that intersect the AOIs and match geometry_type "
-            "and label_classes are kept."
+            f"{LABELS_URL_MAX_BYTES // 2**20} MB within {LABELS_URL_TOTAL_SECONDS} s, following up "
+            f"to {LABELS_URL_MAX_REDIRECTS} redirects to other public https URLs. Features that "
+            "intersect the AOIs and match geometry_type and label_classes are kept."
         ),
     )
     keywords = serializers.ListField(child=serializers.CharField(max_length=80), min_length=1)
@@ -129,7 +134,7 @@ class DatasetAssetsSerializer(serializers.Serializer):
     labels = serializers.URLField()
 
 
-class DatasetSerializer(serializers.ModelSerializer):
+class DatasetSerializer(OwnerOnlyErrorMixin, serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     category = serializers.SlugRelatedField(slug_field="slug", read_only=True)
     stac_url = serializers.SerializerMethodField()
@@ -149,6 +154,7 @@ class DatasetSerializer(serializers.ModelSerializer):
             "source_imagery",
             "category",
             "status",
+            "error",
             "visibility",
             "stac_url",
             "user",
@@ -164,6 +170,7 @@ class DatasetSerializer(serializers.ModelSerializer):
             "stac_id",
             "imagery",
             "status",
+            "error",
             "visibility",
             "stac_url",
             "user",

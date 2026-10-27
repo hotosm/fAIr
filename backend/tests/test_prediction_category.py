@@ -65,6 +65,18 @@ def test_prediction_detail_reports_the_model_category(
     assert response.json()["category"] == expected
 
 
+@pytest.mark.parametrize(("model_id", "expected"), [("banepa-local", "banepa"), ("waste-base", "waste"), ("removed-model", None)])
+def test_prediction_detail_reports_the_model_name(
+    client: APIClient, owner: OsmUser, local_model: LocalModel, model_id: str, expected: str | None
+) -> None:
+    prediction = _prediction(owner, model_id)
+
+    response = client.get(f"/api/v1/predictions/{prediction.id}/")
+
+    assert response.status_code == 200
+    assert response.json()["model_name"] == expected
+
+
 def test_prediction_list_category_costs_no_query_per_row(client: APIClient, owner: OsmUser, local_model: LocalModel) -> None:
     _prediction(owner, "banepa-local")
     with CaptureQueriesContext(connection) as one_row:
@@ -126,3 +138,18 @@ def test_publish_response_includes_the_category(client: APIClient, owner: OsmUse
 
     assert response.status_code == 200
     assert response.json()["category"] == "buildings"
+
+
+def test_a_failure_error_is_shown_to_the_owner_and_hidden_from_everyone_else(
+    client: APIClient, owner: OsmUser, local_model: LocalModel
+) -> None:
+    prediction = _prediction(owner, "banepa-local", visibility=Visibility.PUBLIC)
+    prediction.status = "failed"
+    prediction.error = "RuntimeError: tiles at http://minio:9000/fair-data timed out"
+    prediction.save(update_fields=["status", "error"])
+
+    as_owner = client.get(f"/api/v1/predictions/{prediction.id}/").json()
+    as_anonymous = APIClient().get(f"/api/v1/predictions/{prediction.id}/").json()
+
+    assert as_owner["error"] == prediction.error
+    assert as_anonymous["error"] == ""

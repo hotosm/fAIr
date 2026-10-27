@@ -110,7 +110,7 @@ class PredictionViewSet(viewsets.ReadOnlyModelViewSet):
     throttle_scope = "prediction_submit"
 
     def get_queryset(self):
-        qs = Prediction.objects.with_category().select_related("user")
+        qs = Prediction.objects.with_model_details().select_related("user")
         user = self.request.user
         if not user.is_authenticated:
             return qs.filter(visibility=Visibility.PUBLIC)
@@ -234,7 +234,7 @@ class PredictionViewSet(viewsets.ReadOnlyModelViewSet):
             user=request.user,
         )
         submit_prediction.enqueue(prediction_id=prediction.id)
-        created = Prediction.objects.with_category().get(pk=prediction.pk)
+        created = Prediction.objects.with_model_details().get(pk=prediction.pk)
         return Response(PredictionSerializer(created).data, status=status.HTTP_202_ACCEPTED)
 
     def _run_for_caller(self, run_id: str) -> Prediction:
@@ -394,7 +394,7 @@ def _presigned_result_urls(prediction: Prediction) -> dict[str, str]:
 )
 class PublicPredictionViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = (
-        Prediction.objects.with_category()
+        Prediction.objects.with_model_details()
         .select_related("user")
         .filter(visibility=Visibility.PUBLIC)
     )

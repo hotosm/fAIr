@@ -7,6 +7,7 @@ from notifications.serializers import UserSerializer
 from shared.serializers import (
     MAX_ZOOM,
     MIN_ZOOM,
+    OwnerOnlyErrorMixin,
     imagery_from_shorthand,
     validate_input_imagery,
     validate_public_url,
@@ -106,10 +107,13 @@ class PredictionAssetsSerializer(serializers.Serializer):
     pmtiles = serializers.URLField()
 
 
-class PredictionSerializer(serializers.ModelSerializer):
+class PredictionSerializer(OwnerOnlyErrorMixin, serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     category = serializers.CharField(
         read_only=True, allow_null=True, help_text="Category slug of the model that ran."
+    )
+    model_name = serializers.CharField(
+        read_only=True, allow_null=True, help_text="Registered name of the model that ran."
     )
     assets = serializers.SerializerMethodField()
     image_uri = serializers.SerializerMethodField(help_text="Imagery of the model's first input.")
@@ -137,6 +141,7 @@ class PredictionSerializer(serializers.ModelSerializer):
             "id",
             "zenml_run_id",
             "local_model_stac_id",
+            "model_name",
             "category",
             "imagery",
             "image_uri",
@@ -147,6 +152,7 @@ class PredictionSerializer(serializers.ModelSerializer):
             "visibility",
             "description",
             "status",
+            "error",
             "results_ready",
             "assets",
             "mapswipe_project_id",
@@ -158,8 +164,10 @@ class PredictionSerializer(serializers.ModelSerializer):
             "id",
             "zenml_run_id",
             "imagery",
+            "model_name",
             "category",
             "status",
+            "error",
             "results_ready",
             "assets",
             "visibility",

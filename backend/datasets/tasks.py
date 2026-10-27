@@ -75,10 +75,11 @@ def build_dataset(
         from modelregistry.tasks import mirror_stac_assets_task
 
         mirror_stac_assets_task.enqueue(collection_id=DATASETS_COLLECTION, item_id=published_id)
-    except Exception:
+    except Exception as exc:
         logger.exception("dataset build failed for %s", dataset_id)
         dataset.status = Dataset.Status.FAILED
-        dataset.save(update_fields=["status", "last_modified"])
+        dataset.error = f"{type(exc).__name__}: {exc}"
+        dataset.save(update_fields=["status", "error", "last_modified"])
         raise
 
 

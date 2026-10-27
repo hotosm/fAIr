@@ -4,6 +4,7 @@ from typing import Any
 from fair.stac.inputs import IMAGE_INPUT, INPUT_NAME_PATTERN
 from rest_framework import serializers
 
+from accounts.permissions import _is_admin
 from shared.imagery import INPUT_NAME_MAX_LENGTH
 from shared.public_urls import NonPublicURLError, require_public_url
 
@@ -90,3 +91,17 @@ class LogEntrySerializer(serializers.Serializer):
     level = serializers.CharField()
     message = serializers.CharField()
     timestamp = serializers.CharField(allow_null=True)
+
+
+class OwnerOnlyErrorMixin(serializers.Serializer):
+    """Show a row's `error` only to its owner and admins; exception text can name internal hosts."""
+
+    def to_representation(self, instance: Any) -> dict:
+        data = super().to_representation(instance)
+        request = self.context.get("request")
+        user = request.user if request else None
+        if not (
+            _is_admin(user) or (user and user.is_authenticated and instance.user_id == user.osm_id)
+        ):
+            data["error"] = ""
+        return data

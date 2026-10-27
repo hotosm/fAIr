@@ -151,6 +151,7 @@ def test_root_home_describes_api(anon_client):
     assert body["docs"] == "/api/docs/"
 
 
+@pytest.mark.django_db
 def test_openapi_schema_is_served(anon_client):
     response = anon_client.get("/api/schema/")
     assert response.status_code == 200
@@ -168,11 +169,13 @@ def test_kpi_stats_returns_counts(anon_client, db):
     }
 
 
+@pytest.mark.django_db
 def test_swagger_ui_renders(anon_client):
     response = anon_client.get("/api/docs/")
     assert response.status_code == 200
 
 
+@pytest.mark.django_db
 def test_redoc_ui_renders(anon_client):
     response = anon_client.get("/api/redoc/")
     assert response.status_code == 200
@@ -792,6 +795,25 @@ def test_training_publish_publishes_local_model(mock_for_user, client, training_
         paths=BackendLocalModelPaths,
         providers=[{"name": training_ref.user.username, "roles": ["producer"]}],
     )
+
+
+@patch("trainings.views.for_user")
+def test_publishing_a_new_version_evicts_the_previous_version_from_the_stac_cache(
+    mock_for_user, client, training_ref
+):
+    from django.core.cache import cache
+
+    training_ref.status = "completed"
+    training_ref.save(update_fields=["status"])
+    training_ref.local_model.stac_item_id = "lm-previous"
+    training_ref.local_model.save(update_fields=["stac_item_id"])
+    cache.set("stac:local-models:lm-previous", {"properties": {"title": "old"}})
+    mock_for_user.return_value.promote.return_value = "lm-new"
+
+    response = client.post(f"/api/v1/trainings/{training_ref.id}/publish/", data={}, format="json")
+
+    assert response.status_code == 201
+    assert cache.get("stac:local-models:lm-previous") is None
 
 
 @patch("trainings.views.for_user")

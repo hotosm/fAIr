@@ -23,6 +23,9 @@ class Dataset(InputImagery):
     status = models.CharField(
         max_length=20, choices=DatasetStatus.choices, default=DatasetStatus.DRAFT
     )
+    error = models.TextField(
+        blank=True, help_text="Why the build failed; empty unless status is failed."
+    )
     visibility = models.CharField(
         max_length=20, choices=Visibility.choices, default=Visibility.PRIVATE, db_index=True
     )

@@ -798,6 +798,7 @@ def test_base_model_stac_patch_does_not_write_an_invalid_asset_merge(
     mock_set.assert_not_called()
 
 
+@pytest.mark.django_db
 def test_set_item_properties_publishes_merged_assets() -> None:
     from shared.integrations import stac
 

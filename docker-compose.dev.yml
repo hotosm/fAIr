@@ -76,6 +76,9 @@ configs:
             run_args:
               network: fair-net
               user: "0"
+              mem_limit: ${PIPELINE_STEP_MEMORY_LIMIT:-8g}
+              memswap_limit: ${PIPELINE_STEP_MEMORY_LIMIT:-8g}
+              remove: true
               environment:
                 NVIDIA_VISIBLE_DEVICES: all
                 NVIDIA_DRIVER_CAPABILITIES: compute,utility

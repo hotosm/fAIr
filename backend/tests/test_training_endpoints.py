@@ -176,3 +176,4 @@ def test_failed_training_submission_marks_run_failed(training_ref: TrainingRunRe
 
     training_ref.refresh_from_db()
     assert training_ref.status == PipelineRunStatus.FAILED
+    assert training_ref.error == "RuntimeError: zenml unreachable"

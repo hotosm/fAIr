@@ -163,7 +163,7 @@ Only checked when `DEBUG=false`.
 | `LOG_PATH`                       | no       | `./logs`  | Directory for rotating log files.                                                                                       |
 | `DEFAULT_PAGINATION_SIZE`        | no       | `50`      | DRF page size.                                                                                                          |
 | `SESSION_COOKIE_AGE`             | no       | `3600`    | Session cookie TTL in seconds.                                                                                          |
-| `CACHE_TIMEOUT_MINUTES`          | no       | `5`       | Default LocMem cache TTL for non-STAC entries.                                                                          |
+| `CACHE_TIMEOUT_MINUTES`          | no       | `5`       | Default cache TTL for non-STAC entries.                                                                                 |
 | `LOG_LINE_STREAM_TRUNCATE_VALUE` | no       | `10`      | Per-step log-line truncation factor for streamed pipeline logs.                                                         |
 | `USER_STATE_MAX_BYTES`           | no       | `2097152` | Largest saved user state in bytes of compact JSON; a request body over this plus 1024 bytes is rejected before parsing. |
 
@@ -176,7 +176,7 @@ All have safe defaults; only set to override.
 | `HEALTH_PROBE_TIMEOUT`     | no       | `2.0`   | Seconds each HTTP probe waits before marking a dependency unreachable in `GET /api/v1/health/`.                                                |
 | `PREDICTION_SYNC_INTERVAL` | no       | `15`    | Seconds between prediction-status poll re-enqueues.                                                                                            |
 | `TRAINING_SYNC_INTERVAL`   | no       | `30`    | Seconds between training-status poll re-enqueues.                                                                                              |
-| `STAC_CACHE_TTL`           | no       | `300`   | Seconds the LocMem cache holds a STAC item before re-fetching. Raise in prod for lower STAC load; lower in dev to see property changes faster. |
+| `STAC_CACHE_TTL`           | no       | `300`   | Seconds the shared cache holds a STAC item before re-fetching. Raise in prod for lower STAC load; lower in dev to see property changes faster. |
 | `STAC_BULK_FETCH_WORKERS`  | no       | `16`    | Thread pool size for parallel STAC item fetches when `?expand=stac` is used on list endpoints.                                                 |
 | `PMTILES_MIN_ZOOM`         | no       | `10`    | Min zoom passed to `tippecanoe` for PMTiles generation.                                                                                        |
 | `PMTILES_MAX_ZOOM`         | no       | `20`    | Max zoom passed to `tippecanoe` for PMTiles generation.                                                                                        |
