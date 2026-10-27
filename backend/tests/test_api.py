@@ -72,13 +72,17 @@ def aoi(db, user: OsmUser) -> AOI:
 
 
 @pytest.fixture
-def registered_base_model(db, user: OsmUser) -> BaseModel:
-    return BaseModel.objects.create(
-        name="unet-segmentation",
-        stac_item_id="unet-segmentation",
-        category_id="buildings",
-        user=user,
-    )
+def registered_base_model(db, user: OsmUser):
+    """A base model row, with its STAC lookup patched to an item that has a training runtime."""
+    item = pystac.Item("unet-segmentation", None, None, datetime.now(UTC), {})
+    item.add_asset("mlm:training", pystac.Asset("ghcr.io/hotosm/fair-models/unet:latest"))
+    with patch("trainings.views.get_base_model", return_value=item):
+        yield BaseModel.objects.create(
+            name="unet-segmentation",
+            stac_item_id="unet-segmentation",
+            category_id="buildings",
+            user=user,
+        )
 
 
 @pytest.fixture
@@ -883,6 +887,7 @@ def _model_declaring_confidence_threshold() -> pystac.Item:
     item.properties["fair:hyperparameters_spec"] = [
         {"key": "confidence_threshold", "type": "float", "default": 0.5, "description": "score"}
     ]
+    item.add_asset("mlm:training", pystac.Asset("ghcr.io/hotosm/fair-models/model:latest"))
     return item
 
 

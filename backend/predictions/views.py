@@ -10,7 +10,7 @@ from drf_spectacular.utils import (
     inline_serializer,
 )
 from fair.stac.inputs import require_imagery_for_inputs
-from fair.stac.validators import validate_inference_params
+from fair.stac.validators import batch_runtime, validate_inference_params
 from rest_framework import filters, serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound, PermissionDenied, ValidationError
@@ -211,6 +211,14 @@ class PredictionViewSet(viewsets.ReadOnlyModelViewSet):
                 "local-models or base-models collections."
             )
         model_item = get_item(collection, model_stac_id)
+        if batch_runtime(model_item.assets) is None:
+            raise ValidationError(
+                {
+                    "model_stac_id": [
+                        f"'{model_stac_id}' has no batch runtime, so it serves try-now only."
+                    ]
+                }
+            )
         try:
             input_names = require_imagery_for_inputs(model_item, payload["imagery"])
         except ValueError as exc:

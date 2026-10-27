@@ -91,7 +91,9 @@ def test_prediction_list_category_costs_no_query_per_row(client: APIClient, owne
 
 
 def _single_image_model() -> pystac.Item:
-    return pystac.Item("banepa-local", None, None, datetime.now(UTC), {"mlm:input": [{"name": "image"}]})
+    item = pystac.Item("banepa-local", None, None, datetime.now(UTC), {"mlm:input": [{"name": "image"}]})
+    item.add_asset("mlm:training", pystac.Asset("ghcr.io/hotosm/fair-models/banepa:latest"))
+    return item
 
 
 @patch("predictions.views.get_item", return_value=_single_image_model())

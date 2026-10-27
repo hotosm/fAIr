@@ -46,6 +46,7 @@ def _damage_model(*input_names: str) -> pystac.Item:
         {"key": "buildings_geojson_uri", "type": "str", "default": "", "description": "footprints"},
         {"key": "mode", "type": "str", "default": "fast", "values": ["fast", "full"]},
     ]
+    model.add_asset("mlm:training", pystac.Asset("ghcr.io/hotosm/fair-models/damage:latest"))
     return model
 
 
@@ -81,6 +82,33 @@ def test_prediction_submit_creates_record_and_enqueues(
     assert prediction.geometry == _bbox_polygon(_BBOX)
     assert prediction.zoom == 19
     mock_task.enqueue.assert_called_once()
+
+
+def _prediction_only_model(runtime_asset: str | None) -> pystac.Item:
+    model = _damage_model()
+    del model.assets["mlm:training"]
+    if runtime_asset:
+        model.add_asset(runtime_asset, pystac.Asset("ghcr.io/hotosm/fair-models/trees:latest"))
+    return model
+
+
+@pytest.mark.parametrize(("runtime_asset", "expected_status"), [(None, 400), ("batch-inference", 202)])
+@patch("predictions.views.item_exists", return_value=True)
+@patch("predictions.views.submit_prediction")
+def test_prediction_submit_needs_an_image_for_map_requests(
+    mock_task, mock_item_exists, client, runtime_asset, expected_status
+):
+    with patch("predictions.views.get_item", return_value=_prediction_only_model(runtime_asset)):
+        response = client.post(
+            "/api/v1/predictions/submit/",
+            data={"model_stac_id": "trees", "image_uri": _TMS_URL, "bbox": _BBOX, "zoom": 19},
+            format="json",
+        )
+
+    assert response.status_code == expected_status, response.json()
+    if expected_status == 400:
+        assert set(response.json()["error"]["details"]) == {"model_stac_id"}
+    assert Prediction.objects.count() == (1 if expected_status == 202 else 0)
 
 
 @patch("predictions.views.submit_prediction")
@@ -239,6 +267,7 @@ def test_prediction_submit_rejects_params_the_model_does_not_declare(
     model.properties["fair:hyperparameters_spec"] = [
         {"key": "confidence_threshold", "type": "float", "default": 0.5, "description": "minimum score"}
     ]
+    model.add_asset("mlm:training", pystac.Asset("ghcr.io/hotosm/fair-models/damage:latest"))
     mock_get_item.return_value = model
     response = client.post(
         "/api/v1/predictions/submit/",

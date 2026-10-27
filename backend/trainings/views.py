@@ -6,9 +6,10 @@ from drf_spectacular.utils import (
     extend_schema_view,
     inline_serializer,
 )
+from fair.stac.validators import is_trainable
 from rest_framework import filters, serializers, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import NotFound, PermissionDenied
+from rest_framework.exceptions import NotFound, PermissionDenied, ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.throttling import ScopedRateThrottle
@@ -21,6 +22,7 @@ from shared.integrations.stac import (
     DATASETS_COLLECTION,
     LOCAL_MODELS_COLLECTION,
     get_active_local_model_item,
+    get_base_model,
     invalidate_stac_cache,
     item_exists,
 )
@@ -128,6 +130,14 @@ class TrainingViewSet(viewsets.ReadOnlyModelViewSet):
             stac_id=payload["dataset_stac_id"],
             status=Dataset.Status.BUILT,
         )
+        if not is_trainable(get_base_model(base_model.stac_item_id).assets):
+            raise ValidationError(
+                {
+                    "base_model_stac_id": [
+                        f"'{base_model.stac_item_id}' is prediction-only and cannot be finetuned."
+                    ]
+                }
+            )
 
         # TODO(clone-training): expose POST /api/v1/trainings/{id}/clone/ that
         # copies an existing run's (base_model, dataset, overrides) into a new
