@@ -27,7 +27,7 @@ STAC / React + Vite / uv / Ruff / pre-commit
 
 1. `backend/ARCHITECTURE.md` - the end-to-end flow, the database schema, and
    the **key invariants**. Read this before changing any backend behaviour.
-2. `docs/decisions/` - architectural decision records.
+2. `docs/architecture/decisions/` - architectural decision records.
 3. `CONTRIBUTING.md` - contribution rules, including AI tool usage.
 4. The app you are touching (`datasets/`, `trainings/`, `predictions/`,
    `modelregistry/`).
