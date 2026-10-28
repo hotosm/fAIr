@@ -10,7 +10,7 @@ sudo systemctl restart fAIr-app && sudo nginx -t && sudo systemctl restart nginx
 
 ### Auto-deploy (dev)
 
-`fair-autodeploy.sh` runs every 5 minutes from `fAIr-autodeploy.timer`. It fast-forwards `/opt/fAIr-app` to `origin/develop`, pulls the `:develop` images and runs `docker compose up -d` when the commit or an image differs from the last successful deploy, recorded in `/var/lib/fair-autodeploy/deployed`. A failed deploy leaves that record unchanged, so the next run tries again. The fast-forward stops when a local edit touches a file the update changes, or when the checkout has diverged.
+`fair-autodeploy.sh` runs every 5 minutes from `fAIr-autodeploy.timer`. It fast-forwards `/opt/fAIr-app` to `origin/develop`, pulls the `:develop` images and runs `docker compose up -d` when the commit or an image differs from the last successful deploy, recorded in `/var/lib/fair-autodeploy/deployed`. A failed deploy leaves that record unchanged, so the next run tries again. After a deploy it removes superseded (untagged) fAIr app images; model images stay cached for pipeline runs. The fast-forward stops when a local edit touches a file the update changes, or when the checkout has diverged.
 
 ```bash
 sudo install -m 755 fair-autodeploy.sh /usr/local/bin/fair-autodeploy.sh

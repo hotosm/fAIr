@@ -23,6 +23,8 @@ fi
 
 echo "$(date -Is) change detected, redeploying"
 docker compose up -d
+# Only the superseded app images; model images carry the fAIr-models source label and stay cached.
+docker image prune -f --filter "label=org.opencontainers.image.source=https://github.com/hotosm/fAIr"
 mkdir -p "$(dirname "$STATE_FILE")"
 echo "$current" > "$STATE_FILE"
 echo "$(date -Is) redeploy complete"
