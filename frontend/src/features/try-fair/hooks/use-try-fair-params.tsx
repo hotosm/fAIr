@@ -16,6 +16,10 @@ import {
   useStacLocalModels,
 } from "@/features/try-fair/hooks/use-base-models";
 import { useCallback, useMemo } from "react";
+import {
+  useGetAllAPIBaseModels,
+  useGetAllAPILocalModels,
+} from "@/features/try-fair/api/features-to-map";
 import { getSelectedModel } from "@/features/try-fair/utils/models";
 import { getInferenceParams } from "@/features/try-fair/api/stac";
 import { getModelDefaultResolution } from "@/features/try-fair/utils/common";
@@ -114,6 +118,15 @@ export const useTryFairParams = () => {
     { history: "replace" },
   );
 
+  // URL param wins when present; otherwise fall back to the persisted
+  // preference so the mode survives profile navigation and reloads.
+  const mappingMode: MappingModeType =
+    params.mappingMode === "advanced"
+      ? "advanced"
+      : params.mappingMode === "basic"
+        ? "basic"
+        : (readStoredMappingMode() ?? "basic");
+
   const { models: allModels } = useStacBaseModels();
   const { models: localModels } = useStacLocalModels();
 
@@ -122,10 +135,29 @@ export const useTryFairParams = () => {
     [allModels, localModels],
   );
 
-  const selectedModel = useMemo(
-    () => getSelectedModel(models, params.model),
-    [models, params.model],
+  const pinnedModel = getSelectedModel(models, params.model);
+  // Advanced selections can be absent from the pinned Samples catalogue.
+  // Resolve the URL's model independently without changing the sample list.
+  const needsSelectedModel =
+    mappingMode === "advanced" && !pinnedModel && Boolean(params.model);
+  const { data: apiBaseModels } = useGetAllAPIBaseModels(
+    params.feature,
+    needsSelectedModel,
   );
+  const { data: apiLocalModels } = useGetAllAPILocalModels(
+    params.feature,
+    needsSelectedModel,
+  );
+  const selectedModel =
+    mappingMode === "advanced"
+      ? (pinnedModel ??
+        [
+          ...(apiBaseModels?.results ?? []),
+          ...(apiLocalModels?.results ?? []),
+        ].find((model) => model.stac_item_id === params.model)?.stac ??
+        null)
+      : (pinnedModel ??
+        getSelectedModel(models, TRY_FAIR_PARAM_DEFAULTS.model));
 
   const inferenceParams = useMemo(
     () => (selectedModel ? getInferenceParams(selectedModel) : []),
@@ -156,15 +188,6 @@ export const useTryFairParams = () => {
 
   const mode =
     params.mode === ModelType.IMAGERY ? ModelType.IMAGERY : ModelType.DEMO;
-
-  // URL param wins when present; otherwise fall back to the persisted
-  // preference so the mode survives profile navigation and reloads.
-  const mappingMode: MappingModeType =
-    params.mappingMode === "advanced"
-      ? "advanced"
-      : params.mappingMode === "basic"
-        ? "basic"
-        : (readStoredMappingMode() ?? "basic");
 
   const imageryTileServiceType = Object.values(TileServiceType).includes(
     params.imageryType as TileServiceType,

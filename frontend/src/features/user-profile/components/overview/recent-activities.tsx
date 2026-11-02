@@ -107,7 +107,7 @@ export const RecentActivities = ({
           Couldn't load history.
         </p>
       ) : activities.length ? (
-        <div className="min-w-0 max-w-full [&_table]:table-fixed [&_tbody_tr]:cursor-pointer [&_td]:p-2.5 [&_td]:text-[13px] [&_td]:font-medium [&_td]:text-[#404446] [&_th]:h-9 [&_th]:p-2.5 [&_th]:text-[12px] [&_th]:font-normal [&_th]:text-[#404446] [&_th:last-child]:w-[52px] [&_th:nth-child(2)]:w-[40%]">
+        <div className="min-w-0 max-w-full [&_table]:table-fixed [&_tbody_tr]:cursor-pointer [&_td]:p-2.5 [&_td]:text-[13px] [&_td]:font-medium [&_td]:text-[#404446] [&_th]:h-9 [&_th]:p-2.5 [&_th]:text-[12px] [&_th]:font-normal [&_th]:text-[#404446] [&_th:last-child]:w-[52px] [&_th:nth-child(2)]:w-[34%]">
           <DataTable
             columns={columns}
             data={activities}

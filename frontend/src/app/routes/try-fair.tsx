@@ -10,7 +10,6 @@ import {
 import { TryFairMap } from "@/features/try-fair/components/map/try-fair-map";
 import { TryFairSidebar } from "@/features/try-fair/components/try-fair-sidebar";
 import { ModelPickerContent } from "@/features/try-fair/components/model-picker-modal";
-import { getSelectedModel } from "@/features/try-fair/utils/models";
 import { useMapInstance } from "@/hooks/use-map-instance";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
@@ -135,6 +134,7 @@ export const TryFairPage = ({
     urlState,
     restoreParams,
     modelId,
+    selectedModel,
     selectedModelId,
     outputType,
     resolution,
@@ -177,10 +177,6 @@ export const TryFairPage = ({
     [allModels, localModels],
   );
 
-  const selectedModel = useMemo(
-    () => getSelectedModel(models, modelId),
-    [models, modelId],
-  );
   const {
     selectedImagery,
     imageryBounds,
@@ -213,6 +209,7 @@ export const TryFairPage = ({
     confidence,
     selectedModel,
     selectedModelId,
+    allowUnpinned: mappingMode === "advanced",
   });
   const predictionClassStyle = useMemo(
     () => getPredictionClassStyle(modelForMapping),
@@ -776,11 +773,13 @@ export const TryFairPage = ({
         preventClose
         closeDialog={closeAdvancedModelPickerDialog}
       >
-        <AdvancedModelPickerContent
-          feature={feature}
-          onSelect={handleSelectModel}
-          onFeatureChange={setFeature}
-        />
+        {mappingMode === "advanced" && isAdvancedModelPickerDialogOpened && (
+          <AdvancedModelPickerContent
+            feature={feature}
+            onSelect={handleSelectModel}
+            onFeatureChange={setFeature}
+          />
+        )}
       </Dialog>
 
       {/* Imagery/location dialog – rendered at page level */}

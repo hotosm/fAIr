@@ -159,7 +159,6 @@ export const NavBar = () => {
           {showDashboardLink && (
             <DashboardLink className="!h-7 !min-w-0 !px-2.5" />
           )}
-          {/* {isAuthenticated && <UserNotifications />} */}
 
           <button
             className={styles.hamburgerMenu}

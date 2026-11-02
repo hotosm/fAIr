@@ -1,49 +1,9 @@
 import { API_ENDPOINTS, apiClient } from "@/services";
 import { useQuery } from "@tanstack/react-query";
-import { BaseModelStacItem } from "./stac";
-export type APIBaseModelUser = {
-  osm_id: number;
-  username: string;
-};
-
-export type APIBaseModelItem = {
-  id: number;
-  name: string;
-  category: string;
-  stac_item_id: string;
-  status: string;
-  visibility: string;
-  is_pinned: boolean;
-  star_count: number;
-  is_starred: boolean;
-  error: string;
-  user: APIBaseModelUser;
-  created_at: string;
-  last_modified: string;
-  stac: BaseModelStacItem;
-};
-
-export type APIBaseModelsResponse = {
-  count: number;
-  next: string | null;
-  previous: string | null;
-  results: APIBaseModelItem[];
-};
-export type FeatureToMapItem = {
-  slug: string;
-  id: number;
-  description: string;
-  last_modified: string;
-  created_at: string;
-  label: string;
-};
-
-export type FeaturesToMapResponse = {
-  results: FeatureToMapItem[];
-  count: number;
-  next: string | null;
-  previous: string | null;
-};
+import {
+  APIBaseModelsResponse,
+  FeaturesToMapResponse,
+} from "@/features/try-fair/types/data-types";
 
 // Expanded API STAC metadata can omit its top-level ID. Selection and URL
 // state use that ID, so restore it from the registry's canonical pointer.
@@ -102,6 +62,40 @@ export const useGetAPILocalModels = (category: string, enabled = true) => {
   return useQuery({
     queryKey: ["api-local-models", category],
     queryFn: () => getAPILocalModels(category),
+    enabled: enabled && Boolean(category),
+  });
+};
+
+export const getAllAPIBaseModels = async (
+  category: string,
+): Promise<APIBaseModelsResponse> => {
+  const res = await apiClient.get<APIBaseModelsResponse>(
+    API_ENDPOINTS.GET_ALL_API_BASE_MODELS(category),
+  );
+  return normalizeModelIds(res.data);
+};
+
+export const useGetAllAPIBaseModels = (category: string, enabled = true) => {
+  return useQuery({
+    queryKey: ["all-api-base-models", category],
+    queryFn: () => getAllAPIBaseModels(category),
+    enabled: enabled && Boolean(category),
+  });
+};
+
+export const getAllAPILocalModels = async (
+  category: string,
+): Promise<APIBaseModelsResponse> => {
+  const res = await apiClient.get<APIBaseModelsResponse>(
+    API_ENDPOINTS.GET_ALL_API_LOCAL_MODELS(category),
+  );
+  return normalizeModelIds(res.data);
+};
+
+export const useGetAllAPILocalModels = (category: string, enabled = true) => {
+  return useQuery({
+    queryKey: ["all-api-local-models", category],
+    queryFn: () => getAllAPILocalModels(category),
     enabled: enabled && Boolean(category),
   });
 };

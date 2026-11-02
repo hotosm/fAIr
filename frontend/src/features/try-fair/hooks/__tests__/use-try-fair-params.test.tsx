@@ -20,6 +20,7 @@ import type { BaseModelStacItem } from "@/features/try-fair/api/stac";
 const catalogue = vi.hoisted(() => ({
   base: [] as BaseModelStacItem[],
   local: [] as BaseModelStacItem[],
+  unpinned: [] as BaseModelStacItem[],
 }));
 const modelWithZoom = (zoom?: number): BaseModelStacItem => ({
   id: "recommended-model",
@@ -45,11 +46,24 @@ const modelWithZoom = (zoom?: number): BaseModelStacItem => ({
 beforeEach(() => {
   catalogue.base = [];
   catalogue.local = [];
+  catalogue.unpinned = [];
 });
 
 vi.mock("@/features/try-fair/hooks/use-base-models", () => ({
   useStacBaseModels: () => ({ models: catalogue.base, loading: false }),
   useStacLocalModels: () => ({ models: catalogue.local, loading: false }),
+}));
+
+vi.mock("@/features/try-fair/api/features-to-map", () => ({
+  useGetAllAPIBaseModels: () => ({
+    data: {
+      results: catalogue.unpinned.map((stac) => ({
+        stac_item_id: stac.id,
+        stac,
+      })),
+    },
+  }),
+  useGetAllAPILocalModels: () => ({ data: { results: [] } }),
 }));
 
 describe("useTryFairParams", () => {
@@ -63,6 +77,49 @@ describe("useTryFairParams", () => {
       </NuqsTestingAdapter>
     );
   };
+
+  it("restores an unpinned advanced model from the URL in sample mode", () => {
+    const unpinned = { ...modelWithZoom(19), id: "sklearn-rgb-segmentation" };
+    catalogue.unpinned = [unpinned];
+    const { result } = renderHook(() => useTryFairParams(), {
+      wrapper: createWrapper({
+        model: "sklearn-rgb-segmentation",
+        selectedModelId: "sklearn-rgb-segmentation",
+        mappingMode: "advanced",
+        resolution: "mid",
+        confidence: "0.5",
+      }),
+    });
+    expect(result.current.mode).toBe(ModelType.DEMO);
+    expect(result.current.selectedModel).toBe(unpinned);
+  });
+
+  it("restores the pinned default in basic mode for an old unpinned URL", () => {
+    const building = { ...modelWithZoom(), id: TRY_FAIR_PARAM_DEFAULTS.model };
+    catalogue.base = [building];
+    catalogue.unpinned = [
+      { ...modelWithZoom(), id: "sklearn-rgb-segmentation" },
+    ];
+    const { result } = renderHook(() => useTryFairParams(), {
+      wrapper: createWrapper({
+        model: "sklearn-rgb-segmentation",
+        mappingMode: "basic",
+      }),
+    });
+    expect(result.current.selectedModel).toBe(building);
+  });
+
+  it("selects the default building model on a clean visit", () => {
+    const building = { ...modelWithZoom(), id: TRY_FAIR_PARAM_DEFAULTS.model };
+    catalogue.base = [building];
+    catalogue.unpinned = [
+      { ...modelWithZoom(), id: "sklearn-rgb-segmentation" },
+    ];
+    const { result } = renderHook(() => useTryFairParams(), {
+      wrapper: createWrapper(),
+    });
+    expect(result.current.selectedModel).toBe(building);
+  });
 
   it.each([
     [20, TryFairResolution.LOW],

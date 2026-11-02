@@ -21,9 +21,15 @@ import { Spinner } from "@/components/ui/spinner";
 import { MobileDrawer } from "@/components/ui/drawer";
 import useScreenSize from "@/hooks/use-screen-size";
 import { BBOX, TOfflinePrediction } from "@/types";
-import { cn, getGeoJSONFeatureBounds } from "@/utils";
+import {
+  cn,
+  getGeoJSONFeatureBounds,
+  showErrorToast,
+  showSuccessToast,
+} from "@/utils";
 import { useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
+import { ImageIcon } from "@/components/ui/icons/image-icon";
 import { ParametersIcon } from "@/components/ui/icons/parameters-icon";
 
 const getPredictionName = (prediction: TOfflinePrediction): string =>
@@ -34,6 +40,7 @@ const getPredictionName = (prediction: TOfflinePrediction): string =>
 /** Info card shown over the map — styled like the Try fAIr sidebar. */
 const ResultInfoCard = ({
   imageryName,
+  imageryLink,
   featureMapped,
   outputType,
   onOutputTypeChange,
@@ -43,6 +50,7 @@ const ResultInfoCard = ({
   className,
 }: {
   imageryName: string;
+  imageryLink: string;
   featureMapped: string;
   outputType: TryFairMapOutputType;
   onOutputTypeChange: (type: TryFairMapOutputType) => void;
@@ -52,6 +60,15 @@ const ResultInfoCard = ({
   className?: string;
 }) => {
   const { mappingMode } = useTryFairParams();
+
+  const copyImageryLink = async () => {
+    try {
+      await navigator.clipboard.writeText(imageryLink);
+      showSuccessToast("Copied imagery link to clipboard.");
+    } catch (error) {
+      showErrorToast(error, "Couldn't copy imagery link. Please try again.");
+    }
+  };
 
   return (
     <div
@@ -92,7 +109,22 @@ const ResultInfoCard = ({
         </div>
       </div>
 
-      <div>
+      {showDownloadResult && (
+        <DownloadResultButton className="!h-9 !w-full justify-center" />
+      )}
+      {mappingMode === "advanced" && (
+        <button
+          type="button"
+          onClick={copyImageryLink}
+          disabled={!imageryLink}
+          className="flex h-9 w-full items-center justify-center gap-2 rounded-lg bg-[#F0EFEF] text-xs text-[#2C3038]  "
+        >
+          <ImageIcon className="size-4" aria-hidden="true" />
+          Copy Imagery Link
+        </button>
+      )}
+
+      <div className="border-t border-gray-border pt-4">
         <p className="text-dark text-xs mb-2">Map Output</p>
         <div className="flex items-center gap-2">
           {MAP_REQUEST_OUTPUT_TYPES.map(({ type, label, icon }) => (
@@ -114,11 +146,7 @@ const ResultInfoCard = ({
           ))}
         </div>
       </div>
-      {showDownloadResult && (
-        <div className="[&>button]:!w-full">
-          <DownloadResultButton className="justify-center" />
-        </div>
-      )}
+
       {mappingMode === "advanced" && (
         <details
           aria-label="Prediction configuration"
@@ -256,6 +284,7 @@ export const MapRequestResultPage = () => {
             <div className="absolute top-4 left-4 z-10">
               <ResultInfoCard
                 imageryName={oamItem?.title || "Custom Imagery"}
+                imageryLink={prediction.image_uri ?? ""}
                 featureMapped={prediction?.category ?? "-"}
                 outputType={outputType}
                 onOutputTypeChange={setOutputType}
@@ -279,6 +308,7 @@ export const MapRequestResultPage = () => {
               >
                 <ResultInfoCard
                   imageryName={oamItem?.title || "Custom Imagery"}
+                  imageryLink={prediction.image_uri ?? ""}
                   featureMapped={prediction?.category ?? ""}
                   outputType={outputType}
                   onOutputTypeChange={setOutputType}
