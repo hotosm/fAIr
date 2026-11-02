@@ -1,4 +1,10 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  within,
+} from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { ComponentProps } from "react";
 import { Dialog } from "@/components/ui/dialog";
@@ -7,7 +13,8 @@ import { ModelType } from "@/enums";
 
 const params = vi.hoisted(() => ({
   mode: "demo",
-  selectedModelId: "buildings-1",
+  selectedModelId: "buildings-1" as string | null,
+  modelId: "buildings-1",
   setSelectedModelId: vi.fn(),
 }));
 vi.mock("@/features/try-fair/hooks/use-try-fair-params", () => ({
@@ -25,16 +32,19 @@ vi.mock("@/components/ui/dialog", () => ({
     </div>
   ),
 }));
-const model = (id: string) => ({
+const model = (id: string, isPinned = false) => ({
+  is_pinned: isPinned,
   id,
   name: id,
   stac_item_id: id,
   star_count: 0,
   stac: { id, properties: { title: id, "fair:category": "buildings" } },
 });
-const buildings = [model("buildings-1"), model("buildings-2")];
-const trees = [model("trees-1")];
+const buildings = [model("buildings-1", true), model("buildings-2")];
+const trees = [model("trees-1", true)];
 vi.mock("@/features/try-fair/api/features-to-map", () => ({
+  useGetAPIBaseModels: () => ({ data: { results: [] }, isPending: false }),
+  useGetAPILocalModels: () => ({ data: { results: [] }, isPending: false }),
   useGetFeaturesToMap: () => ({
     data: {
       results: [
@@ -43,12 +53,12 @@ vi.mock("@/features/try-fair/api/features-to-map", () => ({
       ],
     },
   }),
-  useGetAPIBaseModels: (slug: string) => ({
+  useGetAllAPIBaseModels: (slug: string) => ({
     data: { results: slug === "trees" ? trees : buildings },
     isLoading: false,
     isPending: false,
   }),
-  useGetAPILocalModels: () => ({
+  useGetAllAPILocalModels: () => ({
     data: { results: [] },
     isLoading: false,
     isPending: false,
@@ -57,6 +67,8 @@ vi.mock("@/features/try-fair/api/features-to-map", () => ({
 
 beforeEach(() => {
   params.mode = ModelType.DEMO;
+  params.selectedModelId = "buildings-1";
+  trees[0].is_pinned = true;
   params.setSelectedModelId.mockClear();
   localStorage.clear();
 });
@@ -79,6 +91,58 @@ function setup() {
 }
 
 describe("advanced sample switching", () => {
+  it("keeps the current sample when opening advanced mode without an explicit selection", () => {
+    params.selectedModelId = null;
+    const { onSelect } = setup();
+    expect(onSelect).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: /buildings-1/ }));
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("automatically selects a pinned sample even when an unpinned model comes first", () => {
+    params.selectedModelId = "missing-model";
+    buildings.reverse();
+    try {
+      const { onSelect } = setup();
+      expect(onSelect).toHaveBeenCalledExactlyOnceWith(buildings[1].stac);
+    } finally {
+      buildings.reverse();
+    }
+  });
+
+  it("does not automatically select an unpinned sample when the feature has no pinned models", () => {
+    trees[0].is_pinned = false;
+    const { onSelect } = setup();
+    fireEvent.click(screen.getByRole("button", { name: "Trees" }));
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    expect(onSelect).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: /trees-1/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    expect(onSelect).toHaveBeenCalledExactlyOnceWith(trees[0].stac);
+  });
+
+  it("preserves an explicitly selected unpinned sample", () => {
+    params.selectedModelId = "buildings-2";
+    const { onSelect } = setup();
+    expect(onSelect).not.toHaveBeenCalled();
+  });
+
+  it("shows pinned and unpinned models with a badge only on pinned cards", () => {
+    params.mode = ModelType.IMAGERY;
+    const { onSelect } = setup();
+    const pinnedCard = screen.getByRole("button", { name: /buildings-1/ });
+    const unpinnedCard = screen.getByRole("button", { name: /buildings-2/ });
+    expect(within(pinnedCard).getByText("Pinned")).toBeInTheDocument();
+    expect(
+      within(pinnedCard).getByText(
+        "This is a recommended model for mapping buildings.",
+      ),
+    ).toBeInTheDocument();
+    expect(within(unpinnedCard).queryByText("Pinned")).not.toBeInTheDocument();
+    fireEvent.click(unpinnedCard);
+    expect(onSelect).toHaveBeenCalledWith(buildings[1].stac);
+  });
+
   it.each(["Trees", "buildings-2"])(
     "waits for confirmation when choosing %s",
     (choice) => {

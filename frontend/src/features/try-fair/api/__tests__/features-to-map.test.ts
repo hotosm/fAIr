@@ -1,14 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { getAPIBaseModels, getAPILocalModels } from "../features-to-map";
+import {
+  getAPIBaseModels,
+  getAPILocalModels,
+  getAllAPIBaseModels,
+  getAllAPILocalModels,
+} from "../features-to-map";
 import { getSelectedModel } from "../../utils/models";
 
 const get = vi.hoisted(() => vi.fn());
-vi.mock("@/services", () => ({
+vi.mock("@/services", async () => ({
   apiClient: { get },
-  API_ENDPOINTS: {
-    GET_API_BASE_MODELS: () => "/base-models/",
-    GET_API_LOCAL_MODELS: () => "/local-models/",
-  },
+  API_ENDPOINTS: (await import("@/services/api-routes")).API_ENDPOINTS,
 }));
 beforeEach(() => get.mockReset());
 
@@ -41,4 +43,22 @@ describe.each([
       expect(metadata.id).toBe(embeddedId);
     },
   );
+});
+
+describe.each([
+  ["base", getAPIBaseModels, getAllAPIBaseModels],
+  ["local", getAPILocalModels, getAllAPILocalModels],
+] as const)("%s model request scope", (_, getPinned, getAll) => {
+  it("keeps existing requests pinned and advanced requests unfiltered", async () => {
+    get.mockResolvedValue({
+      data: { results: [], count: 0, next: null, previous: null },
+    });
+    await getPinned("buildings");
+    const pinnedUrl = new URL(get.mock.calls[0][0], "https://example.com");
+    expect(pinnedUrl.searchParams.get("is_pinned")).toBe("true");
+    await getAll("buildings");
+    const allUrl = new URL(get.mock.calls[1][0], "https://example.com");
+    expect(allUrl.searchParams.has("is_pinned")).toBe(false);
+    expect(allUrl.searchParams.get("category")).toBe("buildings");
+  });
 });

@@ -36,7 +36,7 @@ export const DownloadResultButton = ({ className }: { className?: string }) => {
       disabled={!resultReady}
       onClick={handleDownload}
       className={cn(
-        "disabled:cursor-not-allowed flex gap-2  disabled:opacity-50",
+        "disabled:cursor-not-allowed h-9 flex gap-2  disabled:opacity-50",
         className,
       )}
     >

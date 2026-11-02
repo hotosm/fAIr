@@ -139,6 +139,10 @@ export const API_ENDPOINTS = {
 
   GET_API_LOCAL_MODELS: (category: string) =>
     `/local-models/?category=${category}&ordering=star_count&expand=stac&is_pinned=true`,
+  GET_ALL_API_BASE_MODELS: (category: string) =>
+    `/base-models/?category=${category}&ordering=star_count&expand=stac`,
+  GET_ALL_API_LOCAL_MODELS: (category: string) =>
+    `/local-models/?category=${category}&ordering=star_count&expand=stac`,
   // Map large area
   MAP_LARGE_AREA_REQUEST: "/predictions/submit/",
 
