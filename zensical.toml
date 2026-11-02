@@ -18,7 +18,9 @@ nav = [
     { "How it works" = "overview/how-it-works.md" },
     { "User bases" = "overview/who-uses-it.md" },
     { "Models" = "overview/models.md" },
+    { "Datasets" = "datasets/index.md" },
     { "Evaluation" = "overview/evaluation.md" },
+    { "Validation" = "overview/validation.md" },
     { "FAQ" = "overview/faq.md" },
   ] },
   { "Roadmap" = [
@@ -28,7 +30,6 @@ nav = [
     { "About" = "overview/about.md" },
   ] },
   { "Progress" = [
-    { "Datasets" = "datasets/index.md" },
     { "Field projects" = "progress/field-projects.md" },
     { "Activations" = "progress/activations.md" },
   ] },

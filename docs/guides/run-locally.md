@@ -35,7 +35,8 @@ area of interest, dataset build, training, promotion, prediction.
 
 The training step needs a base model to fine-tune, and a fresh stack has none.
 Register one first (admin only, see [Register a base model](register-a-base-model.md)),
-otherwise `test.py` stops at its first check.
+otherwise `test.py` stops at its first check. The local `dev-token` user is an
+admin, so it can register.
 
 ```bash
 uv run test.py

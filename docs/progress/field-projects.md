@@ -9,10 +9,7 @@ fAIr's training data is created and validated in the field by community mappers,
 
 ## fAIrSwipe field projects
 
-fAIrSwipe connects [MapSwipe](https://mapswipe.org/) to fAIr through two kinds of project:
-
-- **LOCATE**: create training data for a model through crowdsourced swiping.
-- **Validate**: check a model's predictions through crowdsourced swiping.
+fAIrSwipe connects [MapSwipe](https://mapswipe.org/) to fAIr through Locate Objects projects, which create training data, and Validate Footprints projects, which check predictions; see [Validation](../overview/validation.md).
 
 Both are organized through the open [fAIrSwipe community call](https://hotosm.github.io/fAIrswipe-call-2026/). The table lists the projects with a signed agreement. Status as of 13 October 2026.
 

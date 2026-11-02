@@ -15,7 +15,7 @@ To run the project while you work on it, see [Developer setup](../guides/develop
 
 ## Contributing a model
 
-New geo-AI models are contributed through the model repository and registered into fAIr. See [Register a base model](../guides/register-a-base-model.md) and the developer role in [User bases](../overview/who-uses-it.md#developer).
+See [Contributing a model](../overview/models.md#contributing-a-model).
 
 ## Releases
 

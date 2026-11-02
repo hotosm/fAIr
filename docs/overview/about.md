@@ -48,7 +48,7 @@ Other collaborators include GIScience, Omdena, Togglecorp, Zindi, national Red C
 
 ## Learn more
 
-- Run fAIr at [ai.hotosm.org](https://ai.hotosm.org/)
-- Model catalog: [hotosm.github.io/fAIr-models](https://hotosm.github.io/fAIr-models/)
+- Run fAIr at [dev.ai.hotosm.org](https://dev.ai.hotosm.org/)
+- Models: [github.com/hotosm/fAIr-models](https://github.com/hotosm/fAIr-models)
 - Open datasets: [huggingface.co/hotosm](https://huggingface.co/hotosm)
 - Source code: [github.com/hotosm/fAIr](https://github.com/hotosm/fAIr)

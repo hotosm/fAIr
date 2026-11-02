@@ -7,19 +7,27 @@ description: What fAIr is working toward and where each effort stands, updated f
 
 A summary of what fAIr is working toward and where each effort stands. It is meant for partners and contributors to follow progress. Figures are point-in-time and are dated where they change.
 
-<!-- TODO: revisit this page -->
+## Headline facts
+
+As of 30 October 2026, unless stated otherwise:
+
+- **21 countries** have fAIr work recorded on these pages, through Open Mapping Gurus deployments, fAIrSwipe field projects and activations: Argentina, Bangladesh, Bolivia, Colombia, Eswatini, Ghana, India, Indonesia, Kenya, Liberia, Malawi, Mexico, Nepal, Philippines, Sierra Leone, South Africa, South Sudan, Tanzania, Timor-Leste, Venezuela and Zimbabwe.
+- **3 [activations](activations.md)** supported, for flood and earthquake response.
+- **12 open training datasets** on Hugging Face, downloaded **26,521** times; datasets with fAIr outputs downloaded **2,027** times on HDX.
+- **9,944** MapSwipe contributors, each counted once per project, validated fAIr predictions in **47** projects with **897,986** results.
+- **7 base models** active in the current fAIr version; base models in its catalog come from **4** producers.
 
 ## At a glance
 
-| Goal                                                      | Target       | Status (October 2026)                                                                             |
-| --------------------------------------------------------- | ------------ | ------------------------------------------------------------------------------------------------- |
-| Open geo-AI model library                                 | 20 models    | [4 features available](../overview/models.md) (6 model variants), more in development and planned |
-| Open Mapping Gurus (manual training datasets)             | 12 locations | [4 complete, 6 ongoing, 2 planned](../datasets/index.md#open-mapping-gurus)                       |
-| fAIrSwipe community projects (MapSwipe training datasets) | 12 projects  | [23 underway](field-projects.md)                                                                  |
+| Goal                                                      | Target       | Status (October 2026)                                                                                                                       |
+| --------------------------------------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Open geo-AI model library                                 | 20 models    | [7 base models](../overview/models.md) in the current version for buildings, trees, building damage and solid waste, more in development |
+| Open Mapping Gurus (manual training datasets)             | 12 locations | [4 complete, 6 ongoing, 2 planned](../datasets/index.md#open-mapping-gurus)                                                                 |
+| fAIrSwipe community projects (MapSwipe training datasets) | 12 projects  | [23 with signed agreements](field-projects.md), no datasets released yet                                                                    |
 
 ## Open Mapping Gurus
 
-**63** unique Gurus have been deployed globally (9 September 2026).
+**63** unique Gurus have been deployed globally, as of 9 September 2026.
 
 Cumulative mapping output from Open Mapping Gurus to date:
 
@@ -32,13 +40,13 @@ Cumulative mapping output from Open Mapping Gurus to date:
 
 ## Reach
 
-Who has taken part in fAIr, as of 13 October 2026.
+Who has taken part in fAIr, as of 30 October 2026. Figures marked fAIr v2 come from the earlier version, as of 13 October 2026.
 
 ### Model developers
 
-**3** organisations have added base models to the [catalog](https://hotosm.github.io/fAIr-models/): HOT, HeiGIT, and Mozilla AI. More are being developed through the Omdena and Zindi challenges and the community call; see [Models](../overview/models.md).
+Base models in the [base-models catalog](https://stac.dev.ai.hotosm.org/collections/base-models/items) come from **4** producers: HOT, HeiGIT, Mozilla AI, and Weecology (DeepForest weights, packaged for fAIr by HOT). More are being developed through the Omdena and Zindi challenges and the community call; see [Models](../overview/models.md).
 
-### Model creators
+### Model creators (fAIr v2)
 
 | Measure                               | Count |
 | ------------------------------------- | ----- |
@@ -51,21 +59,21 @@ Who has taken part in fAIr, as of 13 October 2026.
 
 | Measure                                                                     | Count   |
 | --------------------------------------------------------------------------- | ------- |
-| Users who reviewed predictions in fAIr                                      | 249     |
-| Accept and reject labels given in fAIr (10,203 accepts)                     | 20,411  |
-| MapSwipe contributors in fAIr validation projects, counted once per project | 9,379   |
+| Users who reviewed predictions in fAIr v2                                   | 249     |
+| Accept and reject labels given in fAIr v2 (10,203 accepts)                  | 20,411  |
+| MapSwipe contributors in fAIr validation projects, counted once per project | 9,944   |
 | MapSwipe projects validating fAIr predictions                               | 47      |
-| MapSwipe results in those projects                                          | 852,667 |
+| MapSwipe results in those projects                                          | 897,986 |
 
-Together that is **9,628** reviewer engagements across fAIr and MapSwipe, each person counted once per project. The MapSwipe projects include validation runs for activations as well as the community projects.
+Together that is **10,193** reviewer engagements across fAIr and MapSwipe, each person counted once per project, so these are not counts of unique people. Accept and reject labels record what reviewers chose to mark and are not an accuracy measure. The MapSwipe projects include validation runs for activations as well as the community projects; 23 of them are Venezuela earthquake projects, 13 of which also validated detections from Microsoft's AI for Good Lab.
 
 ### Platform and data
 
 | Measure                                         | Count  |
 | ----------------------------------------------- | ------ |
-| Registered users                                | 775    |
+| Registered users in fAIr v2                     | 775    |
 | Activations supported                           | 3      |
-| Hugging Face downloads of the training datasets | 23,894 |
-| HDX downloads of datasets with fAIr outputs     | 1,893  |
+| Hugging Face downloads of the training datasets | 26,521 |
+| HDX downloads of datasets with fAIr outputs     | 2,027  |
 
-Platform figures come from the fAIr API; MapSwipe counts come from [MapSwipe's open data](https://mapswipe.org/en/data/). Download counts are cumulative, as reported by [Hugging Face](https://huggingface.co/hotosm) and the [Humanitarian Data Exchange](https://data.humdata.org/).
+Platform figures come from the fAIr API; MapSwipe counts come from [MapSwipe's open data](https://mapswipe.org/en/data/). Download counts are cumulative, as reported by [Hugging Face](https://huggingface.co/hotosm) and the [Humanitarian Data Exchange](https://data.humdata.org/). Hugging Face counts the files one IP address downloads within five minutes as one download ([source](https://huggingface.co/docs/hub/en/datasets-download-stats)).

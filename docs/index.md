@@ -15,7 +15,7 @@ The software is free and open source. Predictions are suggestions for a mapper t
 
 ## Where fAIr is today
 
-fAIr has grown into an open collection of community-validated models, and is being connected with [MapSwipe](https://mapswipe.org/) for training and validation. See [Vision](overview/where-fair-is-going.md) for adoption and the direction ahead.
+fAIr is an open collection of models whose predictions are checked by people, in fAIr and through [MapSwipe](overview/validation.md). Current figures are on [Milestones](progress/milestones.md), and the direction ahead on [Vision](overview/where-fair-is-going.md).
 
 ## Who it is for
 
@@ -33,7 +33,7 @@ fAIr has grown into an open collection of community-validated models, and is bei
 
     ---
 
-    Retrains a model for their area and publishes the local version.
+    Retrains a model for their area and publishes the local model.
 
     [:lucide-arrow-right: Learn more](overview/who-uses-it.md#advanced-user)
 
@@ -79,7 +79,7 @@ fAIr has grown into an open collection of community-validated models, and is bei
 
     ---
 
-    Step-by-step guide to run a model and validate the results.
+    Run a model on your own area and get the results.
 
     [:lucide-arrow-right: Open](guides/using-fair.md)
 

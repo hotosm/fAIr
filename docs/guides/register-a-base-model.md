@@ -7,20 +7,22 @@ description: How an admin registers a base model into fAIr from a STAC item.
 
 Registration adds a base model (see [Models](../overview/models.md)) to fAIr: it validates a STAC item, publishes it to the `base-models` collection, and makes the model available for training and prediction.
 
-Registration is **admin only** and runs asynchronously. Anyone can contribute a model to fAIr through a pull request to the [fAIr-models catalog](https://hotosm.github.io/fAIr-models/); once the pull request is merged, an admin can trigger registration.
+Registration is **admin only** and runs asynchronously. Models are contributed to the [fAIr-models repository](https://github.com/hotosm/fAIr-models) (see [Contributing a model](../overview/models.md#contributing-a-model)); once the pull request is merged, an admin can trigger registration.
 
 ## What you need
 
 - An admin account (`is_staff = true`).
 - A STAC item that describes the model, either inline JSON or a public URL that
   returns the JSON.
-- A `category` slug that already exists in `/api/v1/categories/` (for example
-  `buildings`). Categories are managed at `/api/v1/categories/`.
+- Optionally, a `category` slug that already exists in `/api/v1/categories/`
+  (for example `buildings`); it defaults to `other`.
 
 ## The STAC item
 
 The item must be a valid MLM (Machine Learning Model) STAC item. At minimum it
-needs `properties["mlm:name"]`, which becomes the model id in the catalog. In
+needs `properties["mlm:name"]`, which becomes the model id in the catalog, and a
+`source-code` asset whose `mlm:entrypoint` is a pipeline bundled in the backend
+image (see [What registration does](#what-registration-does)). In
 practice a base model item also carries the MLM fields (framework, architecture,
 tasks, input/output, hyperparameters) and the `fair:*` fields fAIr uses (compute
 requests, preview info, metrics spec).

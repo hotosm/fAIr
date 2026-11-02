@@ -1,4 +1,21 @@
 {
+  "fair_v2_figures": {
+    "as_of": "13 October 2026",
+    "source": "fAIr v2 API at api-prod.fair.hotosm.org (kpi/stats, model, feedback)",
+    "registered_users": 775,
+    "users_who_published": 59,
+    "fine_tuned_models_published": 139,
+    "users_who_created": 149,
+    "models_created": 341,
+    "feedback_givers": 249,
+    "feedback_labels": 20411,
+    "accepted_predictions": 10203
+  },
+  "organisation_aliases": {
+    "HOTOSM": "HOT",
+    "HOT Open Mapping Hub West and Northern Africa": "HOT",
+    "Weecology (DeepForest)": "Weecology"
+  },
   "mapswipe_validation_projects": [
     "01KHTHRAH75K2FWJD7XHH7NFBT",
     "01KJZ52W1H1RCJ1WXMF0GPRRVF",
@@ -54,7 +71,13 @@
     "hotosm/streetlevel-poles",
     "hotosm/vhr-highway-segmentation",
     "hotosm/fAIr-guru-td-highways",
-    "hotosm/fAIr-guru-td-buildings"
+    "hotosm/fAIr-guru-td-buildings",
+    "hotosm/fAIr-guru-td-road-surface",
+    "hotosm/fAIr-guru-td-roof-type",
+    "hotosm/fAIr-guru-td-solar",
+    "hotosm/fAIr-guru-td-trees",
+    "hotosm/fAIr-guru-td-seagrass",
+    "hotosm/vhr-seagrass-segmentation"
   ],
   "hdx_datasets": [
     "hot_flood_npl_buildings_damage",

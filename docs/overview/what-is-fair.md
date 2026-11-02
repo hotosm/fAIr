@@ -13,13 +13,13 @@ fAIr is developed by the Humanitarian OpenStreetMap Team (HOT) and the friends w
 
 In humanitarian and development work, the places that are hardest to reach are often the least mapped. AI can speed up mapping, but AI-generated map data is only as good as the data it was trained on and the people who validate it.
 
-fAIr is built so that the communities who will use a model are the ones who train and validate it. Corrections made by mappers feed back into the models, so the models get better where they are used.
+fAIr is built so that the communities who will use a model are the ones who train and validate it, so the models get better where they are used.
 
 ## Key characteristics
 
-- **A feedback loop that improves the models.** Predictions are reviewed by people, and their corrections feed back as new training data. Both the model and the data behind it grow the more the model is used.
-- **Any model can be added.** As new geo-AI models become useful to communities, developers can publish them into the collection. A mapper can choose a model, run it over their area of interest, and assess the results visually within minutes.
-- **Local adaptation.** Advanced users fine-tune a model to their own area, producing a local version that reflects local conditions.
+- **People validate the results.** Predictions are reviewed by people, in fAIr and through [MapSwipe](validation.md). Feedback on model results is [planned](../roadmap/index.md#now-and-later).
+- **An open collection of models.** Developers can add models that follow the [fAIr-models](https://github.com/hotosm/fAIr-models) format. A mapper chooses a model, runs it over their area of interest, and assesses the results on the map.
+- **Local adaptation.** Advanced users fine-tune a model to their own area, producing a local model that reflects local conditions.
 - **Built with communities.** Models are trained and validated by the communities that use them, close to the area being mapped.
 - **Open source and discoverable.** Models, training datasets, and outputs are published openly (for example on [Hugging Face](https://huggingface.co/hotosm) and the [Humanitarian Data Exchange](https://data.humdata.org/)) and cataloged in STAC, so they can be found and reused.
 
@@ -33,8 +33,30 @@ HOT values the human-generated data that makes OSM useful, and would weigh that 
 
 fAIr sits within HOT's open mapping tools. Imagery comes from [OpenAerialMap](https://openaerialmap.org/) or an open TMS source. Training labels come from mapping in the [Tasking Manager](https://tasks.hotosm.org/) and from [MapSwipe](https://mapswipe.org/). Validation happens by hand, in the field, or at scale, as described in [How it works](how-it-works.md#3-validate).
 
-!!! note "TODO: add end-to-end diagram here"
+To see how these pieces connect, read [How it works](how-it-works.md). As of October 2026, the current version of fAIr (v3) runs at [dev.ai.hotosm.org](https://dev.ai.hotosm.org/) and is moving to [ai.hotosm.org](https://ai.hotosm.org/); the earlier version (v2) at [fair.hotosm.org](https://fair.hotosm.org/) is being retired.
 
-    End-to-end diagram to be added.
+## Key terms
 
-To see how these pieces connect, read [How it works](how-it-works.md). To see fAIr running, visit [ai.hotosm.org](https://ai.hotosm.org/).
+Base model
+:   A pretrained model in the shared collection that anyone can run, for example a buildings or trees model.
+
+Local model
+:   A base model fine-tuned on one area's own examples, versioned and published back to the collection.
+
+Map request
+:   A prediction over an area you draw or upload, run in the background; also called an offline prediction. Results download as GeoJSON.
+
+Try-now
+:   A quick prediction on the visible map from the **Start Mapping** screen (Try fAIr).
+
+STAC
+:   SpatioTemporal Asset Catalog, an open standard for describing geospatial data. fAIr lists its models in a [STAC catalog](https://stac.dev.ai.hotosm.org/collections/base-models/items) that QGIS and STAC Browser can read.
+
+fAIrSwipe
+:   fAIr working with [MapSwipe](validation.md): Locate Objects projects create training data and Validate Footprints projects check predictions.
+
+Open Mapping Gurus
+:   A program in which community mappers, facilitated by HOT's regional hubs, map training data on the Tasking Manager; see [Datasets](../datasets/index.md#open-mapping-gurus).
+
+Activation
+:   A disaster response in which fAIr was used; see [Activations](../progress/activations.md).

@@ -5,17 +5,13 @@ description: Run the full fAIr stack locally, or the backend on its own for fast
 
 # Developer setup
 
-This page covers running fAIr for development. For a guided Docker install, see [Run locally](run-locally.md).
+This page covers backend-only iteration and tooling. To run the full stack, and for the list of services, ports and dev credentials, see [Run locally](run-locally.md).
 
 ## Prerequisites
 
 - Docker and Docker Compose for the full stack.
 - For host-based backend work: [uv](https://docs.astral.sh/uv/), [just](https://github.com/casey/just), and Python 3.12 or newer.
 - For host-based frontend work: [pnpm](https://pnpm.io/).
-
-## Full stack
-
-Build and run the whole stack from source with [Run locally](run-locally.md). The rest of this page covers backend-only iteration and tooling.
 
 ## Backend only
 
@@ -31,10 +27,6 @@ just worker    # separate shell, runs async jobs
 ```
 
 The worker is required for any async flow (dataset build, training, prediction), since those run as background jobs.
-
-## Ports
-
-The API is on `8000` and Postgres on `5434`. The full list of services, ports, URLs, and dev credentials is in [Run locally](run-locally.md#services).
 
 ## Backend tooling
 

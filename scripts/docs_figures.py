@@ -1,5 +1,5 @@
-"""Prints public figures for the docs (model developers and creators, mappers and validators,
-activations, downloads) from public APIs and docs_figures.json; `--discover` lists candidates."""
+"""Prints public figures for the docs from public APIs and docs_figures.json;
+`--discover` lists candidate MapSwipe projects."""
 
 import argparse
 import json
@@ -18,11 +18,9 @@ HUGGINGFACE_DATASET_URL = (
     "https://huggingface.co/api/datasets/{repo}?expand[]=downloadsAllTime"
 )
 HDX_PACKAGE_URL = "https://data.humdata.org/api/3/action/package_show?id={name}"
-FAIR_API = "https://api-prod.fair.hotosm.org/api/v1"
 STAC_BASE_MODELS_URL = (
     "https://stac.dev.ai.hotosm.org/collections/base-models/items?limit=100"
 )
-PUBLISHED_MODEL_STATUS = 0
 FAIR_WORD = re.compile(r"\bfair\b", re.IGNORECASE)
 NOT_A_PROJECT = re.compile(r"\btest\b|tutorial", re.IGNORECASE)
 VALIDATE_FOOTPRINTS_PROJECT_TYPE = "2"
@@ -60,18 +58,8 @@ def is_fair_validation(project: dict) -> bool:
     )
 
 
-def fetch_all(url: str, extract_items=lambda page: page["results"]) -> list:
-    """Every item of a paginated fAIr API list."""
-    items: list = []
-    while url:
-        page = fetch_json(url)
-        items += extract_items(page)
-        url = page["next"]
-    return items
-
-
-def model_developers() -> list[str]:
-    """Organisations listed as `producer` of a base model in the STAC catalog."""
+def model_developers(organisation_aliases: dict[str, str]) -> list[str]:
+    """Organisations listed as `producer` of a base model in the STAC catalog, one name each."""
     items: list = []
     url = STAC_BASE_MODELS_URL
     while url:
@@ -83,7 +71,7 @@ def model_developers() -> list[str]:
         )
     return sorted(
         {
-            provider["name"]
+            organisation_aliases.get(provider["name"], provider["name"])
             for item in items
             if not item["properties"].get("deprecated")
             for provider in item["properties"].get("providers", [])
@@ -93,18 +81,7 @@ def model_developers() -> list[str]:
 
 
 def report(sources: dict) -> None:
-    kpis = fetch_json(f"{FAIR_API}/kpi/stats/")
-    models = fetch_all(f"{FAIR_API}/model/?limit=500")
-    published = [model for model in models if model["status"] == PUBLISHED_MODEL_STATUS]
-    if len(published) != kpis["total_models_published"]:
-        raise RuntimeError(
-            f"{len(published)} models have the published status, but the API reports "
-            f"{kpis['total_models_published']} published models"
-        )
-    feedback = fetch_all(
-        f"{FAIR_API}/feedback/?limit=500", lambda page: page["results"]["features"]
-    )
-    feedback_givers = {label["properties"]["user"] for label in feedback}
+    fair_v2 = sources["fair_v2_figures"]
     projects = mapswipe_projects()
     validation_projects = [
         projects[project_id] for project_id in sources["mapswipe_validation_projects"]
@@ -122,25 +99,26 @@ def report(sources: dict) -> None:
         ]
         for name in sources["hdx_datasets"]
     }
-    developers = model_developers()
+    developers = model_developers(sources["organisation_aliases"])
 
     print(f"Figures as of {date.today():%d %B %Y}")
     print(f"- Model developers: {len(developers)} ({', '.join(developers)})")
     print(
-        f"- Model creators: {len({model['user']['osm_id'] for model in published})} users published "
-        f"{len(published)} fine-tuned models; "
-        f"{len({model['user']['osm_id'] for model in models})} users created {len(models)} models"
+        f"- Model creators (fAIr v2, {fair_v2['as_of']}): {fair_v2['users_who_published']} users "
+        f"published {fair_v2['fine_tuned_models_published']} fine-tuned models; "
+        f"{fair_v2['users_who_created']} users created {fair_v2['models_created']} models"
     )
     print(
-        f"- Mappers and validators: {len(feedback_givers):,} gave {len(feedback):,} feedback "
-        f"labels in fAIr; {mapswipe_contributors:,} MapSwipe contributors (counted once per "
+        f"- Mappers and validators: {fair_v2['feedback_givers']:,} gave "
+        f"{fair_v2['feedback_labels']:,} feedback labels in fAIr v2 ({fair_v2['as_of']}); "
+        f"{mapswipe_contributors:,} MapSwipe contributors (counted once per "
         f"project) in {len(validation_projects)} validation projects with "
         f"{sum(int(project['number_of_results']) for project in validation_projects):,} results; "
-        f"{len(feedback_givers) + mapswipe_contributors:,} reviewer engagements (not unique people)"
+        f"{fair_v2['feedback_givers'] + mapswipe_contributors:,} reviewer engagements (not unique people)"
     )
     print(
-        f"- Platform: {kpis['total_registered_users']:,} registered users, "
-        f"{kpis['total_accepted_predictions']:,} accepted predictions"
+        f"- Platform (fAIr v2, {fair_v2['as_of']}): {fair_v2['registered_users']:,} registered "
+        f"users, {fair_v2['accepted_predictions']:,} accepted predictions"
     )
     print(f"- Activations supported: {count_activations()}")
     print(
