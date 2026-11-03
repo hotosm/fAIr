@@ -46,7 +46,7 @@ request and are registered on the dev instance through the API.
 !!! note "The environment"
 
     - Runs all the same components as production, but starts up via a PR from
-      `staging` to `main`.
+      `stage` to `main`.
     - The components run inside the `fair-staging` namespace of the Kubernetes
       cluster, under domain `https://stage.ai.hotosm.org`.
     - Does not run its own `knative` controller, instead using the cluster-wide
@@ -54,7 +54,7 @@ request and are registered on the dev instance through the API.
 
 1. When we want to stabilise and push out a **new model**, or **updates to the
    API / website**, we use the staging setup.
-2. First a PR must be raised on the fAIr repo from `staging` --> `main`.
+2. First a PR must be raised on the fAIr repo from `stage` --> `main`.
    This will set up `https://stage.ai.hotosm.org` with ZenML / STAC /
    Knative registration.
 3. The **staging** STAC is separate from production and persists between PRs.
@@ -72,8 +72,12 @@ request and are registered on the dev instance through the API.
     - Runs through tagged releases on GitHub, where ArgoCD picks up the latest
       Helm chart tag and deploys.
 
-1. A new tagged version is made from the latest `main` code.
-2. This triggers a redeploy of the fAIr website / API.
+Follow the [release checklist](../community/contributing.md#releases).
+
+1. Publish a GitHub release from the latest `main` code and wait for its
+   versioned API and frontend images to finish publishing.
+2. Update the chart on `develop` only after those images exist. Publishing the
+   chart triggers ArgoCD to deploy the fAIr website / API.
 3. Register the exact pinned STAC item tested in staging through the production
    API. This publishes the next integer STAC version and moves live traffic to
    the Ready revision. The images are already in GHCR.
