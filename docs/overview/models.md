@@ -26,19 +26,21 @@ The models available in fAIr today and those planned. "Available" names the vers
 | 9   | Swimming pools                        | Swimming pools  | Object detection | Mozilla AI            | <span class="status available">Available, v2</span>       |
 | 10  | Parking spaces                        | Parking spaces  | Object detection | HOT                   | <span class="status available">Available, v2</span>       |
 | 11  | Trees (Omdena challenge)              | Trees           | Object detection | Omdena                | <span class="status in-development">In development</span> |
-| 12  | Seagrass                              | Seagrass        | Segmentation     | Zindi                 | <span class="status in-development">In development</span> |
-| 13  | Highway segmentation                  | Roads           | Segmentation     | Zindi                 | <span class="status in-development">In development</span> |
-| 14  | Road surface (paved / unpaved)        | Roads           | Classification   | HeiGIT                | <span class="status in-development">In development</span> |
-| 15  | Road surface damage                   | Roads           | Classification   | Community call        | <span class="status in-development">In development</span> |
-| 16  | Water storage tanks                   | Water tanks     | Object detection | Community call        | <span class="status in-development">In development</span> |
-| 17  | Shipping container detection          | Ports           | Object detection | Community call        | <span class="status in-development">In development</span> |
-| 18  | Solar panels                          | Solar panels    | Object detection | Omdena                | <span class="status planned">Planned</span>               |
-| 19  | Bridges                               | Bridges         | Object detection | Omdena                | <span class="status planned">Planned</span>               |
-| 20  | Land use and land cover               | Land cover      | Segmentation     | Omdena                | <span class="status planned">Planned</span>               |
-| 21  | Tent detection                        | Tents           | Object detection | HOT                   | <span class="status planned">Planned</span>               |
-| 22  | Water bodies                          | Water           | Segmentation     | HOT                   | <span class="status exploring">Exploring</span>           |
-| 23  | Roof type                             | Buildings       | Classification   | HOT                   | <span class="status exploring">Exploring</span>           |
-| 24  | River segmentation                    | Rivers          | Segmentation     | HOT                   | <span class="status exploring">Exploring</span>           |
+| 12  | Solar panels                          | Solar panels    | Object detection | Omdena                | <span class="status in-development">In development</span> |
+| 13  | Bridges                               | Bridges         | Object detection | Omdena                | <span class="status in-development">In development</span> |
+| 14  | Roof type classification              | Buildings       | Classification   | Omdena                | <span class="status in-development">In development</span> |
+| 15  | Seagrass                              | Seagrass        | Segmentation     | Omdena                | <span class="status in-development">In development</span> |
+| 16  | Highway segmentation                  | Roads           | Segmentation     | Zindi                 | <span class="status in-development">In development</span> |
+| 17  | Road surface (paved / unpaved)        | Roads           | Classification   | HeiGIT                | <span class="status in-development">In development</span> |
+| 18  | Road surface damage                   | Roads           | Object detection | Community member      | <span class="status in-development">In development</span> |
+| 19  | Water storage tanks                   | Water tanks     | Object detection | Togglecorp            | <span class="status planned">Planned</span>               |
+| 20  | Breeding containers                   | Disease vectors | Object detection | HeiGIT                | <span class="status in-development">In development</span> |
+| 21  | Buildings (U-Net)                     | Buildings       | Segmentation     | Community member      | <span class="status in-development">In development</span> |
+| 22  | Open ground                           | Open spaces     | Segmentation     | NAXA                  | <span class="status in-development">In development</span> |
+| 23  | Roof material                         | Buildings       | Segmentation     | NAXA                  | <span class="status in-development">In development</span> |
+| 24  | Tent detection                        | Tents           | Object detection | Community members     | <span class="status in-development">In development</span> |
+| 25  | Rural roads                           | Roads           | Segmentation     | Community member      | <span class="status planned">Planned</span>               |
+| 26  | Surface water                         | Water           | Segmentation     | Community member      | <span class="status planned">Planned</span>               |
 
 The base-models STAC collection also holds a swimming pools item from Mozilla AI that is not registered in the v3 API, so it cannot be run there. Progress across the model pipeline is tracked on the [Milestones](../progress/milestones.md) page.
 
@@ -46,10 +48,10 @@ The base-models STAC collection also holds a swimming pools item from Mozilla AI
 
 Several models are being built through two open geo-AI challenges in 2026, which open model development to a wider community:
 
-- **[Omdena](https://www.omdena.com/)** (around 50 participants): trees, solar panels, bridges, and land use and land cover.
-- **[Zindi](https://zindi.africa/)** (100+ participants expected): seagrass and highway segmentation, with a third model in planning.
+- **[Omdena](https://www.omdena.com/)** (around 50 participants): trees, solar panels, bridges, roof type classification, and seagrass.
+- **[Zindi](https://zindi.africa/)**: highway segmentation, in a challenge planned to run from 13 November to 11 December 2026.
 
-Contributions also come from **[HeiGIT](https://heigit.org/)** (solid waste, road surface) and **[Mozilla AI](https://www.mozilla.ai/)** (swimming pools), alongside HOT's own models.
+Contributions also come through the [open call](https://hotosm.org/en/request-for-proposals/open-call-for-earth-observation-geoai-models/) from **[HeiGIT](https://heigit.org/)** (solid waste, road surface, breeding containers), **[NAXA](https://naxa.com.np/)** (open ground, roof material), **[Togglecorp](https://togglecorp.com/)** (water storage tanks) and community members, alongside **[Mozilla AI](https://www.mozilla.ai/)** (swimming pools) and HOT's own models.
 
 Need a different feature? Ask the team in **#fair-coord** on [Slack](https://slack.hotosm.org/), or contribute a model (see below).
 

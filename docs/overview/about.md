@@ -44,7 +44,7 @@ fAIr's development and models are supported by funders and built with a range of
 ![Missing Maps](../assets/logos/missing-maps.svg)
 </div>
 
-Other collaborators include GIScience, Omdena, Togglecorp, Zindi, national Red Cross societies, and academic groups studying AI-assisted mapping. Community mappers contribute training data through the Open Mapping Gurus program and the [fAIrSwipe community call](https://hotosm.github.io/fAIrswipe-call-2026/).
+Other collaborators include GIScience, NAXA, Omdena, Togglecorp, Zindi, national Red Cross societies, and academic groups studying AI-assisted mapping. Community mappers contribute training data through the Open Mapping Gurus program and the [fAIrSwipe community call](https://hotosm.github.io/fAIrswipe-call-2026/).
 
 ## Learn more
 

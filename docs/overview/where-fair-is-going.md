@@ -15,7 +15,7 @@ HOT has built open mapping tools and mapping networks since 2010, and develops f
 
 ## Where fAIr is today
 
-As of 30 October 2026, fAIr work is recorded in 21 countries and fAIr has supported 3 activations for flood and earthquake response; see [Milestones](../progress/milestones.md#headline-facts) and [What is fAIr](what-is-fair.md).
+As of 5 November 2026, fAIr work is recorded in 23 countries and fAIr has supported 3 activations for flood and earthquake response; see [Milestones](../progress/milestones.md#headline-facts) and [What is fAIr](what-is-fair.md).
 
 ## Current initiatives
 
