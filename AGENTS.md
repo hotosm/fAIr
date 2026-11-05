@@ -73,8 +73,7 @@ Frontend, from `frontend/`:
 pnpm dev            # vite dev server
 pnpm build          # tsc -b && vite build
 pnpm test           # vitest
-pnpm lint           # eslint .
-pnpm format         # prettier --write
+pnpm format         # oxfmt --write
 ```
 
 Chart: `just chart <args>` from the repo root.

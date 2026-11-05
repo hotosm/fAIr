@@ -62,14 +62,20 @@ export const APPLICATION_ROUTES = {
   PROFILE_SETTINGS: "/profile/settings",
   PROFILE_MODELS: "/profile/models",
   PROFILE_DATASETS: "/profile/datasets",
-  PROFILE_OFFLINE_PREDICTIONS: "/profile/prediction-requests",
+  PROFILE_OFFLINE_PREDICTIONS: "/profile/map-requests",
+
+  MAP_REQUEST_BASE: "/map-requests",
+
+  MAP_REQUEST_RESULT: "/map-requests/:id",
   TRY_FAIR: "/try-fair",
+  TRY_FAIR_PROJECT: "/try-fair/:pid",
 
   // Published AI Predictions
   AI_PREDICTIONS: "/ai-predictions",
 };
 
 export const HOT_PRIVACY_POLICY_URL: string = "https://www.hotosm.org/privacy";
+export const FAIR_DOCS_URL: string = "https://hotosm.github.io/fAIr/";
 /**
  * The navigation tabs used in the profile layout.
  */

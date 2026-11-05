@@ -1,3 +1,4 @@
+import pystac
 from django.conf import settings
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
@@ -8,9 +9,11 @@ from drf_spectacular.utils import (
     extend_schema_view,
     inline_serializer,
 )
+from fair.stac.inputs import require_imagery_for_inputs
+from fair.stac.validators import batch_runtime, validate_inference_params
 from rest_framework import filters, serializers, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import NotFound, PermissionDenied
+from rest_framework.exceptions import NotFound, PermissionDenied, ValidationError
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.throttling import ScopedRateThrottle
@@ -26,16 +29,17 @@ from shared.enums import Visibility
 from shared.integrations.stac import (
     BASE_MODELS_COLLECTION,
     LOCAL_MODELS_COLLECTION,
+    get_item,
     item_exists,
 )
 from shared.integrations.zenml import (
-    fetch_run_logs,
-    fetch_step_logs,
     get_run_status,
     is_terminal,
 )
+from shared.public_urls import require_public_url
+from shared.run_endpoints import read_run_logs, stop_pipeline_run
+from shared.serializers import LogEntrySerializer, RunLogsQuerySerializer, RunStatusSerializer
 from shared.storage import StoragePaths, presigned_get_url
-from trainings.serializers import LogEntrySerializer, RunStatusSerializer
 
 from .models import Prediction
 from .serializers import (
@@ -44,6 +48,17 @@ from .serializers import (
     PredictionSubmitSerializer,
 )
 from .tasks import submit_prediction
+
+
+def _require_public_url_params(params: dict, model_item: pystac.Item) -> None:
+    """The backend treats free-form `str` params (`values` unset) as URLs the model fetches, such
+    as a footprints GeoJSON, and requires each non-empty one to be a public http or https URL."""
+    spec_entries = model_item.properties.get("fair:hyperparameters_spec", [])
+    spec = {entry["key"]: entry for entry in spec_entries}
+    for key, value in params.items():
+        entry = spec[key]
+        if entry.get("type") == "str" and not entry.get("values") and value:
+            require_public_url(value, ("http", "https"))
 
 
 class _MapswipeProjectSerializer(serializers.Serializer):
@@ -88,13 +103,14 @@ class PredictionViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = PredictionSerializer
     authentication_classes = [OsmAuthentication]
     permission_classes = [PublishedReadOrAuthenticatedWrite, IsOwnerOrAdminOrReadOnly]
-    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ["local_model_stac_id", "user", "status", "visibility"]
+    search_fields = ["description"]
     ordering_fields = ["submitted_at", "last_polled_at"]
     throttle_scope = "prediction_submit"
 
     def get_queryset(self):
-        qs = Prediction.objects.all()
+        qs = Prediction.objects.with_model_details().select_related("user")
         user = self.request.user
         if not user.is_authenticated:
             return qs.filter(visibility=Visibility.PUBLIC)
@@ -103,6 +119,8 @@ class PredictionViewSet(viewsets.ReadOnlyModelViewSet):
         return qs.filter(Q(user=user) | Q(visibility=Visibility.PUBLIC))
 
     def get_permissions(self):
+        if self.action in {"run_status", "run_logs"}:
+            return [IsAuthenticated()]
         if self.action in {"publish", "unpublish", "submit", "mapswipe", "run_cancel"}:
             return [IsAuthenticated(), IsOwnerOrAdmin()]
         return super().get_permissions()
@@ -114,13 +132,29 @@ class PredictionViewSet(viewsets.ReadOnlyModelViewSet):
                 "Submit with bbox",
                 value={
                     "model_stac_id": "0311d82d-0f8e-4021-adc5-bb4d6b81a1d4",
-                    "image_uri": (
-                        "https://tiles.openaerialmap.org/62d85d11d8499800053796c1/0/"
-                        "62d85d11d8499800053796c2/{z}/{x}/{y}"
-                    ),
+                    "imagery": {
+                        "image": (
+                            "https://tiles.openaerialmap.org/62d85d11d8499800053796c1/0/"
+                            "62d85d11d8499800053796c2/{z}/{x}/{y}"
+                        )
+                    },
                     "bbox": [85.51678, 27.63133, 85.52323, 27.63743],
                     "zoom": 19,
                     "params": {"confidence_threshold": 0.25},
+                },
+                request_only=True,
+            ),
+            OpenApiExample(
+                "Submit to a model with post and pre inputs",
+                value={
+                    "model_stac_id": "dinov3-damage",
+                    "imagery": {
+                        "post": "https://tiles.example.org/post-event/{z}/{x}/{y}",
+                        "pre": "https://tiles.example.org/pre-event/{z}/{x}/{y}",
+                    },
+                    "bbox": [85.37, 28.26, 85.38, 28.27],
+                    "zoom": 18,
+                    "params": {"confidence_threshold": 0.0},
                 },
                 request_only=True,
             ),
@@ -163,18 +197,43 @@ class PredictionViewSet(viewsets.ReadOnlyModelViewSet):
         payload = serializer.validated_data
 
         model_stac_id = payload["model_stac_id"]
-        if not (
-            item_exists(LOCAL_MODELS_COLLECTION, model_stac_id)
-            or item_exists(BASE_MODELS_COLLECTION, model_stac_id)
-        ):
+        collection = next(
+            (
+                collection
+                for collection in (LOCAL_MODELS_COLLECTION, BASE_MODELS_COLLECTION)
+                if item_exists(collection, model_stac_id)
+            ),
+            None,
+        )
+        if collection is None:
             raise NotFound(
                 f"model_stac_id '{model_stac_id}' not found in "
                 "local-models or base-models collections."
             )
+        model_item = get_item(collection, model_stac_id)
+        if batch_runtime(model_item.assets) is None:
+            raise ValidationError(
+                {
+                    "model_stac_id": [
+                        f"'{model_stac_id}' has no batch runtime, so it serves try-now only."
+                    ]
+                }
+            )
+        try:
+            input_names = require_imagery_for_inputs(model_item, payload["imagery"])
+        except ValueError as exc:
+            raise ValidationError({"imagery": [str(exc)]}) from exc
+        if payload["params"]:
+            try:
+                validate_inference_params(payload["params"], model_item)
+                _require_public_url_params(payload["params"], model_item)
+            except ValueError as exc:
+                raise ValidationError({"params": [str(exc)]}) from exc
 
         prediction = Prediction.objects.create(
             local_model_stac_id=payload["model_stac_id"],
-            image_uri=payload["image_uri"],
+            imagery=payload["imagery"],
+            primary_input=input_names[0],
             geometry=payload["geometry"],
             zoom=payload["zoom"],
             params=payload["params"],
@@ -183,7 +242,8 @@ class PredictionViewSet(viewsets.ReadOnlyModelViewSet):
             user=request.user,
         )
         submit_prediction.enqueue(prediction_id=prediction.id)
-        return Response(PredictionSerializer(prediction).data, status=status.HTTP_202_ACCEPTED)
+        created = Prediction.objects.with_model_details().get(pk=prediction.pk)
+        return Response(PredictionSerializer(created).data, status=status.HTTP_202_ACCEPTED)
 
     def _run_for_caller(self, run_id: str) -> Prediction:
         prediction = get_object_or_404(Prediction, zenml_run_id=run_id)
@@ -277,7 +337,7 @@ class PredictionViewSet(viewsets.ReadOnlyModelViewSet):
         client.update_project(
             project_id=project_id,
             geojson_url=geojson_url,
-            tms_url=str(prediction.image_uri),
+            tms_url=prediction.primary_imagery,
             image_asset_id=image_asset_id,
             group_size=params["group_size"],
             verification_number=params["verification_number"],
@@ -303,28 +363,23 @@ class PredictionViewSet(viewsets.ReadOnlyModelViewSet):
     )
     @action(detail=False, methods=["post"], url_path=r"runs/(?P<run_id>[^/]+)/cancel")
     def run_cancel(self, request, run_id: str) -> Response:
-        from zenml.client import Client
-        from zenml.utils.run_utils import stop_run
-
         prediction = self._run_for_caller(run_id)
-        run = Client().get_pipeline_run(run_id)
         graceful = request.query_params.get("graceful", "false").lower() == "true"
-        stop_run(run, graceful=graceful)
+        stop_pipeline_run(run_id, graceful=graceful)
         Prediction.objects.filter(pk=prediction.pk).update(status="stopping")
         return Response({"run_id": run_id, "status": "stopping", "graceful": graceful})
 
-    @extend_schema(responses=LogEntrySerializer(many=True))
-    @action(detail=False, methods=["get"], url_path=r"runs/(?P<run_id>[^/]+)/logs")
+    @extend_schema(parameters=[RunLogsQuerySerializer], responses=LogEntrySerializer(many=True))
+    @action(
+        detail=False,
+        methods=["get"],
+        url_path=r"runs/(?P<run_id>[^/]+)/logs",
+        filter_backends=[],
+        pagination_class=None,
+    )
     def run_logs(self, request, run_id: str) -> Response:
         self._run_for_caller(run_id)
-        tail = int(request.query_params.get("tail", 1000))
-        step = request.query_params.get("step")
-        if step:
-            entries = fetch_step_logs(run_id, step, tail=tail)
-        else:
-            entries = fetch_run_logs(run_id, tail=tail)
-        data = [{"level": e.level, "message": e.message, "timestamp": e.timestamp} for e in entries]
-        return Response(LogEntrySerializer(data, many=True).data)
+        return Response(read_run_logs(run_id, request.query_params))
 
 
 def _presigned_result_urls(prediction: Prediction) -> dict[str, str]:
@@ -346,10 +401,15 @@ def _presigned_result_urls(prediction: Prediction) -> dict[str, str]:
     ),
 )
 class PublicPredictionViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Prediction.objects.filter(visibility=Visibility.PUBLIC)
+    queryset = (
+        Prediction.objects.with_model_details()
+        .select_related("user")
+        .filter(visibility=Visibility.PUBLIC)
+    )
     serializer_class = PredictionSerializer
     authentication_classes: list = []
     permission_classes = [AllowAny]
-    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ["local_model_stac_id"]
+    search_fields = ["description"]
     ordering_fields = ["submitted_at"]

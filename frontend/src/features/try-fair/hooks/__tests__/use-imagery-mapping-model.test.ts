@@ -4,11 +4,15 @@ import { useImageryMappingModel } from "@/features/try-fair/hooks/use-imagery-ma
 import { ModelType } from "@/enums";
 import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
 import {
+  useGetAllAPIBaseModels,
+  useGetAllAPILocalModels,
   useGetAPIBaseModels,
   useGetAPILocalModels,
 } from "@/features/try-fair/api/features-to-map";
 
 vi.mock("@/features/try-fair/api/features-to-map", () => ({
+  useGetAllAPIBaseModels: vi.fn(),
+  useGetAllAPILocalModels: vi.fn(),
   useGetAPIBaseModels: vi.fn(),
   useGetAPILocalModels: vi.fn(),
 }));
@@ -37,6 +41,8 @@ describe("useImageryMappingModel", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(useGetAllAPIBaseModels).mockImplementation(useGetAPIBaseModels);
+    vi.mocked(useGetAllAPILocalModels).mockImplementation(useGetAPILocalModels);
     useStartMappingStore.setState({
       currentModelType: ModelType.DEMO,
     });
@@ -107,6 +113,40 @@ describe("useImageryMappingModel", () => {
     expect(result.current.hasNoModelsForFeature).toBe(false);
   });
 
+  it("keeps the default pinned model when its ID is written to the URL", () => {
+    useStartMappingStore.setState({ currentModelType: ModelType.IMAGERY });
+    vi.mocked(useGetAPIBaseModels).mockReturnValue({
+      data: {
+        results: [{ stac_item_id: "stac-model-1", stac: mockSelectedModel }],
+      },
+      isSuccess: true,
+    } as ReturnType<typeof useGetAPIBaseModels>);
+    vi.mocked(useGetAllAPIBaseModels).mockReturnValue({
+      data: undefined,
+      isSuccess: false,
+    } as ReturnType<typeof useGetAllAPIBaseModels>);
+    vi.mocked(useGetAllAPILocalModels).mockReturnValue({
+      data: undefined,
+      isSuccess: false,
+    } as ReturnType<typeof useGetAllAPILocalModels>);
+
+    const { result, rerender } = renderHook(
+      ({ selectedModelId }: { selectedModelId: string | null }) =>
+        useImageryMappingModel({
+          feature: "buildings",
+          confidence: 0.7,
+          selectedModel: mockSelectedModel,
+          selectedModelId,
+        }),
+      { initialProps: { selectedModelId: null as string | null } },
+    );
+    expect(result.current.modelForMapping).toBe(mockSelectedModel);
+    rerender({ selectedModelId: "stac-model-1" });
+    expect(result.current.modelForMapping).toBe(mockSelectedModel);
+    expect(result.current.modelsReady).toBe(true);
+    expect(useGetAllAPIBaseModels).toHaveBeenLastCalledWith("buildings", false);
+  });
+
   it("should use the explicitly selected imagery model", () => {
     useStartMappingStore.setState({ currentModelType: ModelType.IMAGERY });
 
@@ -119,10 +159,14 @@ describe("useImageryMappingModel", () => {
       stac: { ...mockSelectedModel, id: "selected-model" },
     };
 
-    (useGetAPIBaseModels as any).mockReturnValue({
+    vi.mocked(useGetAPIBaseModels).mockReturnValue({
+      data: { results: [defaultModel] },
+      isSuccess: true,
+    } as ReturnType<typeof useGetAPIBaseModels>);
+    vi.mocked(useGetAllAPIBaseModels).mockReturnValue({
       data: { results: [defaultModel, selectedImageryModel] },
       isSuccess: true,
-    });
+    } as ReturnType<typeof useGetAllAPIBaseModels>);
 
     const { result } = renderHook(() =>
       useImageryMappingModel({
@@ -130,6 +174,7 @@ describe("useImageryMappingModel", () => {
         confidence: 0.7,
         selectedModel: mockSelectedModel,
         selectedModelId: "selected-model",
+        allowUnpinned: true,
       }),
     );
 

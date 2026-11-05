@@ -1,3 +1,4 @@
+import copy
 from unittest.mock import MagicMock, patch
 
 import pystac
@@ -17,6 +18,23 @@ VALID_ITEM = {
     "properties": {"mlm:name": "test-basemodel"},
     "assets": {"source-code": SOURCE_CODE},
 }
+
+
+def _stac_item_dict(item_id: str = "meta-model") -> dict:
+    from datetime import UTC, datetime
+
+    item = pystac.Item(
+        id=item_id,
+        geometry={"type": "Point", "coordinates": [0, 0]},
+        bbox=[0, 0, 0, 0],
+        datetime=datetime.now(UTC),
+        properties={"title": "Old title", "description": "Old", "mlm:name": item_id},
+    )
+    return item.to_dict()
+
+
+def _stac_item(*_: object) -> pystac.Item:
+    return pystac.Item.from_dict(_stac_item_dict())
 
 
 @pytest.fixture(autouse=True)
@@ -237,8 +255,12 @@ def test_register_task_stores_stac_item_id(admin: OsmUser) -> None:
     assert base_model.status == BaseModel.Status.ACTIVE
 
 
-@patch("modelregistry.views.set_item_properties")
-def test_base_model_pin_sets_db_flag_and_stac(mock_stac, admin: OsmUser) -> None:
+@patch("modelregistry.views.patch_item")
+@patch("modelregistry.views.get_item", side_effect=_stac_item)
+@patch("fair.stac.validators.validate_item", return_value=[])
+def test_base_model_pin_sets_db_flag_and_stac(
+    mock_validate, mock_get, mock_stac, admin: OsmUser
+) -> None:
     base_model = BaseModel.objects.create(name="pin-me", user=admin, stac_item_id="pin-me")
     resp = _client(admin).patch(
         f"/api/v1/base-models/{base_model.id}/pin/", {"is_pinned": True}, format="json"
@@ -253,36 +275,92 @@ def test_base_model_pin_sets_db_flag_and_stac(mock_stac, admin: OsmUser) -> None
     assert props == {"fair:pinned": True}
 
 
-@patch("modelregistry.views.set_item_properties")
+_PREVIEW = {
+    "center": [85.52, 27.63],
+    "bbox": [85.51, 27.62, 85.53, 27.64],
+    "zoom": {"recommended": 19},
+    "imagery": {"url": "https://old.example/{z}/{x}/{y}", "type": "tms", "name": "Old imagery"},
+    "place": {"name": "Banepa", "country": "Nepal", "country_code": "NP"},
+}
+
+
+def _stac_item_with_preview(*_: object) -> pystac.Item:
+    item = _stac_item()
+    item.properties["fair:preview"] = copy.deepcopy(_PREVIEW)
+    return item
+
+
+@patch("modelregistry.views.patch_item")
+@patch("modelregistry.views.get_item", side_effect=_stac_item_with_preview)
+@patch("fair.stac.validators.validate_item", return_value=[])
 @patch(
     "modelregistry.views.get_cached_item",
     return_value={"geometry": {"type": "Point", "coordinates": [-13.23723, 8.47532]}},
 )
-def test_base_model_pin_writes_imagery_and_location_to_stac(
-    mock_get, mock_stac, admin: OsmUser
+def test_base_model_pin_writes_preview_imagery_and_location(
+    mock_cached, mock_validate, mock_getitem, mock_stac, admin: OsmUser
 ) -> None:
     base_model = BaseModel.objects.create(name="pin-me", user=admin, stac_item_id="pin-me")
     resp = _client(admin).patch(
         f"/api/v1/base-models/{base_model.id}/pin/",
         {
             "is_pinned": True,
-            "source_imagery": "https://tiles.example/{z}/{x}/{y}.png",
-            "pinned_location": {"type": "Point", "coordinates": [-13.23723, 8.47532]},
+            "preview_imagery": "https://tiles.example/{z}/{x}/{y}.png",
+            "preview_location": {"type": "Point", "coordinates": [-13.23723, 8.47532]},
         },
         format="json",
     )
     assert resp.status_code == 200
     props = mock_stac.call_args.args[2]
     assert props["fair:pinned"] is True
-    assert props["fair:source_imagery"] == "https://tiles.example/{z}/{x}/{y}.png"
-    assert props["fair:preview_location"] == {"type": "Point", "coordinates": [-13.23723, 8.47532]}
-    # place/country reverse-geocoded from the location (kept consistent)
-    assert props["fair:preview_country"]
-    assert props["fair:preview_place"]
-    assert props["fair:preview_country_code"]
+    preview = props["fair:preview"]
+    assert preview["imagery"] == {"url": "https://tiles.example/{z}/{x}/{y}.png", "type": "tms"}
+    assert preview["center"] == [-13.23723, 8.47532]
+    assert "bbox" not in preview
+    assert preview["zoom"] == _PREVIEW["zoom"]
+    assert preview["place"]["country"] == "Sierra Leone"
+    assert props["fair:preview_country"] == "Sierra Leone"
 
 
-@patch("modelregistry.views.set_item_properties")
+@patch("modelregistry.views.patch_item")
+@patch("modelregistry.views.get_item", side_effect=_stac_item_with_preview)
+@patch("fair.stac.validators.validate_item", return_value=[])
+def test_base_model_pin_imagery_only_keeps_preview_location(
+    mock_validate, mock_getitem, mock_stac, admin: OsmUser
+) -> None:
+    base_model = BaseModel.objects.create(name="pin-me", user=admin, stac_item_id="pin-me")
+    resp = _client(admin).patch(
+        f"/api/v1/base-models/{base_model.id}/pin/",
+        {"is_pinned": True, "preview_imagery": "https://tiles.example/{z}/{x}/{y}.png"},
+        format="json",
+    )
+    assert resp.status_code == 200
+    props = mock_stac.call_args.args[2]
+    assert props["fair:preview"]["center"] == _PREVIEW["center"]
+    assert props["fair:preview"]["bbox"] == _PREVIEW["bbox"]
+    assert props["fair:preview"]["place"] == _PREVIEW["place"]
+    assert "fair:preview_country" not in props
+
+
+@patch("modelregistry.views.patch_item")
+@patch("modelregistry.views.get_item", side_effect=_stac_item)
+def test_base_model_pin_preview_rejected_without_existing_preview(
+    mock_getitem, mock_stac, admin: OsmUser
+) -> None:
+    base_model = BaseModel.objects.create(name="pin-me", user=admin, stac_item_id="pin-me")
+    resp = _client(admin).patch(
+        f"/api/v1/base-models/{base_model.id}/pin/",
+        {"is_pinned": True, "preview_imagery": "https://tiles.example/{z}/{x}/{y}.png"},
+        format="json",
+    )
+    assert resp.status_code == 400
+    assert "fair:preview" in str(resp.data)
+    mock_stac.assert_not_called()
+    base_model.refresh_from_db()
+    assert base_model.is_pinned is False
+
+
+@patch("modelregistry.views.patch_item")
 def test_base_model_pin_skips_stac_when_unpublished(mock_stac, admin: OsmUser) -> None:
     base_model = BaseModel.objects.create(name="pin-me", user=admin)
     resp = _client(admin).patch(
@@ -298,7 +376,7 @@ def test_base_model_pin_rejects_invalid_location(admin: OsmUser) -> None:
     base_model = BaseModel.objects.create(name="pin-me", user=admin, stac_item_id="pin-me")
     resp = _client(admin).patch(
         f"/api/v1/base-models/{base_model.id}/pin/",
-        {"is_pinned": True, "pinned_location": {"type": "Polygon", "coordinates": []}},
+        {"is_pinned": True, "preview_location": {"type": "Polygon", "coordinates": []}},
         format="json",
     )
     assert resp.status_code == 400
@@ -468,23 +546,6 @@ def test_mirror_and_relink_rewrites_only_downloadable_assets(settings) -> None:
     backend.publish_item.assert_called_once()
 
 
-def _stac_item_dict(item_id: str = "meta-model") -> dict:
-    from datetime import UTC, datetime
-
-    item = pystac.Item(
-        id=item_id,
-        geometry={"type": "Point", "coordinates": [0, 0]},
-        bbox=[0, 0, 0, 0],
-        datetime=datetime.now(UTC),
-        properties={"title": "Old title", "description": "Old", "mlm:name": item_id},
-    )
-    return item.to_dict()
-
-
-def _stac_item(*_: object) -> pystac.Item:
-    return pystac.Item.from_dict(_stac_item_dict())
-
-
 def test_serialized_facet_cannot_rebuild_a_stac_item() -> None:
     # The cache facet drops top-level `type`/`id`, so _merge_validate_write must
     # validate the full item from get_item, never the get_cached_item facet.
@@ -493,7 +554,7 @@ def test_serialized_facet_cannot_rebuild_a_stac_item() -> None:
         pystac.Item.from_dict(facet)
 
 
-@patch("modelregistry.views.set_item_properties")
+@patch("modelregistry.views.patch_item")
 @patch("modelregistry.views.get_item", side_effect=_stac_item)
 @patch("fair.stac.validators.validate_item", return_value=[])
 def test_base_model_metadata_edits_title_description_and_preview(
@@ -522,7 +583,7 @@ def test_base_model_metadata_edits_title_description_and_preview(
     assert validated.properties["fair:preview"] == preview
 
 
-@patch("modelregistry.views.set_item_properties")
+@patch("modelregistry.views.patch_item")
 @patch("modelregistry.views.get_item", side_effect=_stac_item)
 @patch("fair.stac.validators.validate_item", return_value=["mlm:tasks is a required property"])
 def test_base_model_metadata_rejects_invalid_edit(
@@ -544,7 +605,7 @@ def test_base_model_metadata_requires_admin(user: OsmUser) -> None:
     assert resp.status_code == 403
 
 
-@patch("modelregistry.views.set_item_properties")
+@patch("modelregistry.views.patch_item")
 @patch("modelregistry.views.get_item", side_effect=_stac_item)
 @patch("fair.stac.validators.validate_item", return_value=[])
 def test_base_model_stac_patch_merges_arbitrary_properties(
@@ -555,8 +616,7 @@ def test_base_model_stac_patch_merges_arbitrary_properties(
         f"/api/v1/base-models/{model.id}/stac/",
         {
             "properties": {
-                "fair:source_imagery": "https://tiles.example/{z}/{x}/{y}.png",
-                "fair:preview_location": {"type": "Point", "coordinates": [85.3, 27.7]},
+                "fair:coverage": "Nepal",
                 "description": "Synced",
             }
         },
@@ -566,16 +626,60 @@ def test_base_model_stac_patch_merges_arbitrary_properties(
     collection, item_id, props = mock_set.call_args.args
     assert collection == "base-models"
     assert item_id == "meta-model"
-    assert props["fair:source_imagery"] == "https://tiles.example/{z}/{x}/{y}.png"
-    assert props["fair:preview_location"] == {"type": "Point", "coordinates": [85.3, 27.7]}
+    assert props["fair:coverage"] == "Nepal"
     assert props["description"] == "Synced"
     mock_get.assert_called_once_with("base-models", "meta-model")
     validated = mock_validate.call_args.args[0]
     assert isinstance(validated, pystac.Item)
-    assert validated.properties["fair:source_imagery"] == "https://tiles.example/{z}/{x}/{y}.png"
+    assert validated.properties["fair:coverage"] == "Nepal"
 
 
-@patch("modelregistry.views.set_item_properties")
+_DATACUBE_SCHEMA = "https://stac-extensions.github.io/datacube/v2.3.0/schema.json"
+
+
+@patch("modelregistry.views.patch_item")
+@patch("modelregistry.views.get_item", side_effect=_stac_item)
+@patch("fair.stac.validators.validate_item", return_value=[])
+def test_base_model_stac_patch_adds_extension_before_validating(
+    mock_validate, mock_get, mock_set, admin: OsmUser
+) -> None:
+    model = BaseModel.objects.create(name="meta-model", user=admin, stac_item_id="meta-model")
+    variables = {"class": {"dimensions": ["features"], "type": "data", "values": [1]}}
+    resp = _client(admin).patch(
+        f"/api/v1/base-models/{model.id}/stac/",
+        {"properties": {"cube:variables": variables}, "stac_extensions": [_DATACUBE_SCHEMA]},
+        format="json",
+    )
+    assert resp.status_code == 200
+    validated = mock_validate.call_args.args[0]
+    assert _DATACUBE_SCHEMA in validated.stac_extensions
+    assert validated.properties["cube:variables"] == variables
+    assert mock_set.call_args.kwargs["stac_extensions"] == [_DATACUBE_SCHEMA]
+
+
+@patch("modelregistry.views.patch_item")
+@patch("modelregistry.views.get_item", side_effect=_stac_item)
+def test_base_model_stac_patch_rejects_extension_from_other_hosts(
+    mock_get, mock_set, admin: OsmUser
+) -> None:
+    model = BaseModel.objects.create(name="meta-model", user=admin, stac_item_id="meta-model")
+    resp = _client(admin).patch(
+        f"/api/v1/base-models/{model.id}/stac/",
+        {
+            "properties": {"title": "x"},
+            "stac_extensions": [
+                "https://example.com/schema.json",
+                "https://stac-extensions.github.io.evil.com/datacube/schema.json",
+            ],
+        },
+        format="json",
+    )
+    assert resp.status_code == 400
+    mock_get.assert_not_called()
+    mock_set.assert_not_called()
+
+
+@patch("modelregistry.views.patch_item")
 @patch("modelregistry.views.get_item", side_effect=_stac_item)
 @patch("fair.stac.validators.validate_item", return_value=["mlm:tasks is a required property"])
 def test_base_model_stac_patch_rejects_invalid_merge(
@@ -587,6 +691,131 @@ def test_base_model_stac_patch_rejects_invalid_merge(
     )
     assert resp.status_code == 400
     mock_set.assert_not_called()
+
+
+def _stac_item_with_model_asset(*_: object) -> pystac.Item:
+    item = _stac_item()
+    item.add_asset(
+        "model",
+        pystac.Asset(
+            href="https://example.com/model.ckpt",
+            media_type="application/octet-stream",
+            roles=["mlm:model", "mlm:weights"],
+        ),
+    )
+    return item
+
+
+@patch("modelregistry.views.patch_item")
+@patch("modelregistry.views.get_item", side_effect=_stac_item_with_model_asset)
+@patch("fair.stac.validators.validate_item", return_value=[])
+def test_base_model_stac_patch_merges_asset_fields_and_adds_assets(
+    mock_validate, mock_get, mock_set, admin: OsmUser
+) -> None:
+    model = BaseModel.objects.create(name="meta-model", user=admin, stac_item_id="meta-model")
+    assets = {
+        "model": {"href": "https://example.com/model.onnx", "mlm:artifact_type": "onnx"},
+        "checkpoint": {"href": "https://example.com/model.ckpt", "roles": ["mlm:checkpoint"]},
+    }
+    resp = _client(admin).patch(
+        f"/api/v1/base-models/{model.id}/stac/", {"assets": assets}, format="json"
+    )
+    assert resp.status_code == 200
+    validated = mock_validate.call_args.args[0]
+    model_asset = validated.assets["model"].to_dict()
+    assert model_asset["href"] == "https://example.com/model.onnx"
+    assert model_asset["mlm:artifact_type"] == "onnx"
+    assert model_asset["roles"] == ["mlm:model", "mlm:weights"]
+    assert validated.assets["checkpoint"].href == "https://example.com/model.ckpt"
+    assert mock_set.call_args.kwargs["assets"] == assets
+
+
+@pytest.mark.parametrize(
+    "fields",
+    [{"roles": ["mlm:checkpoint"]}, {"href": None}, {"href": 7}],
+)
+@patch("modelregistry.views.patch_item")
+@patch("modelregistry.views.get_item", side_effect=_stac_item)
+def test_base_model_stac_patch_rejects_an_asset_without_a_string_href(
+    mock_get, mock_set, fields: dict, admin: OsmUser
+) -> None:
+    model = BaseModel.objects.create(name="meta-model", user=admin, stac_item_id="meta-model")
+    resp = _client(admin).patch(
+        f"/api/v1/base-models/{model.id}/stac/",
+        {"assets": {"checkpoint": fields}},
+        format="json",
+    )
+    assert resp.status_code == 400
+    assert "href" in str(resp.json())
+    mock_set.assert_not_called()
+
+
+def test_base_model_stac_patch_requires_properties_or_assets(admin: OsmUser) -> None:
+    model = BaseModel.objects.create(name="meta-model", user=admin, stac_item_id="meta-model")
+    resp = _client(admin).patch(
+        f"/api/v1/base-models/{model.id}/stac/", {"stac_extensions": []}, format="json"
+    )
+    assert resp.status_code == 400
+    assert "Provide properties, assets, or both." in str(resp.json())
+
+
+@pytest.mark.parametrize(
+    "assets",
+    [
+        ["model"],
+        {},
+        {"model": {}},
+        {"model": "https://example.com/model.onnx"},
+    ],
+)
+@patch("modelregistry.views.patch_item")
+@patch("modelregistry.views.get_item", side_effect=_stac_item_with_model_asset)
+def test_base_model_stac_patch_rejects_malformed_assets(
+    mock_get, mock_set, assets: object, admin: OsmUser
+) -> None:
+    model = BaseModel.objects.create(name="meta-model", user=admin, stac_item_id="meta-model")
+    resp = _client(admin).patch(
+        f"/api/v1/base-models/{model.id}/stac/", {"assets": assets}, format="json"
+    )
+    assert resp.status_code == 400
+    mock_get.assert_not_called()
+    mock_set.assert_not_called()
+
+
+@patch("modelregistry.views.patch_item")
+@patch("modelregistry.views.get_item", side_effect=_stac_item_with_model_asset)
+@patch("fair.stac.validators.validate_item", return_value=["mlm:artifact_type is required"])
+def test_base_model_stac_patch_does_not_write_an_invalid_asset_merge(
+    mock_validate, mock_get, mock_set, admin: OsmUser
+) -> None:
+    model = BaseModel.objects.create(name="meta-model", user=admin, stac_item_id="meta-model")
+    resp = _client(admin).patch(
+        f"/api/v1/base-models/{model.id}/stac/",
+        {"assets": {"model": {"href": "https://example.com/model.onnx"}}},
+        format="json",
+    )
+    assert resp.status_code == 400
+    mock_set.assert_not_called()
+
+
+@pytest.mark.django_db
+def test_set_item_properties_publishes_merged_assets() -> None:
+    from shared.integrations import stac
+
+    backend = MagicMock()
+    backend.get_item.return_value = _stac_item_with_model_asset()
+    backend.publish_item.side_effect = lambda collection, item: item
+    with patch.object(stac, "_backend", return_value=backend):
+        stac.patch_item(
+            "base-models",
+            "meta-model",
+            {"title": "New"},
+            assets={"model": {"mlm:artifact_type": "onnx"}},
+        )
+    published = backend.publish_item.call_args.args[1]
+    assert published.properties["title"] == "New"
+    assert published.assets["model"].href == "https://example.com/model.ckpt"
+    assert published.assets["model"].extra_fields["mlm:artifact_type"] == "onnx"
 
 
 def test_base_model_stac_patch_rejects_empty_properties(admin: OsmUser) -> None:
@@ -713,7 +942,10 @@ def test_admin_reregister_enqueues_full_stac_item(mock_get, mock_task, admin: Os
 @patch("shared.integrations.stac.get_item")
 def test_admin_reregister_skips_unbundled_pipeline(mock_get, mock_task, admin: OsmUser) -> None:
     item = _stac_item_dict()
-    item["assets"]["source-code"] = {"href": "https://example.com/src", "mlm:entrypoint": "json:loads"}
+    item["assets"]["source-code"] = {
+        "href": "https://example.com/src",
+        "mlm:entrypoint": "json:loads",
+    }
     mock_get.return_value = pystac.Item.from_dict(item)
     base = BaseModel.objects.create(name="m", user=admin, stac_item_id=item["id"])
 

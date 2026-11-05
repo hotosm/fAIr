@@ -5,6 +5,7 @@ from typing import Annotated, Self
 from pydantic import (
     AnyHttpUrl,
     Field,
+    PositiveInt,
     SecretStr,
     field_validator,
     model_validator,
@@ -141,6 +142,7 @@ class Settings(BaseSettings):
     session_cookie_age: int = 3600
     cache_timeout_minutes: int = 5
     log_line_stream_truncate_value: int = 10
+    user_state_max_bytes: PositiveInt = 2 * 1024 * 1024
 
     # Sentry (off by default; set enable_sentry=true with a sentry_dsn to turn on)
     enable_sentry: bool = False

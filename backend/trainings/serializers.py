@@ -2,6 +2,7 @@ from django.utils.text import slugify
 from rest_framework import serializers
 
 from notifications.serializers import UserSerializer
+from shared.serializers import OwnerOnlyErrorMixin
 
 from .models import TrainingRunRef
 
@@ -47,7 +48,7 @@ class TrainingSubmitSerializer(serializers.Serializer):
         return list(dict.fromkeys(value))
 
 
-class TrainingRunRefSerializer(serializers.ModelSerializer):
+class TrainingRunRefSerializer(OwnerOnlyErrorMixin, serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
 
     class Meta:
@@ -63,6 +64,7 @@ class TrainingRunRefSerializer(serializers.ModelSerializer):
             "keywords",
             "description",
             "status",
+            "error",
             "user",
             "submitted_at",
             "last_polled_at",
@@ -71,6 +73,7 @@ class TrainingRunRefSerializer(serializers.ModelSerializer):
             "id",
             "zenml_run_id",
             "status",
+            "error",
             "user",
             "submitted_at",
             "last_polled_at",
@@ -89,15 +92,3 @@ class TrainingPublishSerializer(serializers.Serializer):
             'Falls back to "{model_name} v{N}" when omitted.'
         ),
     )
-
-
-class RunStatusSerializer(serializers.Serializer):
-    run_id = serializers.CharField()
-    status = serializers.CharField()
-    is_terminal = serializers.BooleanField()
-
-
-class LogEntrySerializer(serializers.Serializer):
-    level = serializers.CharField()
-    message = serializers.CharField()
-    timestamp = serializers.CharField(allow_null=True)

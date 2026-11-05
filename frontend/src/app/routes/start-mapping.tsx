@@ -570,6 +570,7 @@ export const StartMappingPage = () => {
   );
 
   const handleAllFeaturesDownload = useCallback(async () => {
+    if (!modelInfo) return;
     geoJSONDowloader(
       {
         type: "FeatureCollection",
@@ -610,6 +611,7 @@ export const StartMappingPage = () => {
    * It also shows a success toast message.
    */
   const handleAcceptedFeaturesDownload = useCallback(async () => {
+    if (!modelInfo) return;
     geoJSONDowloader(
       { type: "FeatureCollection", features: acceptedFeatures },
       `accepted_predictions_${modelInfo.dataset.id}`,
@@ -769,7 +771,13 @@ export const StartMappingPage = () => {
 
   return (
     <>
-      <Head title={START_MAPPING_PAGE_CONTENT.pageTitle(modelInfo?.name)} />
+      <Head
+        title={
+          modelInfo
+            ? START_MAPPING_PAGE_CONTENT.pageTitle(modelInfo.name)
+            : "Start Mapping"
+        }
+      />
       <FileUploadDialog
         isOpened={isFileUploadDialogOpened}
         closeDialog={closeFileUploadDialog}
@@ -793,19 +801,21 @@ export const StartMappingPage = () => {
         maxFiles={1}
         buttonText="Add to Map"
       />
-      <OfflinePredictionRequestDialog
-        onClose={handleOfflinePredictionRequestDialogClose}
-        isOpen={isOfflinePredictionRequestDialogOpened}
-        query={query}
-        updateQuery={updateQuery}
-        drawnAOI={offlinePredictionAOI}
-        modelInfo={modelInfo}
-        predictionModelCheckpoint={predictionModelCheckpoint}
-        tileServerURL={tileserverURL}
-        resetOfflinePredictionModeState={resetOfflinePredictionModeState}
-        predictionImagerySource={predictionImagerySource}
-        predictionModel={predictionModel}
-      />
+      {modelInfo && (
+        <OfflinePredictionRequestDialog
+          onClose={handleOfflinePredictionRequestDialogClose}
+          isOpen={isOfflinePredictionRequestDialogOpened}
+          query={query}
+          updateQuery={updateQuery}
+          drawnAOI={offlinePredictionAOI}
+          modelInfo={modelInfo}
+          predictionModelCheckpoint={predictionModelCheckpoint}
+          tileServerURL={tileserverURL}
+          resetOfflinePredictionModeState={resetOfflinePredictionModeState}
+          predictionImagerySource={predictionImagerySource}
+          predictionModel={predictionModel}
+        />
+      )}
       <div className="h-screen flex flex-col fullscreen">
         {/* Base model dialog */}
         <Dialog
@@ -840,7 +850,7 @@ export const StartMappingPage = () => {
           <ImagerySourceSelector
             predictionImagerySource={predictionImagerySource}
             setPredictionImagerySource={setPredictionImagerySource}
-            modelDefaultImageryURL={modelInfo?.dataset?.source_imagery}
+            modelDefaultImageryURL={modelInfo?.dataset?.source_imagery ?? ""}
             isMobile
             onDropdownHide={handlePredictionImageryDialogClose}
             setTileServiceType={setTileServiceType}
@@ -852,7 +862,7 @@ export const StartMappingPage = () => {
             tileServiceType={tileServiceType}
           />
         </Dialog>
-        {openMobileDrawer && (
+        {openMobileDrawer && modelInfo && (
           <StartMappingMobileDrawer
             isOpen={openMobileDrawer}
             map={map}
@@ -864,7 +874,7 @@ export const StartMappingPage = () => {
             modelInfoRequestIsError={isError}
             predictionImagerySource={predictionImagerySource}
             setPredictionImagerySource={setPredictionImagerySource}
-            modelDefaultImageryURL={modelInfo?.dataset?.source_imagery}
+            modelDefaultImageryURL={modelInfo?.dataset?.source_imagery ?? ""}
             openMobileDialog={handlePredictionImageryDialogOpen}
             predictionModel={predictionModel}
             setPredictionModel={setPredictionModel}
@@ -909,7 +919,7 @@ export const StartMappingPage = () => {
             downloadOptions={downloadOptions}
             predictionImagerySource={predictionImagerySource}
             setPredictionImagerySource={setPredictionImagerySource}
-            modelDefaultImageryURL={modelInfo?.dataset?.source_imagery}
+            modelDefaultImageryURL={modelInfo?.dataset?.source_imagery ?? ""}
             predictionModel={predictionModel}
             setPredictionModel={setPredictionModel}
             predictionModelCheckpoint={predictionModelCheckpoint}

@@ -85,7 +85,7 @@ class DevAuthentication(authentication.BaseAuthentication):
         if _DEV_USER_CACHE is None:
             _DEV_USER_CACHE, _ = OsmUser.objects.get_or_create(
                 osm_id=_DEV_USER_OSM_ID,
-                defaults={"username": _DEV_USER_USERNAME},
+                defaults={"username": _DEV_USER_USERNAME, "is_staff": True},
             )
         return (_DEV_USER_CACHE, None)
 

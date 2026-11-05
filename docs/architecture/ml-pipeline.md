@@ -36,7 +36,7 @@ flowchart LR
 
 ## Contribute and register a model
 
-A model developer contributes through the [fAIr-models catalog](https://hotosm.github.io/fAIr-models/). CI validates the pull request and, after merge, publishes its training and inference images. An admin pins both image references to digests once and registers the same item in staging and production. Registration mirrors the weights into object storage and publishes the item to the environment's `base-models` collection.
+A model developer contributes through the [fAIr-models repository](https://github.com/hotosm/fAIr-models); see [Contributing a model](../overview/models.md#contributing-a-model). CI validates the pull request and, after merge, publishes its training and inference images. An admin pins both image references to digests once and registers the same item in staging and production. Registration mirrors the weights into object storage and publishes the item to the environment's `base-models` collection.
 
 ```mermaid
 flowchart TD
@@ -49,14 +49,8 @@ flowchart TD
     G --> H[Production STAC + live Knative route]
 ```
 
-Inside fAIr, registration is admin-only and asynchronous: the backend checks
-that the pipeline module is bundled, then hands the STAC item to fair-py-ops.
-It mirrors weights into a versioned artifact path, deploys a digest-pinned
-inference revision, stamps the category into `fair:category`, publishes the
-next integer STAC version, and marks the model active. Staging uses a tagged
-Knative route without moving live traffic; production promotes the Ready
-revision. The step-by-step API flow is in
-[Register a base model](../guides/register-a-base-model.md).
+Inside fAIr, registration is admin-only and asynchronous. What it does, step by
+step, is in [Register a base model](../guides/register-a-base-model.md#what-registration-does).
 
 !!! note "Local compose has no Knative"
 
@@ -66,9 +60,9 @@ The contribution diagram is adapted from the [fAIr-models architecture docs](htt
 
 ## Training
 
-`POST /trainings/submit/` returns `202` with a row whose `zenml_run_id` is null. A worker submits a ZenML pipeline that runs `split`, `train`, `eval`, and `onnx`, and polls status into the database. The run produces `weights.pt` and `model.onnx` in MinIO.
+`POST /trainings/submit/` starts training asynchronously (see [Key invariants](index.md#key-invariants)). A worker submits a ZenML pipeline that runs `split`, `train`, `eval`, and `onnx`, and polls status into the database. The run produces `weights.pt` and `model.onnx` in MinIO. A base model with no `mlm:training` asset is prediction-only, and submitting a training for it returns `400`.
 
-`POST /trainings/{id}/publish/` is the only step that writes a versioned `local-models/` STAC item. It validates the logged `mlm:hyperparameters` against the base model's `fair:hyperparameters_spec`.
+`POST /trainings/{id}/publish/` writes the versioned `local-models/` STAC item.
 
 ```mermaid
 flowchart LR
@@ -80,7 +74,7 @@ flowchart LR
 
 ## Prediction
 
-`POST /predictions/submit/` enqueues inference. A worker downloads chips for the requested bbox, submits an inference pipeline, and a post-run step turns the GeoJSON into `.fgb` and `.pmtiles`. Only then is `results_ready` set, and `GET /predictions/{id}/result/` returns three presigned URLs.
+`POST /predictions/submit/` enqueues inference. A worker downloads chips for the requested bbox, submits an inference pipeline, and a post-run step turns the GeoJSON into `.fgb` and `.pmtiles`, after which `GET /predictions/{id}/result/` returns three presigned URLs. A model with neither an `mlm:training` nor a `batch-inference` asset serves try-now only, and submitting a prediction for it returns `400`.
 
 ```mermaid
 flowchart LR

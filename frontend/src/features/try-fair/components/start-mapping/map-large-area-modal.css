@@ -1,0 +1,35 @@
+.map-area-dialog::part(panel) {
+  width: min(960px, calc(100vw - 32px));
+  max-width: calc(100vw - 32px);
+}
+
+.map-area-dialog::part(title) {
+  padding: 16px 24px 8px;
+}
+
+.map-area-dialog::part(header-actions) {
+  padding: 0 16px;
+}
+
+.map-area-dialog::part(body) {
+  padding: 8px 24px 24px;
+}
+
+.map-area-dialog .map-area-preview {
+  height: clamp(240px, 46dvh, 460px);
+}
+
+@media (max-width: 639px) {
+  .map-area-dialog::part(panel) {
+    width: calc(100vw - 16px);
+    max-width: calc(100vw - 16px);
+  }
+
+  .map-area-dialog::part(title) {
+    padding: 16px 16px 8px;
+  }
+
+  .map-area-dialog::part(body) {
+    padding: 8px 16px 16px;
+  }
+}

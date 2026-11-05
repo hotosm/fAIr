@@ -32,8 +32,8 @@ A model is only as good as the examples it learns from. fAIr takes labels and im
 
 fAIr needs two things:
 
-- **Imagery.** High-resolution RGB imagery (CC BY 4.0) from [OpenAerialMap](https://openaerialmap.org/) or an open TMS source (a tiled imagery server).
-- **Labels.** Examples that teach the model what to find. They come from three sources, matched to a mapper's experience: quick swipes in [MapSwipe](https://mapswipe.org/) for those new to mapping, tracing in HOT's [Tasking Manager](https://tasks.hotosm.org/) for experienced mappers, or features drawn by hand for advanced users. Crowdsourced swiping via MapSwipe also creates training data through fAIrSwipe; see [Field projects](../progress/field-projects.md).
+- **Imagery.** Openly licensed, very high-resolution RGB imagery from [OpenAerialMap](https://openaerialmap.org/) (which uses CC BY 4.0) or an open TMS source (a tiled imagery server).
+- **Labels.** Examples that teach the model what to find: existing OpenStreetMap features in the area, finding where objects are with [MapSwipe](validation.md#finding-training-data-with-mapswipe) as a starting point, for those new to mapping, tracing in HOT's [Tasking Manager](https://tasks.hotosm.org/) for experienced mappers, or features drawn by hand for advanced users.
 
 ### 2. Inside fAIr
 
@@ -41,12 +41,10 @@ Labels and imagery are used to train a model. A trained model then predicts matc
 
 ### 3. Validate
 
-Predictions are reviewed before they are used. A mapper can give feedback in the editor by accepting or rejecting each prediction, verify them on the ground with the Field Mapping Tasking Manager (FMTM, with QField) or Chatmap, or confirm them at scale through [MapSwipe](https://mapswipe.org/). Validating predictions by swiping is the Validate project of fAIrSwipe (fAIr plus MapSwipe), shown in the pipeline above.
+Predictions are reviewed before they are used. A mapper can check them on fAIr's map or in QGIS, verify them on the ground with [FieldTM](https://field.hotosm.org/) (with QField), or confirm them at scale through MapSwipe Validate Footprints projects; see [Validation](validation.md).
 
 ### 4. Use and share
 
-Validated data can be published to the [Humanitarian Data Exchange](https://data.humdata.org/), manually added to OpenStreetMap by an expert mapper, or downloaded as points, lines, or polygons. See [Datasets](../datasets/index.md) for the published outputs.
+Predictions can be downloaded as points, lines, or polygons. HOT publishes validated outputs as open data layers on the [Humanitarian Data Exchange](https://data.humdata.org/) and [Hugging Face](https://huggingface.co/hotosm). See [Datasets](../datasets/index.md) for the published outputs.
 
-!!! note "OSM merges stay manual"
-
-    The mapper reviews predictions and decides what to add to OpenStreetMap.
+Bringing AI-generated features into OpenStreetMap is outside fAIr's aim; see [fAIr and OpenStreetMap](what-is-fair.md#fair-and-openstreetmap).

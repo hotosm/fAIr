@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.contrib.auth.models import AbstractUser
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
@@ -28,3 +30,7 @@ class OsmUser(AbstractUser):
     newsletter_subscription = models.BooleanField(default=False)
     account_deletion_requested = models.BooleanField(default=False)
     email_verified = models.BooleanField(default=False)
+
+    def stac_producer(self) -> dict[str, Any]:
+        """STAC provider entry naming this user as producer."""
+        return {"name": self.username or str(self.osm_id), "roles": ["producer"]}

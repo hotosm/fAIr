@@ -12,7 +12,7 @@ export const ModelFeedbacksPage = () => {
     data?.published_training,
   );
 
-  if (isLoading || isPending || isError) {
+  if (isLoading || isPending || isError || !data) {
     return (
       <div className="my-12 flex flex-col gap-y-10">
         <div className="h-24 md:w-32 bg-light-gray animated-pulse" />

@@ -1,3 +1,5 @@
+import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
+import { useAuth } from "@/app/providers/auth-provider";
 import { TryFairMapOutputType } from "@/enums/try-fair";
 import { BBOX } from "@/types";
 import { ExpressionSpecification, Map, MapMouseEvent } from "maplibre-gl";
@@ -7,6 +9,10 @@ import {
   computeChoroplethBuckets,
   toPointCollection,
 } from "@/features/try-fair/utils/helpers";
+import {
+  buildClassColorExpression,
+  PredictionClassStyle,
+} from "@/features/try-fair/utils/prediction-classes";
 
 const SOURCE_ID = "try-fair-predictions";
 const FILL_LAYER = "try-fair-predictions-fill";
@@ -47,6 +53,8 @@ type Props = {
   onChoroplethBucketsChange?: (
     buckets: ReturnType<typeof computeChoroplethBuckets> | null,
   ) => void;
+  /** When set and `colored`, features are coloured by their predicted class. */
+  classStyle?: PredictionClassStyle | null;
 };
 
 type HoverTooltip = {
@@ -63,7 +71,11 @@ export const TryFairPredictionsLayer = ({
   predictionGridZoom,
   outputType,
   onChoroplethBucketsChange,
+  classStyle,
 }: Props) => {
+  const { mappingMode } = useTryFairParams();
+  const { isAuthenticated } = useAuth();
+  const showConfidence = isAuthenticated && mappingMode === "advanced";
   const { choropleth, buckets } = useMemo(() => {
     if (
       outputType !== TryFairMapOutputType.CLUSTER ||
@@ -95,6 +107,15 @@ export const TryFairPredictionsLayer = ({
     removeLayers(map);
     if (!predictions || !predictions.features.length) return;
 
+    // Colour features by their predicted class when a coloured class style is
+    // provided; otherwise fall back to the default single colour.
+    const polygonColor = classStyle?.colored
+      ? buildClassColorExpression(classStyle)
+      : "#A243DC";
+    const circleColor = classStyle?.colored
+      ? buildClassColorExpression(classStyle)
+      : "#A147D8";
+
     // ── Polygon ──────────────────────────────────────────────────────────────
     if (outputType === TryFairMapOutputType.POLYGON) {
       map.addSource(SOURCE_ID, { type: "geojson", data: predictions });
@@ -102,7 +123,7 @@ export const TryFairPredictionsLayer = ({
         id: FILL_LAYER,
         type: "fill",
         source: SOURCE_ID,
-        paint: { "fill-color": "#A243DC", "fill-opacity": 0.3 },
+        paint: { "fill-color": polygonColor, "fill-opacity": 0.3 },
       });
       map.addLayer({
         id: CASING_LAYER,
@@ -118,7 +139,7 @@ export const TryFairPredictionsLayer = ({
         id: OUTLINE_LAYER,
         type: "line",
         source: SOURCE_ID,
-        paint: { "line-color": "#A243DC", "line-width": 1.5 },
+        paint: { "line-color": polygonColor, "line-width": 1.5 },
       });
 
       // ── Points ───────────────────────────────────────────────────────────────
@@ -164,7 +185,7 @@ export const TryFairPredictionsLayer = ({
         source: POINT_SOURCE_ID,
         paint: {
           "circle-radius": 4,
-          "circle-color": "#A147D8",
+          "circle-color": circleColor,
           "circle-stroke-color": "#ffffff",
           "circle-stroke-width": 1.5,
         },
@@ -212,7 +233,15 @@ export const TryFairPredictionsLayer = ({
     return () => {
       if (map.getStyle()) removeLayers(map);
     };
-  }, [map, predictions, predictionBBox, outputType, choropleth, buckets]);
+  }, [
+    map,
+    predictions,
+    predictionBBox,
+    outputType,
+    choropleth,
+    buckets,
+    classStyle,
+  ]);
 
   // ── Choropleth hover interactions ──────────────────────────────────────────
   useEffect(() => {
@@ -263,7 +292,7 @@ export const TryFairPredictionsLayer = ({
         : outputType === TryFairMapOutputType.POLYGON
           ? FILL_LAYER
           : null;
-    if (!map || !predictionLayer) {
+    if (!map || !predictionLayer || !showConfidence) {
       setTooltip(null);
       return;
     }
@@ -283,7 +312,7 @@ export const TryFairPredictionsLayer = ({
       setTooltip({
         x: e.point.x,
         y: e.point.y,
-        label: "Accuracy",
+        label: "Confidence",
         value: `${(score * 100).toFixed(1)}%`,
       });
     };
@@ -302,7 +331,7 @@ export const TryFairPredictionsLayer = ({
       map.getCanvas().style.cursor = "";
       setTooltip(null);
     };
-  }, [map, outputType]);
+  }, [map, outputType, showConfidence]);
 
   if (!tooltip) return null;
 

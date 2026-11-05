@@ -13,7 +13,7 @@ from drf_spectacular.utils import (
     extend_schema_view,
 )
 from gpxpy.gpx import GPX, GPXTrack, GPXTrackPoint, GPXTrackSegment
-from rest_framework import filters, status, viewsets
+from rest_framework import filters, mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -37,6 +37,7 @@ from shared.integrations.stac import (
     set_item_property,
 )
 
+from .deletion import delete_dataset
 from .models import AOI, Dataset
 from .serializers import AOISerializer, DatasetCreateSerializer, DatasetSerializer
 from .tasks import build_dataset
@@ -53,7 +54,6 @@ def _wants_expand_stac(request) -> bool:
             "Pass `?expand=stac` to inline catalog metadata from STAC per row."
         ),
     ),
-    create=extend_schema(description="Create a Dataset record without launching a build."),
     retrieve=extend_schema(
         description=(
             "Retrieve one dataset by id. Pass `?expand=stac` to inline catalog metadata from STAC."
@@ -61,7 +61,12 @@ def _wants_expand_stac(request) -> bool:
     ),
     update=extend_schema(description="Replace a dataset (owner/admin only)."),
     partial_update=extend_schema(description="Patch a dataset (owner/admin only)."),
-    destroy=extend_schema(description="Delete a dataset (owner/admin only)."),
+    destroy=extend_schema(
+        description=(
+            "Delete a dataset and its STAC versions (owner/admin only). 409 while it is "
+            "building or training runs use it."
+        )
+    ),
     pin=extend_schema(
         description=(
             "Toggle the `fair:pinned` STAC property on the dataset (admin only). "
@@ -70,7 +75,15 @@ def _wants_expand_stac(request) -> bool:
     ),
     build=extend_schema(description="Submit a dataset build job for the given AOIs."),
 )
-class DatasetViewSet(viewsets.ModelViewSet):
+class DatasetViewSet(
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet,
+):
+    """Datasets are created by the `build` action."""
+
     queryset = Dataset.objects.all()
     serializer_class = DatasetSerializer
     authentication_classes = [OsmAuthentication]
@@ -97,6 +110,9 @@ class DatasetViewSet(viewsets.ModelViewSet):
         if self.action in {"publish", "unpublish", "build"}:
             return [IsAuthenticated(), IsOwnerOrAdmin()]
         return super().get_permissions()
+
+    def perform_destroy(self, instance: Dataset) -> None:
+        delete_dataset(instance)
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -169,10 +185,12 @@ class DatasetViewSet(viewsets.ModelViewSet):
                 value={
                     "title": "banepa-buildings",
                     "description": "Buildings training dataset",
-                    "source_imagery": (
-                        "https://tiles.openaerialmap.org/62d85d11d8499800053796c1/0/"
-                        "62d85d11d8499800053796c2/{z}/{x}/{y}"
-                    ),
+                    "imagery": {
+                        "image": (
+                            "https://tiles.openaerialmap.org/62d85d11d8499800053796c1/0/"
+                            "62d85d11d8499800053796c2/{z}/{x}/{y}"
+                        )
+                    },
                     "category": "buildings",
                     "zoom": 19,
                     "aoi_ids": [1],
@@ -183,7 +201,33 @@ class DatasetViewSet(viewsets.ModelViewSet):
                     "geometry_type": "polygon",
                 },
                 request_only=True,
-            )
+            ),
+            OpenApiExample(
+                "Damage dataset with pre-event imagery and labels from a GeoJSON URL",
+                value={
+                    "title": "earthquake-damage",
+                    "description": "Building damage labels from a field survey",
+                    "imagery": {
+                        "post": "https://tiles.example.org/post-event/{z}/{x}/{y}",
+                        "pre": "https://tiles.example.org/pre-event/{z}/{x}/{y}",
+                    },
+                    "category": "buildings",
+                    "zoom": 18,
+                    "aoi_ids": [1],
+                    "label_tasks": ["semantic-segmentation"],
+                    "label_classes": [
+                        {"name": "damage", "classes": ["no-damage"]},
+                        {"name": "damage", "classes": ["minor-damage"]},
+                        {"name": "damage", "classes": ["major-damage"]},
+                        {"name": "damage", "classes": ["destroyed"]},
+                    ],
+                    "labels_url": "https://example.org/damage-survey.geojson",
+                    "keywords": ["building", "polygon"],
+                    "label_type": "vector",
+                    "geometry_type": "polygon",
+                },
+                request_only=True,
+            ),
         ],
     )
     @action(detail=False, methods=["post"], url_path="build")
@@ -202,7 +246,8 @@ class DatasetViewSet(viewsets.ModelViewSet):
         dataset = Dataset.objects.create(
             stac_id=_slugify(payload["title"]),
             title=payload["title"],
-            source_imagery=payload["source_imagery"],
+            imagery=payload["imagery"],
+            primary_input=next(iter(payload["imagery"])),
             category=payload["category"],
             status=Dataset.Status.BUILDING,
             user=request.user,
@@ -218,6 +263,7 @@ class DatasetViewSet(viewsets.ModelViewSet):
             label_type=payload["label_type"],
             zoom=payload["zoom"],
             geometry_type=payload["geometry_type"],
+            labels_url=payload.get("labels_url"),
         )
         return Response(DatasetSerializer(dataset).data, status=status.HTTP_202_ACCEPTED)
 

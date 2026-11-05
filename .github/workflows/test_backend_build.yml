@@ -50,7 +50,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: ./backend
-        run: uv sync
+        run: uv sync --locked
 
       - name: Run migrations and tests
         env:

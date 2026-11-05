@@ -64,7 +64,7 @@ export const getTryFairGuidedTourSteps = (
     selector: `#${APP_TOUR_IDS.TRY_FAIR_MAPPING_MODE}`,
     content:
       "Switch between Basic and Advanced mapping modes to unlock more tools and settings.",
-    position: isSmallViewport ? "top" : "bottom",
+    position: "bottom",
     styles: {
       popover: popoverStyle,
       maskWrapper: hideMask,
@@ -124,7 +124,7 @@ export const getTryFairGuidedTourSteps = (
   {
     selector: `#${APP_TOUR_IDS.TRY_FAIR_MAP_LARGE_AREA_BUTTON}`,
     content:
-      "Need to go bigger? Map a large area beyond the preview grid for full-scale predictions.",
+      'Use "Map an area" to map a large area beyond the preview grid. Draw or upload an area, or select the whole imagery, then submit a Map Request.',
     position: isSmallViewport ? "top" : "bottom",
     styles: {
       popover: popoverStyle,

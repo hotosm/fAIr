@@ -40,7 +40,6 @@ export enum ToolTipPlacement {
 
 export enum BASEMAPS {
   OSM = "OSM",
-  GOOGLE_SATELLITE = "Google Satellite",
 }
 
 export enum INPUT_TYPES {
@@ -76,6 +75,7 @@ export enum DropdownPlacement {
   BOTTOM_END = "bottom-end",
   TOP_END = "top-end",
   RIGHT_START = "right-start",
+  RIGHT_END = "right-end",
 }
 
 export enum ModelTrainingStatus {

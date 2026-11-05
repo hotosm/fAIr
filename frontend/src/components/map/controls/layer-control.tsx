@@ -6,11 +6,7 @@ import { Map } from "maplibre-gl";
 import { ToolTip } from "@/components/ui/tooltip";
 import { useEffect, useMemo, useState } from "react";
 import { cn } from "@/utils";
-import {
-  GOOGLE_SATELLITE_BASEMAP_LAYER_ID,
-  OSM_BASEMAP_LAYER_ID,
-  TMS_LAYER_ID,
-} from "@/config";
+import { OSM_BASEMAP_LAYER_ID, TMS_LAYER_ID } from "@/config";
 
 type TLayers = { id?: string; subLayers: string[]; value: string }[];
 type TBasemaps = { id?: string; subLayer: string; value: string }[];
@@ -40,13 +36,7 @@ export const LayerControl = ({
         : []),
     ];
     const baseLayers: TBasemaps = basemaps
-      ? [
-          { value: BASEMAPS.OSM, subLayer: OSM_BASEMAP_LAYER_ID },
-          {
-            value: BASEMAPS.GOOGLE_SATELLITE,
-            subLayer: GOOGLE_SATELLITE_BASEMAP_LAYER_ID,
-          },
-        ]
+      ? [{ value: BASEMAPS.OSM, subLayer: OSM_BASEMAP_LAYER_ID }]
       : [];
     return { layers_, baseLayers };
   }, [layers, hasTileServiceLayer, basemaps]);

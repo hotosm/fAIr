@@ -2,15 +2,18 @@
 
 import { FeatureCheckIcon } from "@/components/ui/icons/feature-check-icon";
 import {
-  FeatureToMapItem,
+  useGetAllAPIBaseModels,
+  useGetAllAPILocalModels,
   useGetAPIBaseModels,
   useGetAPILocalModels,
 } from "@/features/try-fair/api/features-to-map";
 import { getFeatureIcon } from "@/features/try-fair/components/model-picker/model-picker-badges";
+import { FeatureToMapItem } from "@/features/try-fair/types/data-types";
 import { cn } from "@/utils";
 
 type FeatureListItemProps = {
   feature: FeatureToMapItem;
+  includeUnpinned?: boolean;
   isSelected: boolean;
   disabled: boolean;
   onSelect: (slug: string) => void;
@@ -18,14 +21,21 @@ type FeatureListItemProps = {
 
 export const FeatureListItem = ({
   feature,
+  includeUnpinned = false,
   isSelected,
   disabled,
   onSelect,
 }: FeatureListItemProps) => {
-  const { data: baseModels, isPending: isBaseModelsPending } =
-    useGetAPIBaseModels(feature.slug);
-  const { data: localModels, isPending: isLocalModelsPending } =
-    useGetAPILocalModels(feature.slug);
+  const pinnedBase = useGetAPIBaseModels(feature.slug, !includeUnpinned);
+  const pinnedLocal = useGetAPILocalModels(feature.slug, !includeUnpinned);
+  const allBase = useGetAllAPIBaseModels(feature.slug, includeUnpinned);
+  const allLocal = useGetAllAPILocalModels(feature.slug, includeUnpinned);
+  const { data: baseModels, isPending: isBaseModelsPending } = includeUnpinned
+    ? allBase
+    : pinnedBase;
+  const { data: localModels, isPending: isLocalModelsPending } = includeUnpinned
+    ? allLocal
+    : pinnedLocal;
   const hasNoModels =
     baseModels?.results.length === 0 && localModels?.results.length === 0;
   const isItemDisabled =

@@ -591,6 +591,7 @@ export type TAboutPageContent = {
     firstParagraph: string;
     secondParagraph: string;
   };
+  documentationLink: string;
 };
 
 // About page content types ends.
@@ -817,6 +818,7 @@ export type TTryFairPageContent = {
     parameters: {
       label: string;
       description: string;
+      advancedModeDescription: string;
       learnMore: string;
       resolution: {
         label: string;

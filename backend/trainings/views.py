@@ -6,9 +6,10 @@ from drf_spectacular.utils import (
     extend_schema_view,
     inline_serializer,
 )
+from fair.stac.validators import is_trainable
 from rest_framework import filters, serializers, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import NotFound, PermissionDenied
+from rest_framework.exceptions import NotFound, PermissionDenied, ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.throttling import ScopedRateThrottle
@@ -21,22 +22,21 @@ from shared.integrations.stac import (
     DATASETS_COLLECTION,
     LOCAL_MODELS_COLLECTION,
     get_active_local_model_item,
+    get_base_model,
     invalidate_stac_cache,
     item_exists,
 )
 from shared.integrations.zenml import (
-    fetch_run_logs,
-    fetch_step_logs,
     for_user,
     get_run_status,
     is_terminal,
 )
+from shared.run_endpoints import read_run_logs, stop_pipeline_run
+from shared.serializers import LogEntrySerializer, RunLogsQuerySerializer, RunStatusSerializer
 from shared.storage import BackendLocalModelPaths
 
 from .models import TrainingRunRef
 from .serializers import (
-    LogEntrySerializer,
-    RunStatusSerializer,
     TrainingPublishSerializer,
     TrainingRunRefSerializer,
     TrainingSubmitSerializer,
@@ -130,6 +130,14 @@ class TrainingViewSet(viewsets.ReadOnlyModelViewSet):
             stac_id=payload["dataset_stac_id"],
             status=Dataset.Status.BUILT,
         )
+        if not is_trainable(get_base_model(base_model.stac_item_id).assets):
+            raise ValidationError(
+                {
+                    "base_model_stac_id": [
+                        f"'{base_model.stac_item_id}' is prediction-only and cannot be finetuned."
+                    ]
+                }
+            )
 
         # TODO(clone-training): expose POST /api/v1/trainings/{id}/clone/ that
         # copies an existing run's (base_model, dataset, overrides) into a new
@@ -198,18 +206,17 @@ class TrainingViewSet(viewsets.ReadOnlyModelViewSet):
             ).data
         )
 
-    @extend_schema(responses=LogEntrySerializer(many=True))
-    @action(detail=False, methods=["get"], url_path=r"runs/(?P<run_id>[^/]+)/logs")
+    @extend_schema(parameters=[RunLogsQuerySerializer], responses=LogEntrySerializer(many=True))
+    @action(
+        detail=False,
+        methods=["get"],
+        url_path=r"runs/(?P<run_id>[^/]+)/logs",
+        filter_backends=[],
+        pagination_class=None,
+    )
     def run_logs(self, request, run_id: str) -> Response:
         self._run_for_caller(run_id)
-        tail = int(request.query_params.get("tail", 1000))
-        step = request.query_params.get("step")
-        if step:
-            entries = fetch_step_logs(run_id, step, tail=tail)
-        else:
-            entries = fetch_run_logs(run_id, tail=tail)
-        data = [{"level": e.level, "message": e.message, "timestamp": e.timestamp} for e in entries]
-        return Response(LogEntrySerializer(data, many=True).data)
+        return Response(read_run_logs(run_id, request.query_params))
 
     @extend_schema(
         request=None,
@@ -224,13 +231,9 @@ class TrainingViewSet(viewsets.ReadOnlyModelViewSet):
     )
     @action(detail=False, methods=["post"], url_path=r"runs/(?P<run_id>[^/]+)/cancel")
     def run_cancel(self, request, run_id: str) -> Response:
-        from zenml.client import Client
-        from zenml.utils.run_utils import stop_run
-
         run_ref = self._run_for_caller(run_id)
-        run = Client().get_pipeline_run(run_id)
         graceful = request.query_params.get("graceful", "false").lower() == "true"
-        stop_run(run, graceful=graceful)
+        stop_pipeline_run(run_id, graceful=graceful)
         TrainingRunRef.objects.filter(pk=run_ref.pk).update(status="stopping")
         return Response({"run_id": run_id, "status": "stopping", "graceful": graceful})
 
@@ -293,11 +296,14 @@ class TrainingViewSet(viewsets.ReadOnlyModelViewSet):
             keywords=keywords,
             pipeline_run_id=run_ref.zenml_run_id,
             paths=BackendLocalModelPaths,
+            providers=[request.user.stac_producer()],
         )
+        previous_id = run_ref.local_model.stac_item_id
         run_ref.local_model.status = LocalModel.Status.ACTIVE
         run_ref.local_model.stac_item_id = local_id
         run_ref.local_model.save(update_fields=["status", "stac_item_id", "last_modified"])
-        invalidate_stac_cache(LOCAL_MODELS_COLLECTION, run_ref.local_model.name)
+        if previous_id:
+            invalidate_stac_cache(LOCAL_MODELS_COLLECTION, previous_id)
         from modelregistry.tasks import mirror_stac_assets_task
 
         mirror_stac_assets_task.enqueue(collection_id=LOCAL_MODELS_COLLECTION, item_id=local_id)

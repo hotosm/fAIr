@@ -61,7 +61,7 @@ const StartMappingHeader = memo(
     modelPredictionsExist: boolean;
     modelInfoRequestIsPending: boolean;
     modelInfoRequestIsError: boolean;
-    modelInfo: TModelDetails;
+    modelInfo: TModelDetails | undefined;
     query: TQueryParams;
     updateQuery: (newParams: TQueryParams) => void;
 
@@ -103,7 +103,7 @@ const StartMappingHeader = memo(
   }) => {
     return (
       <div className="h-10">
-        {modelInfoRequestIsPending || modelInfoRequestIsError ? (
+        {modelInfoRequestIsPending || modelInfoRequestIsError || !modelInfo ? (
           <div className="h-10 animate-pulse bg-light-gray"></div>
         ) : (
           <div className="flex items-center justify-between gap-x-1">

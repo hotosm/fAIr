@@ -23,7 +23,7 @@ jobs:
 
       - name: Install backend dependencies
         working-directory: ./backend
-        run: uv sync
+        run: uv sync --locked
 
       - name: Run pre-commit
         run: uv run --directory backend pre-commit run --all-files --show-diff-on-failure

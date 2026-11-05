@@ -5,7 +5,7 @@ DEBUG=true
 SECRET_KEY=dev-secret-change-me
 DATABASE_URL=postgis://admin:password@postgres:5432/fair
 FRONTEND_URL=http://localhost:8000
-API_BASE_URL=http://localhost:8000/api/v1
+API_BASE_URL=http://api:8000/api/v1
 
 # Static-token auth for local use
 AUTH_PROVIDER=dev
@@ -23,3 +23,5 @@ BUCKET_NAME=fair-data
 AWS_ENDPOINT_URL=http://minio:9000
 AWS_ACCESS_KEY_ID=minioadmin
 AWS_SECRET_ACCESS_KEY=minioadmin
+
+PIPELINE_STEP_MEMORY_LIMIT=8g

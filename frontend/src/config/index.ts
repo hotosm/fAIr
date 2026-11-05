@@ -97,7 +97,7 @@ export const OAM_TITILER_ENDPOINT: string = parseStringEnv(
  */
 export const OAM_S3_BUCKET_URL: string = parseStringEnv(
   ENVS.OAM_S3_BUCKET_URL,
-  "https://oin-hotosm-temp.s3.us-east-1.amazonaws.com/",
+  "https://oin-hotosm-prod.s3.us-east-1.amazonaws.com/",
 );
 
 /**
@@ -216,6 +216,20 @@ export const MIN_TRAINING_AREA_SIZE: number = parseIntEnv(
 );
 
 /**
+ * The maximum allowed area (in square kilometers) for a "Map Large Area"
+ * request. There is no minimum limit. Controlled by
+ * VITE_MAP_LARGE_AREA_MAX_SIZE_SQKM; defaults to 5000 km².
+ */
+export const MAP_LARGE_AREA_MAX_SIZE_SQKM: number = parseIntEnv(
+  ENVS.MAP_LARGE_AREA_MAX_SIZE_SQKM,
+  5000,
+);
+
+/** The same Map Large Area limit expressed in square meters (turf area unit). */
+export const MAP_LARGE_AREA_MAX_SIZE_SQM: number =
+  MAP_LARGE_AREA_MAX_SIZE_SQKM * 1_000_000;
+
+/**
  * The maximum file size (in bytes) allowed for training area upload.
  * The default is set to 1 MB.
  */
@@ -331,8 +345,6 @@ export const TILE_BOUNDARY_SOURCE_ID: string = `${MAP_STYLES_PREFIX}-tile-bounda
 export const TMS_LAYER_ID: string = `${MAP_STYLES_PREFIX}-tileservice-layer`;
 export const TMS_SOURCE_ID: string = `${MAP_STYLES_PREFIX}-tileservice-source`;
 export const OSM_BASEMAP_LAYER_ID: string = `${MAP_STYLES_PREFIX}-osm-layer`;
-export const GOOGLE_SATELLITE_BASEMAP_LAYER_ID: string = `${MAP_STYLES_PREFIX}-google-statellite-layer`;
-export const GOOGLE_SATELLITE_BASEMAP_SOURCE_ID: string = `${MAP_STYLES_PREFIX}-google-satellite`;
 
 // Start Mapping
 export const ALL_MODEL_PREDICTIONS_SOURCE_ID: string = "all-predictions-source";
@@ -637,7 +649,7 @@ export const FAIR_PROD_URL: string = parseStringEnv(
  */
 export const HOT_IMAGERY_DENSITY_PMTILES_URL: string = parseStringEnv(
   ENVS.HOT_IMAGERY_DENSITY_PMTILES_URL,
-  "https://s3.amazonaws.com/oin-hotosm-temp/global-coverage.pmtiles",
+  "https://s3.amazonaws.com/oin-hotosm-prod/global-coverage.pmtiles",
 );
 
 /**
@@ -680,4 +692,10 @@ export const HOT_IMAGERY_COLLECTION_ID: string = parseStringEnv(
 export const NOMINATIM_API_URL: string = parseStringEnv(
   ENVS.NOMINATIM_API_URL,
   "https://nominatim.openstreetmap.org",
+);
+
+/** Maximum successful predictions retained in each mapping project. */
+export const PREDICTION_HISTORY_LIMIT = Math.max(
+  1,
+  parseIntEnv(ENVS.PREDICTION_HISTORY_LIMIT, 5),
 );

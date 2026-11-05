@@ -153,6 +153,7 @@ sl-alert.success::part(base) {
   color: var(--hot-fair-color-white) !important;
   margin: 0px !important;
 }
+
 /* Banner markdown content customization ends */
 
 /* Markdown prose styles starts */
@@ -228,11 +229,13 @@ sl-alert.success::part(base) {
   background: none;
   padding: 0;
 }
+
 .markdown-prose hr {
   border: none;
   border-top: 1px solid #e5e5e5;
   margin: 2rem 0;
 }
+
 .markdown-prose code {
   color: var(--hot-fair-color-primary);
   background-color: var(--hot-fair-color-off-white);
@@ -332,6 +335,7 @@ sl-alert.success::part(base) {
 .model-detail-prose a:hover {
   opacity: 0.8;
 }
+
 /* Model detail page markdown prose styles ends */
 
 @layer components {
@@ -344,14 +348,17 @@ sl-alert.success::part(base) {
   }
 
   .map-icon {
-    @apply inline-block h-4 w-4  p-2;
+    @apply inline-block h-4 w-4 p-2;
   }
+
   .fullscreen {
     @apply -mx-small md:-mx-large 2xl:-mx-extra-large;
   }
+
   .app-padding {
-    @apply px-small md:px-large  2xl:px-extra-large;
+    @apply px-small md:px-large 2xl:px-extra-large;
   }
+
   .no-fullscreen {
     @apply -mx-0 lg:-mx-0;
   }
@@ -359,12 +366,15 @@ sl-alert.success::part(base) {
   .static-page-layout {
     @apply flex flex-col gap-y-20 md:gap-y-40 mb-48;
   }
+
   .icon-interaction {
     @apply bg-off-white rounded-lg;
   }
+
   .map-elements-z-index {
     @apply z-[1];
   }
+
   .map-elements-padding {
     @apply px-3;
   }
@@ -420,8 +430,9 @@ sl-alert.success::part(base) {
 
 /* Popup customization starts */
 .maplibregl-popup-content {
-  @apply !rounded-[12px] !flex !flex-col !gap-y-4  !p-0;
+  @apply !rounded-[12px] !flex !flex-col !gap-y-4 !p-0;
 }
+
 /* Popup customization  ends */
 
 /* Matomo placement style begins */
@@ -438,6 +449,7 @@ sl-alert.success::part(base) {
 hotosm-auth {
   --login-btn-border-radius: 0px;
 }
+
 /* Try fAIr confidence slider starts */
 .try-fair-confidence-slider::-webkit-slider-thumb {
   appearance: none;
@@ -460,4 +472,18 @@ hotosm-auth {
   position: relative;
   z-index: 20;
 }
+
 /* Try fAIr confidence slider ends */
+
+.contour-bg {
+  background-image: url("../assets/svgs/contour_background.svg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.wave-bg {
+  background-image: url("../assets/svgs/wave_background.svg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}

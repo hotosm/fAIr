@@ -26,10 +26,10 @@ export const useTrainingStatus = (taskId: string) => {
   });
 };
 
-export const useTrainingFeedbacks = (id: number) => {
+export const useTrainingFeedbacks = (id: number | undefined) => {
   return useQuery({
     ...getTrainingFeedbacksQueryOptions(id),
-    enabled: id !== null,
+    enabled: id != null,
   });
 };
 export const useTrainingWorkspace = (

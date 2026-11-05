@@ -2,11 +2,13 @@ import maplibregl, { Map } from "maplibre-gl";
 import { BASEMAPS } from "@/enums";
 import { MAP_STYLES, MAX_ZOOM_LEVEL } from "@/config";
 import { Protocol } from "pmtiles";
+import { BBOX } from "@/types";
 
 export const setupMaplibreMap = (
   containerRef: React.RefObject<HTMLElement | null>,
   pmtiles: boolean,
   hash: boolean = false,
+  initialBounds?: BBOX | null,
 ): Map => {
   // Check if RTL plugin is needed and set it
   if (maplibregl.getRTLTextPluginStatus() === "unavailable") {
@@ -29,6 +31,12 @@ export const setupMaplibreMap = (
     minZoom: 1,
     maxZoom: MAX_ZOOM_LEVEL,
     pitchWithRotate: false,
+    ...(initialBounds
+      ? {
+          bounds: initialBounds,
+          fitBoundsOptions: { padding: 40, maxZoom: 18, duration: 0 },
+        }
+      : {}),
   });
 
   // Prevent the map from rotating

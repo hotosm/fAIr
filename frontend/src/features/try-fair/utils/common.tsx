@@ -77,6 +77,16 @@ export const TRY_FAIR_RESOLUTION_ZOOM: Record<TryFairResolution, number> = {
   [TryFairResolution.HIGH]: 18,
 };
 
+/** Older catalogue items without a supported recommendation keep the Low fallback. */
+export const getModelDefaultResolution = (
+  model: BaseModelStacItem | null,
+): TryFairResolution =>
+  Object.values(TryFairResolution).find(
+    (resolution) =>
+      TRY_FAIR_RESOLUTION_ZOOM[resolution] ===
+      model?.properties["fair:recommended_zoom"],
+  ) ?? TryFairResolution.LOW;
+
 /**
  * The map output mode that matches a model's output geometry. The geometry is
  * carried as one of the model's keywords (point | line | polygon): point output
@@ -219,3 +229,15 @@ export const flagEmoji = (code: string): string =>
 export const cleanFeatureLabel = (label: string) => {
   return (label ?? "").replace(/[-_]/g, " ");
 };
+
+export function elapsedTime(createdAt: string, now: number): string {
+  const minutes = Math.max(
+    0,
+    Math.floor((now - Date.parse(createdAt)) / 60000),
+  );
+  if (minutes < 1) return "Just now";
+  if (minutes < 60) return `${minutes} min ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} hr ago`;
+  return new Date(createdAt).toLocaleDateString();
+}

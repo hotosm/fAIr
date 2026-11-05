@@ -33,7 +33,7 @@ export const SignInPromptDialog = ({
         </div>
 
         <p className="text-dark text-lg text-center">
-          You must sign in to map a large area.
+          You must sign in to map an area.
         </p>
 
         <div className="flex items-center justify-between gap-3">
