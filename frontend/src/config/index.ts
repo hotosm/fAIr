@@ -97,7 +97,7 @@ export const OAM_TITILER_ENDPOINT: string = parseStringEnv(
  */
 export const OAM_S3_BUCKET_URL: string = parseStringEnv(
   ENVS.OAM_S3_BUCKET_URL,
-  "https://oin-hotosm-temp.s3.us-east-1.amazonaws.com/",
+  "https://oin-hotosm-prod.s3.us-east-1.amazonaws.com/",
 );
 
 /**
@@ -649,7 +649,7 @@ export const FAIR_PROD_URL: string = parseStringEnv(
  */
 export const HOT_IMAGERY_DENSITY_PMTILES_URL: string = parseStringEnv(
   ENVS.HOT_IMAGERY_DENSITY_PMTILES_URL,
-  "https://s3.amazonaws.com/oin-hotosm-temp/global-coverage.pmtiles",
+  "https://s3.amazonaws.com/oin-hotosm-prod/global-coverage.pmtiles",
 );
 
 /**
