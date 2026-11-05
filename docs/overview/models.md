@@ -13,34 +13,33 @@ Models are contributed to the [fAIr-models repository](https://github.com/hotosm
 
 The models available in fAIr today and those planned. "Available" names the version that runs the model: the current version (v3) or the earlier one (v2).
 
-| #   | Model                                 | Feature         | Task type        | Contributor           | Status                                                    |
-| --- | ------------------------------------- | --------------- | ---------------- | --------------------- | --------------------------------------------------------- |
-| 1   | Buildings (DINOv3)                    | Buildings       | Segmentation     | HOT                   | <span class="status available">Available, v3</span>       |
-| 2   | Building damage (DINOv3)              | Building damage | Segmentation     | HOT                   | <span class="status available">Available, v3</span>       |
-| 3   | Nepal flood damage                    | Building damage | Segmentation     | HOT                   | <span class="status available">Available, v3</span>       |
-| 4   | Trees (DeepForest)                    | Trees           | Object detection | Weecology, HOT        | <span class="status available">Available, v3</span>       |
-| 5   | Trees (UNet, Freetown)                | Trees           | Segmentation     | HOT                   | <span class="status available">Available, v3</span>       |
-| 6   | Solid waste                           | Solid waste     | Segmentation     | HeiGIT                | <span class="status available">Available, v3</span>       |
-| 7   | RGB segmentation (scikit-learn)       | Buildings       | Segmentation     | HOT                   | <span class="status available">Available, v3</span>       |
-| 8   | Buildings (RAMP, YOLOv8)              | Buildings       | Segmentation     | HOT                   | <span class="status available">Available, v2</span>       |
-| 9   | Swimming pools                        | Swimming pools  | Object detection | Mozilla AI            | <span class="status available">Available, v2</span>       |
-| 10  | Parking spaces                        | Parking spaces  | Object detection | HOT                   | <span class="status available">Available, v2</span>       |
-| 11  | Trees (Omdena challenge)              | Trees           | Object detection | Omdena                | <span class="status in-development">In development</span> |
-| 12  | Solar panels                          | Solar panels    | Object detection | Omdena                | <span class="status in-development">In development</span> |
-| 13  | Bridges                               | Bridges         | Object detection | Omdena                | <span class="status in-development">In development</span> |
-| 14  | Roof type classification              | Buildings       | Classification   | Omdena                | <span class="status in-development">In development</span> |
-| 15  | Seagrass                              | Seagrass        | Segmentation     | Omdena                | <span class="status in-development">In development</span> |
-| 16  | Highway segmentation                  | Roads           | Segmentation     | Zindi                 | <span class="status in-development">In development</span> |
-| 17  | Road surface (paved / unpaved)        | Roads           | Classification   | HeiGIT                | <span class="status in-development">In development</span> |
-| 18  | Road surface damage                   | Roads           | Object detection | Community member      | <span class="status in-development">In development</span> |
-| 19  | Water storage tanks                   | Water tanks     | Object detection | Togglecorp            | <span class="status planned">Planned</span>               |
-| 20  | Breeding containers                   | Disease vectors | Object detection | HeiGIT                | <span class="status in-development">In development</span> |
-| 21  | Buildings (U-Net)                     | Buildings       | Segmentation     | Community member      | <span class="status in-development">In development</span> |
-| 22  | Open ground                           | Open spaces     | Segmentation     | NAXA                  | <span class="status in-development">In development</span> |
-| 23  | Roof material                         | Buildings       | Segmentation     | NAXA                  | <span class="status in-development">In development</span> |
-| 24  | Tent detection                        | Tents           | Object detection | Community members     | <span class="status in-development">In development</span> |
-| 25  | Rural roads                           | Roads           | Segmentation     | Community member      | <span class="status planned">Planned</span>               |
-| 26  | Surface water                         | Water           | Segmentation     | Community member      | <span class="status planned">Planned</span>               |
+| #   | Model                          | Feature         | Task type        | Contributor                      | Status                                                    |
+| --- | ------------------------------ | --------------- | ---------------- | -------------------------------- | --------------------------------------------------------- |
+| 1   | Buildings (DINOv3)             | Buildings       | Segmentation     | HOT                              | <span class="status available">Available, v3</span>       |
+| 2   | Building damage (DINOv3)       | Building damage | Segmentation     | HOT                              | <span class="status available">Available, v3</span>       |
+| 3   | Nepal flood damage             | Building damage | Segmentation     | HOT                              | <span class="status available">Available, v3</span>       |
+| 4   | Trees (DeepForest)             | Trees           | Object detection | Weecology, HOT                   | <span class="status available">Available, v3</span>       |
+| 5   | Trees (UNet, Freetown)         | Trees           | Segmentation     | HOT West and Northern Africa hub | <span class="status available">Available, v3</span>       |
+| 6   | Solid waste                    | Solid waste     | Segmentation     | HeiGIT                           | <span class="status available">Available, v3</span>       |
+| 7   | Buildings (RAMP, YOLOv8)       | Buildings       | Segmentation     | HOT                              | <span class="status available">Available, v2</span>       |
+| 8   | Swimming pools                 | Swimming pools  | Object detection | Mozilla AI                       | <span class="status available">Available, v2</span>       |
+| 9   | Parking spaces                 | Parking spaces  | Object detection | HOT                              | <span class="status available">Available, v2</span>       |
+| 10  | Trees (Omdena challenge)       | Trees           | Object detection | Omdena                           | <span class="status in-development">In development</span> |
+| 11  | Solar panels                   | Solar panels    | Object detection | Omdena                           | <span class="status in-development">In development</span> |
+| 12  | Bridges                        | Bridges         | Object detection | Omdena                           | <span class="status in-development">In development</span> |
+| 13  | Roof type classification       | Buildings       | Classification   | Omdena                           | <span class="status in-development">In development</span> |
+| 14  | Seagrass                       | Seagrass        | Segmentation     | Omdena                           | <span class="status in-development">In development</span> |
+| 15  | Highway segmentation           | Roads           | Segmentation     | Zindi                            | <span class="status in-development">In development</span> |
+| 16  | Road surface (paved / unpaved) | Roads           | Classification   | HeiGIT                           | <span class="status in-development">In development</span> |
+| 17  | Road surface damage            | Roads           | Object detection | Community member                 | <span class="status in-development">In development</span> |
+| 18  | Water storage tanks            | Water tanks     | Object detection | Togglecorp                       | <span class="status planned">Planned</span>               |
+| 19  | Breeding containers            | Disease vectors | Object detection | HeiGIT                           | <span class="status in-development">In development</span> |
+| 20  | Buildings (U-Net)              | Buildings       | Segmentation     | Community member                 | <span class="status in-development">In development</span> |
+| 21  | Open ground                    | Open spaces     | Segmentation     | NAXA                             | <span class="status in-development">In development</span> |
+| 22  | Roof material                  | Buildings       | Segmentation     | NAXA                             | <span class="status in-development">In development</span> |
+| 23  | Tent detection                 | Tents           | Object detection | Community members                | <span class="status in-development">In development</span> |
+| 24  | Rural roads                    | Roads           | Segmentation     | Community member                 | <span class="status planned">Planned</span>               |
+| 25  | Surface water                  | Water           | Segmentation     | Community member                 | <span class="status planned">Planned</span>               |
 
 The base-models STAC collection also holds a swimming pools item from Mozilla AI that is not registered in the v3 API, so it cannot be run there. Progress across the model pipeline is tracked on the [Milestones](../progress/milestones.md) page.
 
