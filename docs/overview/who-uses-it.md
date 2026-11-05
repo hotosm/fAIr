@@ -15,7 +15,7 @@ _"There is a model out there. Let me see how it works in my area."_
 
 A mapper runs an existing model and reviews what it finds.
 
-![The fAIr interface running a swimming-pool detection model over aerial imagery, with a live prediction.](../assets/flyer/mapper-try-fair.jpg)
+![The fAIr interface running a swimming-pool detection model, in development, over aerial imagery, with a live prediction.](../assets/flyer/mapper-try-fair.jpg)
 
 1. **Sees a model.** Browses the collection for one that fits: buildings, trees, building damage, solid waste, and more.
 2. **Runs it.** Points the model at their own area and lets it detect features.
