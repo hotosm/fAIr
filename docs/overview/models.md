@@ -51,6 +51,8 @@ Several models are being built through two open geo-AI challenges in 2026, which
 
 Contributions also come through the [open call](https://hotosm.org/en/request-for-proposals/open-call-for-earth-observation-geoai-models/) from **[HeiGIT](https://heigit.org/)** (solid waste, road surface, breeding containers), **[NAXA](https://naxa.com.np/)** (open ground, roof material), **[Togglecorp](https://togglecorp.com/)** (water storage tanks) and community members, alongside HOT's own models.
 
+Through a fellowship with the [Lund AI Society](https://lundaisociety.com/), a student-run nonprofit, a team of students works from September 2026 to January 2027 on cleaner building outlines from the building segmentation model.
+
 Need a different feature? Ask the team in **#fair-coord** on [Slack](https://slack.hotosm.org/), or contribute a model (see below).
 
 ## Contributing a model
