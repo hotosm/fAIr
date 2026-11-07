@@ -1,5 +1,7 @@
 set dotenv-load
 
+mod test 'tasks/test.just'
+
 # List available commands
 [private]
 default:
