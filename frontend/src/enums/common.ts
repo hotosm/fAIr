@@ -75,6 +75,7 @@ export enum DropdownPlacement {
   BOTTOM_END = "bottom-end",
   TOP_END = "top-end",
   RIGHT_START = "right-start",
+  RIGHT_END = "right-end",
 }
 
 export enum ModelTrainingStatus {

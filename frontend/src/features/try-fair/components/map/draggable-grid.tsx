@@ -1,3 +1,4 @@
+import { useAuth } from "@/app/providers/auth-provider";
 import { RefObject, useEffect, useMemo, useState } from "react";
 import { Map } from "maplibre-gl";
 import useScreenSize from "@/hooks/use-screen-size";
@@ -62,6 +63,8 @@ export const TryFairDraggableGrid = ({
 
   const { isSmallViewport } = useScreenSize();
   const { mappingMode } = useTryFairParams();
+  const { isAuthenticated } = useAuth();
+  const showConfidence = isAuthenticated && mappingMode === "advanced";
   const [isNoResultsDismissed, setIsNoResultsDismissed] = useState(false);
 
   const { anchor, setAnchor, tileZoom } = useTileGrid({
@@ -111,6 +114,10 @@ export const TryFairDraggableGrid = ({
   //  Drag interaction
 
   const [hoverTooltip, setHoverTooltip] = useState<HoverTooltip>(null);
+
+  useEffect(() => {
+    setHoverTooltip(null);
+  }, [showConfidence, outputType]);
 
   //  Screen projection
 
@@ -235,7 +242,7 @@ export const TryFairDraggableGrid = ({
 
     const score = feature[0].properties?.score;
     // The per-feature confidence tooltip is an advanced-mode only affordance.
-    if (typeof score !== "number" || mappingMode !== "advanced") {
+    if (typeof score !== "number" || !showConfidence) {
       setHoverTooltip(null);
       return;
     }

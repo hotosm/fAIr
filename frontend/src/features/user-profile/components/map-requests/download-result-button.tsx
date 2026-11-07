@@ -1,4 +1,5 @@
 import { SolidButton } from "@/components/shared/solid-button";
+import { CloudDownloadIcon } from "@/components/ui/icons";
 import { PredictionRequestStatus } from "@/enums";
 import { useGetSinglePrediction } from "@/features/user-profile/hooks/use-predictions";
 import { TOfflinePrediction } from "@/types";
@@ -35,10 +36,11 @@ export const DownloadResultButton = ({ className }: { className?: string }) => {
       disabled={!resultReady}
       onClick={handleDownload}
       className={cn(
-        "disabled:cursor-not-allowed disabled:opacity-50",
+        "disabled:cursor-not-allowed h-9 flex gap-2  disabled:opacity-50",
         className,
       )}
     >
+      <CloudDownloadIcon className="size-3.5 " />
       Download Result
     </SolidButton>
   );

@@ -1,10 +1,13 @@
 import { Head } from "@/components/seo";
+import { useAuth } from "@/app/providers/auth-provider";
+import { DownloadResultButton } from "@/features/user-profile/components/map-requests/download-result-button";
 import { Button } from "@/components/ui/button";
-import { LocationSearchIcon } from "@/components/ui/icons/location-search-icon";
 import { MapPlayIcon } from "@/components/ui/icons/map-play-icon";
+import { ChevronDownIcon } from "@/components/ui/icons";
 import { APPLICATION_ROUTES } from "@/constants/routes";
 import { ButtonVariant, TryFairMapOutputType } from "@/enums";
 import { getImageryTileJSONUrl } from "@/features/try-fair/api/hot-imagery";
+import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
 import { useOAMItem } from "@/features/try-fair/hooks/use-oam-item";
 import { OUTPUT_TYPES } from "@/features/try-fair/utils/common";
 
@@ -18,101 +21,177 @@ import { Spinner } from "@/components/ui/spinner";
 import { MobileDrawer } from "@/components/ui/drawer";
 import useScreenSize from "@/hooks/use-screen-size";
 import { BBOX, TOfflinePrediction } from "@/types";
-import { cn, getGeoJSONFeatureBounds } from "@/utils";
+import {
+  cn,
+  getGeoJSONFeatureBounds,
+  showErrorToast,
+  showSuccessToast,
+} from "@/utils";
 import { useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
+import { ImageIcon } from "@/components/ui/icons/image-icon";
+import { ParametersIcon } from "@/components/ui/icons/parameters-icon";
 
 const getPredictionName = (prediction: TOfflinePrediction): string =>
   prediction.description ||
   prediction.local_model_stac_id ||
   `Prediction #${prediction.id}`;
 
-/** Best-effort feature label derived from the model id (e.g. "…-buildings"). */
-const getFeatureMapped = (prediction: TOfflinePrediction): string => {
-  const slug = prediction.local_model_stac_id ?? "";
-  const last = slug.split("-").pop() ?? "";
-  return last ? last.charAt(0).toUpperCase() + last.slice(1) : "—";
-};
-
 /** Info card shown over the map — styled like the Try fAIr sidebar. */
 const ResultInfoCard = ({
   imageryName,
+  imageryLink,
   featureMapped,
   outputType,
   onOutputTypeChange,
+  zoom,
+  params,
+  showDownloadResult,
   className,
 }: {
   imageryName: string;
+  imageryLink: string;
   featureMapped: string;
   outputType: TryFairMapOutputType;
   onOutputTypeChange: (type: TryFairMapOutputType) => void;
+  zoom: TOfflinePrediction["zoom"];
+  params: TOfflinePrediction["params"];
+  showDownloadResult: boolean;
   className?: string;
-}) => (
-  <div
-    className={cn(
-      "relative w-[300px] rounded-lg bg-white p-2 shadow-lg sm:px-3 sm:py-4 space-y-4 overflow-visible",
-      className,
-    )}
-  >
-    <div className="flex items-stretch overflow-hidden rounded-lg border border-[#687075] bg-gray-white">
-      <div className="flex flex-1 min-w-0 items-center gap-2 pl-2.5 pr-2 py-2">
-        <LocationSearchIcon className="size-5 shrink-0 hidden md:inline-block" />
-        <p className="flex-1 min-w-0 truncate text-xs font-semibold capitalize leading-tight text-dark">
-          {imageryName}
-        </p>
-      </div>
+}) => {
+  const { mappingMode } = useTryFairParams();
 
-      <div className="my-2 w-px shrink-0 bg-gray-border" />
+  const copyImageryLink = async () => {
+    try {
+      await navigator.clipboard.writeText(imageryLink);
+      showSuccessToast("Copied imagery link to clipboard.");
+    } catch (error) {
+      showErrorToast(error, "Couldn't copy imagery link. Please try again.");
+    }
+  };
 
-      <div className="flex items-center gap-2 p-2.5">
-        <Button
-          type="button"
-          size="medium"
-          rounded
-          variant={ButtonVariant.TERTIARY}
-          disabled
-          className="flex items-center opacity-50 gap-2"
-          fontSize="12px"
-        >
-          <MapPlayIcon className="size-4" />
-          Map
-        </Button>
-      </div>
-    </div>
+  return (
+    <div
+      className={cn(
+        "relative w-[300px] rounded-lg bg-white p-2 shadow-lg sm:px-3 sm:py-4 space-y-4 overflow-visible",
+        className,
+      )}
+    >
+      <div className="flex items-stretch overflow-hidden rounded-lg border border-[#687075] bg-gray-white">
+        <div className="flex flex-1 min-w-0 items-center gap-2 pl-2.5 pr-2 py-2">
+          <p className="flex-1 min-w-0 truncate text-xs font-semibold capitalize leading-tight text-dark">
+            {imageryName}
+          </p>
+        </div>
 
-    <div>
-      <p className="text-dark text-xs mb-2">Feature Mapped</p>
-      <div className="flex items-center gap-2 rounded-lg border border-gray-border bg-gray-white px-3 py-2.5 text-xs capitalize text-dark">
-        {featureMapped}
-      </div>
-    </div>
+        <div className="my-2 w-px shrink-0 bg-gray-border" />
 
-    <div>
-      <p className="text-dark text-xs mb-2">Map Output</p>
-      <div className="flex items-center gap-2">
-        {MAP_REQUEST_OUTPUT_TYPES.map(({ type, label, icon }) => (
-          <button
-            key={type}
+        <div className="flex items-center gap-2 p-2.5">
+          <Button
             type="button"
-            title={label}
-            aria-label={label}
-            onClick={() => onOutputTypeChange(type)}
-            className={cn(
-              "flex-1 flex items-center justify-center py-2 rounded-lg",
-              outputType === type
-                ? "bg-secondary text-primary border-[#D63F4080] border"
-                : "bg-off-white",
-            )}
+            size="medium"
+            rounded
+            variant={ButtonVariant.TERTIARY}
+            disabled
+            className="flex items-center opacity-50 gap-2"
+            fontSize="12px"
           >
-            {icon}
-          </button>
-        ))}
+            <MapPlayIcon className="size-4" />
+            Map
+          </Button>
+        </div>
       </div>
+
+      <div>
+        <p className="text-dark text-xs mb-2">Feature Mapped</p>
+        <div className="flex items-center gap-2 rounded-lg border border-gray-border bg-gray-white px-3 py-2.5 text-xs capitalize text-dark">
+          {featureMapped}
+        </div>
+      </div>
+
+      {showDownloadResult && (
+        <DownloadResultButton className="!h-9 !w-full justify-center" />
+      )}
+      {mappingMode === "advanced" && (
+        <button
+          type="button"
+          onClick={copyImageryLink}
+          disabled={!imageryLink}
+          className="flex h-9 w-full items-center justify-center gap-2 rounded-lg bg-[#F0EFEF] text-xs text-[#2C3038]  "
+        >
+          <ImageIcon className="size-4" aria-hidden="true" />
+          Copy Imagery Link
+        </button>
+      )}
+
+      <div className="border-t border-gray-border pt-4">
+        <p className="text-dark text-xs mb-2">Map Output</p>
+        <div className="flex items-center gap-2">
+          {MAP_REQUEST_OUTPUT_TYPES.map(({ type, label, icon }) => (
+            <button
+              key={type}
+              type="button"
+              title={label}
+              aria-label={label}
+              onClick={() => onOutputTypeChange(type)}
+              className={cn(
+                "flex-1 flex items-center justify-center py-2 rounded-lg",
+                outputType === type
+                  ? "bg-secondary text-primary border-[#D63F4080] border"
+                  : "bg-off-white",
+              )}
+            >
+              {icon}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {mappingMode === "advanced" && (
+        <details
+          aria-label="Prediction configuration"
+          className="group border-t border-gray-border pt-4"
+        >
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-xs font-semibold text-dark [&::-webkit-details-marker]:hidden">
+            <span className="flex gap-2 items-center">
+              <ParametersIcon />
+              Prediction configuration
+            </span>
+            <ChevronDownIcon
+              className="size-3 shrink-0 transition-transform group-open:rotate-180"
+              aria-hidden="true"
+            />
+          </summary>
+          <dl className="mt-3 space-y-3 text-xs">
+            <div className="flex items-start justify-between gap-3">
+              <dt className="text-grey">Zoom level</dt>
+              <dd className="text-dark font-medium tabular-nums">{zoom}</dd>
+            </div>
+            {Object.entries(params ?? {}).map(([key, value]) => (
+              <div key={key} className="flex items-start justify-between gap-3">
+                <dt
+                  className="min-w-0 break-words capitalize text-grey"
+                  title={key}
+                >
+                  {key.replace(/_/g, " ")}
+                </dt>
+                <dd className="max-w-[45%] break-words text-right font-medium tabular-nums text-dark">
+                  {value}
+                </dd>
+              </div>
+            ))}
+          </dl>
+          {Object.keys(params ?? {}).length === 0 && (
+            <p className="mt-3 text-xs text-grey">No parameters recorded.</p>
+          )}
+        </details>
+      )}
     </div>
-  </div>
-);
+  );
+};
 
 export const MapRequestResultPage = () => {
+  const { isAuthenticated } = useAuth();
   const { id } = useParams();
   const location = useLocation();
   // The row the user clicked seeds the query so it renders instantly; a direct
@@ -205,9 +284,14 @@ export const MapRequestResultPage = () => {
             <div className="absolute top-4 left-4 z-10">
               <ResultInfoCard
                 imageryName={oamItem?.title || "Custom Imagery"}
-                featureMapped={getFeatureMapped(prediction)}
+                imageryLink={prediction.image_uri ?? ""}
+                featureMapped={prediction?.category ?? "-"}
                 outputType={outputType}
                 onOutputTypeChange={setOutputType}
+                zoom={prediction.zoom}
+                params={prediction.params}
+                showDownloadResult={isAuthenticated}
+                className="max-h-[calc(92vh-2rem)] overflow-y-auto"
               />
             </div>
           )}
@@ -224,9 +308,13 @@ export const MapRequestResultPage = () => {
               >
                 <ResultInfoCard
                   imageryName={oamItem?.title || "Custom Imagery"}
-                  featureMapped={getFeatureMapped(prediction)}
+                  imageryLink={prediction.image_uri ?? ""}
+                  featureMapped={prediction?.category ?? ""}
                   outputType={outputType}
                   onOutputTypeChange={setOutputType}
+                  zoom={prediction.zoom}
+                  params={prediction.params}
+                  showDownloadResult={isAuthenticated}
                   className="w-full shadow-none"
                 />
               </MobileDrawer>

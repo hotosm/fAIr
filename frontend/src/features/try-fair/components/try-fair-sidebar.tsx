@@ -3,7 +3,7 @@ import {
   TryFairMapOutputType,
   TryFairResolution,
 } from "@/enums";
-import { ModelPicker } from "./model-picker-modal";
+import { ModelPicker } from "@/features/try-fair/components/model-picker-modal";
 import { TRY_FAIR_PAGE_CONTENT } from "@/constants/ui-contents/try-fair-contents";
 import { APP_TOUR_IDS } from "@/constants/site-tour";
 import { Button } from "@/components/ui/button";
@@ -261,7 +261,10 @@ export const TryFairSidebar = ({
         <div className="flex items-start gap-2">
           <div>
             <p className="text-grey text-xs leading-relaxed">
-              {TRY_FAIR_PAGE_CONTENT.sidebar.parameters.description}{" "}
+              {isAdvancedMode
+                ? TRY_FAIR_PAGE_CONTENT.sidebar.parameters
+                    .advancedModeDescription
+                : TRY_FAIR_PAGE_CONTENT.sidebar.parameters.description}{" "}
             </p>
           </div>
         </div>
@@ -348,7 +351,7 @@ export const TryFairSidebar = ({
             placement={
               isSmallViewport
                 ? DropdownPlacement.BOTTOM_START
-                : DropdownPlacement.RIGHT_START
+                : DropdownPlacement.RIGHT_END
             }
             distance={20}
             hoist

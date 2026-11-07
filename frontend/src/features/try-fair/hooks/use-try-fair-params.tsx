@@ -7,13 +7,22 @@ import {
 import {
   parseAsBoolean,
   parseAsFloat,
+  parseAsJson,
   parseAsString,
   useQueryStates,
 } from "nuqs";
-import { useStacBaseModels, useStacLocalModels } from "./use-base-models";
-import { useMemo } from "react";
+import {
+  useStacBaseModels,
+  useStacLocalModels,
+} from "@/features/try-fair/hooks/use-base-models";
+import { useCallback, useMemo } from "react";
+import {
+  useGetAllAPIBaseModels,
+  useGetAllAPILocalModels,
+} from "@/features/try-fair/api/features-to-map";
 import { getSelectedModel } from "@/features/try-fair/utils/models";
 import { getInferenceParams } from "@/features/try-fair/api/stac";
+import { getModelDefaultResolution } from "@/features/try-fair/utils/common";
 
 const VALID_OUTPUTS = Object.values(TryFairMapOutputType) as string[];
 const VALID_RESOLUTIONS = Object.values(TryFairResolution) as string[];
@@ -30,6 +39,22 @@ export const TRY_FAIR_PARAM_DEFAULTS = {
 } as const;
 
 export type MappingModeType = "basic" | "advanced";
+export type InferenceParamValues = Record<string, number | string | boolean>;
+
+const parseInferenceParamValues = (
+  value: unknown,
+): InferenceParamValues | null => {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+
+  const isValid = Object.values(value).every(
+    (entry) =>
+      typeof entry === "string" ||
+      typeof entry === "boolean" ||
+      (typeof entry === "number" && Number.isFinite(entry)),
+  );
+
+  return isValid ? (value as InferenceParamValues) : null;
+};
 
 /**
  * Mapping mode is a user preference, so it's persisted to localStorage in
@@ -69,13 +94,14 @@ const writeStoredMappingMode = (mode: MappingModeType) => {
  *   imageryType    — selected custom imagery service type
  *   oamItem        — OpenAerialMap item ID; its URL and bbox are hydrated on load
  *   chooseLocation — boolean indicating whether the change location imagery modal is open
+ *   params         — advanced inference parameter overrides
  */
 export const useTryFairParams = () => {
   const [params, setParams] = useQueryStates(
     {
       model: parseAsString.withDefault(TRY_FAIR_PARAM_DEFAULTS.model),
       output: parseAsString.withDefault(TRY_FAIR_PARAM_DEFAULTS.output),
-      resolution: parseAsString.withDefault(TRY_FAIR_PARAM_DEFAULTS.resolution),
+      resolution: parseAsString,
       confidence: parseAsFloat,
       feature: parseAsString.withDefault(TRY_FAIR_PARAM_DEFAULTS.feature),
       mode: parseAsString.withDefault(TRY_FAIR_PARAM_DEFAULTS.mode),
@@ -87,9 +113,19 @@ export const useTryFairParams = () => {
       oamItem: parseAsString,
       chooseLocation: parseAsBoolean.withDefault(false),
       selectedModelId: parseAsString,
+      params: parseAsJson<InferenceParamValues>(parseInferenceParamValues),
     },
     { history: "replace" },
   );
+
+  // URL param wins when present; otherwise fall back to the persisted
+  // preference so the mode survives profile navigation and reloads.
+  const mappingMode: MappingModeType =
+    params.mappingMode === "advanced"
+      ? "advanced"
+      : params.mappingMode === "basic"
+        ? "basic"
+        : (readStoredMappingMode() ?? "basic");
 
   const { models: allModels } = useStacBaseModels();
   const { models: localModels } = useStacLocalModels();
@@ -99,10 +135,29 @@ export const useTryFairParams = () => {
     [allModels, localModels],
   );
 
-  const selectedModel = useMemo(
-    () => getSelectedModel(models, params.model),
-    [models, params.model],
+  const pinnedModel = getSelectedModel(models, params.model);
+  // Advanced selections can be absent from the pinned Samples catalogue.
+  // Resolve the URL's model independently without changing the sample list.
+  const needsSelectedModel =
+    mappingMode === "advanced" && !pinnedModel && Boolean(params.model);
+  const { data: apiBaseModels } = useGetAllAPIBaseModels(
+    params.feature,
+    needsSelectedModel,
   );
+  const { data: apiLocalModels } = useGetAllAPILocalModels(
+    params.feature,
+    needsSelectedModel,
+  );
+  const selectedModel =
+    mappingMode === "advanced"
+      ? (pinnedModel ??
+        [
+          ...(apiBaseModels?.results ?? []),
+          ...(apiLocalModels?.results ?? []),
+        ].find((model) => model.stac_item_id === params.model)?.stac ??
+        null)
+      : (pinnedModel ??
+        getSelectedModel(models, TRY_FAIR_PARAM_DEFAULTS.model));
 
   const inferenceParams = useMemo(
     () => (selectedModel ? getInferenceParams(selectedModel) : []),
@@ -123,23 +178,16 @@ export const useTryFairParams = () => {
     ? (params.output as TryFairMapOutputType)
     : TryFairMapOutputType.POINTS;
 
-  const resolution = VALID_RESOLUTIONS.includes(params.resolution)
-    ? (params.resolution as TryFairResolution)
-    : TryFairResolution.LOW;
+  const defaultResolution = getModelDefaultResolution(selectedModel);
+  const resolution =
+    params.resolution !== null && VALID_RESOLUTIONS.includes(params.resolution)
+      ? (params.resolution as TryFairResolution)
+      : defaultResolution;
 
   const confidence = params.confidence ?? defaultConfidence;
 
   const mode =
     params.mode === ModelType.IMAGERY ? ModelType.IMAGERY : ModelType.DEMO;
-
-  // URL param wins when present; otherwise fall back to the persisted
-  // preference so the mode survives profile navigation and reloads.
-  const mappingMode: MappingModeType =
-    params.mappingMode === "advanced"
-      ? "advanced"
-      : params.mappingMode === "basic"
-        ? "basic"
-        : (readStoredMappingMode() ?? "basic");
 
   const imageryTileServiceType = Object.values(TileServiceType).includes(
     params.imageryType as TileServiceType,
@@ -148,16 +196,38 @@ export const useTryFairParams = () => {
     : null;
 
   const isParametersDefault =
-    resolution === TRY_FAIR_PARAM_DEFAULTS.resolution &&
+    resolution === defaultResolution &&
     (params.confidence === null || params.confidence === defaultConfidence);
 
   const resetParameters = () =>
     setParams({
-      resolution: TRY_FAIR_PARAM_DEFAULTS.resolution,
+      resolution: null,
       confidence: defaultConfidence,
     });
 
+  const setParameterOverride = useCallback(
+    (key: string, value: number | string | boolean) =>
+      setParams((current) => ({
+        params: { ...(current.params ?? {}), [key]: value },
+      })),
+    [setParams],
+  );
+
+  const resetParameterOverrides = useCallback(
+    () => setParams({ params: null }),
+    [setParams],
+  );
+
   return {
+    /** Complete URL-backed state, including effective defaults and preferences. */
+    urlState: {
+      ...params,
+      output: outputType,
+      resolution,
+      confidence,
+      mode,
+      mappingMode,
+    },
     modelId: params.model,
     selectedModelId: params.selectedModelId,
     selectedModel,
@@ -172,13 +242,17 @@ export const useTryFairParams = () => {
     imageryTileServiceType,
     oamItemId: params.oamItem,
     chooseLocation: params.chooseLocation,
+    parameterOverrides: params.params ?? {},
 
+    restoreParams: (snapshot: typeof params) => setParams(snapshot),
     setModelId: (id: string) => setParams({ model: id }),
     setSelectedModelId: (id: string | null) =>
       setParams({ selectedModelId: id }),
     setOutputType: (type: TryFairMapOutputType) => setParams({ output: type }),
     setResolution: (res: TryFairResolution) => setParams({ resolution: res }),
     setConfidence: (val: number | null) => setParams({ confidence: val }),
+    setParameterOverride,
+    resetParameterOverrides,
     setFeature: (feature: string) => setParams({ feature }),
     setMode: (mode: ModelType) => setParams({ mode }),
     setMappingMode: (mappingMode: MappingModeType) => {

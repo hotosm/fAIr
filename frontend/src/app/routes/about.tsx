@@ -1,9 +1,10 @@
-import { ABOUT_PAGE_CONTENT } from "@/constants";
+import { ABOUT_PAGE_CONTENT, FAIR_DOCS_URL } from "@/constants";
 import { fAIrWorkflowIllustration } from "@/assets/images";
 import { Head } from "@/components/seo";
 import { Header } from "@/components/shared";
 import { HOTTeamLandscape } from "@/assets/images";
 import { Image } from "@/components/ui/image";
+import { Link } from "@/components/ui/link";
 
 export const AboutPage = () => {
   return (
@@ -35,6 +36,15 @@ export const AboutPage = () => {
             {ABOUT_PAGE_CONTENT.bodyContent.firstParagraph}
           </p>
           <p>{ABOUT_PAGE_CONTENT.bodyContent.secondParagraph}</p>
+          <Link
+            href={FAIR_DOCS_URL}
+            title={ABOUT_PAGE_CONTENT.documentationLink}
+            className="text-primary underline self-start"
+            disableLinkStyle
+            blank
+          >
+            {ABOUT_PAGE_CONTENT.documentationLink}
+          </Link>
         </div>
         <div className="order-1 lg:order-2 w-full max-w-[640px] min-w-0 justify-self-center">
           <Image

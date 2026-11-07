@@ -1,7 +1,7 @@
 import { TryFairMapOutputType } from "@/enums";
 import { errorMessages } from "@/constants";
 import { MapComponent, ZoomControls } from "@/components/map";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { useMapInstance } from "@/hooks/use-map-instance";
 import { showErrorToast } from "@/utils";
 import { BBOX } from "@/types";
@@ -9,6 +9,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { TryFairPredictionsLayer } from "@/features/try-fair/components/map/try-fair-prediction-results";
 import { TryFairPolygonLegend } from "@/features/try-fair/components/map/polygon-legend";
 import { TryFairPointsLegend } from "@/features/try-fair/components/map/points-legend";
+import { useQuery } from "@tanstack/react-query";
 
 /**
  * Computes a tight [west, south, east, north] bbox from every coordinate in a
@@ -74,37 +75,27 @@ export const MapRequestResultMap = ({
   gridZoom?: number;
 }) => {
   const { mapContainerRef, map } = useMapInstance(false, false);
-  const [predictions, setPredictions] =
-    useState<GeoJSON.FeatureCollection | null>(null);
-  const [resultsLoading, setResultsLoading] = useState(true);
-  const [imageryLoading, setImageryLoading] = useState(false);
 
-  // Load the result GeoJSON.
-  useEffect(() => {
-    if (!geojsonUrl) {
-      setResultsLoading(false);
-      return;
-    }
-    let cancelled = false;
-    setResultsLoading(true);
-
-    fetch(geojsonUrl)
-      .then((res) => (res.ok ? res.json() : Promise.reject(res.status)))
-      .then((data: GeoJSON.FeatureCollection) => {
-        if (!cancelled) setPredictions(data);
-      })
-      .catch(() => {
-        if (!cancelled)
+  // Load the result GeoJSON via React Query so the response is cached by URL.
+  // The parent query (useGetSinglePrediction) has refetchOnWindowFocus: false
+  // and staleTime: Infinity, which keeps geojsonUrl stable across tab switches
+  // and prevents this cache key from changing — no loading flash on return.
+  const { data: predictions = null, isPending: resultsLoading } =
+    useQuery<GeoJSON.FeatureCollection>({
+      queryKey: ["geojson", geojsonUrl],
+      queryFn: async () => {
+        const res = await fetch(geojsonUrl);
+        if (!res.ok) {
           showErrorToast(undefined, errorMessages.MAP_LOAD_FAILURE);
-      })
-      .finally(() => {
-        if (!cancelled) setResultsLoading(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [geojsonUrl]);
+          throw new Error(String(res.status));
+        }
+        return res.json() as Promise<GeoJSON.FeatureCollection>;
+      },
+      enabled: Boolean(geojsonUrl),
+      staleTime: Infinity,
+      gcTime: Infinity,
+      refetchOnWindowFocus: false,
+    });
 
   // Derive a fallback bbox from the loaded predictions so the polygon/points
   // layers still have a usable extent even when prediction.bbox is absent.
@@ -129,8 +120,6 @@ export const MapRequestResultMap = ({
     );
   }, [map, effectiveBounds]);
 
-  const isLoading = resultsLoading || imageryLoading;
-
   return (
     <div className="relative h-full w-full">
       <MapComponent
@@ -138,7 +127,6 @@ export const MapRequestResultMap = ({
         basemaps
         zoomControls={false}
         tileServiceURL={imageryUrl}
-        onTileServiceLoadingChange={setImageryLoading}
         mapContainerRef={mapContainerRef}
         map={map}
       >
@@ -173,7 +161,8 @@ export const MapRequestResultMap = ({
         ) : null}
       </MapComponent>
 
-      {isLoading && (
+      {/* Only show on first load — once predictions are cached this never shows again. */}
+      {resultsLoading && !predictions && (
         <div
           className="pointer-events-none absolute inset-0 z-[5] flex items-center justify-center bg-white/40"
           aria-live="polite"

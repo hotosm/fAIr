@@ -316,13 +316,16 @@ TASKS = {
 
 CACHES = {
     "default": {
-        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-        "LOCATION": "fair-locmem",
+        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+        "LOCATION": "django_cache",
+        # Culling evicts the lowest keys first, and STAC keys sort before throttle keys.
+        "OPTIONS": {"MAX_ENTRIES": 10000},
     },
 }
 
 CACHE_TIMEOUT_MINUTES = settings.cache_timeout_minutes
 LOG_LINE_STREAM_TRUNCATE_VALUE = settings.log_line_stream_truncate_value
+USER_STATE_MAX_BYTES = settings.user_state_max_bytes
 
 HEALTH_PROBE_TIMEOUT = settings.health_probe_timeout
 PREDICTION_SYNC_INTERVAL = settings.prediction_sync_interval

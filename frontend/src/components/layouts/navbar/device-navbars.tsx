@@ -6,8 +6,7 @@ import { UserProfile } from "@/components/layouts/navbar/user-profile";
 import { AUTH_PROVIDER, IS_DEV } from "@/config";
 import { APP_TOUR_IDS } from "@/constants/site-tour";
 import { StartMappingNavlinks } from "@/features/try-fair/components/try-fair-nav-links";
-import { UserNotifications } from "@/features/user-profile/components/notifications/user-notifications";
-import { DownloadResultButton } from "@/features/user-profile/components/map-requests/download-result-button";
+// import { UserNotifications } from "@/features/user-profile/components/notifications/user-notifications";
 import { APPLICATION_ROUTES } from "@/constants";
 import { useLocation } from "react-router-dom";
 import { useNavbarState } from "./hooks/use-navbar-state";
@@ -86,11 +85,7 @@ export const DesktopAuthSection = ({
   returnTo,
 }: AuthSectionProps) => {
   const { pathname } = useLocation();
-  const {
-    isMapRequests: isMapRequestsPage,
-    showDownloadResult,
-    showDashboardLink,
-  } = useNavbarState();
+  const { showDashboardLink } = useNavbarState();
   const dashboardButton =
     isAuthenticated &&
     (pathname === APPLICATION_ROUTES.HOMEPAGE ||
@@ -105,9 +100,8 @@ export const DesktopAuthSection = ({
   if (showHankoBar) {
     return (
       <>
-        {isAuthenticated && <UserNotifications />}
+        {/* {isAuthenticated && <UserNotifications />} */}
         {dashboardButton}
-        {showDownloadResult && <DownloadResultButton />}
         <div
           className={`${styles.headerHankoAuth} ${isAuthenticated && isTryFairPage ? "border-l border-gray-border pl-3 ml-1 !w-auto" : ""}`}
         >
@@ -121,14 +115,14 @@ export const DesktopAuthSection = ({
     return (
       <div className="flex items-center gap-x-2">
         {isTryFairPage && <StartMappingNavlinks />}
-        {!isTryFairPage && !isMapRequestsPage && <UserNotifications />}
+        {/* {!isTryFairPage && !isMapRequestsPage && <UserNotifications />} */}
         {dashboardButton}
-        {showDownloadResult && <DownloadResultButton />}
 
-        {showDashboardLink && <DashboardLink />}
         <div
-          className={`${styles.headerHankoAuth} ${isAuthenticated && isTryFairPage ? "border-l border-gray-border pl-3 ml-1 !w-auto" : ""}`}
+          className={`${styles.headerHankoAuth} flex items-center gap-x-2 ${isAuthenticated && isTryFairPage ? "border-l border-gray-border pl-3 ml-1 !w-auto" : ""}`}
         >
+          {showDashboardLink && <DashboardLink />}
+
           <HankoAuthComponent redirectAfterLogin={returnTo} />
         </div>
       </div>

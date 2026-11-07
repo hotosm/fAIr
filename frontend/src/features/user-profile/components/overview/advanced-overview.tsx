@@ -7,9 +7,11 @@ export const AdvancedOverview = () => {
     <div className="flex flex-1 flex-col gap-y-6">
       <h1 className="text-title-2 font-medium text-dark">Overview</h1>
 
-      <div className="grid w-full min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,28rem),1fr))] gap-4">
-        <OverviewHero />
-        <RecentActivities />
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
+        <div className="min-w-0 lg:col-span-3">
+          <OverviewHero />
+        </div>
+        <RecentActivities className="lg:col-span-2" />
       </div>
 
       <MapRequestsSection title="Recent Map Requests" />

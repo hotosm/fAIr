@@ -5,9 +5,9 @@ import pytest
 from rest_framework.test import APIClient
 
 from accounts.models import OsmUser
+from config.env import Settings
 from userstate.models import UserState
-from userstate.serializers import MAX_STATE_BYTES
-from userstate.views import MAX_BODY_BYTES
+from userstate.views import BODY_OVERHEAD_BYTES
 
 URL = "/api/v1/user-state/"
 
@@ -25,6 +25,12 @@ def bob(db) -> OsmUser:
 @pytest.fixture
 def admin(db) -> OsmUser:
     return OsmUser.objects.create(osm_id=2003, username="root", is_staff=True)
+
+
+@pytest.fixture
+def max_state_bytes(settings) -> int:
+    settings.USER_STATE_MAX_BYTES = 4096
+    return settings.USER_STATE_MAX_BYTES
 
 
 def _client_for(user: OsmUser) -> APIClient:
@@ -133,8 +139,13 @@ def test_non_object_state_is_stored_unchanged(alice: OsmUser, state: object) -> 
     assert type(fetched) is type(state)
 
 
-@pytest.mark.parametrize("oversized", [{"blob": "x" * MAX_STATE_BYTES}, "x" * MAX_STATE_BYTES])
-def test_state_over_size_limit_is_rejected(alice: OsmUser, oversized: object) -> None:
+@pytest.mark.parametrize("shape", ["object", "string"])
+def test_state_over_size_limit_is_rejected(
+    alice: OsmUser, max_state_bytes: int, shape: str
+) -> None:
+    blob = "x" * max_state_bytes
+    oversized = {"blob": blob} if shape == "object" else blob
+
     response = _client_for(alice).post(URL, {"state": oversized}, format="json")
 
     assert response.status_code == 400
@@ -169,17 +180,25 @@ def test_pid_in_body_is_ignored(alice: OsmUser) -> None:
     assert UserState.objects.get(pid=first).state == {"a": 1}
 
 
-def test_state_exactly_at_size_limit_is_accepted(alice: OsmUser) -> None:
+def test_state_exactly_at_size_limit_is_accepted(alice: OsmUser, max_state_bytes: int) -> None:
     envelope = len(json.dumps({"blob": ""}, separators=(",", ":")).encode())
-    at_limit = {"blob": "x" * (MAX_STATE_BYTES - envelope)}
+    at_limit = {"blob": "x" * (max_state_bytes - envelope)}
 
     response = _client_for(alice).post(URL, {"state": at_limit}, format="json")
 
     assert response.status_code == 201
 
 
-def test_oversized_body_is_rejected_before_parsing(alice: OsmUser) -> None:
-    body = json.dumps({"state": {"blob": "x" * MAX_BODY_BYTES}})
+def test_default_limit_accepts_a_500_kb_state(alice: OsmUser, settings) -> None:
+    settings.USER_STATE_MAX_BYTES = Settings.model_fields["user_state_max_bytes"].default
+
+    response = _client_for(alice).post(URL, {"state": {"blob": "x" * 500_000}}, format="json")
+
+    assert response.status_code == 201
+
+
+def test_oversized_body_is_rejected_before_parsing(alice: OsmUser, max_state_bytes: int) -> None:
+    body = json.dumps({"state": {"blob": "x" * (max_state_bytes + BODY_OVERHEAD_BYTES)}})
 
     response = _client_for(alice).generic("POST", URL, body, content_type="application/json")
 

@@ -7,9 +7,9 @@ import { DashboardLink } from "./dashboard-link";
 import { NavLogo } from "@/components/layouts";
 import { APPLICATION_ROUTES, SHARED_CONTENT } from "@/constants";
 import { useAuth } from "@/app/providers/auth-provider";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useMatch, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { UserNotifications } from "@/features/user-profile/components/notifications/user-notifications";
+// import { UserNotifications } from "@/features/user-profile/components/notifications/user-notifications";
 import { AUTH_PROVIDER, FRONTEND_URL } from "@/config";
 import "@hotosm/ui/dist/components/tool-menu/tool-menu.js";
 import { Divider } from "@/components/ui/divider";
@@ -21,8 +21,10 @@ import {
   DesktopAuthSection,
 } from "@/components/layouts/navbar/device-navbars";
 import { BackButton } from "@/components/ui/button";
-import { DownloadResultButton } from "@/features/user-profile/components/map-requests/download-result-button";
 import { useNavbarState } from "@/components/layouts/navbar/hooks/use-navbar-state";
+import { CloudSaveStatus } from "@/components/layouts/navbar/cloud-save-status";
+import { useGetSinglePrediction } from "@/features/user-profile/hooks/use-predictions";
+import type { TOfflinePrediction } from "@/types";
 
 const IS_HANKO_AUTH = AUTH_PROVIDER === "hanko";
 
@@ -37,10 +39,19 @@ export const NavBar = () => {
   const location = useLocation();
   const {
     showBackButton,
-    showDownloadResult,
     showMappingMode,
     showDashboardLink,
+    isMapRequestResult,
   } = useNavbarState();
+  const resultMatch = useMatch(APPLICATION_ROUTES.MAP_REQUEST_RESULT);
+  const initialPrediction = (
+    location.state as { prediction?: TOfflinePrediction } | null
+  )?.prediction;
+  const { data: prediction } = useGetSinglePrediction(
+    resultMatch?.params.id,
+    isMapRequestResult ? initialPrediction : undefined,
+  );
+  const resultTitle = prediction?.description || "Map Request Result";
 
   const isTryFairPage = location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR);
   const isProfilePage = location.pathname.includes(
@@ -68,7 +79,7 @@ export const NavBar = () => {
             </button>
           </div>
 
-          {!isTryFairPage && (
+          {!isTryFairPage && !isMapRequestResult && (
             <div className={styles.navLinksContainer}>
               <NavBarLinks
                 className={styles.mobileNavLinks}
@@ -79,7 +90,11 @@ export const NavBar = () => {
 
           {isAuthenticated && <Divider />}
 
-          {showMappingMode && <MappingMode tourTarget={false} />}
+          {showMappingMode && (
+            <div className="px-[var(--body-spacing)]">
+              <MappingMode tourTarget={false} fullWidth />
+            </div>
+          )}
 
           <div className={styles.loginButtonContainer}>
             <MobileAuthSection
@@ -96,17 +111,40 @@ export const NavBar = () => {
       <nav
         className={`${styles.nav} app-padding z-20 py-1 border-b border-gray-border`}
       >
-        <div className="flex-1 flex gap-4 items-center justify-start">
-          {showBackButton ? <BackButton /> : <NavLogo />}
+        <div className="min-w-0 flex-1 flex gap-4 items-center justify-start">
+          {showBackButton ? (
+            <BackButton showText={false} className="shrink-0" />
+          ) : (
+            <NavLogo />
+          )}
+
+          {isMapRequestResult && (
+            <h1
+              className="truncate text-base font-medium text-ink capitalize"
+              title={resultTitle}
+            >
+              {resultTitle}
+            </h1>
+          )}
+
+          <CloudSaveStatus />
         </div>
 
-        <div className="flex-1 hidden sm:flex items-center justify-center">
-          {!isTryFairPage && !isProfilePage && (
+        <div
+          className={
+            isMapRequestResult
+              ? "hidden"
+              : "flex-1 hidden sm:flex items-center justify-center"
+          }
+        >
+          {!isTryFairPage && !isProfilePage && !isMapRequestResult && (
             <NavBarLinks className={styles.webNavLinks} />
           )}
         </div>
 
-        <div className="flex-1 hidden sm:flex items-center justify-end gap-x-3">
+        <div
+          className={`hidden ${isMapRequestResult ? "shrink-0" : "flex-1"} items-center justify-end gap-x-6 sm:flex`}
+        >
           {showMappingMode && <MappingMode />}
           <DesktopAuthSection
             isAuthenticated={isAuthenticated}
@@ -118,9 +156,9 @@ export const NavBar = () => {
         </div>
 
         <div className="flex items-center gap-x-2 sm:hidden">
-          {showDashboardLink && <DashboardLink />}
-          {isAuthenticated && <UserNotifications />}
-          {showDownloadResult && <DownloadResultButton />}
+          {showDashboardLink && (
+            <DashboardLink className="!h-7 !min-w-0 !px-2.5" />
+          )}
 
           <button
             className={styles.hamburgerMenu}

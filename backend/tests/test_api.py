@@ -8,9 +8,10 @@ reaches a live service.
 Run with `just test` (pytest tests/test_api.py).
 """
 
-from datetime import datetime
+from datetime import UTC, datetime
 from unittest.mock import MagicMock, patch
 
+import pystac
 import pytest
 from django.contrib.gis.geos import Polygon
 from django.test import override_settings
@@ -71,13 +72,17 @@ def aoi(db, user: OsmUser) -> AOI:
 
 
 @pytest.fixture
-def registered_base_model(db, user: OsmUser) -> BaseModel:
-    return BaseModel.objects.create(
-        name="unet-segmentation",
-        stac_item_id="unet-segmentation",
-        category_id="buildings",
-        user=user,
-    )
+def registered_base_model(db, user: OsmUser):
+    """A base model row, with its STAC lookup patched to an item that has a training runtime."""
+    item = pystac.Item("unet-segmentation", None, None, datetime.now(UTC), {})
+    item.add_asset("mlm:training", pystac.Asset("ghcr.io/hotosm/fair-models/unet:latest"))
+    with patch("trainings.views.get_base_model", return_value=item):
+        yield BaseModel.objects.create(
+            name="unet-segmentation",
+            stac_item_id="unet-segmentation",
+            category_id="buildings",
+            user=user,
+        )
 
 
 @pytest.fixture
@@ -95,7 +100,8 @@ def published_dataset(db, user: OsmUser) -> Dataset:
     return Dataset.objects.create(
         stac_id="ds-banepa",
         title="Banepa buildings",
-        source_imagery="https://tiles.example/{z}/{x}/{y}.png",
+        imagery={"image": "https://tiles.example/{z}/{x}/{y}.png"},
+        primary_input="image",
         status=Dataset.Status.BUILT,
         user=user,
     )
@@ -121,7 +127,8 @@ def prediction(db, user: OsmUser) -> Prediction:
     return Prediction.objects.create(
         zenml_run_id="pred-run-1",
         local_model_stac_id="3a0374bf-d73c-4b4d-b165-081ffa2a18ad",
-        image_uri="https://tiles.example/{z}/{x}/{y}.png",
+        imagery={"image": "https://tiles.example/{z}/{x}/{y}.png"},
+        primary_input="image",
         geometry={
             "type": "Polygon",
             "coordinates": [
@@ -148,6 +155,7 @@ def test_root_home_describes_api(anon_client):
     assert body["docs"] == "/api/docs/"
 
 
+@pytest.mark.django_db
 def test_openapi_schema_is_served(anon_client):
     response = anon_client.get("/api/schema/")
     assert response.status_code == 200
@@ -165,11 +173,13 @@ def test_kpi_stats_returns_counts(anon_client, db):
     }
 
 
+@pytest.mark.django_db
 def test_swagger_ui_renders(anon_client):
     response = anon_client.get("/api/docs/")
     assert response.status_code == 200
 
 
+@pytest.mark.django_db
 def test_redoc_ui_renders(anon_client):
     response = anon_client.get("/api/redoc/")
     assert response.status_code == 200
@@ -222,7 +232,7 @@ def test_auth_me_profile_stats_reflect_owned_records(client, user):
     base = BaseModel.objects.create(name="b", stac_item_id="b", user=user)
     LocalModel.objects.create(name="m1", base_model=base, user=user)
     Dataset.objects.create(
-        stac_id="d1", title="D1", source_imagery="https://x/{z}/{x}/{y}", user=user
+        stac_id="d1", title="D1", imagery={"image": "https://x/{z}/{x}/{y}"}, primary_input="image", user=user
     )
     Feedback.objects.create(stac_id="s1", action=FeedbackAction.ACCEPT, geom=geom, user=user)
     Feedback.objects.create(stac_id="s2", action=FeedbackAction.REJECT, geom=geom, user=user)
@@ -758,6 +768,11 @@ def test_training_run_status_404s_for_unknown_run(client):
     assert response.status_code == 404
 
 
+def test_stac_producer_names_the_user_and_falls_back_to_the_osm_id():
+    assert OsmUser(osm_id=5, username="mapper").stac_producer() == {"name": "mapper", "roles": ["producer"]}
+    assert OsmUser(osm_id=5, username="").stac_producer() == {"name": "5", "roles": ["producer"]}
+
+
 @patch("trainings.views.for_user")
 def test_training_publish_publishes_local_model(mock_for_user, client, training_ref):
     training_ref.status = "completed"
@@ -782,7 +797,27 @@ def test_training_publish_publishes_local_model(mock_for_user, client, training_
         keywords=None,
         pipeline_run_id="run-abc",
         paths=BackendLocalModelPaths,
+        providers=[{"name": training_ref.user.username, "roles": ["producer"]}],
     )
+
+
+@patch("trainings.views.for_user")
+def test_publishing_a_new_version_evicts_the_previous_version_from_the_stac_cache(
+    mock_for_user, client, training_ref
+):
+    from django.core.cache import cache
+
+    training_ref.status = "completed"
+    training_ref.save(update_fields=["status"])
+    training_ref.local_model.stac_item_id = "lm-previous"
+    training_ref.local_model.save(update_fields=["stac_item_id"])
+    cache.set("stac:local-models:lm-previous", {"properties": {"title": "old"}})
+    mock_for_user.return_value.promote.return_value = "lm-new"
+
+    response = client.post(f"/api/v1/trainings/{training_ref.id}/publish/", data={}, format="json")
+
+    assert response.status_code == 201
+    assert cache.get("stac:local-models:lm-previous") is None
 
 
 @patch("trainings.views.for_user")
@@ -845,9 +880,23 @@ def test_training_publish_409s_when_run_not_completed(mock_for_user, client, tra
     mock_for_user.assert_not_called()
 
 
+def _model_declaring_confidence_threshold() -> pystac.Item:
+    item = pystac.Item("model", None, None, datetime.now(UTC), {})
+    item.properties["mlm:input"] = [{"name": "image"}]
+    item.properties["mlm:hyperparameters"] = {"inference.confidence_threshold": 0.5}
+    item.properties["fair:hyperparameters_spec"] = [
+        {"key": "confidence_threshold", "type": "float", "default": 0.5, "description": "score"}
+    ]
+    item.add_asset("mlm:training", pystac.Asset("ghcr.io/hotosm/fair-models/model:latest"))
+    return item
+
+
+@patch("predictions.views.get_item", return_value=_model_declaring_confidence_threshold())
 @patch("predictions.views.item_exists", return_value=True)
 @patch("predictions.views.submit_prediction")
-def test_prediction_submit_creates_record_and_enqueues(mock_task, mock_item_exists, client):
+def test_prediction_submit_creates_record_and_enqueues(
+    mock_task, mock_item_exists, mock_get_item, client
+):
     payload = {
         "model_stac_id": "3a0374bf-d73c-4b4d-b165-081ffa2a18ad",
         "image_uri": "https://tiles.example/{z}/{x}/{y}.png",
@@ -899,7 +948,7 @@ def test_dataset_assets_populated_when_published(client, published_dataset):
     assert response.status_code == 200
     assets = response.json()["assets"]
     assert assets is not None
-    assert "datasets/ds-banepa/chips" in assets["chips"]
+    assert "datasets/ds-banepa/chips" in assets["chips"]["image"]
     assert "datasets/ds-banepa/labels/labels.geojson" in assets["labels"]
 
 
@@ -909,7 +958,8 @@ def test_dataset_assets_are_none_when_not_published(client, aoi, db):
     draft = Dataset.objects.create(
         stac_id="ds-draft",
         title="Drafty",
-        source_imagery="https://tiles.example/{z}/{x}/{y}.png",
+        imagery={"image": "https://tiles.example/{z}/{x}/{y}.png"},
+        primary_input="image",
         status=Dataset.Status.BUILDING,
         user=aoi.user,
     )
@@ -1251,7 +1301,8 @@ def test_sync_prediction_runs_post_process_when_status_jumps_to_completed(
     p = Prediction.objects.create(
         zenml_run_id="rid-1",
         local_model_stac_id="m-uuid",
-        image_uri="https://t/{z}/{x}/{y}.png",
+        imagery={"image": "https://t/{z}/{x}/{y}.png"},
+        primary_input="image",
         geometry={"type": "Polygon", "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]]},
         zoom=19,
         status="completed",
@@ -1277,7 +1328,8 @@ def test_sync_prediction_skips_post_process_when_already_ready(
     p = Prediction.objects.create(
         zenml_run_id="rid-2",
         local_model_stac_id="m-uuid",
-        image_uri="https://t/{z}/{x}/{y}.png",
+        imagery={"image": "https://t/{z}/{x}/{y}.png"},
+        primary_input="image",
         geometry={"type": "Polygon", "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]]},
         zoom=19,
         status="completed",
@@ -1295,7 +1347,8 @@ def _completed_prediction(user, run_id: str) -> Prediction:
     return Prediction.objects.create(
         zenml_run_id=run_id,
         local_model_stac_id="m-uuid",
-        image_uri="https://t/{z}/{x}/{y}.png",
+        imagery={"image": "https://t/{z}/{x}/{y}.png"},
+        primary_input="image",
         geometry={"type": "Polygon", "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]]},
         zoom=19,
         status="completed",

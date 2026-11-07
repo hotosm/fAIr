@@ -56,8 +56,12 @@ export const TileBoundaries = ({ map, zoom }: TileBoundariesProps) => {
       });
     }
 
-    // Keep tile boundaries above newly added layers.
-    map.moveLayer(TILE_BOUNDARY_LAYER_ID);
+    // moveLayer emits styledata even when the order is unchanged. Only move
+    // when needed, otherwise our styledata listener schedules an endless loop.
+    const layers = map.getStyle().layers;
+    if (layers[layers.length - 1]?.id !== TILE_BOUNDARY_LAYER_ID) {
+      map.moveLayer(TILE_BOUNDARY_LAYER_ID);
+    }
   }, [map]);
 
   useEffect(() => {

@@ -1,5 +1,7 @@
+from datetime import UTC, datetime
 from unittest.mock import MagicMock, patch
 
+import pystac
 import pytest
 from django.test import override_settings
 from rest_framework.test import APIClient
@@ -29,19 +31,29 @@ def published_dataset(db, authed_user: OsmUser) -> Dataset:
     return Dataset.objects.create(
         stac_id="buildings-banepa",
         title="Buildings Banepa",
-        source_imagery="https://tiles.example/{z}/{x}/{y}.png",
+        imagery={"image": "https://tiles.example/{z}/{x}/{y}.png"},
+        primary_input="image",
         status=Dataset.Status.BUILT,
         user=authed_user,
     )
 
 
+def _base_model_item(*asset_keys: str) -> pystac.Item:
+    item = pystac.Item("unet-segmentation", None, None, datetime.now(UTC), {})
+    for key in asset_keys:
+        item.add_asset(key, pystac.Asset(f"ghcr.io/hotosm/fair-models/unet:{key}"))
+    return item
+
+
 @pytest.fixture
-def registered_base_model(db, authed_user: OsmUser) -> BaseModel:
-    return BaseModel.objects.create(
-        name="unet-segmentation",
-        stac_item_id="unet-segmentation",
-        user=authed_user,
-    )
+def registered_base_model(db, authed_user: OsmUser):
+    """A base model row, with its STAC lookup patched to an item that has a training runtime."""
+    with patch("trainings.views.get_base_model", return_value=_base_model_item("mlm:training")):
+        yield BaseModel.objects.create(
+            name="unet-segmentation",
+            stac_item_id="unet-segmentation",
+            user=authed_user,
+        )
 
 
 @pytest.fixture
@@ -94,6 +106,28 @@ def test_training_submit_creates_run_ref_and_enqueues(
     mock_task.enqueue.assert_called_once()
 
 
+@patch("trainings.views.item_exists", return_value=True)
+@patch("trainings.views.submit_training")
+def test_training_submit_refuses_a_prediction_only_base_model(
+    mock_task, mock_item_exists, client, published_dataset, registered_base_model
+):
+    with patch("trainings.views.get_base_model", return_value=_base_model_item("mlm:inference", "batch-inference")):
+        response = client.post(
+            "/api/v1/trainings/submit/",
+            data={
+                "base_model_stac_id": "unet-segmentation",
+                "dataset_stac_id": published_dataset.stac_id,
+                "model_name": "never-trained",
+            },
+            format="json",
+        )
+
+    assert response.status_code == 400
+    assert "cannot be finetuned" in str(response.json())
+    assert not LocalModel.objects.filter(name="never-trained").exists()
+    mock_task.enqueue.assert_not_called()
+
+
 def test_training_submit_404s_unknown_base_model(client, published_dataset):
     # Base model is resolved from the DB; an unregistered id 404s before the
     # dataset is checked.
@@ -130,7 +164,8 @@ def test_training_submit_404s_dataset_not_published(
     Dataset.objects.create(
         stac_id="building-ds",
         title="Building",
-        source_imagery="https://tiles.example/{z}/{x}/{y}.png",
+        imagery={"image": "https://tiles.example/{z}/{x}/{y}.png"},
+        primary_input="image",
         status=Dataset.Status.BUILDING,
         user=authed_user,
     )
@@ -174,3 +209,4 @@ def test_failed_training_submission_marks_run_failed(training_ref: TrainingRunRe
 
     training_ref.refresh_from_db()
     assert training_ref.status == PipelineRunStatus.FAILED
+    assert training_ref.error == "RuntimeError: zenml unreachable"

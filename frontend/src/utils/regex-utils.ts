@@ -21,7 +21,7 @@ export const VALID_MODEL_CHECKPOINT_PATH =
 
 // Matches valid OpenAerialMap tile server URLs.
 export const OPENAERIALMAP_TILESERVER_URL_REGEX_PATTERN =
-  /^https:\/\/tiles\.openaerialmap\.org\/[a-zA-Z0-9]+\/\d+\/[a-zA-Z0-9]+\/\{z\}\/\{x\}\/\{y\}$/;
+  /^https:\/(?:\/tiles\.openaerialmap\.org\/[a-zA-Z0-9]+\/\d+\/[a-zA-Z0-9]+|\/api\.imagery\.hotosm\.org\/raster\/collections\/openaerialmap\/items\/[^\/?#]+\/tiles\/WebMercatorQuad)\/\{z\}\/\{x\}\/\{y\}(?:\?.*)?$/;
 
 /**
  *  Function to get the regular expression for a specific tile service type.

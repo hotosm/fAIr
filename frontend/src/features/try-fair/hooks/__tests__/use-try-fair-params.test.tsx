@@ -1,6 +1,9 @@
 import { act, renderHook } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
-import { NuqsTestingAdapter } from "nuqs/adapters/testing";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  NuqsTestingAdapter,
+  type OnUrlUpdateFunction,
+} from "nuqs/adapters/testing";
 import {
   TRY_FAIR_PARAM_DEFAULTS,
   useTryFairParams,
@@ -12,20 +15,208 @@ import {
   TryFairResolution,
 } from "@/enums";
 import React from "react";
+import type { BaseModelStacItem } from "@/features/try-fair/api/stac";
 
-vi.mock("../use-base-models", () => ({
-  useStacBaseModels: () => ({ models: [], loading: false }),
-  useStacLocalModels: () => ({ models: [], loading: false }),
+const catalogue = vi.hoisted(() => ({
+  base: [] as BaseModelStacItem[],
+  local: [] as BaseModelStacItem[],
+  unpinned: [] as BaseModelStacItem[],
+}));
+const modelWithZoom = (zoom?: number): BaseModelStacItem => ({
+  id: "recommended-model",
+  type: "Feature",
+  assets: {},
+  properties: {
+    title: "Recommended model",
+    description: "",
+    deprecated: false,
+    "mlm:name": "Recommended model",
+    "mlm:architecture": "",
+    "mlm:tasks": [],
+    "mlm:framework": "",
+    "fair:pinned": false,
+    "mlm:hyperparameters": {},
+    "fair:hyperparameters_spec": [],
+    "fair:category": "buildings",
+    "fair:recommended_zoom": zoom,
+    keywords: ["buildings"],
+    providers: [],
+  },
+});
+beforeEach(() => {
+  catalogue.base = [];
+  catalogue.local = [];
+  catalogue.unpinned = [];
+});
+
+vi.mock("@/features/try-fair/hooks/use-base-models", () => ({
+  useStacBaseModels: () => ({ models: catalogue.base, loading: false }),
+  useStacLocalModels: () => ({ models: catalogue.local, loading: false }),
+}));
+
+vi.mock("@/features/try-fair/api/features-to-map", () => ({
+  useGetAllAPIBaseModels: () => ({
+    data: {
+      results: catalogue.unpinned.map((stac) => ({
+        stac_item_id: stac.id,
+        stac,
+      })),
+    },
+  }),
+  useGetAllAPILocalModels: () => ({ data: { results: [] } }),
 }));
 
 describe("useTryFairParams", () => {
-  const createWrapper = (searchParams?: Record<string, string>) => {
+  const createWrapper = (
+    searchParams?: Record<string, string>,
+    onUrlUpdate?: OnUrlUpdateFunction,
+  ) => {
     return ({ children }: { children: React.ReactNode }) => (
-      <NuqsTestingAdapter searchParams={searchParams}>
+      <NuqsTestingAdapter searchParams={searchParams} onUrlUpdate={onUrlUpdate}>
         {children}
       </NuqsTestingAdapter>
     );
   };
+
+  it("restores an unpinned advanced model from the URL in sample mode", () => {
+    const unpinned = { ...modelWithZoom(19), id: "sklearn-rgb-segmentation" };
+    catalogue.unpinned = [unpinned];
+    const { result } = renderHook(() => useTryFairParams(), {
+      wrapper: createWrapper({
+        model: "sklearn-rgb-segmentation",
+        selectedModelId: "sklearn-rgb-segmentation",
+        mappingMode: "advanced",
+        resolution: "mid",
+        confidence: "0.5",
+      }),
+    });
+    expect(result.current.mode).toBe(ModelType.DEMO);
+    expect(result.current.selectedModel).toBe(unpinned);
+  });
+
+  it("restores the pinned default in basic mode for an old unpinned URL", () => {
+    const building = { ...modelWithZoom(), id: TRY_FAIR_PARAM_DEFAULTS.model };
+    catalogue.base = [building];
+    catalogue.unpinned = [
+      { ...modelWithZoom(), id: "sklearn-rgb-segmentation" },
+    ];
+    const { result } = renderHook(() => useTryFairParams(), {
+      wrapper: createWrapper({
+        model: "sklearn-rgb-segmentation",
+        mappingMode: "basic",
+      }),
+    });
+    expect(result.current.selectedModel).toBe(building);
+  });
+
+  it("selects the default building model on a clean visit", () => {
+    const building = { ...modelWithZoom(), id: TRY_FAIR_PARAM_DEFAULTS.model };
+    catalogue.base = [building];
+    catalogue.unpinned = [
+      { ...modelWithZoom(), id: "sklearn-rgb-segmentation" },
+    ];
+    const { result } = renderHook(() => useTryFairParams(), {
+      wrapper: createWrapper(),
+    });
+    expect(result.current.selectedModel).toBe(building);
+  });
+
+  it.each([
+    [20, TryFairResolution.LOW],
+    [19, TryFairResolution.MID],
+    [18, TryFairResolution.HIGH],
+    [undefined, TryFairResolution.LOW],
+    [17, TryFairResolution.LOW],
+  ])("uses recommended zoom %s for the default size %s", (zoom, expected) => {
+    catalogue.base = [modelWithZoom(zoom)];
+    const { result } = renderHook(() => useTryFairParams(), {
+      wrapper: createWrapper({ model: "recommended-model" }),
+    });
+    expect(result.current.resolution).toBe(expected);
+    expect(result.current.urlState.resolution).toBe(expected);
+    expect(result.current.isParametersDefault).toBe(true);
+  });
+
+  it("uses local-model recommendations when the catalogue finishes loading", () => {
+    const { result, rerender } = renderHook(() => useTryFairParams(), {
+      wrapper: createWrapper({ model: "recommended-model" }),
+    });
+    expect(result.current.resolution).toBe(TryFairResolution.LOW);
+    catalogue.local = [modelWithZoom(18)];
+    rerender();
+    expect(result.current.resolution).toBe(TryFairResolution.HIGH);
+  });
+
+  it("keeps an explicit URL size, including Low, over the model recommendation", () => {
+    catalogue.base = [modelWithZoom(18)];
+    const { result } = renderHook(() => useTryFairParams(), {
+      wrapper: createWrapper({ model: "recommended-model", resolution: "low" }),
+    });
+    expect(result.current.resolution).toBe(TryFairResolution.LOW);
+    expect(result.current.isParametersDefault).toBe(false);
+    act(() => {
+      result.current.resetParameters();
+    });
+    expect(result.current.resolution).toBe(TryFairResolution.HIGH);
+    expect(result.current.isParametersDefault).toBe(true);
+  });
+
+  it("uses the recommendation when a URL size is invalid", () => {
+    catalogue.base = [modelWithZoom(19)];
+    const { result } = renderHook(() => useTryFairParams(), {
+      wrapper: createWrapper({
+        model: "recommended-model",
+        resolution: "invalid",
+      }),
+    });
+    expect(result.current.resolution).toBe(TryFairResolution.MID);
+  });
+
+  it("keeps a restored prediction's size instead of replacing it with the recommendation", async () => {
+    catalogue.base = [modelWithZoom(18)];
+    const { result } = renderHook(() => useTryFairParams(), {
+      wrapper: createWrapper({ model: "recommended-model" }),
+    });
+    await act(async () => {
+      await result.current.restoreParams({
+        ...result.current.urlState,
+        resolution: TryFairResolution.MID,
+      });
+    });
+    expect(result.current.resolution).toBe(TryFairResolution.MID);
+  });
+
+  it("restores a history entry's model, imagery, output, and parameters atomically", async () => {
+    const onUrlUpdate = vi.fn();
+    const { result } = renderHook(() => useTryFairParams(), {
+      wrapper: createWrapper({}, onUrlUpdate),
+    });
+    const snapshot = {
+      ...result.current.urlState,
+      model: "saved-model",
+      selectedModelId: "saved-model",
+      output: TryFairMapOutputType.POINTS,
+      resolution: TryFairResolution.HIGH,
+      confidence: 0.23,
+      feature: "trees",
+      mode: ModelType.IMAGERY,
+      imagery: "https://example.com/saved/{z}/{x}/{y}.png",
+      imageryType: TileServiceType.XYZ,
+      oamItem: null,
+      chooseLocation: false,
+      params: { confidence_threshold: 0.23, seed_min_distance: 8 },
+    };
+    await act(async () => {
+      await result.current.restoreParams(snapshot);
+    });
+    expect(onUrlUpdate).toHaveBeenCalledOnce();
+    const search = onUrlUpdate.mock.calls[0][0].searchParams as URLSearchParams;
+    expect(search.get("model")).toBe("saved-model");
+    expect(search.get("imagery")).toBe(snapshot.imagery);
+    expect(search.get("output")).toBe(TryFairMapOutputType.POINTS);
+    expect(search.get("resolution")).toBe(TryFairResolution.HIGH);
+    expect(JSON.parse(search.get("params")!)).toEqual(snapshot.params);
+  });
 
   it("should initialize with default parameters when no query params are supplied", () => {
     const { result } = renderHook(() => useTryFairParams(), {
@@ -58,6 +249,9 @@ describe("useTryFairParams", () => {
         imageryType: "XYZ",
         oamItem: "item-123",
         chooseLocation: "true",
+        mappingMode: "advanced",
+        selectedModelId: "chosen-model",
+        params: JSON.stringify({ simplify_m: 1.25, seed_min_distance: 8 }),
       }),
     });
 
@@ -74,6 +268,25 @@ describe("useTryFairParams", () => {
     expect(result.current.oamItemId).toBe("item-123");
     expect(result.current.chooseLocation).toBe(true);
     expect(result.current.isParametersDefault).toBe(false);
+    expect(result.current.parameterOverrides).toEqual({
+      simplify_m: 1.25,
+      seed_min_distance: 8,
+    });
+    expect(result.current.urlState).toEqual({
+      model: "custom-model",
+      output: "points",
+      resolution: "mid",
+      confidence: 0.85,
+      feature: "roads",
+      mode: "imagery",
+      imagery: "https://example.com/tiles/{z}/{x}/{y}.png",
+      imageryType: "XYZ",
+      oamItem: "item-123",
+      chooseLocation: true,
+      mappingMode: "advanced",
+      selectedModelId: "chosen-model",
+      params: { simplify_m: 1.25, seed_min_distance: 8 },
+    });
   });
 
   it("should handle chooseLocation state updates correctly", () => {
@@ -153,5 +366,32 @@ describe("useTryFairParams", () => {
     expect(result.current.resolution).toBe(TRY_FAIR_PARAM_DEFAULTS.resolution);
     expect(result.current.confidence).toBe(TRY_FAIR_PARAM_DEFAULTS.confidence);
     expect(result.current.isParametersDefault).toBe(true);
+  });
+
+  it("stores advanced inference parameter overrides in URL state", async () => {
+    const onUrlUpdate = vi.fn<OnUrlUpdateFunction>();
+    const { result } = renderHook(() => useTryFairParams(), {
+      wrapper: createWrapper(undefined, onUrlUpdate),
+    });
+
+    await act(async () => {
+      await result.current.setParameterOverride("simplify_m", 0.9626);
+      await result.current.setParameterOverride("seed_min_distance", 6);
+    });
+
+    expect(result.current.parameterOverrides).toEqual({
+      simplify_m: 0.9626,
+      seed_min_distance: 6,
+    });
+    const lastUrlUpdate =
+      onUrlUpdate.mock.calls[onUrlUpdate.mock.calls.length - 1]?.[0];
+    expect(
+      JSON.parse(lastUrlUpdate?.searchParams.get("params") ?? "{}"),
+    ).toEqual({ simplify_m: 0.9626, seed_min_distance: 6 });
+
+    await act(async () => {
+      await result.current.resetParameterOverrides();
+    });
+    expect(result.current.parameterOverrides).toEqual({});
   });
 });

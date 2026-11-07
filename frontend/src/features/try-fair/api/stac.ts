@@ -70,6 +70,7 @@ export type BaseModelStacItem = {
     "fair:preview"?: FairPreview;
     "fair:base_model_title"?: string;
     "fair:category": string;
+    "fair:recommended_zoom"?: number;
     keywords: string[];
     providers: Array<{ name: string; description?: string; url?: string }>;
   };

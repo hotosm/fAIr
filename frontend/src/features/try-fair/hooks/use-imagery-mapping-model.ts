@@ -1,5 +1,7 @@
 import { ModelType } from "@/enums";
 import {
+  useGetAllAPIBaseModels,
+  useGetAllAPILocalModels,
   useGetAPIBaseModels,
   useGetAPILocalModels,
 } from "@/features/try-fair/api/features-to-map";
@@ -16,6 +18,7 @@ type UseImageryMappingModelOptions = {
   selectedModel: BaseModelStacItem | null;
   /** The stac_item_id of the model explicitly chosen by the user (from the advanced picker). */
   selectedModelId?: string | null;
+  allowUnpinned?: boolean;
 };
 
 /**
@@ -31,27 +34,46 @@ export const useImageryMappingModel = ({
   confidence,
   selectedModel,
   selectedModelId,
+  allowUnpinned = false,
 }: UseImageryMappingModelOptions) => {
   const currentModelType = useStartMappingStore(
     (state) => state.currentModelType,
   );
   const isImageryMode = currentModelType === ModelType.IMAGERY;
-  const { data: apiBaseModels, isSuccess: hasLoadedApiBaseModels } =
-    useGetAPIBaseModels(feature, isImageryMode);
-  const { data: apiLocalModels, isSuccess: hasLoadedApiLocalModels } =
-    useGetAPILocalModels(feature, isImageryMode);
-
-  const imageryModel = useMemo(() => {
-    const apiModels = [
-      ...(apiBaseModels?.results ?? []),
-      ...(apiLocalModels?.results ?? []),
-    ];
-    return (
-      apiModels.find((model) => model.stac_item_id === selectedModelId) ??
-      apiModels[0] ??
-      null
-    );
-  }, [apiBaseModels, apiLocalModels, selectedModelId]);
+  const pinnedBase = useGetAPIBaseModels(feature, isImageryMode);
+  const pinnedLocal = useGetAPILocalModels(feature, isImageryMode);
+  const pinnedModels = [
+    ...(pinnedBase.data?.results ?? []),
+    ...(pinnedLocal.data?.results ?? []),
+  ];
+  const pinnedModel =
+    (selectedModelId
+      ? pinnedModels.find((model) => model.stac_item_id === selectedModelId)
+      : pinnedModels[0]) ?? (!allowUnpinned ? pinnedModels[0] : undefined);
+  const needsUnpinnedModel =
+    allowUnpinned && Boolean(selectedModelId) && !pinnedModel;
+  const allBase = useGetAllAPIBaseModels(
+    feature,
+    isImageryMode && needsUnpinnedModel,
+  );
+  const allLocal = useGetAllAPILocalModels(
+    feature,
+    isImageryMode && needsUnpinnedModel,
+  );
+  const imageryModel =
+    pinnedModel ??
+    (allowUnpinned && selectedModelId
+      ? [
+          ...(allBase.data?.results ?? []),
+          ...(allLocal.data?.results ?? []),
+        ].find((model) => model.stac_item_id === selectedModelId)
+      : null);
+  const modelsReady =
+    !isImageryMode ||
+    Boolean(imageryModel) ||
+    (needsUnpinnedModel
+      ? allBase.isSuccess && allLocal.isSuccess
+      : pinnedBase.isSuccess && pinnedLocal.isSuccess);
 
   const modelForMapping = isImageryMode
     ? (imageryModel?.stac ?? null)
@@ -59,11 +81,7 @@ export const useImageryMappingModel = ({
   const mappingModelId = isImageryMode
     ? (imageryModel?.stac_item_id ?? null)
     : (selectedModel?.id ?? null);
-  const hasNoModelsForFeature =
-    isImageryMode &&
-    hasLoadedApiBaseModels &&
-    hasLoadedApiLocalModels &&
-    imageryModel === null;
+  const hasNoModelsForFeature = isImageryMode && modelsReady && !imageryModel;
   const inferenceParams = useMemo(
     () => (modelForMapping ? getInferenceParams(modelForMapping) : []),
     [modelForMapping],
@@ -81,6 +99,7 @@ export const useImageryMappingModel = ({
   }, [confidence, inferenceParams]);
 
   return {
+    modelsReady,
     modelForMapping,
     mappingModelId,
     imageryModelId: isImageryMode ? mappingModelId : null,

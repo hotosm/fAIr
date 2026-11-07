@@ -1,4 +1,5 @@
 import { ButtonHTMLAttributes } from "react";
+import { cn } from "@/utils";
 
 export type SolidButtonVariant = "dark" | "grey" | "primary";
 
@@ -20,7 +21,11 @@ export const SolidButton = ({
 }: SolidButtonProps) => (
   <button
     type={type}
-    className={`${VARIANT_CLASSES[variant]} text-xs px-3 flex shrink-0 items-center whitespace-nowrap text-white !w-fit !h-8 md:min-w-fit !rounded-md min-w-[7.5rem] ${className}`}
+    className={cn(
+      VARIANT_CLASSES[variant],
+      "text-xs px-3 flex shrink-0 items-center whitespace-nowrap text-white !w-fit !h-8 md:min-w-fit !rounded-md min-w-[7.5rem]",
+      className,
+    )}
     {...props}
   />
 );

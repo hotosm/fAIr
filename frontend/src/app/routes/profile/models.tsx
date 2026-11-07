@@ -9,7 +9,7 @@ export const UserModelsPage = () => (
     <ProfileSectionHeader
       title={USER_PROFILE_PAGE_CONTENT.models.sectionTitle}
     />
-    <div className="w-full flex flex-col justify-center items-center min-h-[360px] py-12">
+    <div className="flex w-full flex-1 flex-col items-center justify-center py-12">
       <PageEmptyState
         heading="Coming soon"
         subHeading="Creating and managing your own models is coming soon."

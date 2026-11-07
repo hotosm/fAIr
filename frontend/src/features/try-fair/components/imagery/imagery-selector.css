@@ -32,6 +32,10 @@
   background: white;
 }
 
+.imagery-selector__header--single-source {
+  grid-template-columns: minmax(0, 1fr) 40px;
+}
+
 .imagery-selector__workspace {
   position: relative;
   flex: 1;
@@ -173,6 +177,10 @@
     grid-template-columns: minmax(0, 1fr) 280px 40px;
     gap: 12px;
     padding: 8px 16px;
+  }
+
+  .imagery-selector__header--single-source {
+    grid-template-columns: minmax(0, 1fr) 40px;
   }
 
   .imagery-selector__tabs {

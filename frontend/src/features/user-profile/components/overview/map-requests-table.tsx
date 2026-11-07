@@ -6,7 +6,6 @@ import { TOfflinePrediction } from "@/types";
 import { useState } from "react";
 import { cn, formatDate, truncateString } from "@/utils";
 import { ToolTip } from "@/components/ui/tooltip";
-import { ElipsisIcon } from "@/components/ui/icons";
 import { useNavigate } from "react-router-dom";
 import { APPLICATION_ROUTES } from "@/constants/routes";
 import { MapRequestStatusBadge } from "./map-request-status-badge";
@@ -15,8 +14,6 @@ import { PredictionRequestStatus } from "@/enums";
 // ---------------------------------------------------------------------------
 // Field resolvers — single source of truth so nothing is spread across the JSX.
 // ---------------------------------------------------------------------------
-
-const getFeatureMapped = (_p: TOfflinePrediction): string => "-";
 
 const getModelUsed = (p: TOfflinePrediction): string =>
   p.model_name || p.local_model_stac_id || "-";
@@ -44,9 +41,12 @@ type RowActions = {
 
 const columnDefinitions = ({
   onViewResult,
-  onOpenMenu,
-  renderRowMenu,
 }: RowActions): ColumnDef<TOfflinePrediction>[] => [
+  {
+    id: "sn",
+    header: ({ column }) => <SortableHeader title="SN" column={column} />,
+    accessorFn: (_row, index) => index + 1,
+  },
   {
     id: "name",
     header: ({ column }) => (
@@ -63,12 +63,6 @@ const columnDefinitions = ({
         </ToolTip>
       );
     },
-  },
-  {
-    id: "feature_mapped",
-    header: "Feature Mapped",
-    accessorFn: (row) => getFeatureMapped(row),
-    cell: (ctx) => <span>{ctx.getValue() as string}</span>,
   },
   {
     id: "model_used",
@@ -112,23 +106,23 @@ const columnDefinitions = ({
   },
   {
     id: "actions",
-    header: () => <span className="flex justify-end">Actions</span>,
+    header: () => <span className="block text-center">Actions</span>,
     cell: ({ row }) => {
       const resultReady = isResultReady(row.original);
       return (
-        <div className="flex items-center justify-end gap-x-2">
+        <div className="flex items-center justify-center gap-x-2">
           <button
             type="button"
             disabled={!resultReady}
             onClick={() => onViewResult(row.original)}
             className={cn(
-              "rounded-[9.3px] border bg-off-white  px-3 py-1.5  text-dark transition-colors",
+              "rounded-[9.3px] text-off-white  bg-grey  px-3 py-1.5 transition-colors",
               resultReady ? "cursor-pointer " : "cursor-not-allowed opacity-40",
             )}
           >
             View result
           </button>
-          {renderRowMenu ? (
+          {/* {renderRowMenu ? (
             renderRowMenu(row.original)
           ) : (
             <button
@@ -139,7 +133,7 @@ const columnDefinitions = ({
             >
               <ElipsisIcon className="size-4 rotate-90" />
             </button>
-          )}
+          )} */}
         </div>
       );
     },
@@ -177,15 +171,31 @@ export const MapRequestsTable = ({
   const goToRequests = () =>
     navigate(APPLICATION_ROUTES.PROFILE_OFFLINE_PREDICTIONS);
 
+  const goToResult = (prediction: TOfflinePrediction) =>
+    navigate(
+      APPLICATION_ROUTES.MAP_REQUEST_RESULT.replace(
+        ":id",
+        String(prediction.id),
+      ),
+    );
+
   if (isPending || isError) return <TableSkeleton />;
 
   return (
-    <div className="max-w-full  overflow-auto">
+    <div
+      className={cn(
+        "max-w-full overflow-x-auto [&_table]:min-w-[1152px] [&_table]:table-fixed",
+        "[&_th]:h-8 [&_th]:px-5 [&_th]:text-[12px] [&_th]:font-normal [&_th]:text-[#404446]",
+        "[&_td]:h-16 [&_td]:px-5 [&_td]:py-4 [&_td]:text-[13px] [&_td]:font-medium [&_td]:text-[#404446]",
+        "[&_th:nth-child(1)]:w-[9.3%] [&_th:nth-child(2)]:w-[23.4%] [&_th:nth-child(3)]:w-[14.8%]",
+        "[&_th:nth-child(4)]:w-[18.2%] [&_th:nth-child(5)]:w-[13.6%] [&_th:nth-child(6)]:w-[10.3%] [&_th:nth-child(7)]:w-[10.4%]",
+      )}
+    >
       <DataTable
         // @ts-ignore
         data={requests}
         columns={columnDefinitions({
-          onViewResult: onViewResult ?? goToRequests,
+          onViewResult: onViewResult ?? goToResult,
           onOpenMenu: onOpenMenu ?? goToRequests,
           renderRowMenu,
         })}

@@ -434,6 +434,7 @@ export type TOfflinePrediction = {
   zenml_run_id: string | null;
   local_model_stac_id: string;
   image_uri: string;
+  category?: string;
   /** GeoJSON polygon describing the area of interest. null when bbox was used. */
   geometry: Geometry | null;
   /** Bounding box used when the whole imagery extent was selected. */

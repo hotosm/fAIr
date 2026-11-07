@@ -8,10 +8,12 @@ import { IMAGERY_SOURCES } from "@/features/try-fair/utils/common";
  */
 export const ImagerySourceToggle = ({
   expanded = false,
+  isCustomImageryEnabled = true,
   value,
   onChange,
 }: {
   expanded?: boolean;
+  isCustomImageryEnabled?: boolean;
   value: ImagerySource;
   onChange: (source: ImagerySource) => void;
 }) => (
@@ -24,7 +26,10 @@ export const ImagerySourceToggle = ({
         : "flex items-center max-w-[500px] w-full mx-auto md:flex-row flex-col justify-center gap-3"
     }
   >
-    {IMAGERY_SOURCES.map((source) => {
+    {IMAGERY_SOURCES.filter(
+      (source) =>
+        source.value !== ImagerySource.CUSTOM || isCustomImageryEnabled,
+    ).map((source) => {
       const isSelected = value === source.value;
       return (
         <button

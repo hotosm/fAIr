@@ -12,8 +12,8 @@ Where fAIr came from, what has shipped, and what is being worked on. For the big
 ```mermaid
 %%{init: {'theme':'base','themeVariables':{'cScale0':'#eceef2','cScale1':'#eceef2','cScale2':'#eceef2','cScale3':'#eceef2','cScaleLabel0':'#1f2733','cScaleLabel1':'#1f2733','cScaleLabel2':'#1f2733','cScaleLabel3':'#1f2733','lineColor':'#9aa0aa','fontFamily':'system-ui, sans-serif'}}}%%
 timeline
-    2023-2025 : Shipped the v2 platform, training, offline prediction and fAIrSwipe
-    2026 : UI/UX refactor and mapper view : Larger-area predictions : Model feedback and local versions
+    2023-2025 : Shipped the v2 platform, training and offline prediction
+    2026 : fAIrSwipe : v3 with the STAC model catalog, mapper view and larger-area predictions : Model feedback and local versions
     2027 : Street-level imagery : In-browser predictions : Infrastructure scale-up
 ```
 
@@ -21,27 +21,24 @@ Current figures for each effort are tracked on the [Milestones](../progress/mile
 
 ## Now and later
 
-Planned for 2026, targeted for the end of the year.
-
 <div class="grid cards" markdown>
 
-- :lucide-circle-dot: &nbsp; **Now**
+- :lucide-circle-check: &nbsp; **Released in v3.0.0 (October 2026)**
 
     ---
 
-    - A UI/UX refactor is underway
     - Mapper view: pick any model, apply it to any imagery, and see the results
-    - Prediction requests over larger areas
-    - Targeted for the end of September 2026
+    - Prediction requests over larger areas, with size limits
+    - A result view for each map request
+    - Running at [dev.ai.hotosm.org](https://dev.ai.hotosm.org/), moving to [ai.hotosm.org](https://ai.hotosm.org/)
 
-- :lucide-circle-dashed: &nbsp; **Later**
+- :lucide-circle-dashed: &nbsp; **Next, targeted for the end of 2026**
 
     ---
 
     - Feedback on model results
-    - Improving a model with more training data to create a local version
+    - Screens to improve a model with more training data and create a local version
     - Rating a model
-    - Targeted for the end of 2026
 
 </div>
 
@@ -51,13 +48,12 @@ Options under exploration for 2027.
 
 - Street-level imagery
 - Scaling up the infrastructure and stabilizing the server
-- Simplifying the user base
 - In-browser predictions
-- Public STAC endpoints released with the training datasets
+- A public STAC endpoint on the production instance
 
 !!! note "This roadmap is a living summary"
 
-    It is maintained in Markdown so it is quick to update. Item order and grouping are indicative. The live board is at [hotosm/projects/40](https://github.com/orgs/hotosm/projects/40).
+    Item order and grouping are indicative. The live board is at [hotosm/projects/40](https://github.com/orgs/hotosm/projects/40).
 
 ## Shipped
 
@@ -73,5 +69,6 @@ Capabilities already released, with the release series in which each landed.
 | Offline AI prediction                                        | v2.2.3   |
 | Post-processing of predicted geometry                        | v2.2.4   |
 | fAIrSwipe (validate predictions via MapSwipe)                | v2.2.15  |
+| STAC model catalog, mapper view, larger-area predictions     | v3.0.0   |
 
-The current release series is v2.2.x.
+The current release series is v3.0.x.

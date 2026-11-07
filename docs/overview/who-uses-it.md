@@ -15,12 +15,12 @@ _"There is a model out there. Let me see how it works in my area."_
 
 A mapper runs an existing model and reviews what it finds.
 
-![The fAIr interface running a swimming-pool detection model over aerial imagery, with a live prediction.](../assets/flyer/mapper-try-fair.jpg)
+![The fAIr interface running a swimming-pool detection model, in development, over aerial imagery, with a live prediction.](../assets/flyer/mapper-try-fair.jpg)
 
-1. **Sees a model.** Browses the collection for one that fits: buildings, trees, swimming pools, solid waste, and more.
+1. **Sees a model.** Browses the collection for one that fits: buildings, trees, building damage, solid waste, and more.
 2. **Runs it.** Points the model at their own area and lets it detect features.
 3. **Gets results.** Predictions come back as GeoJSON, ready for the map.
-4. **Validates.** Checks each result. Feedback improves the model.
+4. **Validates.** Checks each result.
 
 Validation can happen by hand, in the field, or at scale; see [How it works](how-it-works.md#3-validate).
 
@@ -30,16 +30,16 @@ Need a model for a different feature? Ask the team in **#fair-coord** on [Slack]
 
 _"This is good, but tuned to my area it would work better."_
 
-An advanced user is a mapper who retrains a model for their own area and publishes the local version.
+An advanced user is a mapper who retrains a model for their own area and publishes the local model. Training works through the API today; the screens for it are [planned](../roadmap/index.md#now-and-later).
 
-![The fAIr training-area screen, where an advanced user sets up an area and maps example data to fine-tune a model.](../assets/flyer/advanced-training-area.jpg)
+![A design for the planned training-area screen, where an advanced user sets up an area and maps example data to fine-tune a model.](../assets/flyer/advanced-training-area.jpg)
 
 1. **Picks a model.** Starts from one already in the collection.
 2. **Creates a training area.** Sets up an area and maps example features there.
 3. **Maps it and retrains.** Feeds the local examples back into the model.
-4. **Publishes.** The tuned local version returns to the collection for the next mapper.
+4. **Publishes.** The local model returns to the collection for the next mapper.
 
-The full step-by-step is in [Using fAIr](../guides/using-fair.md), and [Register a base model](../guides/register-a-base-model.md) covers publishing.
+The API steps for training and publishing are in [ML pipeline](../architecture/ml-pipeline.md).
 
 ## Developer
 
@@ -51,4 +51,4 @@ A developer writes a new geo-AI model and adds it to fAIr.
 2. **Adds it to fAIr.** Publishes the model to the collection with a clear name and the features it detects.
 3. **Available to everyone.** From that point, any mapper or advanced user can run it.
 
-Models are contributed through a pull request to the [fAIr-models catalog](https://hotosm.github.io/fAIr-models/); see [Models](models.md#contributing-a-model) for what to contribute and [ML pipeline](../architecture/ml-pipeline.md) for how registration works.
+See [Contributing a model](models.md#contributing-a-model).

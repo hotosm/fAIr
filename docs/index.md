@@ -7,7 +7,7 @@ description: fAIr is an open, AI-assisted mapping service from the Humanitarian 
 
 fAIr is an open, AI-assisted mapping service for humanitarian and development work, from the Humanitarian OpenStreetMap Team (HOT). It is a marketplace and connector for geo-AI models: a mapper picks a model, runs it over their own area to detect features such as buildings or trees, reviews the results, and can adapt the model to local conditions. A mapper stays in control at each step.
 
-The software is free and open source. Predictions are suggestions for a mapper to review, and a mapper chooses what to add to OpenStreetMap.
+The software is free and open source. Predictions are suggestions for a mapper to review. fAIr offers its outputs as open data layers, and bringing AI-generated features into OpenStreetMap is outside its aim; see [fAIr and OpenStreetMap](overview/what-is-fair.md#fair-and-openstreetmap).
 
 ![The fAIr loop: a model is run over an area, results are validated, and improved versions return to the collection.](assets/flyer/loop.png)
 
@@ -15,7 +15,7 @@ The software is free and open source. Predictions are suggestions for a mapper t
 
 ## Where fAIr is today
 
-fAIr has grown into an open collection of community-validated models, and is being connected with [MapSwipe](https://mapswipe.org/) for training and validation. See [Vision](overview/where-fair-is-going.md) for adoption and the direction ahead.
+fAIr is an open collection of models whose predictions are checked by people, in fAIr and through [MapSwipe](overview/validation.md). Current figures are on [Milestones](progress/milestones.md), and the direction ahead on [Vision](overview/where-fair-is-going.md).
 
 ## Who it is for
 
@@ -33,7 +33,7 @@ fAIr has grown into an open collection of community-validated models, and is bei
 
     ---
 
-    Retrains a model for their area and publishes the local version.
+    Retrains a model for their area and publishes the local model.
 
     [:lucide-arrow-right: Learn more](overview/who-uses-it.md#advanced-user)
 
@@ -79,7 +79,7 @@ fAIr has grown into an open collection of community-validated models, and is bei
 
     ---
 
-    Step-by-step guide to run a model and validate the results.
+    Run a model on your own area and get the results.
 
     [:lucide-arrow-right: Open](guides/using-fair.md)
 

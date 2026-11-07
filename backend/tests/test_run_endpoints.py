@@ -29,7 +29,8 @@ def prediction(owner: OsmUser) -> Prediction:
     return Prediction.objects.create(
         zenml_run_id=_RUN_ID,
         local_model_stac_id="dinov3s-buildings",
-        image_uri="https://tile.example.com/{z}/{x}/{y}.png",
+        imagery={"image": "https://tile.example.com/{z}/{x}/{y}.png"},
+        primary_input="image",
         geometry={"type": "Polygon", "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]]},
         zoom=19,
         user=owner,

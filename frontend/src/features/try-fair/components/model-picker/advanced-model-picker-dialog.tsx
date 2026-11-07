@@ -1,10 +1,13 @@
+import {
+  SwitchSampleDialog,
+  shouldShowSwitchWarning,
+} from "@/features/try-fair/components/model-picker/switch-sample-dialog";
 import { useState, useMemo, useEffect, useRef } from "react";
 import {
-  useGetAPIBaseModels,
-  useGetAPILocalModels,
+  useGetAllAPIBaseModels,
+  useGetAllAPILocalModels,
   useGetFeaturesToMap,
 } from "@/features/try-fair/api/features-to-map";
-import type { APIBaseModelItem } from "@/features/try-fair/api/features-to-map";
 import {
   RadioDot,
   ExperimentalModelBadge,
@@ -12,12 +15,14 @@ import {
 import { SearchIcon } from "@/components/ui/icons/search-icon";
 import { ChevronDownIcon } from "@/components/ui/icons";
 import { DropDown } from "@/components/ui/dropdown";
-import { DropdownPlacement } from "@/enums";
+import { ToolTip } from "@/components/ui/tooltip";
+import { DropdownPlacement, ModelType } from "@/enums";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import type { BaseModelStacItem } from "@/features/try-fair/api/stac";
 import { StarredIcon } from "@/components/ui/icons/starred-icon";
 import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
 import { FeatureListItem } from "@/features/try-fair/components/model-picker/feature-to-map-list";
+import { APIBaseModelItem } from "@/features/try-fair/types/data-types";
 
 type ModelSource = "base" | "local";
 
@@ -60,11 +65,6 @@ export const AdvancedModelPicker: React.FC<AdvancedModelPickerProps> = ({
               (selectedModel?.properties.title ?? "Select a model")
             )}
           </span>
-          {!loading && (
-            <ExperimentalModelBadge
-              category={selectedModel?.properties["fair:category"]}
-            />
-          )}
         </span>
         <ChevronDownIcon className="size-4 text-grey shrink-0" />
       </button>
@@ -74,9 +74,7 @@ export const AdvancedModelPicker: React.FC<AdvancedModelPickerProps> = ({
 
 type AdvancedModelPickerContentProps = {
   feature: string;
-  selectedModelId: string | null;
   onSelect: (model: BaseModelStacItem) => void;
-  onClose?: () => void;
   onFeatureChange?: (slug: string) => void;
 };
 
@@ -84,12 +82,19 @@ export const AdvancedModelPickerContent = ({
   feature,
   onSelect,
   onFeatureChange,
-}: Omit<AdvancedModelPickerContentProps, "selectedModelId">) => {
+}: AdvancedModelPickerContentProps) => {
   const [source, setSource] = useState<ModelSource>("base");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(0);
   const { onDropdownHide, dropdownRef } = useDropdownMenu();
-  const { selectedModelId, setSelectedModelId } = useTryFairParams();
+  const { selectedModelId, modelId, setSelectedModelId, mode } =
+    useTryFairParams();
+  const activeModelId = selectedModelId ?? modelId;
+  const [pendingChange, setPendingChange] = useState<
+    | { type: "feature"; slug: string }
+    | { type: "model"; item: APIBaseModelItem }
+    | null
+  >(null);
 
   // Feature list from API
   const { data: featuresData } = useGetFeaturesToMap();
@@ -99,6 +104,9 @@ export const AdvancedModelPickerContent = ({
   const [stagedFeature, setStagedFeature] = useState<string | null>(null);
 
   const effectiveFeatureSlug = stagedFeature ?? feature;
+  const featureLabel =
+    featureList.find((item) => item.slug === effectiveFeatureSlug)?.label ??
+    effectiveFeatureSlug.replace(/[-_]/g, " ");
 
   // Drop staged feature when the committed feature changes externally.
   useEffect(() => {
@@ -107,9 +115,9 @@ export const AdvancedModelPickerContent = ({
 
   // Fetch models for the effective (staged or committed) feature
   const { data: baseModelsData, isLoading: baseLoading } =
-    useGetAPIBaseModels(effectiveFeatureSlug);
+    useGetAllAPIBaseModels(effectiveFeatureSlug);
   const { data: localModelsData, isLoading: localLoading } =
-    useGetAPILocalModels(effectiveFeatureSlug);
+    useGetAllAPILocalModels(effectiveFeatureSlug);
 
   const models = useMemo(() => {
     const raw =
@@ -147,18 +155,32 @@ export const AdvancedModelPickerContent = ({
   };
 
   const handleSelectModel = (item: APIBaseModelItem) => {
-    applyModel(item, stagedFeature ?? undefined);
+    if (item.stac_item_id === activeModelId) return;
+    if (mode === ModelType.DEMO && shouldShowSwitchWarning()) {
+      setPendingChange({ type: "model", item });
+    } else {
+      applyModel(item, stagedFeature ?? undefined);
+    }
   };
 
-  const handleFeatureSelect = (slug: string) => {
+  const applyFeature = (slug: string) => {
     setStagedFeature(slug);
     setPage(0);
     setSearch("");
   };
 
+  const handleFeatureSelect = (slug: string) => {
+    if (slug === effectiveFeatureSlug) return;
+    if (mode === ModelType.DEMO && shouldShowSwitchWarning()) {
+      setPendingChange({ type: "feature", slug });
+    } else {
+      applyFeature(slug);
+    }
+  };
+
   // Auto-change the model to the selected feature's default, mirroring the
   // basic model picker: picking a feature should switch the model to a
-  // compatible one (base first, then local) rather than requiring a separate
+  // compatible one (pinned only in Samples, base first, then local) rather than requiring a separate
   // model click. Runs once per feature, and only when the currently selected
   // model isn't already valid for that feature (so it never overrides a manual
   // pick or the model restored on open).
@@ -174,10 +196,13 @@ export const AdvancedModelPickerContent = ({
     if (autoSelectedFeatureRef.current === effectiveFeatureSlug) return;
 
     const currentModelIsValid = featureModels.some(
-      (model) => model.stac_item_id === selectedModelId,
+      (model) => model.stac_item_id === activeModelId,
     );
     if (!currentModelIsValid) {
-      const defaultModel = baseModels[0] ?? localModels[0];
+      const defaultModel =
+        mode === ModelType.DEMO
+          ? featureModels.find((model) => model.is_pinned)
+          : featureModels[0];
       if (defaultModel) {
         applyModel(defaultModel, stagedFeature ?? undefined);
       }
@@ -191,10 +216,25 @@ export const AdvancedModelPickerContent = ({
     localLoading,
     baseModelsData,
     localModelsData,
-    selectedModelId,
+    activeModelId,
+    mode,
   ]);
   return (
     <div className="flex flex-col min-h-[428px]">
+      {pendingChange && (
+        <SwitchSampleDialog
+          message="Changing the feature or model in Samples mode will switch your imagery and map location to the selected sample’s imagery location and clear your current progress. You can restore saved predictions from History."
+          onCancel={() => setPendingChange(null)}
+          onConfirm={() => {
+            if (pendingChange.type === "feature") {
+              applyFeature(pendingChange.slug);
+            } else {
+              applyModel(pendingChange.item, stagedFeature ?? undefined);
+            }
+            setPendingChange(null);
+          }}
+        />
+      )}
       <div className="flex gap-4 flex-1">
         <div className="w-[180px] shrink-0 overflow-hidden flex flex-col">
           <p className="text-xs pb-2">Feature to map</p>
@@ -203,6 +243,7 @@ export const AdvancedModelPickerContent = ({
               <FeatureListItem
                 key={f.slug}
                 feature={f}
+                includeUnpinned
                 isSelected={effectiveFeatureSlug === f.slug}
                 disabled={false}
                 onSelect={handleFeatureSelect}
@@ -211,6 +252,7 @@ export const AdvancedModelPickerContent = ({
           </div>
         </div>
         <div className="flex-1 space-y-4">
+          <p className="text-xs pb-2">Models</p>
           {/* Toolbar */}
           <div className="flex items-center  gap-3">
             {/* Search */}
@@ -286,7 +328,6 @@ export const AdvancedModelPickerContent = ({
               </button>
             </div>
           </div>
-
           {/* Model cards */}
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
@@ -306,13 +347,13 @@ export const AdvancedModelPickerContent = ({
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {pageModels.map((model) => {
-                const isSelected = selectedModelId === model.stac_item_id;
+                const isSelected = activeModelId === model.stac_item_id;
                 return (
                   <button
                     key={model.id}
                     type="button"
                     onClick={() => handleSelectModel(model)}
-                    className={`text-left p-3 bg-frosted-blue min-h-[98px] rounded-lg border transition-colors ${
+                    className={`relative text-left p-3 bg-frosted-blue min-h-[98px] rounded-lg border transition-colors ${
                       isSelected ? "border-primary border-2 " : ""
                     }`}
                   >
@@ -330,11 +371,22 @@ export const AdvancedModelPickerContent = ({
                     <ExperimentalModelBadge
                       category={model.stac.properties["fair:category"]}
                     />
-                    <div className="flex items-center justify-between mt-3">
+                    <div className="relative flex items-center justify-between mt-3">
                       <div className="flex items-center gap-1 text-grey text-xs">
                         <StarredIcon />
                         <span>({model.star_count})</span>
                       </div>
+                      {model.is_pinned && (
+                        <span className="absolute right-0 top-1/2 -translate-y-1/2">
+                          <ToolTip
+                            content={`This is a recommended model for mapping ${featureLabel.toLowerCase()}.`}
+                          >
+                            <span className="inline-flex items-center rounded border border-primary bg-secondary px-2 py-0.5 text-[10px] font-semibold leading-tight text-primary">
+                              Pinned
+                            </span>
+                          </ToolTip>
+                        </span>
+                      )}
                       {/* <span className="text-dark underline text-xs font-medium">
                     View details
                   </span> */}

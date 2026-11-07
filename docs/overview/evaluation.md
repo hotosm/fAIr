@@ -28,7 +28,7 @@ Object-level (polygon) metrics in fAIr are computed with the open-source [polyme
 
 ## Beyond scientific metrics
 
-Numbers are not the only signal. A mapper can run a model on their own area and judge the result visually, and can give the model a like or vote if it works well for them. This community assessment sits alongside the scientific metrics, so a model is evaluated both by its numbers and by the people who use it.
+Numbers are not the only signal. A mapper can run a model on their own area and judge the result visually, and volunteers can check predictions at scale through [MapSwipe](validation.md). Rating a model is [planned](../roadmap/index.md#now-and-later). This community assessment sits alongside the scientific metrics.
 
 ## Metrics are defined per model
 
@@ -96,9 +96,3 @@ The model card reports the numbers. On a Banepa, Nepal scene (2,720 OSM ground-t
 | Mean IoU (matched)           | object | 0.677        | 0.690       |
 
 The full table, how each metric is defined, and the model's limitations are in the [model README](https://github.com/hotosm/fAIr-models/blob/develop/models/dinov3s_buildings/README.md).
-
-## Summary
-
-- The metric is chosen to fit the task, and is defined in the model card and STAC item.
-- Data is split spatially, and object-level metrics are used for map-data outputs.
-- Community visual assessment complements the numbers.
