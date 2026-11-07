@@ -187,8 +187,8 @@ class DatasetViewSet(
                     "description": "Buildings training dataset",
                     "imagery": {
                         "image": (
-                            "https://tiles.openaerialmap.org/62d85d11d8499800053796c1/0/"
-                            "62d85d11d8499800053796c2/{z}/{x}/{y}"
+                            "https://api.imagery.hotosm.org/raster/collections/openaerialmap/items/"
+                            "62d86c65d8499800053796c4/tiles/WebMercatorQuad/{z}/{x}/{y}?assets=visual"
                         )
                     },
                     "category": "buildings",
