@@ -3,14 +3,18 @@
 # requires-python = ">=3.11"
 # dependencies = ["httpx>=0.27"]
 # ///
-"""End-to-end verification of the fAIr API against a running compose stack.
+"""End-to-end verification of the fAIr API, by default against the local compose stack.
 
 uv run test.py --api http://localhost:8100 --stac http://localhost:8182
+
+Every option also reads a FAIR_* env var, so `just test e2e` can target staging.
+Steps that need a service the target lacks (MLflow, Knative) report as skipped.
 """
 
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 import time
 from typing import Any, Callable
@@ -25,12 +29,16 @@ AOI_POLYGON = [
     [85.51678, 27.63133],
 ]
 IMAGERY = (
-    "https://tiles.openaerialmap.org/62d85d11d8499800053796c1/0"
-    "/62d85d11d8499800053796c2/{z}/{x}/{y}"
+    "https://api.imagery.hotosm.org/raster/collections/openaerialmap/items"
+    "/62d86c65d8499800053796c4/tiles/WebMercatorQuad/{z}/{x}/{y}?assets=visual"
 )
 BASE_MODEL_ITEM_URL = (
     "https://raw.githubusercontent.com/hotosm/fAIr-models/refs/heads/develop"
     "/models/sklearn_rgb_segmentation/stac-item.json"
+)
+WORKER_LOGS = (
+    "see `docker compose logs worker`, or on staging"
+    " `kubectl -n fair-staging logs deploy/fair-backend -c django-q`"
 )
 
 
@@ -62,14 +70,15 @@ def poll(
 
 
 class Fair:
-    def __init__(
-        self, api_root: str, stac_root: str, minio_root: str, token: str
-    ) -> None:
-        self.api = f"{api_root.rstrip('/')}/api/v1"
-        self.stac = stac_root.rstrip("/")
-        self.minio = minio_root.rstrip("/")
+    def __init__(self, args: argparse.Namespace) -> None:
+        self.api = f"{args.api.rstrip('/')}/api/v1"
+        self.stac = args.stac.rstrip("/")
+        self.minio = args.minio.rstrip("/")
+        self.mlflow = args.mlflow.rstrip("/")
+        self.mlflow_auth = (args.mlflow_user, args.mlflow_password)
+        self.knative_tag = args.knative_tag
         self.http = httpx.Client(
-            headers={"Authorization": f"Bearer {token}"}, timeout=60.0
+            headers={"Authorization": f"Bearer {args.token}"}, timeout=60.0
         )
 
     def get(self, path: str, **kwargs: Any) -> Any:
@@ -140,7 +149,7 @@ def await_base_model(fair: Fair, ctx: dict) -> str:
     )
     require(
         model["status"] == "active",
-        f"registration ended as {model['status']}: {model.get('error') or 'see worker logs'}",
+        f"registration ended as {model['status']}: {model.get('error') or WORKER_LOGS}",
     )
     ctx["base_model_stac_id"] = model["stac_item_id"]
     return f"status=active stac_item_id={model['stac_item_id']}"
@@ -196,18 +205,19 @@ def await_dataset(fair: Fair, ctx: dict) -> str:
     )
     require(
         dataset["status"] == "built",
-        "dataset build failed, see `docker compose logs worker`",
+        f"dataset build failed, {WORKER_LOGS}",
     )
     return "status=built, chips and labels uploaded"
 
 
 def submit_training(fair: Fair, ctx: dict) -> str:
+    ctx["model_name"] = f"e2e-unet-{int(time.time())}"
     run = fair.post(
         "/trainings/submit/",
         {
             "base_model_stac_id": ctx["base_model_stac_id"],
             "dataset_stac_id": ctx["dataset_stac_id"],
-            "model_name": f"e2e-unet-{int(time.time())}",
+            "model_name": ctx["model_name"],
         },
     )
     ctx["training_id"] = run["id"]
@@ -226,10 +236,35 @@ def await_training(fair: Fair, ctx: dict) -> str:
     )
     require(
         run["status"] == "completed",
-        f"training ended as {run['status']}, see `docker compose logs worker`",
+        f"training ended as {run['status']}, {WORKER_LOGS}",
     )
     ctx["zenml_run_id"] = run["zenml_run_id"]
     return f"status=completed zenml_run_id={run['zenml_run_id']}"
+
+
+def check_mlflow_run(fair: Fair, ctx: dict) -> str:
+    """fair-py-ops names the MLflow experiment after the model."""
+    if not fair.mlflow:
+        return "skipped, no --mlflow URL"
+    auth = fair.mlflow_auth if fair.mlflow_auth[0] else None
+    with httpx.Client(base_url=f"{fair.mlflow}/api/2.0/mlflow", auth=auth) as mlflow:
+        experiment = Fair._json(
+            mlflow.get(
+                "/experiments/get-by-name",
+                params={"experiment_name": ctx["model_name"]},
+            )
+        )["experiment"]
+        runs = Fair._json(
+            mlflow.post(
+                "/runs/search",
+                json={"experiment_ids": [experiment["experiment_id"]]},
+            )
+        ).get("runs", [])
+    finished = [run for run in runs if run["info"]["status"] == "FINISHED"]
+    require(finished, f"no FINISHED run in experiment {ctx['model_name']}")
+    metrics = sorted(m["key"] for m in finished[0]["data"].get("metrics", []))
+    require(metrics, "finished MLflow run recorded no metrics")
+    return f"{len(finished)} finished run(s), metrics: {', '.join(metrics)}"
 
 
 def check_run_endpoints(fair: Fair, ctx: dict) -> str:
@@ -296,10 +331,14 @@ def check_prediction_results(fair: Fair, ctx: dict) -> str:
     for key in ("geojson", "fgb", "pmtiles"):
         require(key in results, f"missing '{key}' in {sorted(results)}")
 
-    # Presigned URLs are signed for the in-network `minio` host. The fair-data
+    # Locally, presigned URLs are signed for the in-network `minio` host. The fair-data
     # bucket allows anonymous download, so read the object directly instead.
-    path = results["geojson"].split("?", 1)[0].split("/", 3)[3]
-    geojson = Fair._json(fair.http.get(f"{fair.minio}/{path}"))
+    # Elsewhere the presigned URLs are public, and sending our token breaks the signature.
+    if fair.minio:
+        path = results["geojson"].split("?", 1)[0].split("/", 3)[3]
+        geojson = Fair._json(fair.http.get(f"{fair.minio}/{path}"))
+    else:
+        geojson = Fair._json(httpx.get(results["geojson"], timeout=60.0))
     features = geojson.get("features", [])
     require(features, "prediction geojson has no features")
     require(
@@ -307,6 +346,49 @@ def check_prediction_results(fair: Fair, ctx: dict) -> str:
         f"unexpected geometry {geojson['features'][0]['geometry']['type']}",
     )
     return f"3 output formats, {len(features)} polygons in the geojson"
+
+
+def predict_live(fair: Fair, ctx: dict) -> str:
+    """Call the base model's Knative service directly, twice, to time a cold
+    then a warm start. Runs only with --knative-tag, as local stacks have no Knative."""
+    if not fair.knative_tag:
+        return "skipped, no --knative-tag"
+    local_item = Fair._json(
+        fair.http.get(
+            f"{fair.stac}/collections/local-models/items/{ctx['local_model_stac_id']}"
+        )
+    )
+    base_model_id = local_item["properties"]["fair:base_model_id"]
+    base_item = Fair._json(
+        fair.http.get(f"{fair.stac}/collections/base-models/items/{base_model_id}")
+    )
+    endpoint = base_item["assets"].get("mlm:inference-endpoint", {}).get("href")
+    # Production shares these Knative services, so never call its live route by mistake.
+    require(
+        endpoint and httpx.URL(endpoint).host.startswith(f"{fair.knative_tag}-"),
+        f"inference endpoint {endpoint} is not under the '{fair.knative_tag}' tag",
+    )
+
+    hyperparameters = local_item["properties"].get("mlm:hyperparameters") or {}
+    request = {
+        "model_uri": local_item["assets"]["model"]["href"],
+        "image_uri": IMAGERY,
+        "bbox": [85.5185, 27.6325, 85.5205, 27.6345],
+        "zoom": 19,
+        "params": {
+            key.removeprefix("inference."): value
+            for key, value in hyperparameters.items()
+            if key.startswith("inference.")
+        },
+    }
+    timings = []
+    for _ in ("cold", "warm"):
+        started = time.monotonic()
+        geojson = Fair._json(httpx.post(endpoint, json=request, timeout=600.0))
+        timings.append(time.monotonic() - started)
+        require(geojson.get("features"), f"{endpoint} returned no features")
+    cold, warm = timings
+    return f"{len(geojson['features'])} features from {endpoint}, {cold:.0f}s then {warm:.0f}s"
 
 
 def check_list_endpoints(fair: Fair, ctx: dict) -> str:
@@ -328,25 +410,46 @@ STEPS: list[tuple[str, Callable[[Fair, dict], str]]] = [
     ("await dataset build", await_dataset),
     ("submit training", submit_training),
     ("await training", await_training),
+    ("MLflow run", check_mlflow_run),
     ("run status and logs", check_run_endpoints),
     ("promote to local model", promote),
     ("promoted STAC item", check_promoted_item),
     ("submit prediction", submit_prediction),
     ("await prediction", await_prediction),
     ("prediction results", check_prediction_results),
+    ("live Knative prediction", predict_live),
     ("list endpoints", check_list_endpoints),
 ]
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--api", default="http://localhost:8000")
-    parser.add_argument("--stac", default="http://localhost:8082")
-    parser.add_argument("--minio", default="http://localhost:9000")
-    parser.add_argument("--token", default="dev-token")
+    env = os.environ.get
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument("--api", default=env("FAIR_API", "http://localhost:8000"))
+    parser.add_argument("--stac", default=env("FAIR_STAC", "http://localhost:8082"))
+    parser.add_argument(
+        "--minio",
+        default=env("FAIR_MINIO", "http://localhost:9000"),
+        help="read results anonymously from this MinIO; empty uses the presigned URLs",
+    )
+    parser.add_argument("--token", default=env("FAIR_TOKEN", "dev-token"))
+    parser.add_argument(
+        "--mlflow",
+        default=env("FAIR_MLFLOW", "http://localhost:5000"),
+        help="empty skips the MLflow check",
+    )
+    parser.add_argument("--mlflow-user", default=env("FAIR_MLFLOW_USER", ""))
+    parser.add_argument("--mlflow-password", default=env("FAIR_MLFLOW_PASSWORD", ""))
+    parser.add_argument(
+        "--knative-tag",
+        default=env("FAIR_KNATIVE_TAG", ""),
+        help="require the live endpoint to be under this Knative tag",
+    )
     args = parser.parse_args()
 
-    fair = Fair(args.api, args.stac, args.minio, args.token)
+    fair = Fair(args)
     ctx: dict = {}
     started = time.monotonic()
 

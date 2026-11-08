@@ -3206,7 +3206,7 @@ wheels = [
 
 [[package]]
 name = "pypgstac"
-version = "0.9.11"
+version = "0.9.12"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "cachetools" },
@@ -3220,9 +3220,9 @@ dependencies = [
     { name = "tenacity" },
     { name = "version-parser" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/fb/21/47ffcbc520979496aa93023e10916679f6b4822865b8a3533fd40a7ed75c/pypgstac-0.9.11.tar.gz", hash = "sha256:533a72718e10d30e5f7a98c8c62e26ac51bfeb33bc96a7777125738ce99f7732", size = 1588077, upload-time = "2026-04-07T18:58:16.864Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/09/f8/7fca297f66b63826719c3a0aaabe5574fc907937917a6a5a2b483c7b90f6/pypgstac-0.9.12.tar.gz", hash = "sha256:4fe9a1a0fe4d82942a178e8918d83a77db4d483909a571f81d2425dd9ab70a2f", size = 1644420, upload-time = "2026-07-30T14:37:37.519Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/a2/4d/dbb8f65ed928dae1a560a19d470c9d50e42861dbf2c772b946e0fdd13f16/pypgstac-0.9.11-py3-none-any.whl", hash = "sha256:6aecbdf4b8b6bce61d2339ecea860db9d6e39272091dc16a8cd81ee20a921630", size = 1765686, upload-time = "2026-04-07T18:58:15.02Z" },
+    { url = "https://files.pythonhosted.org/packages/a4/7d/687d3e5d255ca4325d3dd8573ea4b63ddbe1da7a9e76d2ebcd01f17cc904/pypgstac-0.9.12-py3-none-any.whl", hash = "sha256:a708fcedc06f8f75b0e53b933859e01396fbdbed9c79847596bc3ccc2a1303e6", size = 1818946, upload-time = "2026-07-30T14:37:35.676Z" },
 ]
 
 [package.optional-dependencies]

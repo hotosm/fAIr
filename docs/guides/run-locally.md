@@ -28,22 +28,38 @@ This runs the API, the frontend, a background worker, and the full dependency
 set: Postgres with PostGIS, MinIO, a STAC catalog, MLflow, and a ZenML server.
 To run from source instead, run `docker compose build` first.
 
-## Verifying the installation
+## Test the whole flow
 
-`test.py` at the repository root walks the whole flow one request at a time:
-area of interest, dataset build, training, promotion, prediction.
+`test.py` runs every step through the API: register a base model, build a
+dataset, train, publish, and predict. It stops at the first failure.
 
-The training step needs a base model to fine-tune, and a fresh stack has none.
-Register one first (admin only, see [Register a base model](register-a-base-model.md)),
-otherwise `test.py` stops at its first check. The local `dev-token` user is an
-admin, so it can register.
+### Locally
+
+With the stack running:
 
 ```bash
 uv run test.py
 ```
 
-It prints each step as it passes and exits non-zero on the first failure. Point
-it at a stack on other ports with `--api`, `--stac`, and `--minio`.
+### On staging
+
+You need:
+
+- An open PR from `stage` to `main`. This deploys the staging environment.
+  Wait until it has finished deploying.
+- `kubectl` connected to the HOT cluster.
+- An account on <https://stage.ai.hotosm.org>.
+
+```bash
+just test e2e
+```
+
+When asked, paste the value of the `hanko` cookie from
+<https://stage.ai.hotosm.org> (in your browser's developer tools, under
+Application > Cookies).
+
+The script also checks that the staging environment is deployed, and makes
+your account an admin.
 
 ## Services
 

@@ -84,7 +84,7 @@ services:
         for b in fair-data zenml; do mc anonymous set download "fair/$$b"; done
 
   pgstac-migrate:
-    image: ghcr.io/stac-utils/pgstac-pypgstac:v0.9.9
+    image: ghcr.io/stac-utils/pgstac-pypgstac:v0.9.12
     depends_on:
       db-init:
         condition: service_completed_successfully

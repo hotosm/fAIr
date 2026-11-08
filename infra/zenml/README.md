@@ -31,19 +31,14 @@ docker compose run zenml
 
 ## Using zenml-cli
 
-The `fair-cli` image tag should match the ZenML version you are working
-with. Set that explicitly in your shell config before creating the alias,
-for example:
+The `fair-cli` image (`Dockerfile.cli`) bundles the patched ZenML CLI with `tofu`,
+`aws`, `kubectl`, `kubeseal` and `helm`. Use it to apply the ZenML stacks, following
+`apps/fair/zenml/opentofu/README.md` in k8s-infra.
+
+Its tag must match the server's ZenML version, which is the chart `targetRevision`.
+Add this alias to your bashrc or fish config:
 
 ```sh
-export ZENML_VERSION=0.94.2
-```
-
-Then create a shell alias in your bashrc or fish config:
-
-```sh
-# Default - override in your session if needed,
-# or update in your config file
 export ZENML_VERSION=0.94.2
 # For fish: set -x ZENML_VERSION 0.94.2
 
