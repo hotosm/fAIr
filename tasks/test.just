@@ -32,26 +32,22 @@ e2e *args:
     OsmUser.objects.filter(osm_id=$osm_id).update(is_staff=True, is_superuser=True)
     print('admin:', OsmUser.objects.get(osm_id=$osm_id).username)"
 
-    # Staging MLflow has no ingress, so reach it through a port-forward.
     mlflow_secret() {
         kubectl -n "$ns" get secret mlflow-admin-password -o jsonpath="{.data.$1}" | base64 -d
     }
-    export FAIR_MLFLOW_USER=$(mlflow_secret adminUsername)
-    export FAIR_MLFLOW_PASSWORD=$(mlflow_secret adminPassword)
-    kubectl -n "$ns" port-forward svc/mlflow 5000:5000 >/dev/null &
-    port_forward=$!
-    trap 'kill $port_forward' EXIT
-    timeout 30 bash -c 'until curl -fs -u "$FAIR_MLFLOW_USER:$FAIR_MLFLOW_PASSWORD" http://localhost:5000/health >/dev/null; do sleep 1; done' \
-        || { echo "MLflow port-forward did not become ready"; exit 1; }
 
     echo "== API test"
-    FAIR_TOKEN="$FAIR_TOKEN" \
-    FAIR_API="$api" \
-    FAIR_STAC="${FAIR_STAC:-https://stac.stage.ai.hotosm.org/stac}" \
-    FAIR_MINIO="" \
-    FAIR_MLFLOW="http://localhost:5000" \
-    FAIR_KNATIVE_TAG=staging \
-        uv run "{{ justfile_directory() }}/test.py" {{ args }}
+    # Run in the backend pod, which has httpx and reaches the ingress-less MLflow directly.
+    kubectl -n "$ns" exec -i deployment/fair-backend -c api -- env \
+        FAIR_TOKEN="$FAIR_TOKEN" \
+        FAIR_API="$api" \
+        FAIR_STAC="${FAIR_STAC:-https://stac.stage.ai.hotosm.org/stac}" \
+        FAIR_MINIO="" \
+        FAIR_MLFLOW="http://mlflow:5000" \
+        FAIR_MLFLOW_USER="$(mlflow_secret adminUsername)" \
+        FAIR_MLFLOW_PASSWORD="$(mlflow_secret adminPassword)" \
+        FAIR_KNATIVE_TAG=staging \
+        python - {{ args }} < "{{ justfile_directory() }}/test.py"
 
     echo "== Knative checks"
     # Staging shares fair-knative with production and serves only under the `staging` tag.
