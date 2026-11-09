@@ -100,7 +100,7 @@ export const LocationSearch = ({
   };
 
   return (
-    <div className="relative w-[min(340px,78vw)]">
+    <div className="relative w-full max-w-[384px]">
       <div className="flex items-center bg-white rounded-lg shadow-md border border-gray-border overflow-hidden">
         <input
           type="text"

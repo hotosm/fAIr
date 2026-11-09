@@ -56,18 +56,25 @@ The ML models suggest detected features to be added to OpenStreetMap (OSM) or ot
 ## Product Roadmap (Users' Roadmap) 2026
 
 <!-- prettier-ignore-start -->
-| Status | Feature | Detailed Description | Release | 
+| Status | Feature | Detailed Description | Release |
 |:--:| :-- | :-- | :-- |
-|🔄| AI Community Contribution |  AI Developer can contribute their GeoAI models to fAIr, estiamted Jun-Jul 2026| v##
-|📅| Start Mapping  | End users can select any GeoAI community model and any imagery to map specific features supported by the community models, e.g. solap panels, different rooftops martial...etc. estiamed Jun-Jul 2026 | v##
-|📅| Integrate Tasking Manager |  Users can select specific TM project (with licensed imagery) and select validated taks to be used in fAIr to create building detection GeoAI models, estimated Jul-Aug 2026 | v##
-|📅| fAIrSwipe integration to create training dataset | Model creators would be able to seek community support of MapSwipe to create training data using MapSwipe projects, estiamted  May 206 | v##
-|📅| fAIrSwipe integration to AI predcitions | users would be able to seek community support to validate the AI prediction producing a human validated data for different features such as solar panels, seagrass, road ...etc., estiamted  Aug-Sept 206 | v##
-|📅| Private/Public Datasets/Models | Users can create provate and public datasets/model, estimated Sept 2026| v##
-|📅| Public Predcitions Request List | Users can publish publically their prediction request relsults dataset in a public list, estimated Aug 2026 | v##
-|📅| Clone model | Users can select a GeoAI model and replicated with its dataset to be able to develop them further, estiamted Oct 2026 | v##
-|📅| Community discussion | Other fAIr users can comment and give feedback on public models, estiamed Nov 2026 | v##
+|✅| AI Community Contribution | AI developers can add their own models to fAIr (HOT, HeiGIT and Mozilla AI models available so far) | |
+|✅| fAIrSwipe training datasets | Model creators can ask the MapSwipe community to help create training data (24 field projects in 15 countries) | |
+|✅| fAIrSwipe validation of AI predictions | The community validates AI predictions in MapSwipe (47 projects, 850k+ results) | |
+|✅| Documentation site | New user guides and project progress at [hotosm.github.io/fAIr](https://hotosm.github.io/fAIr) | |
+|🔄| Start Mapping ("Try fAIr") | Pick any model, apply it to any imagery, and see the results | |
+|🔄| Map larger areas | Request predictions over larger areas in one go | |
+|🔄| Public prediction results | Share prediction results in a public list | |
+|🔄| Private/Public Datasets/Models | Choose whether datasets and models are private or public | |
+|📅| 15+ ready-to-use models | Production release with at least 15 different models to choose from | |
+|📅| Open training data | Publish manually verified training data from fAIrSwipe and Open Mapping Gurus | |
+|📅| Integrate Tasking Manager | Use validated Tasking Manager tasks as training data for building detection models | |
+|📅| Clone model | Copy a model and its dataset to improve it further | |
+|📅| Community discussion | Comment and give feedback on public models | |
 
+<!-- prettier-ignore-end -->
+
+See the [high level roadmap](https://hotosm.github.io/fAIr/roadmap/) and [milestones](https://hotosm.github.io/fAIr/progress/milestones/) for additional details.
 
 ## Product Roadmap (Users' Roadmap) 2025
 

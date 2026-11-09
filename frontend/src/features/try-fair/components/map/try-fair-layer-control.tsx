@@ -2,18 +2,13 @@ import { DropDown } from "@/components/ui/dropdown";
 import {
   ChevronDownIcon,
   LayerStackIcon,
-  TryFairGoogleSatelliteIcon,
   TryFairImageryIcon,
   TryFairOSMIcon,
   TryFairPredictionToggleIcon,
   EyeClosedIcon,
 } from "@/components/ui/icons";
 import { ToolTip } from "@/components/ui/tooltip";
-import {
-  GOOGLE_SATELLITE_BASEMAP_LAYER_ID,
-  OSM_BASEMAP_LAYER_ID,
-  TMS_LAYER_ID,
-} from "@/config";
+import { OSM_BASEMAP_LAYER_ID, TMS_LAYER_ID } from "@/config";
 import { ToolTipPlacement } from "@/enums";
 import { cn } from "@/utils";
 import { Map } from "maplibre-gl";
@@ -134,7 +129,6 @@ export const TryFairLayerControl = ({
     prediction: true,
     imagery: true,
     osm: true,
-    googleSatellite: false,
   });
   const [sectionsOpen, setSectionsOpen] = useState({
     predictions: true,
@@ -165,17 +159,9 @@ export const TryFairLayerControl = ({
     setLayersVisibility((prev) => ({ ...prev, imagery: nextValue }));
   };
 
-  const toggleBasemap = (layer: "osm" | "googleSatellite") => {
-    setMapLayerVisibility(OSM_BASEMAP_LAYER_ID, layer === "osm");
-    setMapLayerVisibility(
-      GOOGLE_SATELLITE_BASEMAP_LAYER_ID,
-      layer === "googleSatellite",
-    );
-    setLayersVisibility((prev) => ({
-      ...prev,
-      osm: layer === "osm",
-      googleSatellite: layer === "googleSatellite",
-    }));
+  const selectBasemap = () => {
+    setMapLayerVisibility(OSM_BASEMAP_LAYER_ID, true);
+    setLayersVisibility((prev) => ({ ...prev, osm: true }));
   };
 
   useEffect(() => {
@@ -191,10 +177,6 @@ export const TryFairLayerControl = ({
       }
 
       setMapLayerVisibility(OSM_BASEMAP_LAYER_ID, layersVisibility.osm);
-      setMapLayerVisibility(
-        GOOGLE_SATELLITE_BASEMAP_LAYER_ID,
-        layersVisibility.googleSatellite,
-      );
     };
 
     applyVisibility();
@@ -273,28 +255,10 @@ export const TryFairLayerControl = ({
             }
           >
             <LayerRow
-              label="OpenstreetMap"
+              label="OpenStreetMap"
               active={layersVisibility.osm}
-              icon={
-                layersVisibility.osm ? (
-                  <TryFairOSMIcon />
-                ) : (
-                  <TryFairGoogleSatelliteIcon />
-                )
-              }
-              onClick={() => toggleBasemap("osm")}
-            />
-            <LayerRow
-              label="Google Satellite"
-              active={layersVisibility.googleSatellite}
-              icon={
-                layersVisibility.googleSatellite ? (
-                  <TryFairOSMIcon />
-                ) : (
-                  <TryFairGoogleSatelliteIcon />
-                )
-              }
-              onClick={() => toggleBasemap("googleSatellite")}
+              icon={<TryFairOSMIcon />}
+              onClick={selectBasemap}
             />
           </Section>
         </div>

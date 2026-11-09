@@ -1,7 +1,10 @@
+import copy
 import importlib.util
+from collections.abc import Sequence
 
 import httpx
 from django.conf import settings
+from django.db import transaction
 from django.db.models import Count, Q
 from django.http import HttpResponse, HttpResponseRedirect
 from django_filters.rest_framework import DjangoFilterBackend
@@ -33,17 +36,18 @@ from shared.integrations.stac import (
     DOWNLOADABLE_STAC_ASSETS,
     FAIR_CATEGORY_PROPERTY,
     FAIR_PINNED_PROPERTY,
-    FAIR_PREVIEW_LOCATION_PROPERTY,
-    FAIR_SOURCE_IMAGERY_PROPERTY,
+    FAIR_PREVIEW_PROPERTY,
     LOCAL_MODELS_COLLECTION,
+    apply_item_patch,
     bulk_get_cached_items,
     get_cached_item,
     get_item,
-    set_item_properties,
+    patch_item,
 )
 from shared.integrations.zenml import list_runs_for_model
 from shared.stars import annotate_stars
 
+from .deletion import delete_base_model
 from .models import BaseModel, Category, LocalModel
 from .serializers import (
     BaseModelRegisterSerializer,
@@ -61,8 +65,8 @@ _STAC_FETCH_TIMEOUT_S = 30
 
 
 def _derive_preview_props(collection: str, item_id: str, properties: dict) -> dict:
-    """Reverse-geocode place/country from the pinned location via fair-py-ops so
-    the preview props stay consistent with how registration derives them."""
+    """Reverse-geocode place/country from the preview center via fair-py-ops so
+    the location props stay consistent with how registration derives them."""
     from fair.stac.location import derive_location_props
     from shapely.geometry import shape
 
@@ -72,51 +76,96 @@ def _derive_preview_props(collection: str, item_id: str, properties: dict) -> di
     return derive_location_props(properties, list(shape(geometry).bounds))
 
 
+def _updated_preview(collection: str, item_id: str, data: dict) -> dict:
+    """The item's `fair:preview` with the supplied imagery and location applied; a new
+    location also replaces the place, so the preview stays one consistent record."""
+    from fair.stac.location import place_from_center
+
+    preview = get_item(collection, item_id).properties.get(FAIR_PREVIEW_PROPERTY)
+    if preview is None:
+        raise ValidationError(
+            f"Model has no {FAIR_PREVIEW_PROPERTY} to update; set it with the metadata action."
+        )
+    preview = copy.deepcopy(preview)
+    if imagery := data.get("preview_imagery"):
+        preview["imagery"] = {"url": imagery, "type": "tms"}
+    if location := data.get("preview_location"):
+        lon, lat = location["coordinates"]
+        preview["center"] = [lon, lat]
+        preview["place"] = place_from_center(lon, lat)
+        preview.pop("bbox", None)
+    return preview
+
+
+@transaction.atomic
 def _apply_pin(model, collection: str, data: dict) -> None:
-    """Flip the DB flag, then mirror it (plus optional preview metadata) onto
-    the model's STAC item when the model has been published. A new preview
-    location re-derives the place/country props so they stay consistent."""
+    """Flip the DB flag, then mirror it (plus optional preview imagery and location) onto
+    the model's STAC item when the model has been published."""
+    type(model).objects.select_for_update().get(pk=model.pk)
+    properties: dict = {FAIR_PINNED_PROPERTY: data["is_pinned"]}
+    if model.stac_item_id and (data.get("preview_imagery") or data.get("preview_location")):
+        properties[FAIR_PREVIEW_PROPERTY] = _updated_preview(collection, model.stac_item_id, data)
     model.is_pinned = data["is_pinned"]
     model.save(update_fields=["is_pinned", "last_modified"])
     if not model.stac_item_id:
         return
-    properties: dict = {FAIR_PINNED_PROPERTY: model.is_pinned}
-    if data.get("source_imagery"):
-        properties[FAIR_SOURCE_IMAGERY_PROPERTY] = data["source_imagery"]
-    if location := data.get("pinned_location"):
-        properties[FAIR_PREVIEW_LOCATION_PROPERTY] = location
+    if data.get("preview_location"):
         properties.update(_derive_preview_props(collection, model.stac_item_id, properties))
-    set_item_properties(collection, model.stac_item_id, properties)
+    _merge_validate_write(collection, model.stac_item_id, properties)
 
 
-def _merge_validate_write(collection: str, item_id: str, properties: dict) -> None:
-    """Shallow-merge `properties` onto the item, re-validate the merged item against
-    the fAIr schema, then write. The single read-validate-write path, so a metadata
-    edit or an arbitrary property patch can never leave the item invalid."""
+def _validate_merge(
+    collection: str,
+    item_id: str,
+    properties: dict,
+    stac_extensions: Sequence[str] = (),
+    assets: dict[str, dict] | None = None,
+) -> None:
+    """Shallow-merge `properties` and `assets` onto a copy of the item and validate it
+    against the fAIr schema, raising `ValidationError` without writing."""
     from fair.stac.validators import validate_item
 
     item = get_item(collection, item_id)
-    item.properties.update(properties)
+    try:
+        apply_item_patch(item, properties, assets=assets, stac_extensions=stac_extensions)
+    except ValueError as exc:
+        raise ValidationError({"assets": [str(exc)]}) from exc
     if errors := validate_item(item):
         raise ValidationError({"stac": errors})
-    set_item_properties(collection, item_id, properties)
 
 
-def _apply_metadata(collection: str, item_id: str, data: dict) -> None:
-    """Write the supplied title/description/fair:preview fields onto the item."""
+def _merge_validate_write(
+    collection: str,
+    item_id: str,
+    properties: dict,
+    stac_extensions: Sequence[str] = (),
+    assets: dict[str, dict] | None = None,
+) -> None:
+    """The single read-validate-write path, so a metadata edit or an arbitrary patch can
+    never leave the item invalid."""
+    _validate_merge(collection, item_id, properties, stac_extensions, assets)
+    patch_item(collection, item_id, properties, assets=assets, stac_extensions=stac_extensions)
+
+
+def _metadata_properties(data: dict) -> dict:
     properties: dict = {}
     if data.get("title"):
         properties["title"] = data["title"]
     if data.get("description"):
         properties["description"] = data["description"]
     if data.get("fair_preview") is not None:
-        properties["fair:preview"] = data["fair_preview"]
-    _merge_validate_write(collection, item_id, properties)
+        properties[FAIR_PREVIEW_PROPERTY] = data["fair_preview"]
+    return properties
+
+
+def _apply_metadata(collection: str, item_id: str, data: dict) -> None:
+    """Write the supplied title/description/fair:preview fields onto the item."""
+    _merge_validate_write(collection, item_id, _metadata_properties(data))
 
 
 class ModelMetadataMixin:
     """Adds two admin actions on a published model's STAC item: `metadata` (title,
-    description, fair:preview) and `stac` (a general property patch). Both re-validate
+    description, fair:preview) and `stac` (a general property and asset patch). Both re-validate
     against the fAIr schema. Host viewset sets `stac_collection`."""
 
     stac_collection: str = ""
@@ -155,27 +204,64 @@ class ModelMetadataMixin:
         responses={200: OpenApiTypes.OBJECT},
         examples=[
             OpenApiExample(
-                "Sync imagery and description",
+                "Sync the description",
                 value={
                     "properties": {
-                        "fair:source_imagery": "https://tiles.example/{z}/{x}/{y}.png",
                         "description": "Synced from the updated model card.",
                     }
                 },
                 request_only=True,
-            )
+            ),
+            OpenApiExample(
+                "Declare prediction variables",
+                value={
+                    "properties": {
+                        "cube:variables": {
+                            "class": {"dimensions": ["features"], "type": "data", "values": [1]}
+                        }
+                    },
+                    "stac_extensions": [
+                        "https://stac-extensions.github.io/datacube/v2.3.0/schema.json"
+                    ],
+                },
+                request_only=True,
+            ),
+            OpenApiExample(
+                "Point the model asset at its ONNX export",
+                value={
+                    "assets": {
+                        "model": {
+                            "href": "https://example.com/model.onnx",
+                            "type": "application/octet-stream; framework=onnx",
+                            "roles": ["mlm:model", "mlm:compiled"],
+                            "mlm:artifact_type": "onnx",
+                        },
+                        "checkpoint": {
+                            "href": "https://example.com/model.ckpt",
+                            "type": "application/octet-stream; framework=pytorch",
+                            "roles": ["mlm:model", "mlm:weights"],
+                            "mlm:artifact_type": "torch.save",
+                        },
+                    }
+                },
+                request_only=True,
+            ),
         ],
     )
     @action(detail=True, methods=["patch"], url_path="stac")
     def stac_properties(self, request, pk: int | None = None) -> Response:
-        """Admin patch of arbitrary STAC item properties (shallow merge, re-validated)."""
+        """Admin patch of STAC item properties and assets (shallow merge, re-validated)."""
         model = self.get_object()
         if not model.stac_item_id:
             raise ValidationError("Model has no published STAC item to patch.")
         serializer = StacPropertiesPatchSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         _merge_validate_write(
-            self.stac_collection, model.stac_item_id, serializer.validated_data["properties"]
+            self.stac_collection,
+            model.stac_item_id,
+            serializer.validated_data.get("properties", {}),
+            stac_extensions=serializer.validated_data["stac_extensions"],
+            assets=serializer.validated_data.get("assets"),
         )
         return Response(self.get_serializer(model).data)
 
@@ -276,8 +362,8 @@ def _fetch_stac_item(url: str) -> dict:
         description=(
             "Pin/unpin a model (admin only). Flips the DB `is_pinned` flag and, "
             "for a published model, mirrors it to `fair:pinned` on the STAC item. "
-            "Optional `source_imagery` (TMS) and `pinned_location` (GeoJSON Point) "
-            "are written as `fair:source_imagery` / `fair:preview_location`."
+            "Optional `preview_imagery` (TMS) and `preview_location` (GeoJSON Point) "
+            "update `fair:preview` imagery, center and place."
         ),
     ),
     runs=extend_schema(description="List ZenML pipeline runs that produced this model."),
@@ -364,6 +450,12 @@ class LocalModelViewSet(StacExpandMixin, ModelMetadataMixin, viewsets.ReadOnlyMo
     retrieve=extend_schema(
         description="Retrieve one base model by id. `?expand=stac` inlines the STAC item."
     ),
+    destroy=extend_schema(
+        description=(
+            "Delete a base model with its STAC versions and inference service (admin only). "
+            "409 while it is registering or local models are built on it."
+        )
+    ),
     create=extend_schema(
         description=(
             "Register a base model from an inline STAC item JSON or a URL to one "
@@ -418,6 +510,7 @@ class BaseModelViewSet(
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
+    mixins.DestroyModelMixin,
     viewsets.GenericViewSet,
 ):
     stac_collection = BASE_MODELS_COLLECTION
@@ -441,7 +534,7 @@ class BaseModelViewSet(
         return annotate_stars(qs, self.request, key_field="name")
 
     def get_permissions(self):
-        if self.action in {"create", "pin", "metadata", "stac_properties"}:
+        if self.action in {"create", "destroy", "pin", "metadata", "stac_properties"}:
             return [IsAuthenticated(), IsAdmin()]
         if self.action in {"list", "retrieve"}:
             return [AllowAny()]
@@ -490,16 +583,13 @@ class BaseModelViewSet(
         register_base_model.enqueue(base_model_id=base_model.id, stac_item=stac_item)
         return Response(BaseModelSerializer(base_model).data, status=status.HTTP_202_ACCEPTED)
 
-    # TODO(E): on delete, deprovision the ksvc via fair.delete_knative_service.
+    def perform_destroy(self, instance: BaseModel) -> None:
+        delete_base_model(instance)
 
 
 class PinnedModelsView(APIView):
-    """One feed of all pinned models (base + local) for a featured view.
-
-    Public read, visibility-filtered. `?expand=stac` inlines each STAC item so
-    the pin preview metadata (`fair:source_imagery` / `fair:preview_location`)
-    comes back in the same call.
-    """
+    """Public, visibility-filtered feed of pinned base and local models; `?expand=stac` inlines
+    each STAC item with its `fair:preview`."""
 
     authentication_classes = [OsmAuthentication]
     permission_classes = [AllowAny]

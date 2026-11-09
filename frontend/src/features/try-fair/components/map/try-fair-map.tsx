@@ -5,6 +5,8 @@ import { TryFairMapOutputType, TryFairResolution } from "@/enums/try-fair";
 import { BBOX } from "@/types";
 import { TryFairDraggableGrid } from "@/features/try-fair/components/map/draggable-grid";
 import { TryFairPredictionsLayer } from "@/features/try-fair/components/map/try-fair-prediction-results";
+import { TryFairSwipe } from "@/features/try-fair/components/map/try-fair-swipe";
+import { PredictionClassStyle } from "@/features/try-fair/utils/prediction-classes";
 import { ChoroplethBucket } from "@/features/try-fair/utils/helpers";
 import { TryFairChoroplethLegend } from "@/features/try-fair/components/map/chloropleth-legend";
 import { TryFairPointsLegend } from "@/features/try-fair/components/map/points-legend";
@@ -42,6 +44,8 @@ type TryFairMapProps = {
   imageryCenter?: [number, number];
   resolution?: TryFairResolution;
   isPredicting?: boolean;
+  preImageryUrl?: string | null;
+  predictionClassStyle?: PredictionClassStyle | null;
   canFitToBounds: boolean;
   /** Opens the guided "how it works" tour. */
   onHelp?: () => void;
@@ -64,6 +68,8 @@ export const TryFairMap = ({
   imageryCenter,
   resolution,
   isPredicting = false,
+  preImageryUrl,
+  predictionClassStyle,
   canFitToBounds,
   onHelp,
 }: TryFairMapProps) => {
@@ -80,7 +86,12 @@ export const TryFairMap = ({
   const handleFitToGrid = useCallback(() => {
     if (!canFitToBounds) return;
     const bbox = gridBBoxRef.current;
-    if (!map || !bbox) return;
+    if (!map || !bbox) {
+      fitPendingRef.current = true;
+      return;
+    }
+
+    map.resize();
     map.fitBounds([bbox[0], bbox[1], bbox[2], bbox[3]], {
       padding: 40,
       essential: true,
@@ -92,19 +103,14 @@ export const TryFairMap = ({
     (bbox: BBOX, tileZoom: number) => {
       gridBBoxRef.current = bbox;
       onBBoxChange(bbox, tileZoom);
-      // If a resolution change triggered a grid recalculation, fit now.
+      // If a resolution change (or a deferred initial fit) is pending, fit now
+      // that the grid has recalculated. handleFitToGrid resizes then fits.
       if (fitPendingRef.current) {
         fitPendingRef.current = false;
-        if (map && canFitToBounds) {
-          map.fitBounds([bbox[0], bbox[1], bbox[2], bbox[3]], {
-            padding: 40,
-            essential: true,
-            ...FLY_TO_OPTIONS,
-          });
-        }
+        handleFitToGrid();
       }
     },
-    [onBBoxChange, map, canFitToBounds],
+    [onBBoxChange, handleFitToGrid],
   );
 
   // When resolution or imagery center changes, flag that we want to fit once
@@ -152,13 +158,19 @@ export const TryFairMap = ({
     outputType === TryFairMapOutputType.CLUSTER ? (
       <TryFairChoroplethLegend buckets={choroplethBuckets} />
     ) : outputType === TryFairMapOutputType.POINTS ? (
-      <TryFairPointsLegend totalCount={predictions?.features.length ?? 0} />
+      <TryFairPointsLegend
+        predictions={predictions}
+        classStyle={predictionClassStyle}
+      />
     ) : outputType === TryFairMapOutputType.POLYGON ? (
-      <TryFairPolygonLegend totalCount={predictions?.features.length ?? 0} />
+      <TryFairPolygonLegend
+        predictions={predictions}
+        classStyle={predictionClassStyle}
+      />
     ) : null;
 
   return (
-    <div className="relative w-full h-full overflow-hidden">
+    <div className="relative isolate w-full h-full overflow-hidden">
       <MapComponent
         map={map}
         mapContainerRef={mapContainerRef}
@@ -182,6 +194,16 @@ export const TryFairMap = ({
         </div>
       )}
 
+      <TryFairSwipe
+        map={map}
+        preImageryUrl={preImageryUrl}
+        predictions={predictions}
+        predictionBBox={predictionBBox}
+        predictionGridZoom={predictionGridZoom ?? undefined}
+        outputType={outputType}
+        classStyle={predictionClassStyle}
+      />
+
       <TryFairPredictionsLayer
         map={map}
         predictions={predictions}
@@ -189,6 +211,7 @@ export const TryFairMap = ({
         predictionGridZoom={predictionGridZoom ?? undefined}
         outputType={outputType}
         onChoroplethBucketsChange={setChoroplethBuckets}
+        classStyle={predictionClassStyle}
       />
 
       {map && (
@@ -215,8 +238,8 @@ export const TryFairMap = ({
               rounded={false}
               className="gap-y-0"
               buttonClassName="size-8 p-1.5 bg-white border-0 flex items-center justify-center text-dark rounded-none"
-              zoomInClassName="border-b border-[#E4E4E4] border-t-0 border-x-0 rounded-t-[4px]"
-              zoomOutClassName="border-b border-[#E4E4E4] border-t-0 border-x-0 rounded-none"
+              zoomInClassName="border-b text-dark border-[#E4E4E4] border-t-0 border-x-0 rounded-t-[4px]"
+              zoomOutClassName="border-b text-dark border-[#E4E4E4] border-t-0 border-x-0 rounded-none"
               iconClassName="size-4 p-0 text-base leading-none"
             />
             <FitToBounds

@@ -4,8 +4,13 @@ import { BBOX } from "@/types";
 import { create } from "zustand";
 
 type IStartMappingStore = {
+  lastSavedAt: number | null;
+
   selectedImagery: ImagerySelection | null;
   setSeletedImagery: (imagery: ImagerySelection | null) => void;
+
+  showPredictionHistory: boolean;
+  setShowPredictionHistory: (show: boolean) => void;
 
   downloadType: string;
   setDownloadType: (imagery: string) => void;
@@ -30,8 +35,12 @@ type IStartMappingStore = {
 };
 
 export const useStartMappingStore = create<IStartMappingStore>((set) => ({
+  lastSavedAt: null,
   selectedImagery: null,
   setSeletedImagery: (selectedImagery) => set({ selectedImagery }),
+  showPredictionHistory: false,
+  setShowPredictionHistory: (showPredictionHistory) =>
+    set({ showPredictionHistory }),
   downloadType: "",
   setDownloadType: (downloadType) => set({ downloadType }),
   showChooseLocationModal: false,

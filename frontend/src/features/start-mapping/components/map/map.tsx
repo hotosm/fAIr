@@ -57,7 +57,7 @@ export const StartMappingMapComponent = ({
   handleAOIDelete,
   openFileUploadDialog,
 }: {
-  trainingId: number;
+  trainingId: number | undefined;
   map: Map | null;
   mapContainerRef: RefObject<HTMLDivElement | null>;
   layers: {
@@ -190,7 +190,7 @@ export const StartMappingMapComponent = ({
       basemaps
       showCurrentZoom={!isSmallViewport}
     >
-      {map && (
+      {map && trainingId !== undefined && (
         <PredictedFeatureActionPopup
           trainingId={trainingId}
           map={map}

@@ -25,6 +25,8 @@ export const API_ENDPOINTS = {
 
   CREATE_OFFLINE_PREDICTION: "predictions/",
   GET_OFFLINE_PREDICTIONS: "predictions/",
+  GET_SINGLE_OFFLINE_PREDICTIONS: (id: string) => `predictions/${id}`,
+
   UPDATE_OFFLINE_PREDICTION: (id: number) => `predictions/${id}/`,
   GET_AI_PREDICTIONS: "predictions/",
   GET_AI_PREDICTIONS_CENTROIDS: "predictions/centroid/",
@@ -137,8 +139,18 @@ export const API_ENDPOINTS = {
 
   GET_API_LOCAL_MODELS: (category: string) =>
     `/local-models/?category=${category}&ordering=star_count&expand=stac&is_pinned=true`,
+  GET_ALL_API_BASE_MODELS: (category: string) =>
+    `/base-models/?category=${category}&ordering=star_count&expand=stac`,
+  GET_ALL_API_LOCAL_MODELS: (category: string) =>
+    `/local-models/?category=${category}&ordering=star_count&expand=stac`,
   // Map large area
   MAP_LARGE_AREA_REQUEST: "/predictions/submit/",
+
+  SAVE_USER_STATE: "/user-state/",
+  GET_SINGLE_USER_STATE: (pid: string) =>
+    `/user-state/${encodeURIComponent(pid)}/`,
+  GET_USER_STATE: "/user-state/",
+  EDIT_USER_STATE: (pid: number) => `/user-state/${pid}/`,
 
   // Base
 };

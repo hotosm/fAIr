@@ -53,11 +53,11 @@ Original text courtesy of the [Speak Up! project](http://web.archive.org/web/201
 
 Further sources:
 
-- [Ada Initiative: HOWTO design a code of conduct for your community](https://adainitiative.org/2014/02/18/howto-design-a-code-of-conduct-for-your-community/)
+- [Ada Initiative: HOWTO design a code of conduct for your community](https://web.archive.org/web/20170104045208/https://adainitiative.org/2014/02/18/howto-design-a-code-of-conduct-for-your-community/)
 
 - [HOT Code of Conduct](https://www.hotosm.org/en/policies/hots-code-of-conduct/)
 
-- [American Red Cross GIS Team Code of Conduct](https://github.com/AmericanRedCross/team-code-of-conduct)
+- [American Red Cross GIS Team Code of Conduct](https://web.archive.org/web/20250115163315/https://github.com/AmericanRedCross/team-code-of-conduct)
 
 - [Contributor Covenant – A Code of Conduct for Open Source Projects](http://contributor-covenant.org/)
 

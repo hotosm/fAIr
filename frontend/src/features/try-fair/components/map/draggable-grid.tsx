@@ -1,3 +1,4 @@
+import { useAuth } from "@/app/providers/auth-provider";
 import { RefObject, useEffect, useMemo, useState } from "react";
 import { Map } from "maplibre-gl";
 import useScreenSize from "@/hooks/use-screen-size";
@@ -7,6 +8,7 @@ import { TryFairMapOutputType } from "@/enums/try-fair";
 import { useTileGrid } from "@/features/try-fair/hooks/use-tile-grid";
 import { useGridDrag } from "@/features/try-fair/hooks/use-grid-drag";
 import { useGridVisibility } from "@/features/try-fair/hooks/use-grid-visibility";
+import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
 import { GridOffScreenNudge } from "@/features/try-fair/components/map/grid-off-screen-nudge";
 import { computeCenteredAnchor } from "@/features/try-fair/utils/tile-math";
 import {
@@ -60,6 +62,9 @@ export const TryFairDraggableGrid = ({
   // Grid anchor & bbox management
 
   const { isSmallViewport } = useScreenSize();
+  const { mappingMode } = useTryFairParams();
+  const { isAuthenticated } = useAuth();
+  const showConfidence = isAuthenticated && mappingMode === "advanced";
   const [isNoResultsDismissed, setIsNoResultsDismissed] = useState(false);
 
   const { anchor, setAnchor, tileZoom } = useTileGrid({
@@ -71,17 +76,6 @@ export const TryFairDraggableGrid = ({
 
   useEffect(() => {
     if (hasNoResults) setIsNoResultsDismissed(false);
-  }, [hasNoResults]);
-
-  useEffect(() => {
-    if (!hasNoResults) return;
-
-    const timeoutId = window.setTimeout(
-      () => setIsNoResultsDismissed(true),
-      5_000,
-    );
-
-    return () => window.clearTimeout(timeoutId);
   }, [hasNoResults]);
 
   useEffect(() => {
@@ -120,6 +114,10 @@ export const TryFairDraggableGrid = ({
   //  Drag interaction
 
   const [hoverTooltip, setHoverTooltip] = useState<HoverTooltip>(null);
+
+  useEffect(() => {
+    setHoverTooltip(null);
+  }, [showConfidence, outputType]);
 
   //  Screen projection
 
@@ -243,7 +241,8 @@ export const TryFairDraggableGrid = ({
     }
 
     const score = feature[0].properties?.score;
-    if (typeof score !== "number") {
+    // The per-feature confidence tooltip is an advanced-mode only affordance.
+    if (typeof score !== "number" || !showConfidence) {
       setHoverTooltip(null);
       return;
     }
@@ -251,7 +250,7 @@ export const TryFairDraggableGrid = ({
     setHoverTooltip({
       x: point.x,
       y: point.y,
-      label: "Accuracy",
+      label: "Confidence",
       value: `${(score * 100).toFixed(1)}%`,
     });
   };

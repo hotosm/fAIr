@@ -1,5 +1,6 @@
 import os
 import tempfile
+from datetime import datetime
 from functools import lru_cache
 from pathlib import Path
 
@@ -85,12 +86,16 @@ def get_run_status(run_id: str) -> RunStatus:
     return _get_run_status(run_id)
 
 
-def fetch_run_logs(run_id: str, *, tail: int = 1000) -> list[LogEntry]:
-    return _fetch_run_logs(run_id, tail=tail)
+def fetch_run_logs(
+    run_id: str, *, tail: int = 1000, since: datetime | None = None
+) -> list[LogEntry]:
+    return _fetch_run_logs(run_id, tail=tail, since=since)
 
 
-def fetch_step_logs(run_id: str, step_name: str, *, tail: int = 1000) -> list[LogEntry]:
-    return _fetch_step_logs(run_id, step_name, tail=tail)
+def fetch_step_logs(
+    run_id: str, step_name: str, *, tail: int = 1000, since: datetime | None = None
+) -> list[LogEntry]:
+    return _fetch_step_logs(run_id, step_name, tail=tail, since=since)
 
 
 def list_runs_for_model(model_name: str, *, limit: int = 50) -> list[RunSummary]:

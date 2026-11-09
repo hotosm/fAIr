@@ -1,9 +1,10 @@
-import { ABOUT_PAGE_CONTENT } from "@/constants";
+import { ABOUT_PAGE_CONTENT, FAIR_DOCS_URL } from "@/constants";
 import { fAIrWorkflowIllustration } from "@/assets/images";
 import { Head } from "@/components/seo";
 import { Header } from "@/components/shared";
 import { HOTTeamLandscape } from "@/assets/images";
 import { Image } from "@/components/ui/image";
+import { Link } from "@/components/ui/link";
 
 export const AboutPage = () => {
   return (
@@ -29,19 +30,31 @@ export const AboutPage = () => {
           height="100%"
         />
       </section>
-      <section className="flex flex-col-reverse md:flex-row items-center md:justify-between w-full">
-        <div className="basis-2/4 flex gap-y-4 flex-col">
+      <section className="grid grid-cols-1 lg:grid-cols-2 items-center gap-8 lg:gap-12 w-full">
+        <div className="order-2 lg:order-1 min-w-0 flex gap-y-4 flex-col">
           <p className="text-body-2base md:text-body-2 text-dark">
             {ABOUT_PAGE_CONTENT.bodyContent.firstParagraph}
           </p>
           <p>{ABOUT_PAGE_CONTENT.bodyContent.secondParagraph}</p>
+          <Link
+            href={FAIR_DOCS_URL}
+            title={ABOUT_PAGE_CONTENT.documentationLink}
+            className="text-primary underline self-start"
+            disableLinkStyle
+            blank
+          >
+            {ABOUT_PAGE_CONTENT.documentationLink}
+          </Link>
         </div>
-        <Image
-          src={fAIrWorkflowIllustration}
-          alt="fAIr Workflow Illustration"
-          width="300px"
-          height="300px"
-        />
+        <div className="order-1 lg:order-2 w-full max-w-[640px] min-w-0 justify-self-center">
+          <Image
+            src={fAIrWorkflowIllustration}
+            alt="fAIr Workflow Illustration"
+            width="1402"
+            height="1122"
+            className="w-full h-auto"
+          />
+        </div>
       </section>
     </main>
   );

@@ -5,53 +5,59 @@ description: What fAIr can map today, how base and local models relate, and the 
 
 # Models
 
-fAIr's models are published in an open catalog. A **base model** is a pretrained model that anyone can run. An **advanced user** can fine-tune a base model on their own area to produce a **local model**, which is versioned and published back to the collection. All models and their metadata live in a STAC catalog.
+fAIr's models are published in an open catalog. A **base model** is a pretrained model that anyone can run. An **advanced user** can fine-tune a base model on their own area to produce a **local model**, which is versioned and published back to the collection. Fine-tuning works through the API today; the screens for it are [planned](../roadmap/index.md#now-and-later).
 
-The catalog of contributed models is at [hotosm.github.io/fAIr-models](https://hotosm.github.io/fAIr-models/), and models can be run at [ai.hotosm.org](https://ai.hotosm.org/).
+Models are contributed to the [fAIr-models repository](https://github.com/hotosm/fAIr-models). Registered models and their metadata are listed in the [base-models STAC collection](https://stac.dev.ai.hotosm.org/collections/base-models/items), and can be run at [dev.ai.hotosm.org](https://dev.ai.hotosm.org/); see [What is fAIr](what-is-fair.md#where-it-fits) for the versions.
 
 ## Base models
 
-The models available in fAIr today and those planned, with their current status. The [catalog](https://hotosm.github.io/fAIr-models/) is the source of truth for each model's details.
+The models available in fAIr today and those planned. "Available" names the version that runs the model: the current version (v3) or the earlier one (v2).
 
-| #   | Model                          | Feature        | Task type        | Contributor    | Status                                                    |
-| --- | ------------------------------ | -------------- | ---------------- | -------------- | --------------------------------------------------------- |
-| 1   | Buildings (RAMP, DINO, YOLO)   | Buildings      | Segmentation     | HOT            | <span class="status available">Available</span>           |
-| 2   | Swimming pools                 | Swimming pools | Object detection | HOT            | <span class="status available">Available</span>           |
-| 3   | Parking spaces                 | Parking spaces | Object detection | HOT            | <span class="status available">Available</span>           |
-| 4   | Solid waste                    | Solid waste    | Classification   | HeiGIT         | <span class="status available">Available</span>           |
-| 5   | Trees                          | Trees          | Object detection | Omdena         | <span class="status in-development">In development</span> |
-| 6   | Seagrass                       | Seagrass       | Segmentation     | Zindi          | <span class="status in-development">In development</span> |
-| 7   | Highway segmentation           | Roads          | Segmentation     | Zindi          | <span class="status in-development">In development</span> |
-| 8   | Road surface (paved / unpaved) | Roads          | Classification   | HeiGIT         | <span class="status in-development">In development</span> |
-| 9   | Road surface damage            | Roads          | Classification   | Community call | <span class="status in-development">In development</span> |
-| 10  | Water storage tanks            | Water tanks    | Object detection | Community call | <span class="status in-development">In development</span> |
-| 11  | Shipping container detection   | Ports          | Object detection | Community call | <span class="status in-development">In development</span> |
-| 12  | Solar panels                   | Solar panels   | Object detection | Omdena         | <span class="status planned">Planned</span>               |
-| 13  | Bridges                        | Bridges        | Object detection | Omdena         | <span class="status planned">Planned</span>               |
-| 14  | Land use and land cover        | Land cover     | Segmentation     | Omdena         | <span class="status planned">Planned</span>               |
-| 15  | Building damage assessment     | Buildings      | Classification   | HOT            | <span class="status planned">Planned</span>               |
-| 16  | Tent detection                 | Tents          | Object detection | HOT            | <span class="status planned">Planned</span>               |
-| 17  | Water bodies                   | Water          | Segmentation     | HOT            | <span class="status exploring">Exploring</span>           |
-| 18  | Roof type                      | Buildings      | Classification   | HOT            | <span class="status exploring">Exploring</span>           |
-| 19  | River segmentation             | Rivers         | Segmentation     | HOT            | <span class="status exploring">Exploring</span>           |
-| 20  | Flood building damage          | Buildings      | Classification   | HOT            | <span class="status exploring">Exploring</span>           |
+| #   | Model                          | Feature         | Task type             | Contributor                      | Status                                                    |
+| --- | ------------------------------ | --------------- | --------------------- | -------------------------------- | --------------------------------------------------------- |
+| 1   | Buildings (DINOv3)             | Buildings       | Segmentation          | HOT                              | <span class="status available">Available, v3</span>       |
+| 2   | Building damage (DINOv3)       | Building damage | Segmentation          | HOT                              | <span class="status available">Available, v3</span>       |
+| 3   | Trees (DeepForest)             | Trees           | Object detection      | HOT                              | <span class="status available">Available, v3</span>       |
+| 4   | Trees (UNet, Freetown)         | Trees           | Segmentation          | HOT West and Northern Africa hub | <span class="status available">Available, v3</span>       |
+| 5   | Solid waste                    | Solid waste     | Segmentation          | HeiGIT                           | <span class="status available">Available, v3</span>       |
+| 6   | Buildings (RAMP, YOLOv8)       | Buildings       | Segmentation          | HOT                              | <span class="status available">Available, v2</span>       |
+| 7   | Trees (Omdena challenge)       | Trees           | Object detection      | Omdena                           | <span class="status in-development">In development</span> |
+| 8   | Solar panels                   | Solar panels    | Object detection      | Omdena                           | <span class="status in-development">In development</span> |
+| 9   | Bridges                        | Bridges         | Object detection      | Omdena                           | <span class="status in-development">In development</span> |
+| 10  | Roof type classification       | Buildings       | Classification        | Omdena                           | <span class="status in-development">In development</span> |
+| 11  | Seagrass                       | Seagrass        | Object detection      | Omdena                           | <span class="status in-development">In development</span> |
+| 12  | Highway segmentation           | Roads           | Segmentation          | Zindi                            | <span class="status in-development">In development</span> |
+| 13  | Road surface (paved / unpaved) | Roads           | Classification        | HeiGIT                           | <span class="status in-development">In development</span> |
+| 14  | Road surface damage            | Roads           | Object detection      | Community member                 | <span class="status in-development">In development</span> |
+| 15  | Water storage tanks            | Water tanks     | Object detection      | Togglecorp                       | <span class="status in-development">In development</span> |
+| 16  | Breeding containers            | Disease vectors | Object detection      | HeiGIT                           | <span class="status in-development">In development</span> |
+| 17  | Buildings (U-Net)              | Buildings       | Instance segmentation | Community member                 | <span class="status in-development">In development</span> |
+| 18  | Open ground                    | Open spaces     | Segmentation          | NAXA                             | <span class="status in-development">In development</span> |
+| 19  | Roof material                  | Buildings       | Segmentation          | NAXA                             | <span class="status in-development">In development</span> |
+| 20  | Tent detection                 | Tents           | Object detection      | Community members                | <span class="status in-development">In development</span> |
+| 21  | Swimming pools                 | Swimming pools  | Object detection      | HOT                              | <span class="status in-development">In development</span> |
+| 22  | Rural roads                    | Roads           | Segmentation          | Community member                 | <span class="status planned">Planned</span>               |
+| 23  | Surface water                  | Water           | Segmentation          | Community member                 | <span class="status planned">Planned</span>               |
+| 24  | Parking spaces                 | Parking spaces  | Object detection      | HOT                              | <span class="status planned">Planned</span>               |
 
-Buildings, swimming pools, parking spaces and solid waste are available today; the Buildings row covers RAMP, DINO and YOLO. Progress across the model pipeline is tracked on the [Milestones](../progress/milestones.md) page.
+The DeepForest trees model uses weights from Weecology, packaged for fAIr by HOT. The Nepal flood damage model on [Activations](../progress/activations.md#nepal-floods-2026) is a local model tuned from the building damage model, so it is not listed here. The swimming pools model builds on Mozilla AI's pretrained [swimming pool detector](https://huggingface.co/mozilla-ai/swimming-pool-detector); it is under review in [pull request 65](https://github.com/hotosm/fAIr-models/pull/65), and its item is already in the base-models STAC collection. Progress across the model pipeline is tracked on the [Milestones](../progress/milestones.md) page.
 
 ### Open geo-AI challenges
 
-Several models are being built through two open geo-AI challenges launching in 2026, which open model development to a wider community:
+Several models are being built through two open geo-AI challenges in 2026, which open model development to a wider community:
 
-- **[Omdena](https://www.omdena.com/)** (around 50 participants): trees, solar panels, bridges, and land use and land cover.
-- **[Zindi](https://zindi.africa/)** (100+ participants expected): seagrass and highway segmentation, with a third model in planning.
+- **[Omdena](https://www.omdena.com/)** (around 50 participants): trees, solar panels, bridges, roof type classification, and seagrass.
+- **[Zindi](https://zindi.africa/)**: highway segmentation, in a challenge planned to run from 13 November to 11 December 2026.
 
-Contributions also come from **[HeiGIT](https://heigit.org/)** (solid waste, road surface) alongside HOT's own models.
+Contributions also come through the [open call](https://hotosm.org/en/request-for-proposals/open-call-for-earth-observation-geoai-models/) from **[HeiGIT](https://heigit.org/)** (solid waste, road surface, breeding containers), **[NAXA](https://naxa.com.np/)** (open ground, roof material), **[Togglecorp](https://togglecorp.com/)** (water storage tanks) and community members, alongside HOT's own models.
+
+Through a fellowship with the [Lund AI Society](https://lundaisociety.com/), a student-run nonprofit, a team of students works from September 2026 to January 2027 on cleaner building outlines from the building segmentation model.
 
 Need a different feature? Ask the team in **#fair-coord** on [Slack](https://slack.hotosm.org/), or contribute a model (see below).
 
 ## Contributing a model
 
-New geo-AI models are contributed through a pull request to the [fAIr-models catalog](https://hotosm.github.io/fAIr-models/). After review and approval, a model is registered into fAIr and becomes available to every kind of user. The registration flow is described in [Register a base model](../guides/register-a-base-model.md), and the architecture in [ML pipeline](../architecture/ml-pipeline.md).
+New geo-AI models are contributed through a pull request to the [fAIr-models repository](https://github.com/hotosm/fAIr-models), following its [contribution guide](https://hotosm.github.io/fAIr-models/contributing/model/). After review and approval, a model is registered into fAIr and becomes available to every kind of user. The registration flow is described in [Register a base model](../guides/register-a-base-model.md), and the architecture in [ML pipeline](../architecture/ml-pipeline.md).
 
 ### What kind of models
 

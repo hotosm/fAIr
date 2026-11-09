@@ -121,5 +121,9 @@ export const useRecentImageries = () => {
     emitChange(trimmed);
   }, []);
 
-  return { recentImageries, addRecentImagery } as const;
+  const clearRecentImageries = useCallback(() => {
+    emitChange([]);
+  }, []);
+
+  return { recentImageries, addRecentImagery, clearRecentImageries } as const;
 };

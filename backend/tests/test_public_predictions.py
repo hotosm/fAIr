@@ -28,7 +28,8 @@ def owner(db) -> OsmUser:
 def _prediction(owner: OsmUser, visibility: str) -> Prediction:
     return Prediction.objects.create(
         local_model_stac_id="m-1",
-        image_uri=_TMS,
+        imagery={"image": _TMS},
+        primary_input="image",
         geometry=_GEOM,
         zoom=19,
         visibility=visibility,

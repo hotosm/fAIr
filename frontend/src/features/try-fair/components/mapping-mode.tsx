@@ -11,6 +11,7 @@ import {
   useTryFairParams,
   type MappingModeType,
 } from "@/features/try-fair/hooks/use-try-fair-params";
+import { cn } from "@/utils";
 
 const MODES = {
   basic: { label: "Basic", Icon: ModeIcon },
@@ -19,7 +20,13 @@ const MODES = {
 
 type ModeKey = keyof typeof MODES;
 
-const MappingMode = () => {
+const MappingMode = ({
+  tourTarget = true,
+  fullWidth = false,
+}: {
+  tourTarget?: boolean;
+  fullWidth?: boolean;
+}) => {
   const { mappingMode, setMappingMode } = useTryFairParams();
   const { isAuthenticated } = useAuth();
   const mode: ModeKey = isAuthenticated ? mappingMode : "basic";
@@ -32,20 +39,30 @@ const MappingMode = () => {
       ref={dropdownRef}
       placement={DropdownPlacement.BOTTOM_START}
       disableCheveronIcon
+      className={fullWidth ? "w-full" : undefined}
+      sync={fullWidth ? "width" : undefined}
       triggerComponent={
         <div
-          id={APP_TOUR_IDS.TRY_FAIR_MAPPING_MODE}
-          className="bg-light-gray cursor-pointer w-[155px] rounded-[55px] py-2 justify-between px-2 items-center flex gap-2"
+          id={tourTarget ? APP_TOUR_IDS.TRY_FAIR_MAPPING_MODE : undefined}
+          className={cn(
+            "flex h-8 cursor-pointer items-center justify-between gap-2 rounded-[55px] bg-light-gray px-3",
+            fullWidth ? "w-full" : "w-[136px]",
+          )}
         >
           <div className="gap-2 items-center flex ">
-            <CurrentIcon />
-            <p className="text-dark texts-xs">{MODES[mode].label}</p>
+            <CurrentIcon className="size-4 shrink-0" />
+            <p className="text-dark text-xs">{MODES[mode].label}</p>
           </div>
           <ChevronDownIcon className="text-dark h-2 w-4 shrink-0" />
         </div>
       }
     >
-      <div className="bg-white rounded-lg p-1 w-[155px]">
+      <div
+        className={cn(
+          "rounded-lg bg-white p-1",
+          fullWidth ? "w-full" : "w-[155px]",
+        )}
+      >
         {Object.entries(availableModes).map(([key, { label, Icon }]) => {
           const isSelected = key === mode;
           return (

@@ -1,11 +1,11 @@
-import { useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import { cn, extractDatePart } from "@/utils";
 import { Spinner } from "@/components/ui/spinner";
 import { OAMImageryItem } from "@/features/try-fair/api/hot-imagery";
 import { ExpandIcon } from "@/components/ui/icons/expand-icon";
-import { CloseIcon } from "@/components/ui/icons";
-import { Select } from "@/components/ui/form";
-import { SHOELACE_SELECT_SIZES } from "@/enums";
+import { ChevronDownIcon, CloseIcon } from "@/components/ui/icons";
+import { Input, Select } from "@/components/ui/form";
+import { INPUT_TYPES, SHOELACE_SELECT_SIZES, SHOELACE_SIZES } from "@/enums";
 import {
   DatePreset,
   ResolutionPreset,
@@ -111,12 +111,10 @@ const ImageryCard = ({
 );
 
 /**
- * OpenAerialMap overlays for the imagery/location dialog: a centered location
- * search box and — once a density grid cell is selected — the panel of images
- * within that cell. The density grid itself is the OamImageryMap underneath;
- * this component only renders the panels layered over it.
+ * Imagery results beside the desktop map, or in a collapsible mobile sheet.
  */
 export const OAMImageryPanel = ({
+  expanded = false,
   cellSelected,
   images,
   loading,
@@ -125,6 +123,7 @@ export const OAMImageryPanel = ({
   onClose,
   handleApplyOAMItem,
 }: {
+  expanded?: boolean;
   cellSelected: boolean;
   images: OAMImageryItem[];
   loading: boolean;
@@ -134,43 +133,102 @@ export const OAMImageryPanel = ({
   /** Close the images panel (clears the selected grid cell). */
   onClose: () => void;
 }) => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const contentId = useId();
+  const [nameFilter, setNameFilter] = useState("");
   const [dateFilter, setDateFilter] = useState<DatePreset>("");
   const [resolutionFilter, setResolutionFilter] =
     useState<ResolutionPreset>("");
 
-  const filtered = useMemo(
-    () =>
-      images.filter(
-        (i) =>
-          withinDate(i.acquiredAt, dateFilter) &&
-          withinResolution(i.gsd, resolutionFilter),
-      ),
-    [images, dateFilter, resolutionFilter],
-  );
+  useEffect(() => {
+    setIsCollapsed(false);
+  }, [cellSelected, images]);
+
+  const filtered = useMemo(() => {
+    const query = nameFilter.trim().toLowerCase();
+    return images.filter(
+      (i) =>
+        withinDate(i.acquiredAt, dateFilter) &&
+        withinResolution(i.gsd, resolutionFilter) &&
+        (query === "" ||
+          i.title.toLowerCase().includes(query) ||
+          i.provider.toLowerCase().includes(query)),
+    );
+  }, [images, nameFilter, dateFilter, resolutionFilter]);
 
   if (!cellSelected) return null;
 
   return (
-    <>
-      <div className="absolute top-4 bottom-4 left-4 z-10 w-[200px]  md:w-[350px] bg-white rounded-lg shadow-lg flex flex-col overflow-hidden">
-        <div className="px-3 pt-3 pb-2 flex  items-center gap-2">
-          <p className="text-dark font-bold text-sm flex-1">
-            {loading
-              ? "Loading images…"
-              : `${filtered.length} image${filtered.length === 1 ? "" : "s"} in this area`}
-          </p>
-          {loading && <Spinner style={{ fontSize: "14px" }} />}
+    <aside
+      aria-label="Imagery results"
+      className={cn(
+        expanded
+          ? "imagery-results"
+          : "absolute top-4 bottom-4 left-4 z-10 w-[200px] md:w-[350px] bg-white rounded-lg shadow-lg flex flex-col overflow-hidden",
+        expanded && isCollapsed && "imagery-results--collapsed",
+      )}
+    >
+      <div className="px-4 py-3 flex items-center gap-2 shrink-0">
+        <h3 className="text-dark font-semibold text-sm flex-1">
+          {loading
+            ? "Loading images…"
+            : `${filtered.length} image${filtered.length === 1 ? "" : "s"} in this area`}
+        </h3>
+        {loading && <Spinner style={{ fontSize: "14px" }} />}
+        {expanded && (
           <button
             type="button"
-            aria-label="Close"
-            onClick={onClose}
-            className="text-grey hover:text-dark shrink-0"
+            aria-label={
+              isCollapsed
+                ? "Expand imagery results"
+                : "Collapse imagery results"
+            }
+            aria-expanded={!isCollapsed}
+            aria-controls={contentId}
+            onClick={() => setIsCollapsed((value) => !value)}
+            className="lg:hidden flex items-center justify-center size-8 text-grey hover:text-dark"
           >
-            <CloseIcon className="w-4 h-4" />
+            <ChevronDownIcon
+              className={cn("size-4", isCollapsed && "rotate-180")}
+            />
           </button>
+        )}
+        <button
+          type="button"
+          aria-label="Close imagery results"
+          onClick={onClose}
+          className="flex items-center justify-center size-8 text-grey hover:text-dark shrink-0"
+        >
+          <CloseIcon className="w-4 h-4" />
+        </button>
+      </div>
+
+      <div
+        id={contentId}
+        className={
+          expanded
+            ? "imagery-results__content"
+            : "flex flex-col flex-1 min-h-0 overflow-hidden"
+        }
+      >
+        <div className="px-3 pb-2">
+          <Input
+            type={INPUT_TYPES.TEXT}
+            value={nameFilter}
+            handleInput={(e) => setNameFilter(e.target.value)}
+            placeholder="Search by name"
+            size={SHOELACE_SIZES.SMALL}
+            clearable
+            showBorder
+          />
         </div>
 
-        <div className="px-3 pb-2 flex md:flex-row flex-col items-center gap-2">
+        <div
+          className={cn(
+            "px-3 pb-2 flex items-center gap-2 shrink-0",
+            !expanded && "md:flex-row flex-col",
+          )}
+        >
           <FilterSelect
             label="Filter by date"
             value={dateFilter}
@@ -185,7 +243,7 @@ export const OAMImageryPanel = ({
           />
         </div>
 
-        <div className="flex-1 overflow-y-auto px-3 pb-3 scrollable">
+        <div className="flex-1 min-h-0 overflow-y-auto px-3 pb-3 scrollable">
           {!loading && filtered.length === 0 ? (
             <ImageriesEmptyState
               content={
@@ -195,36 +253,52 @@ export const OAMImageryPanel = ({
               }
             />
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <div
+              className={cn(
+                "grid gap-2",
+                expanded ? "grid-cols-2" : "grid-cols-1 md:grid-cols-2",
+              )}
+            >
               {filtered.map((item) => (
                 <ImageryCard
                   key={item.id}
                   item={item}
                   isSelected={selectedItem?.id === item.id}
-                  onSelect={(clicked) =>
-                    onSelect(selectedItem?.id === clicked.id ? null : clicked)
-                  }
+                  onSelect={(clicked) => {
+                    const next =
+                      selectedItem?.id === clicked.id ? null : clicked;
+                    onSelect(next);
+                    if (expanded && next) setIsCollapsed(true);
+                  }}
                 />
               ))}
             </div>
           )}
         </div>
-        <div className="p-3 border-t border-gray-border bg-white flex justify-end shrink-0 sticky bottom-0">
-          <ToolTip
-            content={!selectedItem ? "Select an image first" : undefined}
-          >
-            <Button
-              size="medium"
-              rounded
-              disabled={!selectedItem}
-              onClick={handleApplyOAMItem}
-            >
-              Use this image
-            </Button>
-          </ToolTip>
-        </div>
       </div>
-    </>
+      <div
+        className={cn(
+          "p-3 border-t border-gray-border bg-white flex items-center gap-3 shrink-0",
+          expanded ? "justify-between" : "justify-end",
+        )}
+      >
+        {expanded && (
+          <p className="text-xs text-grey truncate" title={selectedItem?.title}>
+            {selectedItem?.title ?? "Select an image to preview"}
+          </p>
+        )}
+        <ToolTip content={!selectedItem ? "Select an image first" : undefined}>
+          <Button
+            size="medium"
+            rounded
+            disabled={!selectedItem}
+            onClick={handleApplyOAMItem}
+          >
+            Use this image
+          </Button>
+        </ToolTip>
+      </div>
+    </aside>
   );
 };
 

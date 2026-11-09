@@ -32,7 +32,11 @@ Everything lives in `/opt/fAIr-app` (a `develop` checkout):
 
 ## Deploy / redeploy
 
-Pull the latest images and restart. Migrations run automatically on start.
+`fAIr-autodeploy.timer` redeploys `develop` every 5 minutes; see `infra/systemd/Readme.md`.
+To redeploy by hand, pull the latest images and restart. Migrations run automatically on start.
+The ZenML stack is imported from the compose file only when it does not exist yet, so a later
+change to the orchestrator's `run_args` needs `zenml orchestrator update docker_compose` on the
+running stack, followed by a worker restart.
 
 ```bash
 ssh fair-dev

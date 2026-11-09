@@ -1,44 +1,46 @@
 ---
 icon: lucide/map-pinned
-description: Open Mapping Gurus and fAIrSwipe field projects that create and validate training data for fAIr.
+description: fAIrSwipe field projects that create and validate training data for fAIr.
 ---
 
 # Field projects
 
-fAIr's training data is created and validated in the field by community mappers, through two programs: **Open Mapping Gurus** and **fAIrSwipe**. The sections below track the active projects.
-
-## Open Mapping Gurus
-
-<!-- TODO: fill in with the latest info - Tasking Manager links and per-location training datasets -->
-
-Facilitated by HOT regional hubs (WNA: West and Northern Africa; ESA: Eastern and Southern Africa; LAC: Latin America and the Caribbean; AP: Asia-Pacific). Status as of 9 September 2026.
-
-| #   | Location                   | Features                | Hub | Status                       |
-| --- | -------------------------- | ----------------------- | --- | ---------------------------- |
-| 1   | Timor-Leste                | Seagrass                | AP  | Complete                     |
-| 2   | Freetown, Sierra Leone     | Buildings, road surface | WNA | Road surface tagging ongoing |
-| 3   | Nairobi, Kenya             | Roof type, road surface | ESA | Final validation             |
-| 4   | Stellenbosch, South Africa | Roof type, road surface | ESA | Final validation             |
-| 5   | Bogota, Colombia           | Buildings, roof type    | LAC | Active deployment            |
-
-Four further locations in the Philippines are being set up. The Tasking Manager project links and per-location training datasets are being compiled and will be added here. Released training datasets are published on [Hugging Face](https://huggingface.co/hotosm); see [Datasets](../datasets/index.md).
+fAIr's training data is created and validated in the field by community mappers, through two programs: **fAIrSwipe**, tracked on this page, and **Open Mapping Gurus**, tracked on [Datasets](../datasets/index.md#open-mapping-gurus) since its deployments produce the training datasets.
 
 ## fAIrSwipe field projects
 
-fAIrSwipe connects [MapSwipe](https://mapswipe.org/) to fAIr through two kinds of project:
+fAIrSwipe connects [MapSwipe](https://mapswipe.org/) to fAIr through Locate Objects projects, which create training data, and Validate Footprints projects, which check predictions; see [Validation](../overview/validation.md).
 
-- **LOCATE**: create training data for a model through crowdsourced swiping.
-- **Validate**: check a model's predictions through crowdsourced swiping.
+Both are organized through the open [fAIrSwipe community call](https://hotosm.github.io/fAIrswipe-call-2026/). The table lists the projects with a signed agreement or one sent for signature. Status as of 5 November 2026.
 
-Both are organized through the open [fAIrSwipe community call](https://hotosm.github.io/fAIrswipe-call-2026/). Individual projects are listed here as they are compiled.
+<!-- TODO: add the training dataset link for each project -->
 
-<!-- TODO: fill in with the latest info - training dataset links and current status per project -->
-
-| #   | Project                               | Lead           | Location                      | Feature                                               | Status  |
-| --- | ------------------------------------- | -------------- | ----------------------------- | ----------------------------------------------------- | ------- |
-| 1   | Road surface damage                   | Community team | Pokhara, Nepal                | Potholes and road-surface damage                      | Ongoing |
-| 2   | Earthquake building damage            | NAXA           | Jajarkot, Nepal               | Building damage, temporary settlements, roof material | Ongoing |
-| 3   | Water bodies                          | OSGeo Nepal    | Bara district, Nepal          | Ponds and water bodies                                | Ongoing |
-| 4   | Wildland-urban interface fire risk    | Community team | San Luis, Argentina           | Buildings and trees                                   | Ongoing |
-| 5   | Defensible space for forest fires     | Community team | Villa La Angostura, Argentina | Buildings and trees                                   | Ongoing |
-| 6   | Dumpsite mapping for flood prevention | Community team | Córdoba, Argentina            | Buildings, waste, and trees                           | Ongoing |
+| #   | Lead                                          | Location                                                | Feature                                                          | Status  |
+| --- | --------------------------------------------- | ------------------------------------------------------- | ---------------------------------------------------------------- | ------- |
+| 1   | UN Mappers                                    | Córdoba, Argentina                                      | Dumpsites, buildings and trees, for flood prevention             | Ongoing |
+| 2   | Lawal / FACTTIC                               | Villa La Angostura, Argentina                           | Buildings and trees, for forest-fire defensible space            | Ongoing |
+| 3   | National University of Los Comechingones      | San Luis, Argentina                                     | Buildings and trees, for wildland-urban fire risk                | Ongoing |
+| 4   | Bangladesh Open Innovation Lab                | Hazaribagh and Kamrangirchar, Dhaka, Bangladesh         | Disease vector sites                                             | Ongoing |
+| 5   | La Senda Verde Animal Refuge                  | Passiflora Nature Reserve, Bolivia                      | Trees and green space                                            | Ongoing |
+| 6   | Municipality of Quito                         | Río Machángara, Quito, Ecuador                          | Buildings and structures                                         | Ongoing |
+| 7   | Mbilaneni Youth Initiatives                   | Nhlangano, Eswatini                                     | Trees and green space                                            | Ongoing |
+| 8   | Community member                              | Accra, Ghana                                            | Waste and landfill sites                                         | Ongoing |
+| 9   | Honduran Red Cross                            | La Paz, Honduras                                        | Disease vector sites                                             | Ongoing |
+| 10  | Community member                              | Nashik, India                                           | Solar panels and rooftops                                        | Ongoing |
+| 11  | Community member                              | Nashik, India                                           | Roads and transport                                              | Ongoing |
+| 12  | OpenStreetMap Indonesia                       | Bekasi City, Indonesia                                  | Roads and transport                                              | Ongoing |
+| 13  | Atlas Geosystems and OSM Kenya                | Garissa County, Kenya                                   | Solar panels and rooftops                                        | Ongoing |
+| 14  | Community member                              | Kwale, Kenya                                            | Fishing boats                                                    | Ongoing |
+| 15  | Ace Geo-Consultancy                           | Meru, Kenya                                             | Water tanks                                                      | Ongoing |
+| 16  | Kenya Flying Labs                             | Mukuru Kwa Reuben and Mukuru Kwa Njenga, Nairobi, Kenya | Informal settlements                                             | Ongoing |
+| 17  | OSM Liberia                                   | Bushrod Island, Monrovia, Liberia                       | Waste and landfill sites                                         | Ongoing |
+| 18  | Malawi OSM                                    | Lake Chilwa, Zomba, Malawi                              | Buildings and structures                                         | Ongoing |
+| 19  | Netas Ciudadanas                              | Centro Sur, Querétaro, Mexico                           | Trees and green space                                            | Ongoing |
+| 20  | OSGeo Nepal                                   | Bara district, Nepal                                    | Ponds and water bodies                                           | Ongoing |
+| 21  | NAXA                                          | Jajarkot, Nepal                                         | Earthquake building damage, temporary settlements, roof material | Ongoing |
+| 22  | Togglecorp Solutions                          | Kathmandu, Nepal                                        | Water tanks                                                      | Ongoing |
+| 23  | Pokhara Road Surface Mapping Team             | Pokhara, Nepal                                          | Potholes and road-surface damage                                 | Ongoing |
+| 24  | Open Knowledge South Sudan                    | Juba, South Sudan                                       | Bins, benches and streetlights                                   | Ongoing |
+| 25  | Geospatial Technology and Environment (GeoTE) | Morogoro, Tanzania                                      | Waste and landfill sites                                         | Ongoing |
+| 26  | OpenMap Development Tanzania (OMDTZ)          | Mwembesongo and Mji Mpya, Morogoro, Tanzania            | Visible solid waste                                              | Ongoing |
+| 27  | SMCoSE YouthMapper                            | Morogoro, Tanzania                                      | Water, drainage and flood                                        | Ongoing |

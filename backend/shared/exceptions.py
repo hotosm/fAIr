@@ -41,6 +41,18 @@ class GeometryValidationException(ValidationException):
     error_code = "GEOMETRY_VALIDATION_ERROR"
 
 
+class RunAlreadyFinishedException(FairBaseError):
+    default_message = "The pipeline run has already finished"
+    status_code = status.HTTP_409_CONFLICT
+    error_code = "RUN_ALREADY_FINISHED"
+
+
+class ResourceInUseException(FairBaseError):
+    default_message = "The resource is still in use"
+    status_code = status.HTTP_409_CONFLICT
+    error_code = "RESOURCE_IN_USE"
+
+
 class AuthenticationException(FairBaseError):
     default_message = "Authentication required"
     status_code = status.HTTP_401_UNAUTHORIZED

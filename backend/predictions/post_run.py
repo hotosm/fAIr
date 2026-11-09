@@ -16,6 +16,12 @@ from typing import Any
 from django.conf import settings
 from upath import UPath
 
+from shared.integrations.stac import (
+    BASE_MODELS_COLLECTION,
+    LOCAL_MODELS_COLLECTION,
+    get_item,
+    item_exists,
+)
 from shared.storage import StoragePaths
 
 from .models import Prediction
@@ -23,11 +29,16 @@ from .models import Prediction
 logger = logging.getLogger(__name__)
 
 
+class PredictionOutputError(RuntimeError):
+    """Predictions do not match what the model's STAC item declares."""
+
+
 def post_process_prediction(prediction: Prediction) -> None:
     if not prediction.zenml_run_id:
         raise RuntimeError(f"Prediction {prediction.id} has no zenml_run_id")
 
     geojson = _load_geojson(str(prediction.zenml_run_id))
+    _check_against_model_item(geojson, str(prediction.local_model_stac_id))
 
     if prediction.remove_osm:
         # TODO(remove-osm): OSM conflation not yet implemented.
@@ -41,6 +52,26 @@ def post_process_prediction(prediction: Prediction) -> None:
     _generate_fgb(geojson, prediction.id)
     _generate_pmtiles(geojson, prediction.id)
     logger.info("Prediction %s: post-run complete", prediction.id)
+
+
+def _check_against_model_item(geojson: dict[str, Any], model_id: str) -> None:
+    from fair.stac.validators import validate_predictions_geojson
+
+    collection = next(
+        (
+            collection
+            for collection in (LOCAL_MODELS_COLLECTION, BASE_MODELS_COLLECTION)
+            if item_exists(collection, model_id)
+        ),
+        None,
+    )
+    if collection is None:
+        raise PredictionOutputError(f"Model {model_id} not found in STAC")
+    if errors := validate_predictions_geojson(geojson, get_item(collection, model_id)):
+        raise PredictionOutputError(
+            f"Model {model_id}: {len(errors)} prediction errors against its STAC item, "
+            f"first: {errors[:5]}"
+        )
 
 
 def _load_geojson(zenml_run_id: str) -> dict[str, Any]:
