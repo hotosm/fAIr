@@ -118,7 +118,13 @@ export const TryFairPredictionsLayer = ({
 
     // ── Polygon ──────────────────────────────────────────────────────────────
     if (outputType === TryFairMapOutputType.POLYGON) {
-      map.addSource(SOURCE_ID, { type: "geojson", data: predictions });
+      // generateId gives each rendered feature its index in `predictions`, so
+      // feature-level feedback can map a click back to the source feature.
+      map.addSource(SOURCE_ID, {
+        type: "geojson",
+        data: predictions,
+        generateId: true,
+      });
       map.addLayer({
         id: FILL_LAYER,
         type: "fill",

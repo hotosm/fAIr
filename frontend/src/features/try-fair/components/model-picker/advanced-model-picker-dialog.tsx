@@ -2,7 +2,7 @@ import {
   SwitchSampleDialog,
   shouldShowSwitchWarning,
 } from "@/features/try-fair/components/model-picker/switch-sample-dialog";
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   useGetAllAPIBaseModels,
   useGetAllAPILocalModels,
@@ -76,12 +76,23 @@ type AdvancedModelPickerContentProps = {
   feature: string;
   onSelect: (model: BaseModelStacItem) => void;
   onFeatureChange?: (slug: string) => void;
+  /** Closes the picker once a model has been applied. */
+  onClose?: () => void;
 };
 
+/**
+ * Changing the feature is held here as temporary state and never picks a
+ * model: the new feature's list starts unselected and nothing on the page
+ * changes until the user clicks a model. Clicking a model applies it (with
+ * the feature, after the Samples warning) and closes the picker. Closing
+ * without clicking one keeps the model selected before the picker opened;
+ * the picker is unmounted when closed, so every opening starts fresh.
+ */
 export const AdvancedModelPickerContent = ({
   feature,
   onSelect,
   onFeatureChange,
+  onClose,
 }: AdvancedModelPickerContentProps) => {
   const [source, setSource] = useState<ModelSource>("base");
   const [search, setSearch] = useState("");
@@ -90,11 +101,10 @@ export const AdvancedModelPickerContent = ({
   const { selectedModelId, modelId, setSelectedModelId, mode } =
     useTryFairParams();
   const activeModelId = selectedModelId ?? modelId;
-  const [pendingChange, setPendingChange] = useState<
-    | { type: "feature"; slug: string }
-    | { type: "model"; item: APIBaseModelItem }
-    | null
-  >(null);
+  // Model waiting on the Samples-mode warning before it is applied.
+  const [pendingModel, setPendingModel] = useState<APIBaseModelItem | null>(
+    null,
+  );
 
   // Feature list from API
   const { data: featuresData } = useGetFeaturesToMap();
@@ -104,11 +114,12 @@ export const AdvancedModelPickerContent = ({
   const [stagedFeature, setStagedFeature] = useState<string | null>(null);
 
   const effectiveFeatureSlug = stagedFeature ?? feature;
+  const isFeatureChanged = effectiveFeatureSlug !== feature;
   const featureLabel =
     featureList.find((item) => item.slug === effectiveFeatureSlug)?.label ??
     effectiveFeatureSlug.replace(/[-_]/g, " ");
 
-  // Drop staged feature when the committed feature changes externally.
+  // Drop the staged feature when the committed feature changes externally.
   useEffect(() => {
     setStagedFeature(null);
   }, [feature]);
@@ -145,94 +156,43 @@ export const AdvancedModelPickerContent = ({
   const startIdx = models.length > 0 ? safePage * ITEMS_PER_PAGE + 1 : 0;
   const endIdx = Math.min((safePage + 1) * ITEMS_PER_PAGE, models.length);
 
-  const applyModel = (item: APIBaseModelItem, featureSlug?: string) => {
+  // The committed model is highlighted only while browsing its feature; a
+  // newly chosen feature starts with no model selected.
+  const highlightedModelId =
+    pendingModel?.stac_item_id ?? (isFeatureChanged ? null : activeModelId);
+
+  const applyModel = (item: APIBaseModelItem) => {
+    setPendingModel(null);
     if (!item.stac) return;
     onSelect(item.stac);
     setSelectedModelId(item.stac_item_id);
-    if (featureSlug && featureSlug !== feature) {
-      onFeatureChange?.(featureSlug);
-    }
+    if (isFeatureChanged) onFeatureChange?.(effectiveFeatureSlug);
+    onClose?.();
   };
 
   const handleSelectModel = (item: APIBaseModelItem) => {
-    if (item.stac_item_id === activeModelId) return;
+    if (item.stac_item_id === activeModelId && !isFeatureChanged) return;
     if (mode === ModelType.DEMO && shouldShowSwitchWarning()) {
-      setPendingChange({ type: "model", item });
+      setPendingModel(item);
     } else {
-      applyModel(item, stagedFeature ?? undefined);
+      applyModel(item);
     }
-  };
-
-  const applyFeature = (slug: string) => {
-    setStagedFeature(slug);
-    setPage(0);
-    setSearch("");
   };
 
   const handleFeatureSelect = (slug: string) => {
     if (slug === effectiveFeatureSlug) return;
-    if (mode === ModelType.DEMO && shouldShowSwitchWarning()) {
-      setPendingChange({ type: "feature", slug });
-    } else {
-      applyFeature(slug);
-    }
+    setStagedFeature(slug === feature ? null : slug);
+    setPage(0);
+    setSearch("");
   };
 
-  // Auto-change the model to the selected feature's default, mirroring the
-  // basic model picker: picking a feature should switch the model to a
-  // compatible one (pinned only in Samples, base first, then local) rather than requiring a separate
-  // model click. Runs once per feature, and only when the currently selected
-  // model isn't already valid for that feature (so it never overrides a manual
-  // pick or the model restored on open).
-  const baseModels = baseModelsData?.results ?? [];
-  const localModels = localModelsData?.results ?? [];
-  const autoSelectedFeatureRef = useRef<string | null>(null);
-
-  useEffect(() => {
-    if (baseLoading || localLoading) return;
-
-    const featureModels = [...baseModels, ...localModels];
-    if (featureModels.length === 0) return;
-    if (autoSelectedFeatureRef.current === effectiveFeatureSlug) return;
-
-    const currentModelIsValid = featureModels.some(
-      (model) => model.stac_item_id === activeModelId,
-    );
-    if (!currentModelIsValid) {
-      const defaultModel =
-        mode === ModelType.DEMO
-          ? featureModels.find((model) => model.is_pinned)
-          : featureModels[0];
-      if (defaultModel) {
-        applyModel(defaultModel, stagedFeature ?? undefined);
-      }
-    }
-
-    autoSelectedFeatureRef.current = effectiveFeatureSlug;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    effectiveFeatureSlug,
-    baseLoading,
-    localLoading,
-    baseModelsData,
-    localModelsData,
-    activeModelId,
-    mode,
-  ]);
   return (
     <div className="flex flex-col min-h-[428px]">
-      {pendingChange && (
+      {pendingModel && (
         <SwitchSampleDialog
           message="Changing the feature or model in Samples mode will switch your imagery and map location to the selected sample’s imagery location and clear your current progress. You can restore saved predictions from History."
-          onCancel={() => setPendingChange(null)}
-          onConfirm={() => {
-            if (pendingChange.type === "feature") {
-              applyFeature(pendingChange.slug);
-            } else {
-              applyModel(pendingChange.item, stagedFeature ?? undefined);
-            }
-            setPendingChange(null);
-          }}
+          onCancel={() => setPendingModel(null)}
+          onConfirm={() => applyModel(pendingModel)}
         />
       )}
       <div className="flex gap-4 flex-1">
@@ -347,11 +307,12 @@ export const AdvancedModelPickerContent = ({
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {pageModels.map((model) => {
-                const isSelected = activeModelId === model.stac_item_id;
+                const isSelected = highlightedModelId === model.stac_item_id;
                 return (
                   <button
                     key={model.id}
                     type="button"
+                    aria-pressed={isSelected}
                     onClick={() => handleSelectModel(model)}
                     className={`relative text-left p-3 bg-frosted-blue min-h-[98px] rounded-lg border transition-colors ${
                       isSelected ? "border-primary border-2 " : ""

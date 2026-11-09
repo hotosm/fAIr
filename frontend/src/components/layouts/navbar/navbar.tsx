@@ -109,7 +109,10 @@ export const NavBar = () => {
       </Drawer>
 
       <nav
-        className={`${styles.nav} app-padding z-20 py-1 border-b border-gray-border`}
+        // `relative` makes the z-index apply, so navbar tooltips that flip
+        // below the bar stay above map overlays like the prediction history
+        // drawer (z-20).
+        className={`${styles.nav} relative app-padding z-30 py-1 border-b border-gray-border`}
       >
         <div className="min-w-0 flex-1 flex gap-4 items-center justify-start">
           {showBackButton ? (

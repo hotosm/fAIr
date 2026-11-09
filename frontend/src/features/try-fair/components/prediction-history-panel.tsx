@@ -81,7 +81,7 @@ export function PredictionHistoryPanel({
                     {featureCount === 1 ? "" : "s"} detected
                   </p>
                   <p className="text-xs text-grey pt-1">
-                    {current ? "Current" : elapsedTime(entry.created_at, now)}
+                    {elapsedTime(entry.created_at, now)}
                   </p>
                 </button>
               </li>
