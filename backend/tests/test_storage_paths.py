@@ -1,4 +1,8 @@
+from unittest.mock import patch
+
+import pytest
 from django.test import override_settings
+from upath import UPath
 
 from shared.storage import StoragePaths, remove_dir
 
@@ -31,3 +35,12 @@ def test_remove_dir_deletes_a_folder_tree_and_ignores_a_missing_one(tmp_path):
     remove_dir(str(folder))
 
     assert not folder.exists()
+
+
+def test_remove_dir_raises_when_the_store_keeps_the_files():
+    folder = UPath("memory://predict/4/input/image")
+    (folder / "0_0_19.tif").write_bytes(b"tile")
+
+    with patch.object(type(folder.fs), "rm"), pytest.raises(OSError, match="still exists"):
+        remove_dir(str(folder))
+    folder.fs.rm(folder.path, recursive=True)

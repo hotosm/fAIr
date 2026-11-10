@@ -44,7 +44,7 @@ class GetMyData(APIView):
         user.last_login = timezone.now()
         user.save(update_fields=["last_login"])
         serialized_field = UserStatsSerializer(instance=user)
-        return Response(serialized_field.data, status=status.HTTP_201_CREATED)
+        return Response(serialized_field.data)
 
     @extend_schema(
         description="Extend the caller's profile (email, deletion-request, prefs).",

@@ -79,6 +79,11 @@ def sync_prediction_status(*, prediction_id: int) -> None:
         delete_input_tiles(prediction)
 
 
+@task()
+def delete_prediction_input_tiles(*, prediction_id: int) -> None:
+    delete_input_tiles(Prediction.objects.get(id=prediction_id))
+
+
 def delete_input_tiles(prediction: Prediction) -> None:
     if not settings.DELETE_PREDICTION_INPUT_TILES:
         return
