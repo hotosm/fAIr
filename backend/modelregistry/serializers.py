@@ -3,7 +3,7 @@ from typing import Any, cast
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from notifications.serializers import UserSerializer
+from accounts.serializers import UserSerializer
 from shared.integrations.stac import BASE_MODELS_COLLECTION, LOCAL_MODELS_COLLECTION
 from shared.serializers import TMS_PLACEHOLDERS, StacFacetSerializer
 
@@ -102,16 +102,7 @@ class BaseModelSerializer(serializers.ModelSerializer):
 
 
 class BaseModelRegisterSerializer(serializers.Serializer):
-    """Register a base model from an inline STAC item or a URL to one.
-
-    Exactly one of ``stac_item`` (inline JSON) or ``stac_item_url`` (a link
-    fetched at request time) must be supplied. Either way the resolved item is
-    stored in ``stac_item``; the URL itself is not persisted.
-
-    ``inference_endpoint`` is optional: when given, its URL is written to the
-    item's ``mlm:inference-endpoint`` asset before registration; when omitted,
-    whatever the STAC item already carries is used unchanged.
-    """
+    """Register from exactly one of an inline `stac_item` or a `stac_item_url` fetched once."""
 
     stac_item = serializers.JSONField(required=False)
     stac_item_url = serializers.URLField(required=False)
@@ -232,15 +223,3 @@ class StacPropertiesPatchSerializer(serializers.Serializer):
                 f"Only {self._EXTENSION_HOST} schemas can be added: {', '.join(outside)}."
             )
         return value
-
-
-class TrainingRunSummarySerializer(serializers.Serializer):
-    """ZenML run summary, populated from fair.zenml.runs.RunSummary."""
-
-    id = serializers.CharField()
-    name = serializers.CharField()
-    status = serializers.CharField()
-    created_at = serializers.CharField(allow_null=True)
-    pipeline_name = serializers.CharField()
-    model_name = serializers.CharField(allow_null=True)
-    model_version = serializers.IntegerField(allow_null=True)

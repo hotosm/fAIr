@@ -4,8 +4,16 @@ import pytest
 from django.db import connection
 from django.db.migrations.executor import MigrationExecutor
 
-BEFORE = [("datasets", "0005_dataset_category"), ("predictions", "0007_prediction_geometry")]
-AFTER = [("datasets", "0006_dataset_imagery"), ("predictions", "0008_prediction_imagery")]
+BEFORE = [
+    ("accounts", "0001_initial"),
+    ("datasets", "0005_dataset_category"),
+    ("predictions", "0007_prediction_geometry"),
+]
+AFTER = [
+    ("accounts", "0001_initial"),
+    ("datasets", "0006_dataset_imagery"),
+    ("predictions", "0008_prediction_imagery"),
+]
 URL = "https://tiles.example/{z}/{x}/{y}"
 
 
@@ -24,7 +32,7 @@ def _user(apps, osm_id: int):
 @pytest.fixture
 def restore_migrations():
     yield
-    _migrate(AFTER)
+    _migrate(MigrationExecutor(connection).loader.graph.leaf_nodes())
 
 
 @pytest.mark.django_db(transaction=True)

@@ -20,31 +20,25 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_gis.filters import InBBoxFilter
 
-from accounts.authentication import OsmAuthentication
 from accounts.permissions import (
     IsAdmin,
     IsOwnerOrAdmin,
     IsOwnerOrAdminOrReadOnly,
     PublishedReadOrAuthenticatedWrite,
-    _is_admin,
+    is_admin,
 )
 from shared.enums import Visibility
 from shared.integrations.stac import (
     DATASETS_COLLECTION,
     FAIR_PINNED_PROPERTY,
-    bulk_get_cached_items,
-    get_cached_item,
     set_item_property,
 )
+from shared.stac_expand import StacExpandMixin
 
 from .deletion import delete_dataset
 from .models import AOI, Dataset
 from .serializers import AOISerializer, DatasetCreateSerializer, DatasetSerializer
 from .tasks import build_dataset
-
-
-def _wants_expand_stac(request) -> bool:
-    return request.query_params.get("expand") == "stac"
 
 
 @extend_schema_view(
@@ -76,6 +70,7 @@ def _wants_expand_stac(request) -> bool:
     build=extend_schema(description="Submit a dataset build job for the given AOIs."),
 )
 class DatasetViewSet(
+    StacExpandMixin,
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
     mixins.UpdateModelMixin,
@@ -84,14 +79,15 @@ class DatasetViewSet(
 ):
     """Datasets are created by the `build` action."""
 
+    stac_collection = DATASETS_COLLECTION
+    stac_id_field = "stac_id"
     queryset = Dataset.objects.all()
     serializer_class = DatasetSerializer
-    authentication_classes = [OsmAuthentication]
     permission_classes = [PublishedReadOrAuthenticatedWrite, IsOwnerOrAdminOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
-    filterset_fields = ["status", "visibility", "user"]
+    filterset_fields = ["status", "visibility", "category", "user"]
     search_fields = ["title", "stac_id"]
-    ordering_fields = ["created_at", "last_modified"]
+    ordering_fields = ["created_at", "last_modified", "star_count"]
 
     def get_queryset(self):
         from shared.stars import annotate_stars
@@ -100,7 +96,7 @@ class DatasetViewSet(
         user = self.request.user
         if not user.is_authenticated:
             qs = qs.filter(visibility=Visibility.PUBLIC)
-        elif not _is_admin(user):
+        elif not is_admin(user):
             qs = qs.filter(Q(user=user) | Q(visibility=Visibility.PUBLIC))
         return annotate_stars(qs, self.request)
 
@@ -113,36 +109,6 @@ class DatasetViewSet(
 
     def perform_destroy(self, instance: Dataset) -> None:
         delete_dataset(instance)
-
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context["stac_items_by_id"] = self._stac_items_for_request()
-        return context
-
-    def _stac_items_for_request(self) -> dict:
-        if not _wants_expand_stac(self.request):
-            return {}
-        if self.action == "retrieve":
-            obj = self.get_object()
-            payload = get_cached_item(DATASETS_COLLECTION, obj.stac_id)
-            return {(DATASETS_COLLECTION, obj.stac_id): payload}
-        if self.action == "list":
-            page = self.paginate_queryset(self.filter_queryset(self.get_queryset()))
-            if page is None:
-                page = list(self.filter_queryset(self.get_queryset()))
-            self._cached_page = page
-            pairs = [(DATASETS_COLLECTION, d.stac_id) for d in page]
-            return bulk_get_cached_items(pairs)
-        return {}
-
-    def list(self, request, *args, **kwargs):
-        if _wants_expand_stac(request):
-            self.get_serializer_context()
-            page = getattr(self, "_cached_page", None)
-            if page is not None and self.paginator is not None:
-                serializer = self.get_serializer(page, many=True)
-                return self.get_paginated_response(serializer.data)
-        return super().list(request, *args, **kwargs)
 
     @extend_schema(request=None, responses={200: DatasetSerializer})
     @action(detail=True, methods=["post"], url_path="publish")
@@ -303,7 +269,6 @@ class DatasetViewSet(
 class AOIViewSet(viewsets.ModelViewSet):
     queryset = AOI.objects.all()
     serializer_class = AOISerializer
-    authentication_classes = [OsmAuthentication]
     permission_classes = [IsAuthenticated, IsOwnerOrAdminOrReadOnly]
     filter_backends = [DjangoFilterBackend, InBBoxFilter]
     filterset_fields = ["dataset", "user"]
@@ -316,7 +281,6 @@ class AOIViewSet(viewsets.ModelViewSet):
 
 @extend_schema(tags=["datasets"])
 class GenerateGpxView(APIView):
-    authentication_classes = [OsmAuthentication]
     permission_classes = [IsAuthenticated]
 
     @extend_schema(

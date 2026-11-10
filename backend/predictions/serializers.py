@@ -3,7 +3,7 @@ from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from notifications.serializers import UserSerializer
+from accounts.serializers import UserSerializer
 from shared.serializers import (
     MAX_ZOOM,
     MIN_ZOOM,
@@ -40,15 +40,6 @@ class PredictionSubmitSerializer(serializers.Serializer):
     geometry = serializers.JSONField(required=False)
     zoom = serializers.IntegerField(min_value=MIN_ZOOM, max_value=MAX_ZOOM)
     params = serializers.DictField(required=False, default=dict)
-    remove_osm = serializers.BooleanField(
-        required=False,
-        default=False,
-        help_text=(
-            "If true, the post-run job subtracts existing OSM building footprints "
-            "from the prediction set. Removed features are saved alongside the "
-            "output as removed_osm.geojson."
-        ),
-    )
     description = serializers.CharField(required=False, allow_blank=True, default="")
 
     def validate_image_uri(self, value: str) -> str:
@@ -148,14 +139,12 @@ class PredictionSerializer(OwnerOnlyErrorMixin, serializers.ModelSerializer):
             "geometry",
             "zoom",
             "params",
-            "remove_osm",
             "visibility",
             "description",
             "status",
             "error",
             "results_ready",
             "assets",
-            "mapswipe_project_id",
             "user",
             "submitted_at",
             "last_polled_at",

@@ -39,39 +39,51 @@ OpenAPI schema at `/api/schema/`, Swagger UI at `/api/docs/`, ReDoc at `/api/red
 
 ### Core Django
 
-| Name                   | Required | Default     | Description                                                                                                     |
-| ---------------------- | -------- | ----------- | --------------------------------------------------------------------------------------------------------------- |
-| `DEBUG`                | no       | `false`     | Django debug mode. In prod (`false`), `SECRET_KEY` must be at least 32 chars and not contain `dev` or `unsafe`. |
-| `SECRET_KEY`           | yes      | (none)      | Django secret. Strict length/strength check when `DEBUG=false`.                                                 |
-| `DATABASE_URL`         | yes      | (none)      | Postgres URL. Scheme must be `postgres`, `postgresql`, or `postgis`.                                            |
-| `DATABASE_SSL_MODE`    | no       | `null`      | psycopg `sslmode`. Set to `require` for hosted Postgres.                                                        |
-| `ALLOWED_HOSTS`        | no       | `[]`        | Comma-separated list.                                                                                           |
-| `CSRF_TRUSTED_ORIGINS` | no       | `[]`        | Comma-separated list.                                                                                           |
-| `CORS_ALLOWED_ORIGINS` | no       | `[]`        | Comma-separated list.                                                                                           |
-| `SECURE_SSL_REDIRECT`  | no       | `true`      | Force HTTPS redirect at the Django layer.                                                                       |
-| `FRONTEND_URL`         | yes      | (none)      | Public URL of the SPA. Used in emails and CORS.                                                                 |
-| `API_BASE_URL`         | yes      | (none)      | Public URL of this backend (e.g. `http://localhost:8000/api/v1`).                                               |
-| `HOSTNAME`             | no       | `127.0.0.1` | Used by the OpenAPI server URL.                                                                                 |
+| Name                     | Required | Default                 | Description                                                                                                                |
+| ------------------------ | -------- | ----------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `DEBUG`                  | no       | `false`                 | Django debug mode. In prod (`false`), `SECRET_KEY` must be at least 32 chars and not contain `dev` or `unsafe`.            |
+| `SECRET_KEY`             | yes      | (none)                  | Django secret. Strict length/strength check when `DEBUG=false`.                                                            |
+| `DATABASE_URL`           | yes      | (none)                  | Postgres URL. Scheme must be `postgres`, `postgresql`, or `postgis`.                                                       |
+| `DATABASE_SSL_MODE`      | no       | `null`                  | psycopg `sslmode`. Set to `require` for hosted Postgres.                                                                   |
+| `ALLOWED_HOSTS`          | no       | `[]`                    | Comma-separated list.                                                                                                      |
+| `CSRF_TRUSTED_ORIGINS`   | no       | `[]`                    | Comma-separated list.                                                                                                      |
+| `CORS_ALLOWED_ORIGINS`   | no       | `[]`                    | Comma-separated list.                                                                                                      |
+| `CORS_ALLOW_ALL_ORIGINS` | no       | `false`                 | Accept every origin. `DEBUG=true` turns this on as well.                                                                   |
+| `SECURE_SSL_REDIRECT`    | no       | `true`                  | Force HTTPS redirect at the Django layer.                                                                                  |
+| `FRONTEND_URL`           | yes      | (none)                  | Public URL of the SPA. Used in emails and CORS.                                                                            |
+| `API_BASE_URL`           | yes      | (none)                  | Public URL of this backend (e.g. `http://localhost:8000/api/v1`).                                                          |
+| `HOSTNAME`               | no       | `127.0.0.1`             | Added to `ALLOWED_HOSTS` when `DEBUG=false`. Container runtimes set this to the container name.                            |
+| `SERVE_FRONTEND`         | no       | `false`                 | Serve the built SPA from this backend: WhiteNoise serves its assets and every non-API route returns `index.html`.          |
+| `FRONTEND_DIST_DIR`      | no       | `backend/frontend_html` | Directory holding the built SPA, read when `SERVE_FRONTEND=true`. A relative value resolves against the working directory. |
 
 ### Authentication
 
 `AUTH_PROVIDER` selects the auth backend. Both share one contract: `Authorization: Bearer <token>`. `hanko` (production) validates a per-user JWT issued by Hanko (sent via Bearer header or `hanko` cookie). `dev` (local only) compares the Bearer token against the static `FAIR_DEV_TOKEN`; anyone with the token gets full dev-user access. Same header in dev and prod, only the issuer differs.
 
-`GET` on datasets, local-models, and predictions is open to anonymous callers for rows with `visibility="public"`. Owner-scoped lifecycle data (AOIs, trainings, feedback, notifications) and every write require Bearer auth.
+`GET` on datasets, local-models, and predictions is open to anonymous callers for rows with `visibility="public"`. Owner-scoped lifecycle data (AOIs, trainings, user state) and every write require Bearer auth.
 
-| Name                     | Required                   | Default                    | Description                                                                |
-| ------------------------ | -------------------------- | -------------------------- | -------------------------------------------------------------------------- |
-| `AUTH_PROVIDER`          | no                         | `hanko`                    | One of `hanko`, `dev`.                                                     |
-| `FAIR_DEV_TOKEN`         | when `AUTH_PROVIDER=dev`   | `null`                     | Static dev token. Generate with `openssl rand -hex 32`. Never commit.      |
-| `HANKO_API_URL`          | when `AUTH_PROVIDER=hanko` | `null`                     | Hanko backend URL.                                                         |
-| `COOKIE_SECRET`          | when `AUTH_PROVIDER=hanko` | `null`                     | Used to verify Hanko-signed cookies.                                       |
-| `COOKIE_DOMAIN`          | no                         | `null`                     | Cookie scope domain.                                                       |
-| `COOKIE_SECURE`          | no                         | `null`                     | Force `Secure` cookie flag.                                                |
-| `JWT_AUDIENCE`           | no                         | `null`                     | Expected `aud` claim.                                                      |
-| `LOGIN_URL`              | no                         | `https://login.hotosm.org` | HOT login portal URL.                                                      |
-| `LOGIN_INTERNAL_API_KEY` | no                         | `null`                     | Server-to-server key against the login portal.                             |
-| `LOGIN_BACKEND_URL`      | no                         | `null`                     | Login portal backend URL.                                                  |
-| `OSM_LOGIN_REDIRECT_URI` | no                         | `null`                     | Required only when Hanko's "connect existing OSM account" flow is enabled. |
+With `AUTH_PROVIDER=hanko`, the `hotosm_auth` library reads the cookie, JWT and OSM variables straight from the environment. This backend reads `LOGIN_URL`, `LOGIN_INTERNAL_API_KEY` and `LOGIN_BACKEND_URL`, and checks `HANKO_API_URL`, `COOKIE_SECRET`, `COOKIE_DOMAIN`, `COOKIE_SECURE`, `JWT_AUDIENCE` and `OSM_REDIRECT_URI` at startup.
+
+| Name                     | Required                   | Default                              | Description                                                                                             |
+| ------------------------ | -------------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------- |
+| `AUTH_PROVIDER`          | no                         | `hanko`                              | One of `hanko`, `dev`.                                                                                  |
+| `FAIR_DEV_TOKEN`         | when `AUTH_PROVIDER=dev`   | `null`                               | Static dev token. Generate with `openssl rand -hex 32`. Never commit.                                   |
+| `HANKO_API_URL`          | when `AUTH_PROVIDER=hanko` | `null`                               | Hanko backend URL.                                                                                      |
+| `COOKIE_SECRET`          | when `AUTH_PROVIDER=hanko` | `null`                               | Used to verify Hanko-signed cookies. At least 32 characters.                                            |
+| `COOKIE_DOMAIN`          | no                         | inferred from `HANKO_API_URL`        | Cookie scope domain. Inferred as the last two host labels, or `localhost`.                              |
+| `COOKIE_SECURE`          | no                         | `true` when `HANKO_API_URL` is https | `Secure` cookie flag. Only `true` turns it on.                                                          |
+| `JWT_AUDIENCE`           | no                         | `null`                               | Expected `aud` claim.                                                                                   |
+| `LOGIN_URL`              | no                         | `https://login.hotosm.org`           | HOT login portal URL.                                                                                   |
+| `LOGIN_INTERNAL_API_KEY` | no                         | `null`                               | Server-to-server key against the login portal.                                                          |
+| `LOGIN_BACKEND_URL`      | no                         | `null`                               | Login portal backend URL.                                                                               |
+| `OSM_REDIRECT_URI`       | no                         | `{HANKO_API_URL}/auth/osm/callback`  | OSM OAuth callback for the connect-OSM-account flow. Set it when the app path differs from the default. |
+| `COOKIE_SAMESITE`        | no                         | `lax`                                | `SameSite` flag of the auth cookie.                                                                     |
+| `JWT_ISSUER`             | no                         | `auto`                               | Expected `iss` claim. `auto` means `HANKO_API_URL`.                                                     |
+| `OSM_CLIENT_ID`          | no                         | `null`                               | OSM OAuth client. Setting it with `OSM_CLIENT_SECRET` turns the connect-OSM-account flow on.            |
+| `OSM_CLIENT_SECRET`      | no                         | `null`                               | Secret of the OSM OAuth client.                                                                         |
+| `OSM_SCOPES`             | no                         | `read_prefs`                         | Space-separated OSM OAuth scopes.                                                                       |
+| `OSM_API_URL`            | no                         | `https://www.openstreetmap.org`      | OSM API root.                                                                                           |
+| `ADMIN_EMAILS`           | no                         | `""`                                 | Comma-separated Hanko emails allowed to use the `/api/admin/` user-mapping routes.                      |
 
 ### fair-py-ops (ZenML + STAC)
 
@@ -81,8 +93,8 @@ same server. Authenticate with either an API key or a username and password.
 
 | Name                   | Required         | Default | Description                                                                                                         |
 | ---------------------- | ---------------- | ------- | ------------------------------------------------------------------------------------------------------------------- |
-| `FAIR_ZENML_STORE_URL` | yes (at runtime) | `null`  | URL of the deployed ZenML server. Optional at boot, raises loud at first call site.                                 |
-| `FAIR_STAC_API_URL`    | yes (at runtime) | `null`  | URL of the STAC API root (eoapi-stac-fastapi). Trailing slashes are stripped.                                       |
+| `FAIR_ZENML_STORE_URL` | yes              | (none)  | URL of the deployed ZenML server.                                                                                   |
+| `FAIR_STAC_API_URL`    | yes              | (none)  | URL of the STAC API root (eoapi-stac-fastapi). Trailing slashes are stripped.                                       |
 | `FAIR_STAC_API_KEY`    | prod             | `null`  | Bearer token for the STAC Transactions extension.                                                                   |
 | `FAIR_STAC_DSN`        | prod             | `null`  | pgstac Postgres DSN. When set, STAC writes go to pgstac directly, so the API can be read-only.                      |
 | `ZENML_STORE_URL`      | yes (at runtime) | `null`  | Same server as `FAIR_ZENML_STORE_URL`.                                                                              |
@@ -94,7 +106,7 @@ same server. Authenticate with either an API key or a username and password.
 
 | Name                    | Required         | Default     | Description                                      |
 | ----------------------- | ---------------- | ----------- | ------------------------------------------------ |
-| `BUCKET_NAME`           | yes (at runtime) | `null`      | S3 / MinIO bucket.                               |
+| `BUCKET_NAME`           | yes              | (none)      | S3 / MinIO bucket.                               |
 | `PARENT_BUCKET_FOLDER`  | no               | `dev`       | Per-environment prefix inside the bucket.        |
 | `AWS_REGION`            | no               | `us-east-1` | S3 region.                                       |
 | `AWS_ACCESS_KEY_ID`     | yes (at runtime) | `null`      |                                                  |
@@ -122,26 +134,6 @@ DRF throttle scopes use `<count>/<period>`, e.g. `1000/h`. Use the Django-native
 | ------------------ | -------- | ----------------------------------------- | ---------------------- |
 | `RAW_DATA_API_URL` | no       | `https://api-prod.raw-data.hotosm.org/v1` | HOT Raw Data API root. |
 
-### Mapswipe
-
-Off by default. When `ENABLE_MAPSWIPE=false`, `POST /api/v1/predictions/<id>/mapswipe/` returns 503. The `/api/v1/health/` endpoint reports `mapswipe.reachable` when enabled.
-
-| Name                           | Required                    | Default | Description                                         |
-| ------------------------------ | --------------------------- | ------- | --------------------------------------------------- |
-| `ENABLE_MAPSWIPE`              | no                          | `false` | Master toggle.                                      |
-| `MAPSWIPE_BACKEND_URL`         | no                          | `null`  | Mapswipe backend URL.                               |
-| `MAPSWIPE_MANAGER_URL`         | no                          | `null`  | Mapswipe manager URL.                               |
-| `MAPSWIPE_WEB_URL`             | no                          | `null`  | Mapswipe web app URL.                               |
-| `MAPSWIPE_CSRFTOKEN_KEY`       | when `ENABLE_MAPSWIPE=true` | `null`  | CSRF cookie name on the Mapswipe backend.           |
-| `MAPSWIPE_FB_AUTH_URL`         | when `ENABLE_MAPSWIPE=true` | `null`  | Firebase auth endpoint.                             |
-| `MAPSWIPE_FB_USERNAME`         | when `ENABLE_MAPSWIPE=true` | `null`  | Firebase service-account username.                  |
-| `MAPSWIPE_FB_PASSWORD`         | when `ENABLE_MAPSWIPE=true` | `null`  | Firebase service-account password.                  |
-| `MAPSWIPE_TUTORIAL_ID`         | no                          | `37`    | Mapswipe tutorial ID injected into pushed projects. |
-| `MAPSWIPE_ORGANIZATION_ID`     | no                          | `4`     | Mapswipe organization ID.                           |
-| `MAPSWIPE_VERIFICATION_NUMBER` | no                          | `3`     | Number of crowd verifications required per tile.    |
-| `MAPSWIPE_POLL_INTERVAL`       | no                          | `10`    | Seconds between Mapswipe push-status polls.         |
-| `MAPSWIPE_POLL_TIMEOUT`        | no                          | `600`   | Maximum total seconds to wait for a Mapswipe push.  |
-
 ### Email
 
 Only checked when `DEBUG=false`.
@@ -156,34 +148,39 @@ Only checked when `DEBUG=false`.
 | `EMAIL_HOST_PASSWORD` | no       | `""`                       | SMTP password.                                          |
 | `DEFAULT_FROM_EMAIL`  | no       | `no-reply@fair.hotosm.org` | `From:` header for outbound mail.                       |
 
-### Logging + pagination
+### Pagination and sessions
 
-| Name                             | Required | Default   | Description                                                                                                             |
-| -------------------------------- | -------- | --------- | ----------------------------------------------------------------------------------------------------------------------- |
-| `LOG_PATH`                       | no       | `./logs`  | Directory for rotating log files.                                                                                       |
-| `DEFAULT_PAGINATION_SIZE`        | no       | `50`      | DRF page size.                                                                                                          |
-| `SESSION_COOKIE_AGE`             | no       | `3600`    | Session cookie TTL in seconds.                                                                                          |
-| `CACHE_TIMEOUT_MINUTES`          | no       | `5`       | Default cache TTL for non-STAC entries.                                                                                 |
-| `LOG_LINE_STREAM_TRUNCATE_VALUE` | no       | `10`      | Per-step log-line truncation factor for streamed pipeline logs.                                                         |
-| `USER_STATE_MAX_BYTES`           | no       | `2097152` | Largest saved user state in bytes of compact JSON; a request body over this plus 1024 bytes is rejected before parsing. |
+| Name                      | Required | Default   | Description                                                                                                             |
+| ------------------------- | -------- | --------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `DEFAULT_PAGINATION_SIZE` | no       | `50`      | DRF page size.                                                                                                          |
+| `SESSION_COOKIE_AGE`      | no       | `3600`    | Session cookie TTL in seconds.                                                                                          |
+| `USER_STATE_MAX_BYTES`    | no       | `2097152` | Largest saved user state in bytes of compact JSON; a request body over this plus 1024 bytes is rejected before parsing. |
+
+### Sentry
+
+| Name            | Required                  | Default | Description                                                           |
+| --------------- | ------------------------- | ------- | --------------------------------------------------------------------- |
+| `ENABLE_SENTRY` | no                        | `false` | Send errors to Sentry. Install the SDK with `uv sync --group sentry`. |
+| `SENTRY_DSN`    | when `ENABLE_SENTRY=true` | `null`  | Sentry project DSN.                                                   |
 
 ### Operational tuning
 
 All have safe defaults; only set to override.
 
-| Name                       | Required | Default | Description                                                                                                                                    |
-| -------------------------- | -------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `HEALTH_PROBE_TIMEOUT`     | no       | `2.0`   | Seconds each HTTP probe waits before marking a dependency unreachable in `GET /api/v1/health/`.                                                |
-| `PREDICTION_SYNC_INTERVAL` | no       | `15`    | Seconds between prediction-status poll re-enqueues.                                                                                            |
-| `TRAINING_SYNC_INTERVAL`   | no       | `30`    | Seconds between training-status poll re-enqueues.                                                                                              |
-| `STAC_CACHE_TTL`           | no       | `300`   | Seconds the shared cache holds a STAC item before re-fetching. Raise in prod for lower STAC load; lower in dev to see property changes faster. |
-| `STAC_BULK_FETCH_WORKERS`  | no       | `16`    | Thread pool size for parallel STAC item fetches when `?expand=stac` is used on list endpoints.                                                 |
-| `PMTILES_MIN_ZOOM`         | no       | `10`    | Min zoom passed to `tippecanoe` for PMTiles generation.                                                                                        |
-| `PMTILES_MAX_ZOOM`         | no       | `20`    | Max zoom passed to `tippecanoe` for PMTiles generation.                                                                                        |
+| Name                            | Required | Default | Description                                                                                                                                    |
+| ------------------------------- | -------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `HEALTH_PROBE_TIMEOUT`          | no       | `2.0`   | Seconds each HTTP probe waits before marking a dependency unreachable in `GET /api/v1/health/`.                                                |
+| `PREDICTION_SYNC_INTERVAL`      | no       | `15`    | Seconds between prediction-status poll re-enqueues.                                                                                            |
+| `DELETE_PREDICTION_INPUT_TILES` | no       | `true`  | When true, deletes a map request's staged input tiles from object storage once its run ends or its submission fails.                           |
+| `TRAINING_SYNC_INTERVAL`        | no       | `30`    | Seconds between training-status poll re-enqueues.                                                                                              |
+| `STAC_CACHE_TTL`                | no       | `300`   | Seconds the shared cache holds a STAC item before re-fetching. Raise in prod for lower STAC load; lower in dev to see property changes faster. |
+| `STAC_BULK_FETCH_WORKERS`       | no       | `16`    | Thread pool size for parallel STAC item fetches when `?expand=stac` is used on list endpoints.                                                 |
+| `PMTILES_MIN_ZOOM`              | no       | `10`    | Min zoom passed to `tippecanoe` for PMTiles generation.                                                                                        |
+| `PMTILES_MAX_ZOOM`              | no       | `20`    | Max zoom passed to `tippecanoe` for PMTiles generation.                                                                                        |
 
 ## Worker process
 
-Background work uses Django's built-in `django.tasks` framework with the [`django-tasks-db`](https://github.com/RealOrangeOne/django-tasks-db) backend (Postgres-backed, no Redis required).
+Background work uses the [`django-tasks`](https://github.com/RealOrangeOne/django-tasks) package with its [`django-tasks-db`](https://github.com/RealOrangeOne/django-tasks-db) backend, which keeps the task queue in Postgres.
 
 ```bash
 just worker   # runs python manage.py db_worker

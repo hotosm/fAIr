@@ -39,7 +39,6 @@ export type TUser = {
   datasets_count: number;
   profile_completion_percentage: number;
   newsletter_subscription: boolean;
-  notifications_delivery_methods: string[];
   account_deletion_requested: boolean;
   unread_notifications_count: number;
   email_verified: boolean;

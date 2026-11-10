@@ -27,4 +27,4 @@ The structured plan is on the [Roadmap](../roadmap/index.md).
 
 ## The direction
 
-fAIr is evolving into an open marketplace of vetted geo-AI models, with the pipelines to keep improving them. It is part of HOT's open, community-driven mapping work, where the same effort that serves humanitarian response also produces open training data that others can reuse.
+fAIr is evolving into an open, shared collection of vetted geo-AI models, with the pipelines to keep improving them. It is part of HOT's open, community-driven mapping work, where the same effort that serves humanitarian response also produces open training data that others can reuse.

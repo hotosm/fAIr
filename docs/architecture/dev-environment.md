@@ -83,7 +83,7 @@ Common changes:
 
 - **Django / API**: `DEBUG`, `SECRET_KEY`, `DATABASE_URL`, `CORS_ALLOWED_ORIGINS`.
 - **Auth (hanko)**: `AUTH_PROVIDER`, `HANKO_API_URL`, `LOGIN_URL`, `COOKIE_*`,
-  `OSM_LOGIN_REDIRECT_URI`.
+  `OSM_REDIRECT_URI`.
 - **Frontend** (`VITE_*`, baked into `config.js` at container start): after any
   change restart `api` too, it serves the SPA and caches `config.js` at boot.
 - **Domain**: `PUBLIC_DOMAIN`, `FRONTEND_URL`, `API_BASE_URL`, `ALLOWED_HOSTS`,

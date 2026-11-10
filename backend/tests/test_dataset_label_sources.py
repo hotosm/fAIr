@@ -6,7 +6,6 @@ from unittest.mock import patch
 import httpx
 import pytest
 from django.contrib.gis.geos import Polygon
-from rest_framework.test import APIClient
 
 from accounts.models import OsmUser
 from datasets import label_sources
@@ -39,18 +38,6 @@ def _square(west: float, south: float, size: float = 0.001) -> dict:
 
 def _feature(geometry: dict, properties: object) -> dict:
     return {"type": "Feature", "geometry": geometry, "properties": properties}
-
-
-@pytest.fixture
-def user(db) -> OsmUser:
-    return OsmUser.objects.create(osm_id=2001, username="surveyor")
-
-
-@pytest.fixture
-def client(user: OsmUser) -> APIClient:
-    api = APIClient()
-    api.force_authenticate(user=user)
-    return api
 
 
 @pytest.fixture

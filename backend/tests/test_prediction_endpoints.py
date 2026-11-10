@@ -3,23 +3,8 @@ from unittest.mock import patch
 
 import pystac
 import pytest
-from django.test import override_settings
-from rest_framework.test import APIClient
 
-from accounts.models import OsmUser
 from predictions.models import Prediction
-
-
-@pytest.fixture
-def authed_user(db) -> OsmUser:
-    return OsmUser.objects.create(osm_id=7, username="carol")
-
-
-@pytest.fixture
-def client(authed_user: OsmUser) -> APIClient:
-    api = APIClient()
-    api.force_authenticate(user=authed_user)
-    return api
 
 
 _LOCAL_MODEL_UUID = "3a0374bf-d73c-4b4d-b165-081ffa2a18ad"
@@ -55,33 +40,6 @@ def _single_image_model():
     """Submissions read the model item; a test that needs another model patches `get_item` itself."""
     with patch("predictions.views.get_item", return_value=_damage_model()):
         yield
-
-
-@patch("predictions.views.get_item", return_value=_damage_model())
-@patch("predictions.views.item_exists", return_value=True)
-@patch("predictions.views.submit_prediction")
-def test_prediction_submit_creates_record_and_enqueues(
-    mock_task, mock_item_exists, mock_get_item, client
-):
-    response = client.post(
-        "/api/v1/predictions/submit/",
-        data={
-            "model_stac_id": _LOCAL_MODEL_UUID,
-            "image_uri": _TMS_URL,
-            "bbox": _BBOX,
-            "zoom": 19,
-            "params": {"confidence_threshold": 0.5},
-        },
-        format="json",
-    )
-    assert response.status_code == 202, response.json()
-    assert Prediction.objects.count() == 1
-    prediction = Prediction.objects.first()
-    assert prediction is not None
-    assert prediction.local_model_stac_id == _LOCAL_MODEL_UUID
-    assert prediction.geometry == _bbox_polygon(_BBOX)
-    assert prediction.zoom == 19
-    mock_task.enqueue.assert_called_once()
 
 
 def _prediction_only_model(runtime_asset: str | None) -> pystac.Item:
@@ -211,7 +169,6 @@ def test_prediction_submit_bbox_is_stored_as_geometry(mock_item_exists, mock_tas
     assert response.status_code == 202, response.json()
     prediction = Prediction.objects.get()
     assert prediction.geometry == _bbox_polygon(_BBOX)
-    assert not hasattr(prediction, "bbox")
 
 
 @patch("predictions.views.item_exists", return_value=True)
@@ -488,36 +445,3 @@ def test_prediction_submit_rejects_invalid_imagery(mock_task, mock_item_exists, 
     mock_task.enqueue.assert_not_called()
 
 
-@override_settings(ENABLE_MAPSWIPE=True)
-@patch("predictions.views.presigned_get_url", return_value="https://s3.example/prediction.geojson")
-@patch("shared.integrations.mapswipe.MapswipeClient")
-def test_mapswipe_project_shows_the_imagery_of_the_first_model_input(
-    mock_client_class, mock_presign, client, authed_user
-):
-    prediction = Prediction.objects.create(
-        local_model_stac_id="damage",
-        imagery={"post": _POST_URL, "pre": _PRE_URL},
-        primary_input="post",
-        geometry=_bbox_polygon(_BBOX),
-        zoom=18,
-        results_ready=True,
-        user=authed_user,
-    )
-    mapswipe = mock_client_class.return_value
-    mapswipe.create_validation_project.return_value = ("project-1", "asset-1")
-
-    response = client.post(
-        f"/api/v1/predictions/{prediction.id}/mapswipe/",
-        data={
-            "topic": "Damage",
-            "region": "Bhote Koshi",
-            "description": "Validate graded buildings",
-            "instruction": "Tap each damaged building",
-            "look_for": "damaged buildings",
-            "project_number": 1,
-        },
-        format="json",
-    )
-
-    assert response.status_code == 201, response.json()
-    assert mapswipe.update_project.call_args.kwargs["tms_url"] == _POST_URL

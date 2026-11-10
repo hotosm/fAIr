@@ -15,18 +15,6 @@ PRE_TMS = "https://tiles.example/pre/{z}/{x}/{y}.png"
 
 
 @pytest.fixture
-def user(db) -> OsmUser:
-    return OsmUser.objects.create(osm_id=3001, username="mapper")
-
-
-@pytest.fixture
-def client(user: OsmUser) -> APIClient:
-    api = APIClient()
-    api.force_authenticate(user=user)
-    return api
-
-
-@pytest.fixture
 def aoi(user: OsmUser) -> AOI:
     polygon = Polygon(
         ((85.5, 27.6), (85.5, 27.61), (85.51, 27.61), (85.51, 27.6), (85.5, 27.6)), srid=4326

@@ -4,8 +4,10 @@ from datetime import timedelta
 from django.conf import settings
 from django.utils import timezone
 from django_tasks import task
+from fair.zenml.runs import get_run_status, is_terminal
 
-from shared.integrations.zenml import for_user, get_run_status, is_terminal
+from shared.enums import PipelineRunStatus
+from shared.integrations.zenml import for_user
 
 from .models import TrainingRunRef
 
@@ -30,7 +32,7 @@ def submit_training(*, training_run_ref_id: int) -> None:
         overrides=run_ref.overrides or {},
     )
     run_ref.zenml_run_id = zenml_run_id
-    run_ref.status = "submitted"
+    run_ref.status = PipelineRunStatus.SUBMITTED
     run_ref.save(update_fields=["zenml_run_id", "status"])
 
     sync_training_status.using(

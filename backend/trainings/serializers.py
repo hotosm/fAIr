@@ -1,7 +1,7 @@
 from django.utils.text import slugify
 from rest_framework import serializers
 
-from notifications.serializers import UserSerializer
+from accounts.serializers import UserSerializer
 from shared.serializers import OwnerOnlyErrorMixin
 
 from .models import TrainingRunRef

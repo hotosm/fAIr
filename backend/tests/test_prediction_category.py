@@ -16,48 +16,36 @@ _SQUARE = {"type": "Polygon", "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [
 
 
 @pytest.fixture
-def owner(db) -> OsmUser:
-    return OsmUser.objects.create(osm_id=41, username="frank")
-
-
-@pytest.fixture
-def client(owner: OsmUser) -> APIClient:
-    api = APIClient()
-    api.force_authenticate(user=owner)
-    return api
-
-
-@pytest.fixture
-def base_model(owner: OsmUser) -> BaseModel:
+def base_model(user: OsmUser) -> BaseModel:
     waste, _ = Category.objects.get_or_create(slug="solid-waste", defaults={"label": "Solid waste"})
-    return BaseModel.objects.create(name="waste", stac_item_id="waste-base", category=waste, user=owner)
+    return BaseModel.objects.create(name="waste", stac_item_id="waste-base", category=waste, user=user)
 
 
 @pytest.fixture
-def local_model(owner: OsmUser, base_model: BaseModel) -> LocalModel:
+def local_model(user: OsmUser, base_model: BaseModel) -> LocalModel:
     buildings, _ = Category.objects.get_or_create(slug="buildings", defaults={"label": "Buildings"})
     return LocalModel.objects.create(
-        name="banepa", stac_item_id="banepa-local", base_model=base_model, category=buildings, user=owner
+        name="banepa", stac_item_id="banepa-local", base_model=base_model, category=buildings, user=user
     )
 
 
-def _prediction(owner: OsmUser, model_id: str, visibility: str = Visibility.PRIVATE) -> Prediction:
+def _prediction(user: OsmUser, model_id: str, visibility: str = Visibility.PRIVATE) -> Prediction:
     return Prediction.objects.create(
         local_model_stac_id=model_id,
         imagery={"image": "https://tile.example.com/{z}/{x}/{y}.png"},
         primary_input="image",
         geometry=_SQUARE,
         zoom=19,
-        user=owner,
+        user=user,
         visibility=visibility,
     )
 
 
 @pytest.mark.parametrize(("model_id", "expected"), [("banepa-local", "buildings"), ("waste-base", "solid-waste"), ("removed-model", None)])
 def test_prediction_detail_reports_the_model_category(
-    client: APIClient, owner: OsmUser, local_model: LocalModel, model_id: str, expected: str | None
+    client: APIClient, user: OsmUser, local_model: LocalModel, model_id: str, expected: str | None
 ) -> None:
-    prediction = _prediction(owner, model_id)
+    prediction = _prediction(user, model_id)
 
     response = client.get(f"/api/v1/predictions/{prediction.id}/")
 
@@ -67,9 +55,9 @@ def test_prediction_detail_reports_the_model_category(
 
 @pytest.mark.parametrize(("model_id", "expected"), [("banepa-local", "banepa"), ("waste-base", "waste"), ("removed-model", None)])
 def test_prediction_detail_reports_the_model_name(
-    client: APIClient, owner: OsmUser, local_model: LocalModel, model_id: str, expected: str | None
+    client: APIClient, user: OsmUser, local_model: LocalModel, model_id: str, expected: str | None
 ) -> None:
-    prediction = _prediction(owner, model_id)
+    prediction = _prediction(user, model_id)
 
     response = client.get(f"/api/v1/predictions/{prediction.id}/")
 
@@ -77,12 +65,12 @@ def test_prediction_detail_reports_the_model_name(
     assert response.json()["model_name"] == expected
 
 
-def test_prediction_list_category_costs_no_query_per_row(client: APIClient, owner: OsmUser, local_model: LocalModel) -> None:
-    _prediction(owner, "banepa-local")
+def test_prediction_list_category_costs_no_query_per_row(client: APIClient, user: OsmUser, local_model: LocalModel) -> None:
+    _prediction(user, "banepa-local")
     with CaptureQueriesContext(connection) as one_row:
         client.get("/api/v1/predictions/")
     for _ in range(4):
-        _prediction(owner, "waste-base")
+        _prediction(user, "waste-base")
     with CaptureQueriesContext(connection) as five_rows:
         response = client.get("/api/v1/predictions/")
 
@@ -112,27 +100,27 @@ def test_submit_response_includes_the_category(
     assert response.json()["category"] == "buildings"
 
 
-def test_public_prediction_list_reports_the_category(owner: OsmUser, local_model: LocalModel) -> None:
-    _prediction(owner, "banepa-local", visibility=Visibility.PUBLIC)
+def test_anonymous_prediction_list_reports_the_category(user: OsmUser, local_model: LocalModel) -> None:
+    _prediction(user, "banepa-local", visibility=Visibility.PUBLIC)
 
-    response = APIClient().get("/api/v1/public-predictions/")
+    response = APIClient().get("/api/v1/predictions/")
 
     assert [row["category"] for row in response.json()["results"]] == ["buildings"]
 
 
 def test_local_model_category_wins_over_a_base_model_with_the_same_id(
-    client: APIClient, owner: OsmUser, local_model: LocalModel, base_model: BaseModel
+    client: APIClient, user: OsmUser, local_model: LocalModel, base_model: BaseModel
 ) -> None:
-    BaseModel.objects.create(name="clash", stac_item_id="banepa-local", category=base_model.category, user=owner)
-    prediction = _prediction(owner, "banepa-local")
+    BaseModel.objects.create(name="clash", stac_item_id="banepa-local", category=base_model.category, user=user)
+    prediction = _prediction(user, "banepa-local")
 
     response = client.get(f"/api/v1/predictions/{prediction.id}/")
 
     assert response.json()["category"] == "buildings"
 
 
-def test_publish_response_includes_the_category(client: APIClient, owner: OsmUser, local_model: LocalModel) -> None:
-    prediction = _prediction(owner, "banepa-local")
+def test_publish_response_includes_the_category(client: APIClient, user: OsmUser, local_model: LocalModel) -> None:
+    prediction = _prediction(user, "banepa-local")
     prediction.results_ready = True
     prediction.save(update_fields=["results_ready"])
 
@@ -143,9 +131,9 @@ def test_publish_response_includes_the_category(client: APIClient, owner: OsmUse
 
 
 def test_a_failure_error_is_shown_to_the_owner_and_hidden_from_everyone_else(
-    client: APIClient, owner: OsmUser, local_model: LocalModel
+    client: APIClient, user: OsmUser, local_model: LocalModel
 ) -> None:
-    prediction = _prediction(owner, "banepa-local", visibility=Visibility.PUBLIC)
+    prediction = _prediction(user, "banepa-local", visibility=Visibility.PUBLIC)
     prediction.status = "failed"
     prediction.error = "RuntimeError: tiles at http://minio:9000/fair-data timed out"
     prediction.save(update_fields=["status", "error"])

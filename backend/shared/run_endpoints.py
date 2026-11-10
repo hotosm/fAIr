@@ -1,7 +1,9 @@
+from django.contrib import admin, messages
+from fair.zenml.runs import fetch_run_logs, fetch_step_logs, is_terminal
 from rest_framework.exceptions import NotFound
 
+from shared.enums import PipelineRunStatus
 from shared.exceptions import RunAlreadyFinishedException
-from shared.integrations.zenml import fetch_run_logs, fetch_step_logs
 from shared.serializers import LogEntrySerializer, RunLogsQuerySerializer
 
 
@@ -30,3 +32,18 @@ def stop_pipeline_run(run_id: str, *, graceful: bool) -> None:
         stop_run(Client().get_pipeline_run(run_id), graceful=graceful)
     except IllegalOperationError as exc:  # ZenML refuses to stop a run that already ended
         raise RunAlreadyFinishedException(str(exc)) from exc
+
+
+@admin.action(description="Stop selected runs", permissions=["change"])
+def stop_runs(modeladmin, request, queryset) -> None:
+    for run in queryset:
+        if not run.zenml_run_id or is_terminal(run.status):
+            messages.warning(request, f"{run}: no active run to stop.")
+            continue
+        try:
+            stop_pipeline_run(run.zenml_run_id, graceful=False)
+        except RunAlreadyFinishedException as exc:
+            messages.warning(request, f"{run.zenml_run_id}: {exc}")
+            continue
+        type(run).objects.filter(pk=run.pk).update(status=PipelineRunStatus.STOPPING)
+        messages.info(request, f"Stopping {run.zenml_run_id}.")

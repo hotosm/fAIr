@@ -27,7 +27,7 @@ LOGIN_URL=https://login.hotosm.org
 LOGIN_INTERNAL_API_KEY=
 LOGIN_BACKEND_URL=
 # Only required when Hanko's "connect existing OSM account" flow is in use.
-OSM_LOGIN_REDIRECT_URI=
+OSM_REDIRECT_URI=
 
 # fair-py-ops connection. FAIR_* is read by this backend, ZENML_STORE_* by the
 # zenml library. Both point at the same server. The compose stack's default user
@@ -59,21 +59,6 @@ PREDICTION_RATE_LIMIT=50/h
 # OSM raw-data API
 RAW_DATA_API_URL=https://api-prod.raw-data.hotosm.org/v1
 
-# Mapswipe (set ENABLE_MAPSWIPE=true in prod with all four MAPSWIPE_FB_* set)
-ENABLE_MAPSWIPE=false
-MAPSWIPE_BACKEND_URL=https://backend-2.mapswipe.dev.togglecorp.com
-MAPSWIPE_MANAGER_URL=https://manager-2.mapswipe.dev.togglecorp.com
-MAPSWIPE_WEB_URL=https://web-app-2.mapswipe.dev.togglecorp.com
-MAPSWIPE_CSRFTOKEN_KEY=MAPSWIPE-ALPHA-2-CSRFTOKEN
-MAPSWIPE_FB_AUTH_URL=
-MAPSWIPE_FB_USERNAME=
-MAPSWIPE_FB_PASSWORD=
-MAPSWIPE_TUTORIAL_ID=37
-MAPSWIPE_ORGANIZATION_ID=4
-MAPSWIPE_VERIFICATION_NUMBER=3
-MAPSWIPE_POLL_INTERVAL=10
-MAPSWIPE_POLL_TIMEOUT=600
-
 # Email (only checked when DEBUG=false)
 EMAIL_HOST=smtp.gmail.com
 EMAIL_PORT=587
@@ -86,8 +71,7 @@ DEFAULT_FROM_EMAIL=no-reply@fair.hotosm.org
 ENABLE_SENTRY=false
 SENTRY_DSN=
 
-# Logging
-LOG_PATH=./logs
+# Pagination and sessions
 DEFAULT_PAGINATION_SIZE=50
 SESSION_COOKIE_AGE=3600
 DB_POOL_MIN_SIZE=4

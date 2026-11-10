@@ -118,17 +118,6 @@ def custom_exception_handler(exc, context):
     return response
 
 
-def handle_validation_error(
-    field_name: str, message: str, value: Any = None
-) -> ValidationException:
-    details: dict[str, Any] = {"field": field_name, "message": message}
-    if value is not None:
-        details["invalid_value"] = str(value)
-    return ValidationException(
-        message=f"Validation failed for field '{field_name}': {message}", details=details
-    )
-
-
 def handle_geometry_error(
     geometry_type: str, error_message: str, geometry_data: Any = None
 ) -> GeometryValidationException:

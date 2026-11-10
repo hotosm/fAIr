@@ -38,7 +38,6 @@ class Dataset(InputImagery):
     class Meta:
         indexes = [
             models.Index(fields=["status"]),
-            models.Index(fields=["user"]),
         ]
         constraints = [
             models.CheckConstraint(
@@ -66,12 +65,6 @@ class AOI(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        indexes = [
-            models.Index(fields=["dataset"]),
-            models.Index(fields=["geom"], name="aoi_geom_gist_idx", opclasses=["gist"]),
-        ]
 
     @transaction.atomic
     def clean(self) -> None:

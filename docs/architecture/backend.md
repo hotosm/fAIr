@@ -9,20 +9,19 @@ The backend is a Django REST Framework service organized into feature apps. It o
 
 ## Apps
 
-| App             | Responsibility                                                                                                                                                                           |
-| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `accounts`      | Custom `OsmUser` keyed by `osm_id`. Supports a static dev token and Hanko SSO.                                                                                                           |
-| `datasets`      | `Dataset` (a pointer to a STAC item) and `AOI` (a PostGIS polygon). Async build downloads imagery tiles and OSM labels, uploads chips and `labels.geojson`, and registers the STAC item. |
-| `modelregistry` | `Category`, `BaseModel` (a pretrained model family), and `LocalModel` (a finetuned family). Endpoints for base models, local models, categories, and pinned models.                      |
-| `trainings`     | `TrainingRunRef`, one row per finetune run, with the hyperparameter overrides and status. Submits ZenML pipelines and polls their state.                                                 |
-| `predictions`   | `Prediction`, with the bbox, zoom, params, and a `results_ready` flag. Post-processes GeoJSON into `.fgb` and `.pmtiles`.                                                                |
-| `feedback`      | User feedback on predictions and models.                                                                                                                                                 |
-| `notifications` | Site-wide banners and per-user notifications, for example training status changes.                                                                                                       |
-| `stars`         | Starring a model or dataset.                                                                                                                                                             |
-| `workspace`     | A user's object-store workspace, listing and presigned URLs.                                                                                                                             |
-| `system`        | Health and KPI endpoints.                                                                                                                                                                |
-| `shared`        | Cross-cutting helpers: enums, exceptions, validators, storage, and the integrations layer.                                                                                               |
-| `config`        | Django project settings, URL routing, and environment parsing.                                                                                                                           |
+| App             | Responsibility                                                                                                                                                                                                                                                           |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `accounts`      | Custom `OsmUser` keyed by `osm_id`. Supports a static dev token and Hanko SSO. Deleting a user in the Django admin removes their private records and files, including unpublished models and their runs, and moves public or in-use records to a "Deleted user" account. |
+| `datasets`      | `Dataset` (a pointer to a STAC item) and `AOI` (a PostGIS polygon). Async build downloads imagery tiles and OSM labels, uploads chips and `labels.geojson`, and registers the STAC item.                                                                                 |
+| `modelregistry` | `Category`, `BaseModel` (a pretrained model family), and `LocalModel` (a finetuned family). Endpoints for base models, local models, and categories.                                                                                                                     |
+| `trainings`     | `TrainingRunRef`, one row per finetune run, with the hyperparameter overrides and status. Submits ZenML pipelines and polls their state.                                                                                                                                 |
+| `predictions`   | `Prediction`, with the bbox, zoom, params, and a `results_ready` flag. Post-processes GeoJSON into `.fgb` and `.pmtiles`. Deleting a finished prediction in the Django admin also removes its stored files.                                                              |
+| `feedback`      | `Feedback`, accept and reject labels on predicted features. The KPI and profile counts read it; the Django admin manages it.                                                                                                                                             |
+| `notifications` | Site-wide announcement banners, managed in the Django admin and listed publicly.                                                                                                                                                                                         |
+| `stars`         | Starring a model or dataset. Star counts are public; starring needs a signed-in user.                                                                                                                                                                                    |
+| `system`        | Health and KPI endpoints.                                                                                                                                                                                                                                                |
+| `shared`        | Cross-cutting helpers: enums, exceptions, validators, storage, and the integrations layer.                                                                                                                                                                               |
+| `config`        | Django project settings, URL routing, and environment parsing.                                                                                                                                                                                                           |
 
 Enums live in `shared/enums.py` as Django `TextChoices` and are imported by the models, rather than redefined per app.
 
@@ -32,7 +31,6 @@ The heavy ML work is handled by the external `fair` package (`fair-py-ops`), whi
 
 - `integrations/zenml.py` wraps the fair client and run helpers. It builds a process-wide client for the worker and a user-scoped client for owner actions.
 - `integrations/stac.py` wraps the STAC backend with a short-lived cache. Property changes are read-modify-write, since the STAC API has no PATCH. It also mirrors downloadable assets into the bucket and repoints their URLs at a presign proxy.
-- `integrations/mapswipe.py` handles the MapSwipe validation flow.
 
 ## Database schema
 
@@ -91,5 +89,7 @@ erDiagram
         bigint user_id FK
     }
 ```
+
+`visibility` controls access through the fAIr API only. A private dataset, local model or prediction is hidden from other users in fAIr's lists, search and detail endpoints. Its STAC item and download links in the open STAC catalog stay reachable to anyone who has them.
 
 The complete field list and endpoint reference are in [`backend/ARCHITECTURE.md`](https://github.com/hotosm/fAIr/blob/develop/backend/ARCHITECTURE.md).

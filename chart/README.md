@@ -1,6 +1,6 @@
 # fAIr Helm Chart
 
-Deploys the fAIr backend API and Django-Q async worker, and (optionally) the
+Deploys the fAIr backend API and its django_tasks worker, and (optionally) the
 frontend SPA.
 
 PostgreSQL is expected to be provided externally (e.g.
@@ -44,7 +44,7 @@ backend:
 |---|---|---|
 | `externalDatabase.host` | PostgreSQL host | `""` |
 | `externalDatabase.existingSecret` | Secret containing DB password | `""` |
-| `backend.djangoQ.enabled` | Run Django-Q sidecar for async tasks | `true` |
+| `backend.djangoQ.enabled` | Run the django_tasks worker (`manage.py db_worker`) sidecar | `true` |
 | `backend.migrate.enabled` | Run migrations on install/upgrade | `true` |
 | `backend.knativeReconcile.enabled` | Enable periodic Knative reconciliation | `false` |
 | `backend.knativeReconcile.schedule` | Reconciliation schedule | `*/15 * * * *` |

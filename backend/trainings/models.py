@@ -45,9 +45,7 @@ class TrainingRunRef(models.Model):
 
     class Meta:
         indexes = [
-            models.Index(fields=["local_model"]),
             models.Index(fields=["status"]),
-            models.Index(fields=["user"]),
             models.Index(fields=["base_model_stac_id"]),
         ]
         constraints = [

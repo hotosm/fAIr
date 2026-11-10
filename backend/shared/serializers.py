@@ -4,7 +4,7 @@ from typing import Any
 from fair.stac.inputs import IMAGE_INPUT, INPUT_NAME_PATTERN
 from rest_framework import serializers
 
-from accounts.permissions import _is_admin
+from accounts.permissions import is_admin
 from shared.imagery import INPUT_NAME_MAX_LENGTH
 from shared.public_urls import NonPublicURLError, require_public_url
 
@@ -101,7 +101,7 @@ class OwnerOnlyErrorMixin(serializers.Serializer):
         request = self.context.get("request")
         user = request.user if request else None
         if not (
-            _is_admin(user) or (user and user.is_authenticated and instance.user_id == user.osm_id)
+            is_admin(user) or (user and user.is_authenticated and instance.user_id == user.osm_id)
         ):
             data["error"] = ""
         return data

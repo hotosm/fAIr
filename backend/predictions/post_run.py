@@ -1,7 +1,7 @@
 """Post-run automation for predictions.
 
 Runs after a ZenML inference pipeline completes. Writes outputs at the
-deterministic prefix `StoragePaths.prediction_output_dir_uri(prediction.id)`;
+deterministic prefix `StoragePaths.prediction_output_dir_key(prediction.id)`;
 the API surfaces them by recomputing those keys when status is "completed".
 """
 
@@ -39,14 +39,6 @@ def post_process_prediction(prediction: Prediction) -> None:
 
     geojson = _load_geojson(str(prediction.zenml_run_id))
     _check_against_model_item(geojson, str(prediction.local_model_stac_id))
-
-    if prediction.remove_osm:
-        # TODO(remove-osm): OSM conflation not yet implemented.
-        # Return features as-is; the removed_osm output file is not written.
-        logger.info(
-            "Prediction %s: remove_osm requested but not implemented; skipping",
-            prediction.id,
-        )
 
     UPath(StoragePaths.prediction_geojson_uri(prediction.id)).write_text(json.dumps(geojson))
     _generate_fgb(geojson, prediction.id)

@@ -28,7 +28,7 @@ backend:
     - --timeout=120
     - config.wsgi:application
 
-  # -- Run Django-Q cluster as a sidecar for lightweight async tasks
+  # -- Run the django_tasks worker (`manage.py db_worker`) as a sidecar
   djangoQ:
     enabled: true
     resources:
@@ -41,12 +41,14 @@ backend:
 
   port: 8000
 
+  # -- Non-secret env vars; backend/README.md lists every variable
   env: {}
-    # DJANGO_SECRET_KEY: ""
-    # DJANGO_ALLOWED_HOSTS: "*"
-    # OSM_CLIENT_ID: ""
-    # OSM_CLIENT_SECRET: ""
-    # OSM_SECRET_KEY: ""
+    # FRONTEND_URL: "https://fair.example.com"
+    # API_BASE_URL: "https://fair.example.com/api/v1"
+    # ALLOWED_HOSTS: "fair.example.com"
+    # FAIR_STAC_API_URL: "http://stac:8080"
+    # FAIR_ZENML_STORE_URL: "http://zenml:8080"
+    # BUCKET_NAME: "fair-data"
 
   # -- Reference an existing Secret for sensitive env vars
   envFrom: []

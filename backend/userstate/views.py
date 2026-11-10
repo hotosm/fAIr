@@ -4,8 +4,7 @@ from rest_framework import viewsets
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 
-from accounts.authentication import OsmAuthentication
-from accounts.permissions import IsOwnerOrAdmin, _is_admin
+from accounts.permissions import IsOwnerOrAdmin, is_admin
 
 from .models import UserState
 from .serializers import UserStateSerializer
@@ -45,9 +44,6 @@ _STATE_EXAMPLE = OpenApiExample(
         examples=[_STATE_EXAMPLE],
     ),
     retrieve=extend_schema(description="Retrieve one of the caller's states."),
-    update=extend_schema(
-        description="Replace one of the caller's states.", examples=[_STATE_EXAMPLE]
-    ),
     partial_update=extend_schema(
         description="Update one of the caller's states.", examples=[_STATE_EXAMPLE]
     ),
@@ -58,10 +54,10 @@ class UserStateViewSet(viewsets.ModelViewSet):
     """Users reach only their own rows (another user's pid is 404); admins reach every row."""
 
     serializer_class = UserStateSerializer
-    authentication_classes = [OsmAuthentication]
     permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
     lookup_field = "pid"
     queryset = UserState.objects.none()
+    http_method_names = ["get", "post", "patch", "delete", "head", "options"]
 
     def initial(self, request, *args, **kwargs) -> None:
         super().initial(request, *args, **kwargs)
@@ -72,7 +68,7 @@ class UserStateViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         if getattr(self, "swagger_fake_view", False):
             return UserState.objects.none()
-        if _is_admin(self.request.user):
+        if is_admin(self.request.user):
             return UserState.objects.all()
         return UserState.objects.filter(user=self.request.user)
 

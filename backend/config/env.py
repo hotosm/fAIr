@@ -73,8 +73,8 @@ class Settings(BaseSettings):
     # Authentication
     auth_provider: AuthProvider = AuthProvider.HANKO
     fair_dev_token: SecretStr | None = None
-    # Hanko's OSM-connection callback still posts to this URI;
-    osm_login_redirect_uri: AnyHttpUrl | None = None
+    # Read from the environment by hotosm_auth; declared so a malformed value fails at startup.
+    osm_redirect_uri: AnyHttpUrl | None = None
     hanko_api_url: AnyHttpUrl | None = None
     cookie_secret: SecretStr | None = None
     cookie_domain: str | None = None
@@ -85,17 +85,14 @@ class Settings(BaseSettings):
     login_backend_url: AnyHttpUrl | None = None
 
     # fair-py-ops (ZenML + STAC)
-    # Required at call sites in P1+ (shared/integrations/zenml.py raises loud
-    # when missing). Optional at module import so legacy code paths + CI boot.
-    fair_zenml_store_url: AnyHttpUrl | None = None
-    fair_zenml_store_api_key: SecretStr | None = None
-    fair_stac_api_url: AnyHttpUrl | None = None
+    fair_zenml_store_url: AnyHttpUrl
+    fair_stac_api_url: AnyHttpUrl
     fair_stac_api_key: SecretStr | None = None
     # Optional: write STAC items to pgstac directly
     fair_stac_dsn: SecretStr | None = None
 
     # Object storage (S3 / MinIO)
-    bucket_name: str | None = None
+    bucket_name: str
     parent_bucket_folder: str = "dev"
     aws_region: str = "us-east-1"
     aws_access_key_id: SecretStr | None = None
@@ -112,21 +109,6 @@ class Settings(BaseSettings):
     # OSM raw-data API
     raw_data_api_url: AnyHttpUrl = AnyHttpUrl("https://api-prod.raw-data.hotosm.org/v1")
 
-    # MapSwipe (off by default; required when enable_mapswipe=true)
-    enable_mapswipe: bool = False
-    mapswipe_backend_url: AnyHttpUrl | None = None
-    mapswipe_manager_url: AnyHttpUrl | None = None
-    mapswipe_web_url: AnyHttpUrl | None = None
-    mapswipe_csrftoken_key: str | None = None
-    mapswipe_fb_auth_url: AnyHttpUrl | None = None
-    mapswipe_fb_username: str | None = None
-    mapswipe_fb_password: SecretStr | None = None
-    mapswipe_tutorial_id: str = "37"
-    mapswipe_organization_id: int = 4
-    mapswipe_verification_number: int = 3
-    mapswipe_poll_interval: int = 10
-    mapswipe_poll_timeout: int = 600
-
     # Email (SMTP)
     email_host: str = "smtp.gmail.com"
     email_port: int = 587
@@ -137,11 +119,8 @@ class Settings(BaseSettings):
     default_from_email: str = "no-reply@fair.hotosm.org"
 
     # Operational
-    log_path: Path = BASE_DIR / "logs"
     default_pagination_size: int = 50
     session_cookie_age: int = 3600
-    cache_timeout_minutes: int = 5
-    log_line_stream_truncate_value: int = 10
     user_state_max_bytes: PositiveInt = 2 * 1024 * 1024
 
     # Sentry (off by default; set enable_sentry=true with a sentry_dsn to turn on)
@@ -151,6 +130,7 @@ class Settings(BaseSettings):
     # Tunable polling / caching / processing knobs
     health_probe_timeout: float = 2.0
     prediction_sync_interval: int = 15
+    delete_prediction_input_tiles: bool = True
     training_sync_interval: int = 30
     stac_cache_ttl: int = 300
     stac_bulk_fetch_workers: int = 16
@@ -184,24 +164,6 @@ class Settings(BaseSettings):
                 raise ValueError(f"AUTH_PROVIDER=hanko requires: {', '.join(missing)}")
         if self.auth_provider is AuthProvider.DEV and not self.fair_dev_token:
             raise ValueError("AUTH_PROVIDER=dev requires: fair_dev_token")
-        return self
-
-    @model_validator(mode="after")
-    def _check_mapswipe_fields(self) -> Self:
-        if not self.enable_mapswipe:
-            return self
-        missing = [
-            name
-            for name, value in (
-                ("mapswipe_csrftoken_key", self.mapswipe_csrftoken_key),
-                ("mapswipe_fb_auth_url", self.mapswipe_fb_auth_url),
-                ("mapswipe_fb_username", self.mapswipe_fb_username),
-                ("mapswipe_fb_password", self.mapswipe_fb_password),
-            )
-            if not value
-        ]
-        if missing:
-            raise ValueError(f"ENABLE_MAPSWIPE=true requires: {', '.join(missing)}")
         return self
 
     @model_validator(mode="after")

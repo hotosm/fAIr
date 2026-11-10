@@ -7,6 +7,7 @@ from drf_spectacular.utils import (
     inline_serializer,
 )
 from fair.stac.validators import is_trainable
+from fair.zenml.runs import get_run_status, is_terminal
 from rest_framework import filters, serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound, PermissionDenied, ValidationError
@@ -14,10 +15,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.throttling import ScopedRateThrottle
 
-from accounts.authentication import OsmAuthentication
-from accounts.permissions import IsOwnerOrAdminOrReadOnly, _is_admin
+from accounts.permissions import IsOwnerOrAdminOrReadOnly, is_admin
 from datasets.models import Dataset
 from modelregistry.models import BaseModel, LocalModel
+from shared.enums import PipelineRunStatus
 from shared.integrations.stac import (
     DATASETS_COLLECTION,
     LOCAL_MODELS_COLLECTION,
@@ -26,14 +27,9 @@ from shared.integrations.stac import (
     invalidate_stac_cache,
     item_exists,
 )
-from shared.integrations.zenml import (
-    for_user,
-    get_run_status,
-    is_terminal,
-)
+from shared.integrations.zenml import for_user
 from shared.run_endpoints import read_run_logs, stop_pipeline_run
 from shared.serializers import LogEntrySerializer, RunLogsQuerySerializer, RunStatusSerializer
-from shared.storage import BackendLocalModelPaths
 
 from .models import TrainingRunRef
 from .serializers import (
@@ -80,12 +76,17 @@ def _previous_version_description(model_name: str) -> str:
 class TrainingViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = TrainingRunRef.objects.all()
     serializer_class = TrainingRunRefSerializer
-    authentication_classes = [OsmAuthentication]
     permission_classes = [IsAuthenticated, IsOwnerOrAdminOrReadOnly]
-    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ["local_model", "user", "status"]
+    search_fields = ["title", "description"]
     ordering_fields = ["submitted_at", "last_polled_at"]
     throttle_scope = "training_submit"
+
+    def get_queryset(self):
+        if is_admin(self.request.user):
+            return TrainingRunRef.objects.all()
+        return TrainingRunRef.objects.filter(user=self.request.user)
 
     @extend_schema(
         request=TrainingSubmitSerializer,
@@ -139,10 +140,6 @@ class TrainingViewSet(viewsets.ReadOnlyModelViewSet):
                 }
             )
 
-        # TODO(clone-training): expose POST /api/v1/trainings/{id}/clone/ that
-        # copies an existing run's (base_model, dataset, overrides) into a new
-        # LocalModel owned by the caller. Removes the need for users to manually
-        # re-key configs to retrain on someone else's setup.
         local_model, created = LocalModel.objects.get_or_create(
             name=payload["model_name"],
             defaults={
@@ -154,7 +151,7 @@ class TrainingViewSet(viewsets.ReadOnlyModelViewSet):
         if (
             not created
             and local_model.user_id != request.user.osm_id
-            and not _is_admin(request.user)
+            and not is_admin(request.user)
         ):
             return Response(
                 {
@@ -190,7 +187,7 @@ class TrainingViewSet(viewsets.ReadOnlyModelViewSet):
         # any other user's pipeline run.
         run = get_object_or_404(TrainingRunRef, zenml_run_id=run_id)
         user = self.request.user
-        if not _is_admin(user) and run.user_id != user.osm_id:
+        if not is_admin(user) and run.user_id != user.osm_id:
             raise PermissionDenied("Not allowed.")
         return run
 
@@ -259,7 +256,7 @@ class TrainingViewSet(viewsets.ReadOnlyModelViewSet):
         run_ref = self.get_object()
         if run_ref.user_id != request.user.osm_id:
             return Response({"detail": "Not allowed."}, status=status.HTTP_403_FORBIDDEN)
-        if run_ref.status != "completed":
+        if run_ref.status != PipelineRunStatus.COMPLETED:
             return Response(
                 {"detail": "Training run is not completed."},
                 status=status.HTTP_409_CONFLICT,
@@ -295,7 +292,6 @@ class TrainingViewSet(viewsets.ReadOnlyModelViewSet):
             title=title,
             keywords=keywords,
             pipeline_run_id=run_ref.zenml_run_id,
-            paths=BackendLocalModelPaths,
             providers=[request.user.stac_producer()],
         )
         previous_id = run_ref.local_model.stac_item_id

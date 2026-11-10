@@ -5,8 +5,8 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
 
+from accounts.serializers import UserSerializer
 from modelregistry.models import Category
-from notifications.serializers import UserSerializer
 from shared.integrations.stac import DATASETS_COLLECTION
 from shared.serializers import (
     MAX_ZOOM,

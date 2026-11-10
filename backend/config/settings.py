@@ -1,11 +1,10 @@
-import os
+import tomllib
 from typing import Any
 from urllib.parse import urlparse
 
 import boto3
 import dj_database_url
 from botocore.config import Config
-from corsheaders.defaults import default_headers
 from pydantic import SecretStr
 
 from config.env import AuthProvider, settings
@@ -29,9 +28,6 @@ if settings.enable_sentry:
 
     sentry_sdk.init(dsn=settings.sentry_dsn.get_secret_value())
 
-LOG_PATH = str(settings.log_path)
-os.makedirs(LOG_PATH, exist_ok=True)
-
 # AnyHttpUrl appends a trailing slash to a bare host, which breaks f-string joins.
 FRONTEND_URL = str(settings.frontend_url).rstrip("/")
 API_BASE_URL = str(settings.api_base_url).rstrip("/")
@@ -44,13 +40,7 @@ AUTH_PROVIDER = settings.auth_provider.value
 FAIR_DEV_TOKEN = _secret(settings.fair_dev_token)
 
 if settings.auth_provider is AuthProvider.HANKO:
-    HANKO_API_URL = _str(settings.hanko_api_url)
-    COOKIE_SECRET = _secret(settings.cookie_secret)
-    COOKIE_DOMAIN = settings.cookie_domain
-    COOKIE_SECURE = settings.cookie_secure if settings.cookie_secure is not None else not DEBUG
-    JWT_AUDIENCE = settings.jwt_audience
     LOGIN_URL = str(settings.login_url).rstrip("/")
-    OSM_REDIRECT_URI = _str(settings.osm_login_redirect_uri)
     LOGIN_INTERNAL_API_KEY = _secret(settings.login_internal_api_key) or ""
     LOGIN_BACKEND_URL = _str(settings.login_backend_url) or LOGIN_URL
 
@@ -66,13 +56,10 @@ if settings.auth_provider is AuthProvider.HANKO:
             ),
         )
 
-FAIR_ZENML_STORE_URL = _str(settings.fair_zenml_store_url)
-FAIR_ZENML_STORE_API_KEY = _secret(settings.fair_zenml_store_api_key)
+FAIR_ZENML_STORE_URL = str(settings.fair_zenml_store_url)
 # AnyHttpUrl appends a trailing slash when the URL carries no path, which would
 # double up against the "/collections/..." suffixes appended at every call site.
-FAIR_STAC_API_URL = (
-    _str(settings.fair_stac_api_url).rstrip("/") if settings.fair_stac_api_url else None
-)
+FAIR_STAC_API_URL = str(settings.fair_stac_api_url).rstrip("/")
 FAIR_STAC_API_KEY = _secret(settings.fair_stac_api_key)
 FAIR_STAC_DSN = _secret(settings.fair_stac_dsn)
 
@@ -126,7 +113,6 @@ INSTALLED_APPS = [
     "notifications",
     "stars",
     "userstate",
-    "system",
 ]
 
 if settings.auth_provider is AuthProvider.HANKO:
@@ -154,15 +140,7 @@ if settings.auth_provider is AuthProvider.HANKO:
 ROOT_URLCONF = "config.urls"
 WSGI_APPLICATION = "config.wsgi.application"
 
-if DEBUG:
-    SECURE_SSL_REDIRECT = False
-    SECURE_HSTS_SECONDS = 0
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = False
-    SECURE_HSTS_PRELOAD = False
-    SESSION_COOKIE_SECURE = False
-    CSRF_COOKIE_SECURE = False
-    CSRF_TRUSTED_ORIGINS: list[str] = []
-else:
+if not DEBUG:
     SECURE_SSL_REDIRECT = settings.secure_ssl_redirect
     SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
@@ -171,16 +149,10 @@ else:
     CSRF_COOKIE_SECURE = True
     CSRF_TRUSTED_ORIGINS = settings.csrf_trusted_origins or settings.allowed_hosts
 
-SECURE_CONTENT_TYPE_NOSNIFF = True
-SECURE_BROWSER_XSS_FILTER = True
-X_FRAME_OPTIONS = "DENY"
 SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 
-SESSION_COOKIE_HTTPONLY = True
-SESSION_COOKIE_SAMESITE = "Lax"
 SESSION_COOKIE_AGE = settings.session_cookie_age
 CSRF_COOKIE_HTTPONLY = True
-CSRF_COOKIE_SAMESITE = "Lax"
 
 DEFAULT_PAGINATION_SIZE = settings.default_pagination_size
 
@@ -189,6 +161,9 @@ REST_FRAMEWORK = {
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "accounts.authentication.OsmAuthentication",
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticatedOrReadOnly",
     ],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
     "PAGE_SIZE": DEFAULT_PAGINATION_SIZE,
@@ -220,9 +195,6 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
             ],
-            "libraries": {
-                "staticfiles": "django.templatetags.static",
-            },
         },
     },
 ]
@@ -256,15 +228,10 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
-USE_I18N = True
-USE_TZ = True
 
 STATIC_URL = "/api_static/"
-MEDIA_URL = "/media/"
 STATIC_ROOT = str(BASE_DIR / "api_static")
-MEDIA_ROOT = str(BASE_DIR / "media")
 
 SERVE_FRONTEND = settings.serve_frontend
 FRONTEND_DIST_DIR = settings.frontend_dist_dir
@@ -272,41 +239,24 @@ if SERVE_FRONTEND:
     WHITENOISE_ROOT = str(FRONTEND_DIST_DIR)
     WHITENOISE_INDEX_FILE = True
 
-_logger_handlers: list[str] = ["console"] if DEBUG else ["console", "file"]
-_log_handlers: dict[str, Any] = {
-    "console": {
-        "level": "DEBUG" if DEBUG else "INFO",
-        "class": "logging.StreamHandler",
-        # stdout: ZenML records anything written to stderr as ERROR.
-        "stream": "ext://sys.stdout",
-        "formatter": "simple",
-    },
-}
-if not DEBUG:
-    _log_handlers["file"] = {
-        "level": "INFO",
-        "class": "logging.FileHandler",
-        "filename": os.path.join(LOG_PATH, "django.log"),
-        "formatter": "verbose",
-    }
-
 LOGGING: dict[str, Any] = {
     "version": 1,
     "disable_existing_loggers": False,
-    "formatters": {
-        "verbose": {"format": "{levelname} {asctime} {module} {message}", "style": "{"},
-        "simple": {"format": "{levelname} {message}", "style": "{"},
+    "formatters": {"simple": {"format": "{levelname} {message}", "style": "{"}},
+    "handlers": {
+        "console": {
+            "level": "DEBUG" if DEBUG else "INFO",
+            "class": "logging.StreamHandler",
+            # stdout: ZenML records anything written to stderr as ERROR.
+            "stream": "ext://sys.stdout",
+            "formatter": "simple",
+        },
     },
-    "handlers": _log_handlers,
     "root": {"handlers": ["console"]},
     "loggers": {
-        "django": {"handlers": _logger_handlers, "level": "INFO", "propagate": False},
-        "core": {"handlers": _logger_handlers, "level": "INFO", "propagate": False},
+        "django": {"handlers": ["console"], "level": "INFO", "propagate": False},
     },
 }
-
-if DEBUG:
-    os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 
 TASKS = {
     "default": {
@@ -323,12 +273,11 @@ CACHES = {
     },
 }
 
-CACHE_TIMEOUT_MINUTES = settings.cache_timeout_minutes
-LOG_LINE_STREAM_TRUNCATE_VALUE = settings.log_line_stream_truncate_value
 USER_STATE_MAX_BYTES = settings.user_state_max_bytes
 
 HEALTH_PROBE_TIMEOUT = settings.health_probe_timeout
 PREDICTION_SYNC_INTERVAL = settings.prediction_sync_interval
+DELETE_PREDICTION_INPUT_TILES = settings.delete_prediction_input_tiles
 TRAINING_SYNC_INTERVAL = settings.training_sync_interval
 STAC_CACHE_TTL = settings.stac_cache_ttl
 STAC_BULK_FETCH_WORKERS = settings.stac_bulk_fetch_workers
@@ -340,7 +289,7 @@ AUTH_USER_MODEL = "accounts.OsmUser"
 SPECTACULAR_SETTINGS = {
     "TITLE": "fAIr API",
     "DESCRIPTION": "AI-Assisted Mapping",
-    "VERSION": "2.0.0",
+    "VERSION": tomllib.loads((BASE_DIR / "pyproject.toml").read_text())["project"]["version"],
     "SERVERS": [{"url": API_BASE_URL, "description": "Configured API base."}],
     "CONTACT": {"name": "HOT Tech Team", "email": "sysadmin@hotosm.org"},
     "LICENSE": {"name": "AGPL-3.0", "url": "https://www.gnu.org/licenses/agpl-3.0.en.html"},
@@ -353,12 +302,8 @@ SPECTACULAR_SETTINGS = {
         {"name": "local-models", "description": "Backend-managed local (finetuned) models."},
         {"name": "trainings", "description": "Submit + monitor finetune runs."},
         {"name": "predictions", "description": "Submit, poll, publish, deliver predictions."},
-        {"name": "public-predictions", "description": "Anonymous read of published predictions."},
-        {"name": "feedback", "description": "Per-feature accept/reject feedback."},
         {"name": "banners", "description": "Site-wide announcement banners."},
-        {"name": "notifications", "description": "Per-user notification feed."},
-        {"name": "workspace", "description": "S3 listing + presigned URLs."},
-        {"name": "stars", "description": "Anonymous-friendly star/unstar."},
+        {"name": "stars", "description": "Public star counts; starring requires sign-in."},
         {"name": "user-state", "description": "Per-user frontend state, private to its owner."},
         {"name": "system", "description": "Health + dependency probes."},
     ],
@@ -380,8 +325,6 @@ SPECTACULAR_SETTINGS = {
     },
 }
 
-TEST_RUNNER = "tests.test_runners.NoDestroyTestRunner"
-
 if DEBUG:
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 else:
@@ -399,26 +342,13 @@ def _extract_domain(url: str) -> str | None:
     return urlparse(url).hostname
 
 
+CORS_ALLOW_CREDENTIALS = True
 if DEBUG or settings.cors_allow_all_origins:
     CORS_ALLOW_ALL_ORIGINS = True
-    CORS_ALLOW_CREDENTIALS = True
 else:
-    CORS_ALLOW_ALL_ORIGINS = False
-    CORS_ALLOW_CREDENTIALS = True
     CORS_ALLOWED_ORIGINS = list(settings.cors_allowed_origins)
-    frontend_origin = FRONTEND_URL.rstrip("/") if FRONTEND_URL else None
-    if frontend_origin and frontend_origin not in CORS_ALLOWED_ORIGINS:
-        CORS_ALLOWED_ORIGINS.append(frontend_origin)
-
-CORS_ALLOW_HEADERS = [
-    *default_headers,
-    "authorization",
-    "content-type",
-    "x-csrftoken",
-    "x-requested-with",
-]
-CORS_ALLOWED_METHODS = ["DELETE", "GET", "OPTIONS", "PATCH", "POST", "PUT"]
-CORS_PREFLIGHT_MAX_AGE = 86400
+    if FRONTEND_URL not in CORS_ALLOWED_ORIGINS:
+        CORS_ALLOWED_ORIGINS.append(FRONTEND_URL)
 
 
 def _build_allowed_hosts() -> list[str]:
@@ -434,19 +364,5 @@ def _build_allowed_hosts() -> list[str]:
 
 
 ALLOWED_HOSTS = _build_allowed_hosts()
-
-ENABLE_MAPSWIPE = settings.enable_mapswipe
-MAPSWIPE_BACKEND_URL = _str(settings.mapswipe_backend_url)
-MAPSWIPE_MANAGER_URL = _str(settings.mapswipe_manager_url)
-MAPSWIPE_WEB_URL = _str(settings.mapswipe_web_url)
-MAPSWIPE_CSRFTOKEN_KEY = settings.mapswipe_csrftoken_key
-MAPSWIPE_FB_AUTH_URL = _str(settings.mapswipe_fb_auth_url)
-MAPSWIPE_FB_USERNAME = settings.mapswipe_fb_username
-MAPSWIPE_FB_PASSWORD = _secret(settings.mapswipe_fb_password)
-MAPSWIPE_TUTORIAL_ID = settings.mapswipe_tutorial_id
-MAPSWIPE_ORGANIZATION_ID = settings.mapswipe_organization_id
-MAPSWIPE_VERIFICATION_NUMBER = settings.mapswipe_verification_number
-MAPSWIPE_POLL_INTERVAL = settings.mapswipe_poll_interval
-MAPSWIPE_POLL_TIMEOUT = settings.mapswipe_poll_timeout
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

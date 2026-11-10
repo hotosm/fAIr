@@ -1,57 +1,31 @@
 from django.contrib import admin
-from django.contrib.auth.forms import UserChangeForm, UserCreationForm
+from django.contrib.auth.admin import UserAdmin
 
+from .deletion import DELETED_USER_OSM_ID, delete_account, has_work_in_progress
 from .models import OsmUser
 
 
-class OsmUserCreationForm(UserCreationForm):
-    class Meta:
-        model = OsmUser
-        fields = (
-            "username",
-            "email",
-            "osm_id",
-            "img_url",
-            "is_staff",
-            "is_superuser",
-            "is_active",
-        )
-
-
-class OsmUserChangeForm(UserChangeForm):
-    class Meta:
-        model = OsmUser
-        fields = (
-            "username",
-            "email",
-            "osm_id",
-            "img_url",
-            "is_staff",
-            "is_superuser",
-            "is_active",
-        )
-
-
 @admin.register(OsmUser)
-class OsmUserAdmin(admin.ModelAdmin):
-    add_form = OsmUserCreationForm
-    form = OsmUserChangeForm
-    model = OsmUser
-
+class OsmUserAdmin(UserAdmin):
     list_display = [
         "osm_id",
         "username",
         "email",
         "is_staff",
         "is_superuser",
+        "account_deletion_requested",
         "last_login",
     ]
-    list_filter = ["is_staff", "is_superuser", "is_active"]
+    list_filter = ["is_staff", "is_superuser", "is_active", "account_deletion_requested"]
     search_fields = ["username", "email", "osm_id"]
     readonly_fields = ["last_login", "date_joined"]
 
     fieldsets = (
-        (None, {"fields": ("username", "osm_id", "email", "img_url")}),
+        (None, {"fields": ("username", "password", "osm_id", "email", "img_url")}),
+        (
+            "Profile",
+            {"fields": ("email_verified", "newsletter_subscription", "account_deletion_requested")},
+        ),
         (
             "Permissions",
             {
@@ -66,7 +40,6 @@ class OsmUserAdmin(admin.ModelAdmin):
         ),
         ("Important dates", {"fields": ("last_login", "date_joined")}),
     )
-
     add_fieldsets = (
         (
             None,
@@ -74,18 +47,32 @@ class OsmUserAdmin(admin.ModelAdmin):
                 "classes": ("wide",),
                 "fields": (
                     "username",
-                    "email",
                     "osm_id",
-                    "img_url",
-                    "is_staff",
-                    "is_superuser",
-                    "is_active",
+                    "email",
+                    "usable_password",
+                    "password1",
+                    "password2",
                 ),
             },
         ),
     )
 
-    def formfield_for_dbfield(self, db_field, request, **kwargs):
-        if db_field.name == "username":
-            kwargs["validators"] = []  ## override the validation for sername
-        return super().formfield_for_dbfield(db_field, request, **kwargs)
+    def get_changeform_initial_data(self, request):
+        return {**super().get_changeform_initial_data(request), "usable_password": "false"}
+
+    def get_deleted_objects(self, objs, request):
+        # Kept records are not deleted; `protected` blocks the placeholder and busy users.
+        users = [str(user) for user in objs]
+        protected = [
+            str(user)
+            for user in objs
+            if user.osm_id == DELETED_USER_OSM_ID or has_work_in_progress(user)
+        ]
+        return users, {"users": len(users)}, set(), protected
+
+    def delete_model(self, request, obj: OsmUser) -> None:
+        delete_account(obj)
+
+    def delete_queryset(self, request, queryset) -> None:
+        for user in queryset:
+            delete_account(user)

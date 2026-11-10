@@ -13,7 +13,7 @@ from drf_spectacular.views import (
 )
 from rest_framework.settings import api_settings
 
-from config.settings import AuthProvider
+from config.env import AuthProvider
 
 _APP_VERSION = tomllib.loads(
     (Path(__file__).resolve().parent.parent / "pyproject.toml").read_text()
@@ -50,9 +50,7 @@ v1_patterns = [
     path("", include("modelregistry.urls")),
     path("", include("trainings.urls")),
     path("", include("predictions.urls")),
-    path("", include("feedback.urls")),
     path("", include("notifications.urls")),
-    path("", include("workspace.urls")),
     path("", include("system.urls")),
     path("", include("stars.urls")),
     path("", include("userstate.urls")),
@@ -72,7 +70,6 @@ if settings.DEBUG:
     from django.conf.urls.static import static
 
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
 if settings.SERVE_FRONTEND:
@@ -83,7 +80,7 @@ if settings.SERVE_FRONTEND:
         """Return the bundled SPA shell for any non-API route (client-side routing).
 
         Intercepts all unmatched routes.
-        (Everything except the API, Django admin, and static/media)
+        (Everything except the API, Django admin, and static files)
         """
         index_file = Path(settings.FRONTEND_DIST_DIR) / "index.html"
         try:
@@ -97,7 +94,7 @@ if settings.SERVE_FRONTEND:
             # in the frontend. This also accounts for trailing slashes.
             # Groups stay non-capturing: re_path forwards captured groups as
             # positional view arguments, which spa_index does not accept.
-            r"^(?!api(?:/|$)|api_static/|media(?:/|$)|django-admin(?:/|$)).*$",
+            r"^(?!api(?:/|$)|api_static/|django-admin(?:/|$)).*$",
             spa_index,
             name="spa",
         ),

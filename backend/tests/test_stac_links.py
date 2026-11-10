@@ -17,7 +17,3 @@ def test_drops_internal_host_links_keeps_public() -> None:
         out = _public_links(_LINKS)
     assert {link["rel"] for link in out} == {"license", "cite-as"}
 
-
-def test_noop_when_stac_url_unset() -> None:
-    with patch.object(settings, "FAIR_STAC_API_URL", None):
-        assert _public_links(_LINKS) == _LINKS

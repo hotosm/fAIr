@@ -34,14 +34,6 @@ def test_get_master_client_constructs_once_with_required_settings(mock_fair_clie
 
 
 @patch("shared.integrations.zenml.FairClient")
-def test_get_master_client_raises_when_required_setting_missing(mock_fair_client_cls, settings):
-    settings.FAIR_ZENML_STORE_URL = ""
-    with pytest.raises(RuntimeError, match="FAIR_ZENML_STORE_URL"):
-        wrapper.get_master_client()
-    mock_fair_client_cls.assert_not_called()
-
-
-@patch("shared.integrations.zenml.FairClient")
 def test_for_user_returns_proxy_via_with_user(mock_fair_client_cls, settings):
     settings.FAIR_ZENML_STORE_URL = "http://zenml.test"
     settings.FAIR_STAC_API_URL = "http://stac.test"
@@ -69,27 +61,6 @@ def test_for_user_reuses_master_client_across_calls(mock_fair_client_cls, settin
 
     assert mock_fair_client_cls.call_count == 1
     assert instance.with_user.call_count == 3
-
-
-@patch("shared.integrations.zenml._fetch_run_logs")
-def test_fetch_run_logs_passes_tail(mock_fetch):
-    mock_fetch.return_value = []
-    wrapper.fetch_run_logs("run-1", tail=200)
-    mock_fetch.assert_called_once_with("run-1", tail=200, since=None)
-
-
-@patch("shared.integrations.zenml._fetch_step_logs")
-def test_fetch_step_logs_passes_step(mock_fetch):
-    mock_fetch.return_value = []
-    wrapper.fetch_step_logs("run-1", "train_model", tail=50)
-    mock_fetch.assert_called_once_with("run-1", "train_model", tail=50, since=None)
-
-
-@patch("shared.integrations.zenml._list_runs_for_model")
-def test_list_runs_for_model_passes_limit(mock_list):
-    mock_list.return_value = []
-    wrapper.list_runs_for_model("my-model", limit=10)
-    mock_list.assert_called_once_with("my-model", limit=10)
 
 
 @patch("shared.integrations.zenml.FairClient")

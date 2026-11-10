@@ -32,7 +32,6 @@ class Prediction(InputImagery):
     geometry = models.JSONField()
     zoom = models.PositiveSmallIntegerField()
     params = models.JSONField(default=dict, blank=True)
-    remove_osm = models.BooleanField(default=False)
     visibility = models.CharField(
         max_length=20, choices=Visibility.choices, default=Visibility.PRIVATE, db_index=True
     )
@@ -46,7 +45,6 @@ class Prediction(InputImagery):
         blank=True, help_text="Why the run failed; empty unless status is failed."
     )
     results_ready = models.BooleanField(default=False)
-    mapswipe_project_id = models.CharField(max_length=100, blank=True)
     user = models.ForeignKey(
         OsmUser,
         to_field="osm_id",
@@ -62,7 +60,6 @@ class Prediction(InputImagery):
         indexes = [
             models.Index(fields=["local_model_stac_id"]),
             models.Index(fields=["status"]),
-            models.Index(fields=["user"]),
         ]
         constraints = [
             models.CheckConstraint(

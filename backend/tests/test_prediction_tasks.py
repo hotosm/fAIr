@@ -33,7 +33,10 @@ def prediction(db) -> Prediction:
 @override_settings(
     TASKS={"default": {"BACKEND": "django_tasks.backends.immediate.ImmediateBackend"}}
 )
-def test_failed_submission_marks_prediction_failed(prediction: Prediction) -> None:
+@patch("predictions.tasks.remove_dir")
+def test_failed_submission_marks_prediction_failed_and_deletes_its_tiles(
+    mock_remove, prediction: Prediction
+) -> None:
     with patch(
         "predictions.tasks._materialize_prediction_input", side_effect=RuntimeError("no tiles")
     ):
@@ -42,6 +45,7 @@ def test_failed_submission_marks_prediction_failed(prediction: Prediction) -> No
     prediction.refresh_from_db()
     assert prediction.status == PipelineRunStatus.FAILED
     assert prediction.error == "RuntimeError: no tiles"
+    mock_remove.assert_called_once()
 
 
 class _DownloadRequested(Exception):

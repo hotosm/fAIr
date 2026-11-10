@@ -26,10 +26,7 @@ class Feedback(models.Model):
 
     class Meta:
         indexes = [
-            models.Index(fields=["stac_id"]),
-            models.Index(fields=["user"]),
             models.Index(fields=["action"]),
-            models.Index(fields=["geom"], name="feedback_geom_gist_idx", opclasses=["gist"]),
         ]
         ordering = ["-created_at"]
 

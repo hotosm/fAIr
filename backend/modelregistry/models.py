@@ -78,7 +78,6 @@ class LocalModel(Pinnable):
     class Meta:
         indexes = [
             models.Index(fields=["status"]),
-            models.Index(fields=["user"]),
         ]
         constraints = [
             models.CheckConstraint(
@@ -129,7 +128,6 @@ class BaseModel(Pinnable):
     class Meta:
         indexes = [
             models.Index(fields=["status"]),
-            models.Index(fields=["user"]),
         ]
         constraints = [
             models.CheckConstraint(
