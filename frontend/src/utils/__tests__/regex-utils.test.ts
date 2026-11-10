@@ -150,6 +150,11 @@ describe("Regex Patterns", () => {
         "https://api.imagery.hotosm.org/raster/collections/openaerialmap/items/670683fa445f52000147951b/tiles/WebMercatorQuad/{z}/{x}/{y}?assets=visual&nodata=0",
       ),
     ).toBe(true);
+    expect(
+      OPENAERIALMAP_TILESERVER_URL_REGEX_PATTERN.test(
+        "https://tiles.imagery.hotosm.org/raster/collections/openaerialmap/items/670683fa445f52000147951b/tiles/WebMercatorQuad/{z}/{x}/{y}?assets=visual&nodata=0",
+      ),
+    ).toBe(true);
   });
 
   it("converts HOT OpenAerialMap raster tile URLs to TileJSON URLs", () => {
@@ -159,6 +164,13 @@ describe("Regex Patterns", () => {
       ),
     ).toBe(
       "https://api.imagery.hotosm.org/raster/collections/openaerialmap/items/670683fa445f52000147951b/WebMercatorQuad/tilejson.json?assets=visual&tilesize=256",
+    );
+    expect(
+      extractTileJSONURL(
+        "https://tiles.imagery.hotosm.org/raster/collections/openaerialmap/items/670683fa445f52000147951b/tiles/WebMercatorQuad/{z}/{x}/{y}?assets=visual&nodata=0",
+      ),
+    ).toBe(
+      "https://tiles.imagery.hotosm.org/raster/collections/openaerialmap/items/670683fa445f52000147951b/WebMercatorQuad/tilejson.json?assets=visual&tilesize=256",
     );
   });
 });
