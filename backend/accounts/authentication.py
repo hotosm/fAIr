@@ -45,6 +45,9 @@ class HankoAuthentication(authentication.BaseAuthentication):
         logger.debug(f"Hanko user {hanko_user.email} needs onboarding (no mapping)")
         return None
 
+    def authenticate_header(self, request):
+        return "Bearer"
+
 
 _DEV_USER_OSM_ID = 1
 _DEV_USER_USERNAME = "dev-user"

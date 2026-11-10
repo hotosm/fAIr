@@ -61,7 +61,7 @@ def test_deletion_request_notifies_the_team_once(client, user, mailoutbox):
 
 def test_auth_me_get_returns_user_profile(client, user):
     response = client.get(ME)
-    assert response.status_code == 201
+    assert response.status_code == 200
     body = response.json()
     assert body["osm_id"] == user.osm_id
     assert body["username"] == "alice"

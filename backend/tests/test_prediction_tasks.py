@@ -48,6 +48,21 @@ def test_failed_submission_marks_prediction_failed_and_deletes_its_tiles(
     mock_remove.assert_called_once()
 
 
+@override_settings(
+    TASKS={"default": {"BACKEND": "django_tasks.backends.immediate.ImmediateBackend"}}
+)
+@patch("predictions.tasks.remove_dir", side_effect=OSError("still exists after delete"))
+def test_failed_submission_survives_a_refused_tile_delete(_, prediction: Prediction) -> None:
+    with patch(
+        "predictions.tasks._materialize_prediction_input", side_effect=RuntimeError("no tiles")
+    ):
+        submit_prediction.enqueue(prediction_id=prediction.id)
+
+    prediction.refresh_from_db()
+    assert prediction.status == PipelineRunStatus.FAILED
+    assert prediction.error == "RuntimeError: no tiles"
+
+
 class _DownloadRequested(Exception):
     pass
 

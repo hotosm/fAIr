@@ -14,8 +14,12 @@ def presigned_get_url(key: str) -> str:
 
 def remove_dir(uri: str) -> None:
     folder = UPath(uri)
+    if not folder.exists():
+        return
+    folder.rmdir(recursive=True)
+    # s3fs bulk delete omits per-key errors such as AccessDenied (S3FileSystem._bulk_delete).
     if folder.exists():
-        folder.rmdir(recursive=True)
+        raise OSError(f"{uri} still exists after delete")
 
 
 def _folder() -> str:
