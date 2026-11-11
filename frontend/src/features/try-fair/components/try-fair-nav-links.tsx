@@ -1,45 +1,21 @@
-import { useAuth } from "@/app/providers/auth-provider";
 import { CloudDownloadIcon } from "@/components/ui/icons";
 import { ShareIcon } from "@/components/ui/icons/share-icon";
 import { ToolTip } from "@/components/ui/tooltip";
 import { APP_TOUR_IDS } from "@/constants/site-tour";
-import { HANKO_URL } from "@/config";
-import { getDownloadData } from "@/features/try-fair/components/start-mapping/export-map-results";
-import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
-import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
-import { geoJSONDowloader } from "@/utils";
 import { PredictionHistoryButton } from "@/features/try-fair/components/prediction-history-button";
+import { useTryFairActions } from "@/features/try-fair/hooks/use-try-fair-actions";
 
+/** Desktop header actions. On phones the same actions live in the map "Menu". */
 export const StartMappingNavlinks: React.FC = () => {
-  const { setChooseLocation } = useTryFairParams();
   const {
-    setDownloadType,
-    setShowShareModal,
-    predictions,
-    outputType,
-    predictionBBox,
-    predictionGridZoom,
-  } = useStartMappingStore();
-  const hasPredictions = Boolean(predictions?.features?.length);
-  const { isAuthenticated } = useAuth();
+    isAuthenticated,
+    hasPredictions,
+    downloadResults,
+    mapLargeArea,
+    changeImagery,
+    share,
+  } = useTryFairActions();
 
-  const handleSelect = (value: string) => {
-    if (value === "download") {
-      if (!predictions) return;
-      const exportData = getDownloadData(
-        predictions,
-        outputType,
-        predictionBBox,
-        predictionGridZoom,
-      );
-      geoJSONDowloader(
-        exportData,
-        `fair-predictions-${outputType.toLowerCase()}`,
-      );
-      return;
-    }
-    setDownloadType(value);
-  };
   return (
     <div className="hidden shrink-0 items-center gap-4 lg:flex">
       {/* Help — text link */}
@@ -54,7 +30,7 @@ export const StartMappingNavlinks: React.FC = () => {
           disabled={!hasPredictions}
           aria-label="Download results"
           type="button"
-          onClick={() => handleSelect("download")}
+          onClick={downloadResults}
           className="flex items-center enabled:hover:text-gray-900 transition-colors text-inherit font-inherit cursor-pointer disabled:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <CloudDownloadIcon className="size-6" />
@@ -65,7 +41,7 @@ export const StartMappingNavlinks: React.FC = () => {
         <button
           type="button"
           id={APP_TOUR_IDS.TRY_FAIR_SHARE_BUTTON}
-          onClick={() => setShowShareModal(true)}
+          onClick={share}
           className="flex items-center hover:text-gray-900 transition-colors text-inherit font-inherit cursor-pointer"
         >
           <ShareIcon className="size-6" />
@@ -75,9 +51,7 @@ export const StartMappingNavlinks: React.FC = () => {
       <ToolTip content="Change imagery">
         <button
           type="button"
-          onClick={() => {
-            setChooseLocation(true);
-          }}
+          onClick={changeImagery}
           className="border border-light-gray bg-[#EEF1F7] text-[#2E2929] hover:bg-off-white transition-colors text-xs px-3 flex shrink-0 items-center whitespace-nowrap !w-fit !h-8 md:min-w-fit !rounded-md min-w-[7.5rem]"
           aria-label="Change imagery"
         >
@@ -92,13 +66,7 @@ export const StartMappingNavlinks: React.FC = () => {
               ? APP_TOUR_IDS.TRY_FAIR_MAP_LARGE_AREA_BUTTON
               : undefined
           }
-          onClick={() => {
-            if (!isAuthenticated) {
-              window.location.href = `${HANKO_URL}/app?return_to=${encodeURIComponent(window.location.href)}`;
-            } else {
-              handleSelect("large-area");
-            }
-          }}
+          onClick={mapLargeArea}
           className={`${isAuthenticated ? "bg-grey" : "bg-dark"} text-xs px-3 flex shrink-0 items-center whitespace-nowrap text-white !w-fit !h-8 md:min-w-fit !rounded-md min-w-[7.5rem]`}
           aria-label={isAuthenticated ? "Map an area" : "Login"}
         >

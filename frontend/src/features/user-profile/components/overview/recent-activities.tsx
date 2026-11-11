@@ -1,17 +1,18 @@
-import { ChevronDownIcon, MapIcon } from "@/components/ui/icons";
-import { APPLICATION_ROUTES } from "@/constants/routes";
-import { getFeatureIcon } from "@/features/try-fair/components/model-picker/model-picker-badges";
+import { ChevronDownIcon } from "@/components/ui/icons";
+import useScreenSize from "@/hooks/use-screen-size";
 import { Link, useNavigate } from "react-router-dom";
 import { DataTable } from "@/components/ui/data-table";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { SavedUserState } from "@/features/try-fair/api/user-state";
 import { cn } from "@/utils";
-import { OverviewEmptyState } from "./overview-empty-state";
 import { useGetUserStates } from "@/features/user-profile/api/user-state";
 import { TableSkeleton } from "@/features/models/components/skeletons";
-
-const getProjectPath = ({ pid }: SavedUserState) =>
-  APPLICATION_ROUTES.TRY_FAIR_PROJECT.replace(":pid", String(pid));
+import { OverviewEmptyState } from "@/features/user-profile/components/overview/overview-empty-state";
+import {
+  MappingTypeBadge,
+  getProjectPath,
+  MappingHistoryList,
+} from "@/features/user-profile/components/overview/mapping-history-list";
 
 const columns: ColumnDef<SavedUserState>[] = [
   {
@@ -26,23 +27,7 @@ const columns: ColumnDef<SavedUserState>[] = [
   {
     accessorKey: "state.type",
     header: "Type",
-    cell: ({ row }) => {
-      const { type, category } = row.original.state;
-      const label = category || type;
-      const Icon =
-        label === "mapping" || label === "prediction"
-          ? MapIcon
-          : getFeatureIcon(label, MapIcon);
-      return (
-        <span
-          className="inline-flex max-w-full items-center gap-1.5 rounded bg-grey px-2 py-0.5 capitalize leading-4 text-white"
-          title={label.replace(/[-_]/g, " ")}
-        >
-          <Icon className="size-3 shrink-0" aria-hidden="true" />
-          <span className="truncate">{label.replace(/[-_]/g, " ")}</span>
-        </span>
-      );
-    },
+    cell: ({ row }) => <MappingTypeBadge activity={row.original} />,
   },
   {
     id: "actions",
@@ -69,12 +54,14 @@ export const RecentActivities = ({
   className?: string;
 }) => {
   const { data, isPending, isError } = useGetUserStates();
+  const { isSmallViewport } = useScreenSize();
   const navigate = useNavigate();
   const activities = data?.results.slice(1, 5) ?? [];
   return (
     <section
       className={cn(
-        "flex min-h-[410px] min-w-0 flex-col w-full rounded-xl bg-frosted-blue p-5",
+        // Phones: as tall as its rows; wider screens match the hero's height.
+        "flex min-w-0 flex-col w-full rounded-xl bg-frosted-blue p-2 md:p-5 sm:min-h-[410px]",
         className,
       )}
     >
@@ -106,6 +93,8 @@ export const RecentActivities = ({
         <p role="alert" className="py-4 text-sm text-grey">
           Couldn't load history.
         </p>
+      ) : activities.length && isSmallViewport ? (
+        <MappingHistoryList activities={activities} />
       ) : activities.length ? (
         <div className="min-w-0 max-w-full [&_table]:table-fixed [&_tbody_tr]:cursor-pointer [&_td]:p-2.5 [&_td]:text-[13px] [&_td]:font-medium [&_td]:text-[#404446] [&_th]:h-9 [&_th]:p-2.5 [&_th]:text-[12px] [&_th]:font-normal [&_th]:text-[#404446] [&_th:last-child]:w-[52px] [&_th:nth-child(2)]:w-[34%]">
           <DataTable

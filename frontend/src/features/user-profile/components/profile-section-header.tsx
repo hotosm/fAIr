@@ -2,6 +2,7 @@ import { AddIcon } from "@/components/ui/icons";
 import { ButtonWithIcon } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { ButtonVariant } from "@/enums";
+import { ProfilePageTitle } from "@/features/user-profile/components/profile-page-title";
 
 export const ProfileSectionHeader = ({
   title,
@@ -17,16 +18,19 @@ export const ProfileSectionHeader = ({
     navigate(createRoute as string);
   };
   return (
-    <div className="flex justify-between items-center">
-      <h1 className="text-title-2 font-medium text-dark">{title}</h1>
-      {createRoute && createButtonAlt && (
-        <ButtonWithIcon
-          onClick={handleClick}
-          variant={ButtonVariant.PRIMARY}
-          prefixIcon={AddIcon}
-          label={createButtonAlt}
-        />
-      )}
-    </div>
+    <ProfilePageTitle
+      title={title}
+      actions={
+        createRoute &&
+        createButtonAlt && (
+          <ButtonWithIcon
+            onClick={handleClick}
+            variant={ButtonVariant.PRIMARY}
+            prefixIcon={AddIcon}
+            label={createButtonAlt}
+          />
+        )
+      }
+    />
   );
 };

@@ -26,3 +26,41 @@ sl-dialog::part(panel) {
     font-size: var(--hot-fair-font-size-title-3);
   }
 }
+
+/* Phones: dialogs dock to the bottom of the screen as a sheet with a grab handle. */
+sl-dialog.bottom-sheet::part(base) {
+  align-items: flex-end;
+}
+sl-dialog.bottom-sheet::part(panel) {
+  /* Anchors the grab handle below. */
+  position: relative;
+  width: 100vw;
+  max-width: 100vw;
+  margin: 0;
+  border-radius: 16px 16px 0 0;
+  padding-top: 20px;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+sl-dialog.bottom-sheet::part(panel)::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  width: 48px;
+  height: 5px;
+  border-radius: 9999px;
+  background: var(--hot-fair-color-gray-border, #d1d5db);
+  transform: translateX(-50%);
+}
+/* Tighter header than the desktop dialog, so content starts close to the title. */
+sl-dialog.bottom-sheet::part(title) {
+  padding-top: 12px;
+  padding-bottom: 8px;
+}
+sl-dialog.bottom-sheet::part(header-actions) {
+  padding-top: 4px;
+  padding-bottom: 0;
+}
+sl-dialog.bottom-sheet::part(body) {
+  padding-top: 4px;
+}

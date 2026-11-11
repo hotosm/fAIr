@@ -28,7 +28,10 @@ import {
 } from "@/features/try-fair/api/stac";
 import { useImageryMappingModel } from "@/features/try-fair/hooks/use-imagery-mapping-model";
 import useScreenSize from "@/hooks/use-screen-size";
-import { MobileDrawer } from "@/components/ui/drawer";
+import { MapBottomSheet } from "@/components/ui/drawer/map-bottom-sheet";
+import type { MapUnavailableReason } from "@/features/try-fair/components/map-unavailable-notice";
+import { cleanFeatureLabel } from "@/features/try-fair/utils/common";
+import { MobileMapToolbar } from "@/features/try-fair/components/mobile/mobile-map-toolbar";
 import {
   getModelDefaultResolution,
   getModelOutputType,
@@ -58,6 +61,18 @@ import {
   restorePredictionHistory,
 } from "@/features/try-fair/utils/prediction-history";
 import { PredictionHistoryPanel } from "@/features/try-fair/components/prediction-history-panel";
+import {
+  FeatureFeedbackLayer,
+  FeedbackSentModal,
+  ProvideFeedbackModal,
+  MobileResultsPanel,
+  ResultsSummary,
+  useFeatureFeedback,
+  type FeatureFeedbackContext,
+  useFeedbackFlow,
+} from "@/features/feedback";
+import { getDownloadData } from "@/features/try-fair/components/start-mapping/export-map-results";
+import { geoJSONDowloader } from "@/utils/geo/geo-utils";
 import type {
   MappingSnapshot,
   PredictionHistoryEntry,
@@ -375,6 +390,7 @@ export const TryFairPage = ({
   const {
     predict,
     isPredicting,
+    result: predictResult,
     predictions,
     predictionBBox,
     predictionGridZoom,
@@ -391,6 +407,11 @@ export const TryFairPage = ({
   const handleSelectModel = (model: BaseModelStacItem) => {
     setModelId(model.id);
     setResolution(getModelDefaultResolution(model));
+    // Keep the feature in step with the chosen model. Otherwise e.g. the
+    // Freetown Trees sample leaves feature=buildings, and the advanced picker
+    // then "corrects" the model back to the buildings default.
+    const category = model.properties["fair:category"];
+    if (category && category !== feature) setFeature(category);
 
     // Only reset imagery & mode when the user was on a sample/demo location.
     // If they have their own imagery selected (advanced picker usage), keep it.
@@ -569,6 +590,18 @@ export const TryFairPage = ({
     hasNoModelsForFeature,
   ]);
 
+  // Map is off when there's no model to map with; the sidebar says why.
+  const mapUnavailableReason: MapUnavailableReason | null =
+    hasNoModelsForFeature
+      ? "no-model-for-feature"
+      : mode === ModelType.DEMO &&
+          !modelsLoading &&
+          !localModelLoading &&
+          !modelForMapping &&
+          models.length === 0
+        ? "no-samples"
+        : null;
+
   const isMapButtonDisabled =
     hasNoModelsForFeature ||
     !isDirty ||
@@ -693,6 +726,75 @@ export const TryFairPage = ({
     });
   };
 
+  // Feedback (Results card, per-feature marking, feedback modals) is an
+  // advanced-mode feature, which also means the user is signed in.
+  const isFeedbackEnabled = isAuthenticated && mappingMode === "advanced";
+
+  const feedbackContext = useMemo<FeatureFeedbackContext | null>(
+    () =>
+      isFeedbackEnabled && predictResult && user
+        ? {
+            stacId: predictResult.modelId,
+            bbox: predictResult.bbox,
+            userId: user.osm_id,
+            config: {
+              ...predictResult.params,
+              zoom: predictResult.gridZoom,
+              resolution: predictResult.resolution,
+              image_uri: predictResult.imageUri,
+            },
+          }
+        : null,
+    [isFeedbackEnabled, predictResult, user?.osm_id],
+  );
+
+  const feedbackFlow = useFeedbackFlow();
+  const featureFeedback = useFeatureFeedback(predictions, feedbackContext);
+  const mapWrapperRef = useRef<HTMLDivElement>(null);
+  const { validFeatures, invalidFeatures } = featureFeedback;
+
+  const handleDownloadDetected = useCallback(() => {
+    if (!predictions) return;
+    geoJSONDowloader(
+      getDownloadData(
+        predictions,
+        outputType,
+        predictionBBox,
+        predictionGridZoom,
+      ),
+      `fair-predictions-${outputType.toLowerCase()}`,
+    );
+  }, [predictions, outputType, predictionBBox, predictionGridZoom]);
+
+  const handleDownloadValid = useCallback(
+    () => geoJSONDowloader(validFeatures, "fair-predictions-valid"),
+    [validFeatures],
+  );
+  const handleDownloadInvalid = useCallback(
+    () => geoJSONDowloader(invalidFeatures, "fair-predictions-invalid"),
+    [invalidFeatures],
+  );
+
+  // Shared by the desktop Results card and the mobile Results panel.
+  const resultsProps =
+    isFeedbackEnabled && predictions
+      ? {
+          detectedCount: predictions.features.length,
+          validCount: validFeatures.features.length,
+          invalidCount: invalidFeatures.features.length,
+          onProvideFeedback: feedbackFlow.openFeedback,
+          onDownloadDetected: handleDownloadDetected,
+          // Downloads hold this session's marks, so they need at least one.
+          onDownloadValid: validFeatures.features.length
+            ? handleDownloadValid
+            : undefined,
+          onDownloadInvalid: invalidFeatures.features.length
+            ? handleDownloadInvalid
+            : undefined,
+          disabled: isPredicting,
+        }
+      : null;
+
   // Sync prediction state into the global store so the navbar Export button can access it.
   useEffect(() => {
     setPredictionsInStore(predictions);
@@ -731,7 +833,19 @@ export const TryFairPage = ({
         />
       )}
 
-      {/* Model picker dialog – rendered at page level so it's not trapped inside MobileDrawer */}
+      {/* Feedback dialogs – page level so they're not trapped inside the mobile sheet */}
+      <ProvideFeedbackModal
+        isOpen={isFeedbackEnabled && feedbackFlow.isFormOpen}
+        onClose={feedbackFlow.closeForm}
+        onSubmit={feedbackFlow.handleSubmit}
+        isSubmitting={feedbackFlow.isSubmitting}
+      />
+      <FeedbackSentModal
+        isOpen={isFeedbackEnabled && feedbackFlow.isSentOpen}
+        onClose={feedbackFlow.closeSent}
+      />
+
+      {/* Model picker dialog – rendered at page level so it's not trapped inside the mobile sheet */}
       <Dialog
         borderRadius="rounded"
         label="What do you want to map?"
@@ -778,6 +892,7 @@ export const TryFairPage = ({
             feature={feature}
             onSelect={handleSelectModel}
             onFeatureChange={setFeature}
+            onClose={closeAdvancedModelPickerDialog}
           />
         )}
       </Dialog>
@@ -836,7 +951,7 @@ export const TryFairPage = ({
             onSelect={handleRestorePrediction}
             onClose={() => setShowPredictionHistory(false)}
           />
-          <div className="absolute inset-0">
+          <div ref={mapWrapperRef} className="absolute inset-0">
             <TryFairMap
               map={map}
               mapContainerRef={mapContainerRef}
@@ -860,10 +975,21 @@ export const TryFairPage = ({
               canFitToBounds={true}
               onHelp={openGuidedTour}
             />
+            <FeatureFeedbackLayer
+              map={map}
+              containerRef={mapWrapperRef}
+              predictions={predictions}
+              feedback={featureFeedback}
+              enabled={
+                isFeedbackEnabled &&
+                outputType === TryFairMapOutputType.POLYGON &&
+                !isPredicting
+              }
+            />
           </div>
 
           {!isSmallViewport && (
-            <div className="absolute top-4 left-4 z-10">
+            <div className="absolute top-4 left-4 z-10 flex flex-col gap-3 w-[300px]">
               <TryFairSidebar
                 selectedModel={modelForMapping}
                 models={models}
@@ -882,45 +1008,69 @@ export const TryFairPage = ({
                 onCancelPrediction={handleCancelPrediction}
                 isPredicting={isPredicting}
                 isMapButtonDisabled={isMapButtonDisabled}
+                mapUnavailableReason={mapUnavailableReason}
+                featureLabel={cleanFeatureLabel(feature)}
                 openMobileModelPickerDialog={openModelPickerDialog}
                 openAdvancedModelPickerDialog={openAdvancedModelPickerDialog}
+              />
+              {resultsProps && (
+                <div className="shadow-lg rounded-lg">
+                  <ResultsSummary
+                    {...resultsProps}
+                    className="bg-white rounded-lg p-3"
+                  />
+                </div>
+              )}
+            </div>
+          )}
+
+          {isSmallViewport && <MobileMapToolbar />}
+
+          {isSmallViewport && resultsProps && (
+            // Floats just above the collapsed settings sheet (20% of the
+            // screen); the expanded sheet slides over it.
+            <div className="fixed inset-x-3 bottom-[calc(20dvh+12px)] z-[5]">
+              <MobileResultsPanel
+                {...resultsProps}
+                // Selecting a feature collapses Results so the 👍/👎 popup
+                // stays visible.
+                forceCollapsed={featureFeedback.selectedId !== null}
               />
             </div>
           )}
 
           {isSmallViewport && (
             <div className="relative">
-              <MobileDrawer
-                open={isSmallViewport}
-                dialogTitle="Try Fair Settings"
-                snapPoints={[0.2, 0.7]}
-                modal={false}
-                showOverlay={false}
-                handleOnly
-              >
-                <TryFairSidebar
-                  selectedModel={modelForMapping}
-                  models={models}
-                  modelsLoading={modelsLoading || localModelLoading}
-                  onSelectModel={handleSelectModel}
-                  outputType={outputType}
-                  onOutputTypeChange={handleOutputTypeChange}
-                  resolution={resolution}
-                  onResolutionChange={handleResolutionChange}
-                  inferenceParams={inferenceParams}
-                  paramValues={paramValues}
-                  onParamChange={handleParamChange}
-                  onResetParameters={handleResetAllParameters}
-                  isParametersDefault={isParametersDefault}
-                  onMap={handleMap}
-                  onCancelPrediction={handleCancelPrediction}
-                  isPredicting={isPredicting}
-                  isMapButtonDisabled={isMapButtonDisabled}
-                  className="w-full shadow-none"
-                  openMobileModelPickerDialog={openModelPickerDialog}
-                  openAdvancedModelPickerDialog={openAdvancedModelPickerDialog}
-                />
-              </MobileDrawer>
+              <MapBottomSheet label="Map settings">
+                <div className="flex flex-col gap-3">
+                  <TryFairSidebar
+                    selectedModel={modelForMapping}
+                    models={models}
+                    modelsLoading={modelsLoading || localModelLoading}
+                    onSelectModel={handleSelectModel}
+                    outputType={outputType}
+                    onOutputTypeChange={handleOutputTypeChange}
+                    resolution={resolution}
+                    onResolutionChange={handleResolutionChange}
+                    inferenceParams={inferenceParams}
+                    paramValues={paramValues}
+                    onParamChange={handleParamChange}
+                    onResetParameters={handleResetAllParameters}
+                    isParametersDefault={isParametersDefault}
+                    onMap={handleMap}
+                    onCancelPrediction={handleCancelPrediction}
+                    isPredicting={isPredicting}
+                    isMapButtonDisabled={isMapButtonDisabled}
+                    mapUnavailableReason={mapUnavailableReason}
+                    featureLabel={cleanFeatureLabel(feature)}
+                    className="w-full shadow-none"
+                    openMobileModelPickerDialog={openModelPickerDialog}
+                    openAdvancedModelPickerDialog={
+                      openAdvancedModelPickerDialog
+                    }
+                  />
+                </div>
+              </MapBottomSheet>
             </div>
           )}
         </div>

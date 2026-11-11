@@ -5,6 +5,7 @@ import { Drawer } from "@/components/ui/drawer";
 import { DrawerPlacements } from "@/enums";
 import { cn } from "@/utils";
 import { elapsedTime } from "@/features/try-fair/utils/common";
+import useScreenSize from "@/hooks/use-screen-size";
 
 export function PredictionHistoryPanel({
   open,
@@ -21,6 +22,7 @@ export function PredictionHistoryPanel({
   onSelect: (entry: PredictionHistoryEntry) => void;
   onClose: () => void;
 }) {
+  const { isSmallViewport } = useScreenSize();
   const [now, setNow] = useState(Date.now);
   useEffect(() => {
     if (!open) return;
@@ -37,10 +39,18 @@ export function PredictionHistoryPanel({
       setOpen={(isOpen) => {
         if (!isOpen) onClose();
       }}
-      placement={DrawerPlacements.END}
+      // Phones get a bottom sheet over the map; larger screens a side panel.
+      placement={
+        isSmallViewport ? DrawerPlacements.BOTTOM : DrawerPlacements.END
+      }
       label="Prediction History"
       noHeader={false}
-      className="[&::part(base)]:z-20 [&::part(panel)]:h-full [&::part(panel)]:w-[322px] [&::part(panel)]:max-w-full [&::part(body)]:p-3 [&::part(title)]:text-sm"
+      className={cn(
+        "[&::part(base)]:z-20 [&::part(body)]:p-3 [&::part(title)]:text-sm",
+        isSmallViewport
+          ? "[&::part(panel)]:h-[60dvh] [&::part(panel)]:rounded-t-2xl"
+          : "[&::part(panel)]:h-full [&::part(panel)]:w-[322px] [&::part(panel)]:max-w-full",
+      )}
     >
       {entries.length === 0 ? (
         <p className="text-sm text-grey">
@@ -81,7 +91,7 @@ export function PredictionHistoryPanel({
                     {featureCount === 1 ? "" : "s"} detected
                   </p>
                   <p className="text-xs text-grey pt-1">
-                    {current ? "Current" : elapsedTime(entry.created_at, now)}
+                    {elapsedTime(entry.created_at, now)}
                   </p>
                 </button>
               </li>

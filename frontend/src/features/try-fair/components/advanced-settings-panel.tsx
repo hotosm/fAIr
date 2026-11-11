@@ -2,6 +2,7 @@ import type { InferenceParam } from "@/features/try-fair/api/stac";
 import { CloseIcon, InfoIcon, RefreshIcon } from "@/components/ui/icons";
 // import { RedoIcon, UndoIcon } from "@/components/ui/icons/undo-icon";
 import { ToolTip } from "@/components/ui/tooltip";
+import { cn } from "@/utils";
 
 type AdvancedSettingsPanelProps = {
   closePanel: () => void;
@@ -10,6 +11,8 @@ type AdvancedSettingsPanelProps = {
   onParamChange: (key: string, value: number | string | boolean) => void;
   onReset: () => void;
   isPredicting: boolean;
+  /** Overrides the floating-card look, e.g. full width inside a mobile sheet. */
+  className?: string;
 };
 
 export const AdvancedSettingsPanel = ({
@@ -19,6 +22,7 @@ export const AdvancedSettingsPanel = ({
   onParamChange,
   onReset,
   isPredicting,
+  className,
 }: AdvancedSettingsPanelProps) => {
   // Surface Confidence (confidence_threshold) here too, first, so it can be set
   // to a precise number — the sidebar only exposes it as a coarse slider.
@@ -33,7 +37,12 @@ export const AdvancedSettingsPanel = ({
     : otherParams;
 
   return (
-    <aside className="max-h-[450px] w-[302px] hide-scrollbar overflow-y-auto rounded-[10px] border border-gray-border bg-white p-4 shadow-xl">
+    <aside
+      className={cn(
+        "max-h-[450px] w-[302px] hide-scrollbar overflow-y-auto rounded-[10px] border border-gray-border bg-white p-4 shadow-xl",
+        className,
+      )}
+    >
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-medium text-dark">Advanced Settings</h2>

@@ -23,7 +23,7 @@ export const SolidButton = ({
     type={type}
     className={cn(
       VARIANT_CLASSES[variant],
-      "text-xs px-3 flex shrink-0 items-center whitespace-nowrap text-white !w-fit !h-8 md:min-w-fit !rounded-md min-w-[7.5rem]",
+      "text-xs px-3 flex shrink-0 items-center whitespace-nowrap text-center justify-center text-white !w-fit !h-8 md:min-w-fit !rounded-md min-w-[7.5rem]",
       className,
     )}
     {...props}

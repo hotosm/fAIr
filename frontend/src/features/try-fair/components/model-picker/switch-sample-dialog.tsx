@@ -27,6 +27,7 @@ export function SwitchSampleDialog({
 
   return (
     <Dialog
+      mobileLayout="centered"
       label={`Switch ${selectionType}?`}
       noHeader
       noPadding
@@ -55,7 +56,8 @@ export function SwitchSampleDialog({
           />
           Don’t show this again
         </label>
-        <div className="flex gap-3 w-full">
+        {/* Phones: Continue above Cancel; wider screens: side by side. */}
+        <div className="flex flex-col-reverse gap-3 w-full sm:flex-row">
           <button
             type="button"
             className="flex-1 rounded-lg bg-grey text-white py-3 text-sm"

@@ -9,6 +9,7 @@ import { MapRequestsToolbar } from "@/features/user-profile/components/map-reque
 import { MapRequestsActionsMenu } from "@/features/user-profile/components/map-requests/map-requests-actions-menu";
 import { useOfflinePredictionsQueryParams } from "@/features/user-profile/hooks/use-predictions";
 import { TNewOfflinePrediction } from "@/types";
+import useScreenSize from "@/hooks/use-screen-size";
 
 export const UserProfileOfflinePredictionsPage = () => {
   const { user } = useAuth();
@@ -25,6 +26,20 @@ export const UserProfileOfflinePredictionsPage = () => {
 
   const { data, isError, isPending, isPlaceholderData, query, updateQuery } =
     useOfflinePredictionsQueryParams(user.osm_id);
+  const { isSmallViewport } = useScreenSize();
+  const hasNextPage = Boolean(data?.hasNext) && !isPlaceholderData;
+  const hasPrevPage = Boolean(data?.hasPrev);
+
+  const toolbar = (
+    <MapRequestsToolbar
+      count={data?.count ?? 0}
+      query={query}
+      updateQuery={updateQuery}
+      hasNextPage={hasNextPage}
+      hasPrevPage={hasPrevPage}
+      disabled={isError || isPending}
+    />
+  );
 
   return (
     <>
@@ -62,26 +77,25 @@ export const UserProfileOfflinePredictionsPage = () => {
       <div className="space-y-6 h-full">
         <MapRequestsHeader />
 
-        <MapRequestsFilters query={query} updateQuery={updateQuery} />
+        {!isSmallViewport && (
+          <MapRequestsFilters query={query} updateQuery={updateQuery} />
+        )}
 
-        <MapRequestsToolbar
-          count={data?.count ?? 0}
-          query={query}
-          updateQuery={updateQuery}
-          hasNextPage={Boolean(data?.hasNext) && !isPlaceholderData}
-          hasPrevPage={Boolean(data?.hasPrev)}
-          disabled={isError || isPending}
-        />
+        {!isSmallViewport && toolbar}
 
         <MapRequestsTable
           requests={data?.results ?? []}
           isError={isError}
           isPending={isPending}
           onViewResult={viewResult}
+          mobileCardTone="grey"
           renderRowMenu={(prediction) => (
             <MapRequestsActionsMenu prediction={prediction} />
           )}
         />
+
+        {/* Phones: just the list, with paging below it only when needed. */}
+        {isSmallViewport && (hasNextPage || hasPrevPage) && toolbar}
       </div>
     </>
   );

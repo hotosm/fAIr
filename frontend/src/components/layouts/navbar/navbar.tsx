@@ -12,7 +12,6 @@ import { useState } from "react";
 // import { UserNotifications } from "@/features/user-profile/components/notifications/user-notifications";
 import { AUTH_PROVIDER, FRONTEND_URL } from "@/config";
 import "@hotosm/ui/dist/components/tool-menu/tool-menu.js";
-import { Divider } from "@/components/ui/divider";
 import MappingMode from "@/features/try-fair/components/mapping-mode";
 import { ShareProjectModal } from "@/features/try-fair/components/modals/share-project-modal";
 import { NavBarLinks } from "@/components/layouts/navbar/navbar-links";
@@ -37,12 +36,8 @@ export const NavBar = () => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const {
-    showBackButton,
-    showMappingMode,
-    showDashboardLink,
-    isMapRequestResult,
-  } = useNavbarState();
+  const { showBackButton, showMappingMode, isMapRequestResult } =
+    useNavbarState();
   const resultMatch = useMatch(APPLICATION_ROUTES.MAP_REQUEST_RESULT);
   const initialPrediction = (
     location.state as { prediction?: TOfflinePrediction } | null
@@ -79,24 +74,14 @@ export const NavBar = () => {
             </button>
           </div>
 
-          {!isTryFairPage && !isMapRequestResult && (
-            <div className={styles.navLinksContainer}>
-              <NavBarLinks
-                className={styles.mobileNavLinks}
-                setOpen={setOpen}
-              />
-            </div>
-          )}
-
-          {isAuthenticated && <Divider />}
-
-          {showMappingMode && (
-            <div className="px-[var(--body-spacing)]">
-              <MappingMode tourTarget={false} fullWidth />
-            </div>
-          )}
+          <div className={styles.navLinksContainer}>
+            <NavBarLinks className={styles.mobileNavLinks} setOpen={setOpen} />
+          </div>
 
           <div className={styles.loginButtonContainer}>
+            {isAuthenticated && (
+              <DashboardLink className="!w-[17.5rem] flex !h-[40px] !text-center !rounded-lg" />
+            )}
             <MobileAuthSection
               isAuthenticated={isAuthenticated}
               isTryFairPage={isTryFairPage}
@@ -109,7 +94,7 @@ export const NavBar = () => {
       </Drawer>
 
       <nav
-        className={`${styles.nav} app-padding z-20 py-1 border-b border-gray-border`}
+        className={`${styles.nav} relative app-padding z-30 py-1 border-b border-gray-border`}
       >
         <div className="min-w-0 flex-1 flex gap-4 items-center justify-start">
           {showBackButton ? (
@@ -155,11 +140,8 @@ export const NavBar = () => {
           {IS_HANKO_AUTH && <hotosm-tool-menu></hotosm-tool-menu>}
         </div>
 
-        <div className="flex items-center gap-x-2 sm:hidden">
-          {showDashboardLink && (
-            <DashboardLink className="!h-7 !min-w-0 !px-2.5" />
-          )}
-
+        {/* Phones: menu and HOT apps; Dashboard lives in the menu. */}
+        <div className="flex items-center gap-x-3 sm:hidden">
           <button
             className={styles.hamburgerMenu}
             onClick={() => setOpen(true)}
@@ -172,6 +154,7 @@ export const NavBar = () => {
               height="20px"
             />
           </button>
+          {IS_HANKO_AUTH && <hotosm-tool-menu></hotosm-tool-menu>}
         </div>
       </nav>
       <ShareProjectModal />

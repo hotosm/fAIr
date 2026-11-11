@@ -34,6 +34,8 @@ export const API_ENDPOINTS = {
   // Feedbacks
 
   CREATE_FEEDBACK: "feedback/",
+  GET_FEEDBACKS: "feedback/",
+  UPDATE_FEEDBACK: (id: number) => `feedback/${id}/`,
   DELETE_FEEDBACK: (id: number) => `feedback/${id}/`,
 
   // KPIs

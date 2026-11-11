@@ -8,25 +8,15 @@ import { cn, formatDate, truncateString } from "@/utils";
 import { ToolTip } from "@/components/ui/tooltip";
 import { useNavigate } from "react-router-dom";
 import { APPLICATION_ROUTES } from "@/constants/routes";
-import { MapRequestStatusBadge } from "./map-request-status-badge";
-import { PredictionRequestStatus } from "@/enums";
-
-// ---------------------------------------------------------------------------
-// Field resolvers — single source of truth so nothing is spread across the JSX.
-// ---------------------------------------------------------------------------
-
-const getModelUsed = (p: TOfflinePrediction): string =>
-  p.model_name || p.local_model_stac_id || "-";
-
-const getPredictionName = (p: TOfflinePrediction): string =>
-  p.description || `Prediction #${p.id}`;
-
-const isResultReady = (p: TOfflinePrediction): boolean =>
-  p.results_ready ||
-  p.status?.toLowerCase() === PredictionRequestStatus.COMPLETED;
-
-const isPublished = (p: TOfflinePrediction): boolean =>
-  p.visibility === "public" || Boolean(p.published);
+import { MapRequestCardList } from "@/features/user-profile/components/overview/map-request-card-list";
+import {
+  getPredictionName,
+  getModelUsed,
+  isPublished,
+  isResultReady,
+  getResultPath,
+} from "@/features/user-profile/components/overview/map-request-fields";
+import { MapRequestStatusBadge } from "@/features/user-profile/components/overview/map-request-status-badge";
 
 // ---------------------------------------------------------------------------
 // Column definitions
@@ -155,6 +145,8 @@ type MapRequestsTableProps = {
   onViewResult?: (prediction: TOfflinePrediction) => void;
   onOpenMenu?: (prediction: TOfflinePrediction) => void;
   renderRowMenu?: (prediction: TOfflinePrediction) => React.ReactNode;
+  /** Colour of the phone cards (see MapRequestCardList). */
+  mobileCardTone?: "white" | "grey";
 };
 
 export const MapRequestsTable = ({
@@ -164,6 +156,7 @@ export const MapRequestsTable = ({
   onViewResult,
   onOpenMenu,
   renderRowMenu,
+  mobileCardTone,
 }: MapRequestsTableProps) => {
   const navigate = useNavigate();
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -172,36 +165,40 @@ export const MapRequestsTable = ({
     navigate(APPLICATION_ROUTES.PROFILE_OFFLINE_PREDICTIONS);
 
   const goToResult = (prediction: TOfflinePrediction) =>
-    navigate(
-      APPLICATION_ROUTES.MAP_REQUEST_RESULT.replace(
-        ":id",
-        String(prediction.id),
-      ),
-    );
+    navigate(getResultPath(prediction));
 
   if (isPending || isError) return <TableSkeleton />;
 
   return (
-    <div
-      className={cn(
-        "max-w-full overflow-x-auto [&_table]:min-w-[1152px] [&_table]:table-fixed",
-        "[&_th]:h-8 [&_th]:px-5 [&_th]:text-[12px] [&_th]:font-normal [&_th]:text-[#404446]",
-        "[&_td]:h-16 [&_td]:px-5 [&_td]:py-4 [&_td]:text-[13px] [&_td]:font-medium [&_td]:text-[#404446]",
-        "[&_th:nth-child(1)]:w-[9.3%] [&_th:nth-child(2)]:w-[23.4%] [&_th:nth-child(3)]:w-[14.8%]",
-        "[&_th:nth-child(4)]:w-[18.2%] [&_th:nth-child(5)]:w-[13.6%] [&_th:nth-child(6)]:w-[10.3%] [&_th:nth-child(7)]:w-[10.4%]",
-      )}
-    >
-      <DataTable
-        // @ts-ignore
-        data={requests}
-        columns={columnDefinitions({
-          onViewResult: onViewResult ?? goToResult,
-          onOpenMenu: onOpenMenu ?? goToRequests,
-          renderRowMenu,
-        })}
-        sorting={sorting}
-        setSorting={setSorting}
+    <>
+      {/* Phones: cards. The wide table only fits larger screens. */}
+      <MapRequestCardList
+        className="md:hidden"
+        requests={requests}
+        onViewResult={onViewResult ?? goToResult}
+        tone={mobileCardTone}
       />
-    </div>
+      <div
+        className={cn(
+          "hidden md:block max-w-full overflow-x-auto [&_table]:min-w-[1152px] [&_table]:table-fixed",
+          "[&_th]:h-8 [&_th]:px-5 [&_th]:text-[12px] [&_th]:font-normal [&_th]:text-[#404446]",
+          "[&_td]:h-16 [&_td]:px-5 [&_td]:py-4 [&_td]:text-[13px] [&_td]:font-medium [&_td]:text-[#404446]",
+          "[&_th:nth-child(1)]:w-[9.3%] [&_th:nth-child(2)]:w-[23.4%] [&_th:nth-child(3)]:w-[14.8%]",
+          "[&_th:nth-child(4)]:w-[18.2%] [&_th:nth-child(5)]:w-[13.6%] [&_th:nth-child(6)]:w-[10.3%] [&_th:nth-child(7)]:w-[10.4%]",
+        )}
+      >
+        <DataTable
+          // @ts-ignore
+          data={requests}
+          columns={columnDefinitions({
+            onViewResult: onViewResult ?? goToResult,
+            onOpenMenu: onOpenMenu ?? goToRequests,
+            renderRowMenu,
+          })}
+          sorting={sorting}
+          setSorting={setSorting}
+        />
+      </div>
+    </>
   );
 };

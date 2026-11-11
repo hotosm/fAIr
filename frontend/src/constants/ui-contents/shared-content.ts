@@ -5,6 +5,8 @@ export const SHARED_CONTENT: TSharedContent = {
   navbar: {
     logoAlt: "HOT fAIr Logo",
     loginButton: "Start Mapping",
+    /** The sign-in button in the mobile menu. */
+    mobileLoginButton: "Login",
     hamburgerMenuAlt: "Hamburger Menu Icon",
     hamburgerMenuTitle: "Toggle Menu",
     routes: {

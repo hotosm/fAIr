@@ -180,7 +180,7 @@ describe("Recent imagery", () => {
       selectedImagery: null,
     });
     render(<Picker />);
-    expect(screen.getByText("No models available")).toBeInTheDocument();
+    expect(screen.getByText("No samples available")).toBeInTheDocument();
   });
 
   it("replaces an unapplied recent choice with the newer browser selection", () => {
