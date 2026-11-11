@@ -1,10 +1,5 @@
 import { ChevronDownIcon } from "@/components/ui/icons";
 import useScreenSize from "@/hooks/use-screen-size";
-import {
-  getProjectPath,
-  MappingHistoryList,
-  MappingTypeBadge,
-} from "./mapping-history-list";
 import { Link, useNavigate } from "react-router-dom";
 import { DataTable } from "@/components/ui/data-table";
 import type { ColumnDef } from "@tanstack/react-table";
@@ -13,6 +8,11 @@ import { cn } from "@/utils";
 import { useGetUserStates } from "@/features/user-profile/api/user-state";
 import { TableSkeleton } from "@/features/models/components/skeletons";
 import { OverviewEmptyState } from "@/features/user-profile/components/overview/overview-empty-state";
+import {
+  MappingTypeBadge,
+  getProjectPath,
+  MappingHistoryList,
+} from "@/features/user-profile/components/overview/mapping-history-list";
 
 const columns: ColumnDef<SavedUserState>[] = [
   {
