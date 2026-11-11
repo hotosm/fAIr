@@ -49,6 +49,15 @@
   text-transform: uppercase;
 }
 
+/* Phones: bold, tight headline from the mobile landing design. */
+@media (max-width: 767px) {
+  .jumbotronText h1 {
+    font-size: 2.25rem;
+    font-weight: var(--hot-fair-font-weight-bold);
+    line-height: 1.15;
+  }
+}
+
 .jumbotronText p {
   font-size: var(--hot-fair-font-size-body-text-3);
   color: var(--hot-fair-color-white);

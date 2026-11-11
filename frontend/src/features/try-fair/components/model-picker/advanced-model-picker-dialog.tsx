@@ -12,6 +12,7 @@ import {
   RadioDot,
   ExperimentalModelBadge,
 } from "@/features/try-fair/components/model-picker/model-picker-badges";
+import useScreenSize from "@/hooks/use-screen-size";
 import { SearchIcon } from "@/components/ui/icons/search-icon";
 import { ChevronDownIcon } from "@/components/ui/icons";
 import { DropDown } from "@/components/ui/dropdown";
@@ -21,8 +22,12 @@ import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import type { BaseModelStacItem } from "@/features/try-fair/api/stac";
 import { StarredIcon } from "@/components/ui/icons/starred-icon";
 import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
-import { FeatureListItem } from "@/features/try-fair/components/model-picker/feature-to-map-list";
+import {
+  FeatureDropdown,
+  FeatureListItem,
+} from "@/features/try-fair/components/model-picker/feature-to-map-list";
 import { APIBaseModelItem } from "@/features/try-fair/types/data-types";
+import { ModelDetailsDialog } from "@/features/try-fair/components/model-picker/model-details-dialog";
 
 type ModelSource = "base" | "local";
 
@@ -98,9 +103,14 @@ export const AdvancedModelPickerContent = ({
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(0);
   const { onDropdownHide, dropdownRef } = useDropdownMenu();
+  const { isSmallViewport } = useScreenSize();
   const { selectedModelId, modelId, setSelectedModelId, mode } =
     useTryFairParams();
   const activeModelId = selectedModelId ?? modelId;
+  // Model whose details dialog is open.
+  const [detailsModel, setDetailsModel] = useState<APIBaseModelItem | null>(
+    null,
+  );
   // Model waiting on the Samples-mode warning before it is applied.
   const [pendingModel, setPendingModel] = useState<APIBaseModelItem | null>(
     null,
@@ -186,8 +196,34 @@ export const AdvancedModelPickerContent = ({
     setSearch("");
   };
 
+  const featureListItems = featureList.map((f) => (
+    <FeatureListItem
+      key={f.slug}
+      feature={f}
+      includeUnpinned
+      isSelected={effectiveFeatureSlug === f.slug}
+      disabled={false}
+      onSelect={handleFeatureSelect}
+    />
+  ));
+
   return (
     <div className="flex flex-col min-h-[428px]">
+      {detailsModel && (
+        <ModelDetailsDialog
+          model={detailsModel}
+          source={source}
+          isSelected={
+            detailsModel !== null &&
+            highlightedModelId === detailsModel.stac_item_id
+          }
+          onClose={() => setDetailsModel(null)}
+          onUseModel={(model) => {
+            setDetailsModel(null);
+            handleSelectModel(model);
+          }}
+        />
+      )}
       {pendingModel && (
         <SwitchSampleDialog
           message="Changing the feature or model in Samples mode will switch your imagery and map location to the selected sample’s imagery location and clear your current progress. You can restore saved predictions from History."
@@ -195,28 +231,31 @@ export const AdvancedModelPickerContent = ({
           onConfirm={() => applyModel(pendingModel)}
         />
       )}
-      <div className="flex gap-4 flex-1">
-        <div className="w-[180px] shrink-0 overflow-hidden flex flex-col">
+      {/* Phones: feature dropdown above a one-column model list. Wider
+          screens: feature list beside a model grid. */}
+      <div className="flex flex-1 flex-col gap-4 sm:flex-row">
+        <div className="flex flex-col overflow-hidden sm:w-[180px] sm:shrink-0">
           <p className="text-xs pb-2">Feature to map</p>
-          <div className="flex flex-col bg-frosted-blue border rounded-lg flex-1 px-1 overflow-y-auto">
-            {featureList.map((f) => (
-              <FeatureListItem
-                key={f.slug}
-                feature={f}
-                includeUnpinned
-                isSelected={effectiveFeatureSlug === f.slug}
-                disabled={false}
-                onSelect={handleFeatureSelect}
-              />
-            ))}
-          </div>
+          {isSmallViewport ? (
+            <FeatureDropdown
+              features={featureList}
+              selectedSlug={effectiveFeatureSlug}
+              selectedLabel={featureLabel}
+              includeUnpinned
+              onSelect={handleFeatureSelect}
+            />
+          ) : (
+            <div className="flex flex-col bg-frosted-blue border rounded-lg flex-1 px-1 overflow-y-auto">
+              {featureListItems}
+            </div>
+          )}
         </div>
         <div className="flex-1 space-y-4">
           <p className="text-xs pb-2">Models</p>
           {/* Toolbar */}
-          <div className="flex items-center  gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             {/* Search */}
-            <div className="flex items-center gap-2 border border-gray-border rounded-lg px-3 py-2 bg-white flex-shrink-0">
+            <div className="flex w-full items-center gap-2 border border-gray-border rounded-lg px-3 py-2 bg-white flex-shrink-0 sm:w-auto">
               <SearchIcon className="size-4 text-grey" />
               <input
                 type="text"
@@ -226,7 +265,7 @@ export const AdvancedModelPickerContent = ({
                   setSearch(e.target.value);
                   setPage(0);
                 }}
-                className="bg-transparent outline-none text-sm text-dark placeholder:text-grey w-48"
+                className="bg-transparent outline-none text-sm text-dark placeholder:text-grey w-full sm:w-48"
               />
             </div>
 
@@ -309,36 +348,38 @@ export const AdvancedModelPickerContent = ({
               {pageModels.map((model) => {
                 const isSelected = highlightedModelId === model.stac_item_id;
                 return (
-                  <button
-                    key={model.id}
-                    type="button"
-                    aria-pressed={isSelected}
-                    onClick={() => handleSelectModel(model)}
-                    className={`relative text-left p-3 bg-frosted-blue min-h-[98px] rounded-lg border transition-colors ${
-                      isSelected ? "border-primary border-2 " : ""
-                    }`}
-                  >
-                    <div className="flex items-start justify-between gap-2 mb-2">
-                      <div className="min-w-0">
-                        <p className="text-dark font-bold text-sm leading-tight truncate">
-                          {model.stac.properties.title}
-                        </p>
-                        <p className="text-grey text-xs mt-0.5">
-                          ID: {model.id}
-                        </p>
+                  // "View details" sits over the card's corner as a sibling:
+                  // a button can't contain another button.
+                  <div key={model.id} className="relative">
+                    <button
+                      type="button"
+                      aria-pressed={isSelected}
+                      onClick={() => handleSelectModel(model)}
+                      className={`relative w-full text-left p-3 bg-frosted-blue min-h-[98px] rounded-lg border transition-colors ${
+                        isSelected ? "border-primary border-2 " : ""
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <div className="min-w-0">
+                          <p className="text-dark font-bold text-sm leading-tight truncate">
+                            {model.stac.properties.title}
+                          </p>
+                          <p className="text-grey text-xs mt-0.5">
+                            ID: {model.id}
+                          </p>
+                        </div>
+                        <RadioDot selected={isSelected} />
                       </div>
-                      <RadioDot selected={isSelected} />
-                    </div>
-                    <ExperimentalModelBadge
-                      category={model.stac.properties["fair:category"]}
-                    />
-                    <div className="relative flex items-center justify-between mt-3">
-                      <div className="flex items-center gap-1 text-grey text-xs">
-                        <StarredIcon />
-                        <span>({model.star_count})</span>
-                      </div>
-                      {model.is_pinned && (
-                        <span className="absolute right-0 top-1/2 -translate-y-1/2">
+                      <ExperimentalModelBadge
+                        category={model.stac.properties["fair:category"]}
+                      />
+                      {/* Right side left free for "View details". */}
+                      <div className="mt-3 flex items-center gap-2 pr-20">
+                        <div className="flex items-center gap-1 text-grey text-xs">
+                          <StarredIcon />
+                          <span>({model.star_count})</span>
+                        </div>
+                        {model.is_pinned && (
                           <ToolTip
                             content={`This is a recommended model for mapping ${featureLabel.toLowerCase()}.`}
                           >
@@ -346,13 +387,18 @@ export const AdvancedModelPickerContent = ({
                               Pinned
                             </span>
                           </ToolTip>
-                        </span>
-                      )}
-                      {/* <span className="text-dark underline text-xs font-medium">
-                    View details
-                  </span> */}
-                    </div>
-                  </button>
+                        )}
+                      </div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDetailsModel(model)}
+                      aria-label={`View details of ${model.stac.properties.title}`}
+                      className="absolute bottom-3 right-3 text-xs font-medium text-dark underline hover:text-primary"
+                    >
+                      View details
+                    </button>
+                  </div>
                 );
               })}
             </div>

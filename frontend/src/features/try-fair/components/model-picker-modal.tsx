@@ -18,7 +18,11 @@ import { ChooseImageryIcon } from "@/components/ui/icons/choose-imagery-icon";
 import { DoubleArrowIcon } from "@/components/ui/icons/double-arrow-icon";
 import { ChevronDownIcon } from "@/components/ui/icons";
 import { LocationSearchIcon } from "@/components/ui/icons/location-search-icon";
-import { FeatureListItem } from "@/features/try-fair/components/model-picker/feature-to-map-list";
+import {
+  FeatureDropdown,
+  FeatureListItem,
+} from "@/features/try-fair/components/model-picker/feature-to-map-list";
+import useScreenSize from "@/hooks/use-screen-size";
 import {
   RadioDot,
   FeatureBadge,
@@ -38,7 +42,8 @@ type ModelPickerProps = {
   models: BaseModelStacItem[];
   loading?: boolean;
   disabled?: boolean;
-  isSmallViewport: boolean;
+  /** No sample models exist, so there's nothing to select. */
+  noSamples?: boolean;
   /** Opens the page-level modal dialog (desktop + mobile). */
   openMobileDialog?: () => void;
 };
@@ -47,7 +52,7 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
   selectedModel,
   loading = false,
   disabled = false,
-  isSmallViewport,
+  noSamples = false,
   openMobileDialog,
 }) => {
   // const place = selectedModel?.properties["fair:preview"]?.place;
@@ -65,7 +70,7 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
       : "Custom Imagery";
   const triggerContent = (
     <div className="flex items-center justify-between gap-2 w-full">
-      <LocationSearchIcon className="size-5 shrink-0 hidden md:inline-block" />
+      <LocationSearchIcon className="size-5 shrink-0" />
       <div className="w-full text-left flex-1 min-w-0">
         {isImagerySelected ? (
           <>
@@ -95,7 +100,9 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
             </div>
           </>
         ) : (
-          <p className="text-grey text-xs">Select a model</p>
+          <p className="text-grey text-xs">
+            {noSamples ? "No samples available" : "Select a model"}
+          </p>
         )}
       </div>
       <ChevronDownIcon className="size-3 shrink-0" />
@@ -108,10 +115,7 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
       type="button"
       disabled={disabled}
       onClick={openMobileDialog}
-      className={cn(
-        "w-full h-full flex items-center text-left cursor-pointer",
-        isSmallViewport ? "rounded-xl border px-3 py-2 bg-white" : "",
-      )}
+      className="w-full h-full flex items-center text-left cursor-pointer"
     >
       {triggerContent}
     </button>
@@ -156,6 +160,7 @@ export const ModelPickerContent = ({
 }) => {
   const { setChooseLocation, mode } = useTryFairParams();
   const { currentModelType, selectedImagery } = useStartMappingStore();
+  const { isSmallViewport } = useScreenSize();
 
   const isImageryModeActive =
     currentModelType === ModelType.IMAGERY || mode === ModelType.IMAGERY;
@@ -331,7 +336,7 @@ export const ModelPickerContent = ({
               type="button"
               onClick={() => setActiveTab(tab)}
               className={cn(
-                "px-4 pb-3 text-sm font-medium transition-colors border-b-2 -mb-px",
+                "flex-1 px-4 pb-3 text-sm font-medium transition-colors border-b-2 -mb-px sm:flex-none",
                 activeTab === tab
                   ? "border-primary text-dark"
                   : "border-transparent text-grey hover:text-dark",
@@ -341,7 +346,7 @@ export const ModelPickerContent = ({
             </button>
           ))}
         </div>
-        {activeTab === TAB_CHOOSE && (
+        {activeTab === TAB_CHOOSE && !isSmallViewport && (
           <div className="pb-3">
             <Button
               type="button"
@@ -420,13 +425,15 @@ export const ModelPickerContent = ({
                 );
               })
             ) : (
-              <div className="col-span-2 flex flex-col items-center justify-center py-10 px-4 text-center">
-                <p className="text-dark font-semibold text-sm mb-1">
-                  No models available
-                </p>
-                <p className="text-grey text-xs max-w-xs">
-                  There are currently no models available for use.
-                </p>
+              <div className="col-span-2 flex flex-col items-center justify-center gap-3 py-10 px-4 text-center">
+                <div>
+                  <p className="text-dark font-semibold text-sm mb-1">
+                    No samples available
+                  </p>
+                  <p className="text-grey text-xs max-w-xs">
+                    There are no sample models to map with right now.
+                  </p>
+                </div>
               </div>
             )}
           </div>
@@ -435,25 +442,37 @@ export const ModelPickerContent = ({
 
       {/* ── Custom setup tab ── */}
       {activeTab === TAB_CHOOSE && (
-        <div className="flex gap-4 h-[520px]">
-          {/* Left: Feature list */}
-          <div className="w-[180px] shrink-0  overflow-hidden flex flex-col">
+        // Phones: feature dropdown above the imagery, Apply at the bottom.
+        // Wider screens: feature list beside the imagery.
+        <div className="flex flex-col gap-4 sm:h-[520px] sm:flex-row">
+          <div className="flex shrink-0 flex-col overflow-hidden sm:w-[180px]">
             <p className="text-xs pb-2">Feature to map</p>
-            <div className="flex flex-col bg-frosted-blue border  rounded-lg flex-1 px-1  overflow-y-auto">
-              {featureOptions.map((featureOption) => (
-                <FeatureListItem
-                  key={featureOption.slug}
-                  feature={featureOption}
-                  isSelected={activeFeatureSlug === featureOption.slug}
-                  disabled={false}
-                  onSelect={setStagedFeatureSlug}
-                />
-              ))}
-            </div>
+            {isSmallViewport ? (
+              <FeatureDropdown
+                features={featureOptions}
+                selectedSlug={activeFeature?.slug ?? activeFeatureSlug ?? ""}
+                selectedLabel={activeFeature?.label ?? "Select a feature"}
+                onSelect={setStagedFeatureSlug}
+              />
+            ) : (
+              <div className="flex flex-col bg-frosted-blue border  rounded-lg flex-1 px-1  overflow-y-auto">
+                {featureOptions.map((featureOption) => (
+                  <FeatureListItem
+                    key={featureOption.slug}
+                    feature={featureOption}
+                    isSelected={activeFeatureSlug === featureOption.slug}
+                    disabled={false}
+                    onSelect={setStagedFeatureSlug}
+                  />
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Right: Imagery panel */}
-          <div className="flex-1 overflow-hidden flex flex-col">
+          {/* Phones: a fixed-height block (flex-1 would collapse it to 0 in
+              this content-sized column). Wider screens: fill the row. */}
+          <div className="flex h-[420px] flex-none flex-col overflow-hidden sm:h-auto sm:flex-1">
             {activeImagerySelection ? (
               imageryPanelView === "recent" ? (
                 /* Recent imageries list sub-view */
@@ -462,7 +481,9 @@ export const ModelPickerContent = ({
                   currentTileUrl={activeImagerySelection.tileUrl}
                   onSelectRecent={(entry) => {
                     setStagedRecentImagery(entry);
-                    setImageryPanelView("preview");
+                    // Phones stay on the list (the check shows the choice)
+                    // and confirm with Apply below it.
+                    if (!isSmallViewport) setImageryPanelView("preview");
                   }}
                   onBack={() => setImageryPanelView("preview")}
                   onClear={onClearRecentImageries}
@@ -518,6 +539,17 @@ export const ModelPickerContent = ({
               </div>
             )}
           </div>
+
+          {isSmallViewport && (
+            <button
+              type="button"
+              disabled={!hasUnappliedChanges}
+              onClick={handleApply}
+              className="w-full rounded-lg bg-primary py-3 text-sm text-white disabled:cursor-not-allowed disabled:bg-[#E3E5E8]"
+            >
+              Apply
+            </button>
+          )}
         </div>
       )}
     </div>

@@ -72,7 +72,13 @@ export type BaseModelStacItem = {
     "fair:category": string;
     "fair:recommended_zoom"?: number;
     keywords: string[];
-    providers: Array<{ name: string; description?: string; url?: string }>;
+    providers: Array<{
+      name: string;
+      description?: string;
+      url?: string;
+      /** STAC provider roles: "producer", "licensor", "processor", "host". */
+      roles?: string[];
+    }>;
   };
   assets: {
     model?: StacAsset;

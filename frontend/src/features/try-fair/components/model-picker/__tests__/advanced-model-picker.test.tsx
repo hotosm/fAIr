@@ -218,4 +218,49 @@ describe("advanced model picker", () => {
     expect(onSelect).toHaveBeenCalledWith(trees[0].stac);
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
+
+  it("opens a model's details and can use the model from there", () => {
+    params.mode = ModelType.IMAGERY;
+    Object.assign(buildings[1].stac.properties, {
+      providers: [
+        { name: "Facebook Research", roles: ["licensor"] },
+        {
+          name: "HOTOSM",
+          roles: ["producer", "host"],
+          url: "https://www.hotosm.org",
+        },
+      ],
+    });
+    Object.assign(buildings[1], { user: { osm_id: 1, username: "kshitij" } });
+    const { onSelect, onClose } = setup();
+    fireEvent.click(
+      screen.getByRole("button", { name: "View details of buildings-2" }),
+    );
+    // Opening details doesn't select the model.
+    expect(onSelect).not.toHaveBeenCalled();
+    const details = screen.getByRole("dialog");
+    expect(details).toHaveTextContent("buildings-2");
+    expect(details).toHaveTextContent("Base model");
+    // Only the provider with the producer role, linked to its site.
+    expect(screen.getByRole("link", { name: "HOTOSM" })).toHaveAttribute(
+      "href",
+      "https://www.hotosm.org",
+    );
+    expect(details).not.toHaveTextContent("Facebook Research");
+    expect(details).toHaveTextContent("Published by");
+    expect(details).toHaveTextContent("kshitij");
+
+    fireEvent.click(screen.getByRole("button", { name: "Use this model" }));
+    expect(onSelect).toHaveBeenCalledExactlyOnceWith(buildings[1].stac);
+    expect(onClose).toHaveBeenCalledOnce();
+  });
+
+  it("marks the model already in use instead of offering it again", () => {
+    params.mode = ModelType.IMAGERY;
+    setup();
+    fireEvent.click(
+      screen.getByRole("button", { name: "View details of buildings-1" }),
+    );
+    expect(screen.getByRole("button", { name: "In use" })).toBeDisabled();
+  });
 });

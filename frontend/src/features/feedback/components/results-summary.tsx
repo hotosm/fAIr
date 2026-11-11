@@ -1,4 +1,5 @@
 import { CloudDownloadIcon } from "@/components/ui/icons";
+import { PanelIcon } from "@/features/feedback/components/panel-icon";
 import { ToolTip } from "@/components/ui/tooltip";
 import { FEEDBACK_CONTENT } from "@/features/feedback/constants";
 import { cn } from "@/utils";
@@ -51,6 +52,11 @@ type ResultsSummaryProps = {
   onDownloadInvalid?: () => void;
   disabled?: boolean;
   className?: string;
+  /**
+   * Mobile layout: shows a collapse button in the header and moves
+   * "Provide Feedback" to the bottom of the card.
+   */
+  onCollapse?: () => void;
 };
 
 /** Summary of a prediction run with per-category downloads and a feedback entry point. */
@@ -58,30 +64,49 @@ export const ResultsSummary = ({
   detectedCount,
   validCount = 0,
   invalidCount = 0,
-  onProvideFeedback,
+  // onProvideFeedback, — unused while Provide Feedback is commented out.
   onDownloadDetected,
   onDownloadValid,
   onDownloadInvalid,
   disabled = false,
   className,
+  onCollapse,
 }: ResultsSummaryProps) => {
   const { results } = FEEDBACK_CONTENT;
+
+  // Provide Feedback is commented out for now; restore this and the two
+  // places it's rendered below to bring it back.
+  // const provideFeedbackLink = (
+  //   <button
+  //     type="button"
+  //     onClick={onProvideFeedback}
+  //     disabled={disabled}
+  //     className="flex items-center gap-1 self-end text-xs text-dark hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed"
+  //   >
+  //     {results.provideFeedback}
+  //     <span aria-hidden className="text-base leading-none">
+  //       ›
+  //     </span>
+  //   </button>
+  // );
 
   return (
     <section className={cn("flex flex-col gap-2", className)}>
       <div className="flex items-center justify-between">
         <h3 className="text-dark font-semibold text-sm">{results.title}</h3>
-        <button
-          type="button"
-          onClick={onProvideFeedback}
-          disabled={disabled}
-          className="flex items-center gap-1 text-xs text-dark hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {results.provideFeedback}
-          <span aria-hidden className="text-base leading-none">
-            ›
-          </span>
-        </button>
+        {/* Mobile card: a collapse button here. (Provide Feedback, here on
+            desktop and at the bottom on mobile, is commented out.) */}
+        {onCollapse && (
+          <button
+            type="button"
+            onClick={onCollapse}
+            aria-label="Hide results"
+            className="rounded-md p-1 text-dark hover:bg-black/5"
+          >
+            <PanelIcon className="size-5" />
+          </button>
+        )}
+        {/* {!onCollapse && provideFeedbackLink} */}
       </div>
 
       <ul className="flex flex-col gap-3 p-3 rounded-lg border border-gray-border bg-gray-white">
@@ -104,6 +129,7 @@ export const ResultsSummary = ({
           disabled={disabled || invalidCount === 0}
         />
       </ul>
+      {/* {onCollapse && provideFeedbackLink} */}
     </section>
   );
 };

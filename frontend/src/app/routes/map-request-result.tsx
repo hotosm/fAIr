@@ -18,7 +18,7 @@ const MAP_REQUEST_OUTPUT_TYPES = OUTPUT_TYPES.filter(
 import { MapRequestResultMap } from "@/features/user-profile/components/map-requests/map-request-result-map";
 import { useGetSinglePrediction } from "@/features/user-profile/hooks/use-predictions";
 import { Spinner } from "@/components/ui/spinner";
-import { MobileDrawer } from "@/components/ui/drawer";
+import { MapBottomSheet } from "@/components/ui/drawer/map-bottom-sheet";
 import useScreenSize from "@/hooks/use-screen-size";
 import { BBOX, TOfflinePrediction } from "@/types";
 import {
@@ -298,14 +298,7 @@ export const MapRequestResultPage = () => {
 
           {isSmallViewport && (
             <div className="relative">
-              <MobileDrawer
-                open={isSmallViewport}
-                dialogTitle="Map Request Result"
-                snapPoints={[0.5, 0.7]}
-                modal={false}
-                showOverlay={false}
-                handleOnly
-              >
+              <MapBottomSheet label="Map request details">
                 <ResultInfoCard
                   imageryName={oamItem?.title || "Custom Imagery"}
                   imageryLink={prediction.image_uri ?? ""}
@@ -317,7 +310,7 @@ export const MapRequestResultPage = () => {
                   showDownloadResult={isAuthenticated}
                   className="w-full shadow-none"
                 />
-              </MobileDrawer>
+              </MapBottomSheet>
             </div>
           )}
         </div>

@@ -3,7 +3,12 @@ import { cn, extractDatePart } from "@/utils";
 import { Spinner } from "@/components/ui/spinner";
 import { OAMImageryItem } from "@/features/try-fair/api/hot-imagery";
 import { ExpandIcon } from "@/components/ui/icons/expand-icon";
-import { ChevronDownIcon, CloseIcon } from "@/components/ui/icons";
+import {
+  ArrowBackIcon,
+  ChevronDownIcon,
+  CloseIcon,
+} from "@/components/ui/icons";
+import useScreenSize from "@/hooks/use-screen-size";
 import { Input, Select } from "@/components/ui/form";
 import { INPUT_TYPES, SHOELACE_SELECT_SIZES, SHOELACE_SIZES } from "@/enums";
 import {
@@ -111,7 +116,9 @@ const ImageryCard = ({
 );
 
 /**
- * Imagery results beside the desktop map, or in a collapsible mobile sheet.
+ * Imagery results for the selected grid square: beside the map on wider
+ * screens, a collapsible sheet in the expanded selector, and on phones a
+ * full view over the map with a Back button.
  */
 export const OAMImageryPanel = ({
   expanded = false,
@@ -135,6 +142,8 @@ export const OAMImageryPanel = ({
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const contentId = useId();
+  const { isSmallViewport } = useScreenSize();
+  const isPhone = isSmallViewport && !expanded;
   const [nameFilter, setNameFilter] = useState("");
   const [dateFilter, setDateFilter] = useState<DatePreset>("");
   const [resolutionFilter, setResolutionFilter] =
@@ -158,21 +167,46 @@ export const OAMImageryPanel = ({
 
   if (!cellSelected) return null;
 
+  const resultsTitle = loading
+    ? "Loading images…"
+    : `${filtered.length} image${filtered.length === 1 ? "" : "s"} ${isPhone ? "within selected grid square" : "in this area"}`;
+
   return (
     <aside
       aria-label="Imagery results"
       className={cn(
         expanded
           ? "imagery-results"
-          : "absolute top-4 bottom-4 left-4 z-10 w-[200px] md:w-[350px] bg-white rounded-lg shadow-lg flex flex-col overflow-hidden",
+          : isPhone
+            ? "absolute inset-0 z-40 flex flex-col overflow-hidden bg-white"
+            : "absolute top-4 bottom-4 left-4 z-10 w-[200px] md:w-[350px] bg-white rounded-lg shadow-lg flex flex-col overflow-hidden",
         expanded && isCollapsed && "imagery-results--collapsed",
       )}
     >
-      <div className="px-4 py-3 flex items-center gap-2 shrink-0">
+      {isPhone && (
+        <div className="flex shrink-0 flex-col gap-3 pb-3">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex w-fit items-center gap-2 text-sm text-dark"
+          >
+            <ArrowBackIcon className="size-5" />
+            Back
+          </button>
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm text-grey">{resultsTitle}</h3>
+            {loading && <Spinner style={{ fontSize: "14px" }} />}
+          </div>
+        </div>
+      )}
+      <div
+        className={cn(
+          "px-4 py-3 flex items-center gap-2 shrink-0",
+          isPhone && "hidden",
+        )}
+      >
         <h3 className="text-dark font-semibold text-sm flex-1">
-          {loading
-            ? "Loading images…"
-            : `${filtered.length} image${filtered.length === 1 ? "" : "s"} in this area`}
+          {resultsTitle}
         </h3>
         {loading && <Spinner style={{ fontSize: "14px" }} />}
         {expanded && (
@@ -211,7 +245,7 @@ export const OAMImageryPanel = ({
             : "flex flex-col flex-1 min-h-0 overflow-hidden"
         }
       >
-        <div className="px-3 pb-2">
+        <div className={cn("px-3 pb-2", isPhone && "hidden")}>
           <Input
             type={INPUT_TYPES.TEXT}
             value={nameFilter}
@@ -227,6 +261,7 @@ export const OAMImageryPanel = ({
           className={cn(
             "px-3 pb-2 flex items-center gap-2 shrink-0",
             !expanded && "md:flex-row flex-col",
+            isPhone && "hidden",
           )}
         >
           <FilterSelect
@@ -243,7 +278,12 @@ export const OAMImageryPanel = ({
           />
         </div>
 
-        <div className="flex-1 min-h-0 overflow-y-auto px-3 pb-3 scrollable">
+        <div
+          className={cn(
+            "flex-1 min-h-0 overflow-y-auto pb-3 scrollable",
+            isPhone ? "px-0" : "px-3",
+          )}
+        >
           {!loading && filtered.length === 0 ? (
             <ImageriesEmptyState
               content={
@@ -256,7 +296,9 @@ export const OAMImageryPanel = ({
             <div
               className={cn(
                 "grid gap-2",
-                expanded ? "grid-cols-2" : "grid-cols-1 md:grid-cols-2",
+                expanded || isPhone
+                  ? "grid-cols-2"
+                  : "grid-cols-1 md:grid-cols-2",
               )}
             >
               {filtered.map((item) => (
@@ -276,28 +318,44 @@ export const OAMImageryPanel = ({
           )}
         </div>
       </div>
-      <div
-        className={cn(
-          "p-3 border-t border-gray-border bg-white flex items-center gap-3 shrink-0",
-          expanded ? "justify-between" : "justify-end",
-        )}
-      >
-        {expanded && (
-          <p className="text-xs text-grey truncate" title={selectedItem?.title}>
-            {selectedItem?.title ?? "Select an image to preview"}
-          </p>
-        )}
-        <ToolTip content={!selectedItem ? "Select an image first" : undefined}>
-          <Button
-            size="medium"
-            rounded
-            disabled={!selectedItem}
-            onClick={handleApplyOAMItem}
+      {isPhone ? (
+        <button
+          type="button"
+          disabled={!selectedItem}
+          onClick={handleApplyOAMItem}
+          className="mt-2 w-full shrink-0 rounded-lg bg-primary py-3 text-sm text-white disabled:cursor-not-allowed disabled:bg-[#E3E5E8]"
+        >
+          Use This Image
+        </button>
+      ) : (
+        <div
+          className={cn(
+            "p-3 border-t border-gray-border bg-white flex items-center gap-3 shrink-0",
+            expanded ? "justify-between" : "justify-end",
+          )}
+        >
+          {expanded && (
+            <p
+              className="text-xs text-grey truncate"
+              title={selectedItem?.title}
+            >
+              {selectedItem?.title ?? "Select an image to preview"}
+            </p>
+          )}
+          <ToolTip
+            content={!selectedItem ? "Select an image first" : undefined}
           >
-            Use this image
-          </Button>
-        </ToolTip>
-      </div>
+            <Button
+              size="medium"
+              rounded
+              disabled={!selectedItem}
+              onClick={handleApplyOAMItem}
+            >
+              Use this image
+            </Button>
+          </ToolTip>
+        </div>
+      )}
     </aside>
   );
 };

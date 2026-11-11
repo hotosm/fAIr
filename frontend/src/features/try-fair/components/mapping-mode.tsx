@@ -23,10 +23,14 @@ type ModeKey = keyof typeof MODES;
 const MappingMode = ({
   tourTarget = true,
   fullWidth = false,
+  variant = "pill",
 }: {
   tourTarget?: boolean;
   fullWidth?: boolean;
+  /** "chip" is the white floating button used on the mobile map. */
+  variant?: "pill" | "chip";
 }) => {
+  const isChip = variant === "chip";
   const { mappingMode, setMappingMode } = useTryFairParams();
   const { isAuthenticated } = useAuth();
   const mode: ModeKey = isAuthenticated ? mappingMode : "basic";
@@ -45,13 +49,16 @@ const MappingMode = ({
         <div
           id={tourTarget ? APP_TOUR_IDS.TRY_FAIR_MAPPING_MODE : undefined}
           className={cn(
-            "flex h-8 cursor-pointer items-center justify-between gap-2 rounded-[55px] bg-light-gray px-3",
-            fullWidth ? "w-full" : "w-[136px]",
+            "flex h-8 cursor-pointer items-center justify-between gap-2 rounded-[55px] px-3",
+            isChip ? "h-9 bg-white shadow-md" : "bg-light-gray",
+            fullWidth ? "w-full" : isChip ? "w-fit" : "w-[136px]",
           )}
         >
           <div className="gap-2 items-center flex ">
             <CurrentIcon className="size-4 shrink-0" />
-            <p className="text-dark text-xs">{MODES[mode].label}</p>
+            <p className={cn("text-dark", isChip ? "text-sm" : "text-xs")}>
+              {MODES[mode].label}
+            </p>
           </div>
           <ChevronDownIcon className="text-dark h-2 w-4 shrink-0" />
         </div>

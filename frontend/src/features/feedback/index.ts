@@ -1,5 +1,6 @@
 export { PredictionResultsFeedback } from "./components/prediction-results-feedback";
 export { ResultsSummary } from "./components/results-summary";
+export { MobileResultsPanel } from "./components/mobile-results-panel";
 export { FeedbackRatingOptions } from "./components/feedback-rating-options";
 export { ProvideFeedbackModal } from "./modals/provide-feedback-modal";
 export { FeedbackSentModal } from "./modals/feedback-sent-modal";

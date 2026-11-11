@@ -312,6 +312,7 @@ export type TSharedContent = {
   navbar: {
     logoAlt: string;
     loginButton: string;
+    mobileLoginButton: string;
     hamburgerMenuAlt: string;
     hamburgerMenuTitle: string;
     routes: {

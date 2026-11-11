@@ -11,14 +11,15 @@ nav {
   border-bottom: 2px solid var(--hot-fair-color-primary);
 }
 
+/* Mobile menu: centred links, as in the mobile navigation design. */
 .mobileNavLinks {
   display: flex;
   flex-direction: column;
-  align-items: start;
-  font-weight: var(--sl-spacing-medium);
-  font-size: var(--hot-fair-font-size-body-text-3);
-  gap: var(--sl-spacing-medium);
-  padding: 0 var(--body-spacing);
+  align-items: center;
+  font-size: var(--hot-fair-font-size-body-text-1, 18px);
+  font-weight: var(--hot-fair-font-weight-regular);
+  gap: 2.25rem;
+  padding: 3rem var(--body-spacing) 0;
 }
 .mobileNavLinks .link {
   text-transform: capitalize;
@@ -34,9 +35,10 @@ nav {
 
 /* Mobile Nav */
 
+/* The mobile menu covers the whole screen. */
 .navDrawer::part(panel) {
-  height: auto;
-  overflow: visible;
+  height: 100dvh;
+  overflow-y: auto;
 }
 
 .navDrawer::part(body) {
@@ -47,7 +49,8 @@ nav {
 .drawerContentContainer {
   display: flex;
   flex-direction: column;
-  gap: var(--sl-spacing-large);
+  gap: 2.5rem;
+  padding: 1rem 0 2rem;
 }
 
 .drawerHeaderContainer {
@@ -65,8 +68,9 @@ nav {
 .loginButtonContainer {
   display: flex;
   flex-direction: column;
-  align-items: start;
+  align-items: center;
   justify-content: center;
+  gap: 2rem;
 }
 .hankoMobileBar {
   display: flex;
@@ -85,7 +89,7 @@ nav {
 .profileList {
   display: flex;
   flex-direction: column;
-  align-items: start;
+  align-items: center;
   list-style: none;
   padding: 0;
   margin: 0;

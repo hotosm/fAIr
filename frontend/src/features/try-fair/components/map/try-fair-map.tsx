@@ -290,12 +290,9 @@ export const TryFairMap = ({
         </div>
       )}
 
-      {legend &&
-        (isSmallViewport ? (
-          <div className="absolute bottom-[25vh] right-4 z-10">{legend}</div>
-        ) : (
-          legend
-        ))}
+      {/* Phones don't show the legend: there's no room for it over the map
+          and settings sheet. */}
+      {legend && !isSmallViewport && legend}
     </div>
   );
 };

@@ -66,7 +66,8 @@ export const ImageryPreviewCard = ({
   return (
     <div className="relative w-full h-full rounded-lg overflow-hidden border border-gray-border">
       {/* Overlay: imagery info card (top-left) */}
-      <div className="absolute top-3 left-3 z-10 bg-[#FFFFFFCC] backdrop-blur-sm rounded-lg px-3 py-2 shadow-sm max-w-[250px]">
+      {/* Narrower on phones so a long name doesn't run under "Change". */}
+      <div className="absolute top-3 left-3 z-10 bg-[#FFFFFFCC] backdrop-blur-sm rounded-lg px-3 py-2 shadow-sm max-w-[calc(100%-8.5rem)] sm:max-w-[250px]">
         <p className="text-dark text-xs font-medium leading-tight truncate">
           {imageryTitle}
         </p>

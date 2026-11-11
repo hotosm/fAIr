@@ -27,6 +27,7 @@ import { cn } from "@/utils";
 import { LocationSearch } from "./location-search";
 import { ChevronDownIcon, CloseIcon } from "@/components/ui/icons";
 import "./imagery-selector.css";
+import useScreenSize from "@/hooks/use-screen-size";
 
 export enum ImagerySource {
   OPEN_AERIAL_MAP = "openAerialMap",
@@ -55,6 +56,7 @@ export const ImageryLocationDialog = ({
     ImagerySource.OPEN_AERIAL_MAP,
   );
   const [selectedCell, setSelectedCell] = useState<SelectedCell | null>(null);
+  const { isSmallViewport } = useScreenSize();
   const [cellImages, setCellImages] = useState<OAMImageryItem[]>([]);
   const [cellLoading, setCellLoading] = useState<boolean>(false);
   const [selectedItem, setSelectedItem] = useState<OAMImageryItem | null>(null);
@@ -135,6 +137,10 @@ export const ImageryLocationDialog = ({
     mapRef.current?.flyTo({ center: [0, 20], zoom: 1.4 });
   };
   const isOAM = source === ImagerySource.OPEN_AERIAL_MAP;
+  // On phones the image list covers the map with its own Back (to the map),
+  // so the Back to the model picker is hidden meanwhile.
+  const showBackToModelPicker =
+    Boolean(onBackToModelPicker) && !(isSmallViewport && selectedCell);
   if (!ENVS.EXPANDED_IMAGERY_SELECTOR) {
     return (
       <Dialog
@@ -146,7 +152,7 @@ export const ImageryLocationDialog = ({
       >
         {isOpened && (
           <div className="flex flex-col gap-4">
-            {onBackToModelPicker && (
+            {showBackToModelPicker && (
               <button
                 type="button"
                 onClick={onBackToModelPicker}
@@ -156,7 +162,8 @@ export const ImageryLocationDialog = ({
                 Back
               </button>
             )}
-            <p className="text-grey text-sm w-full md:w-1/2 -mt-6 shrink-0">
+            {/* Phones go straight to the map, as in the mobile design. */}
+            <p className="text-grey text-sm w-full md:w-1/2 -mt-6 shrink-0 hidden sm:block">
               {isCustomImageryEnabled
                 ? "Select an imagery source to preview and map your location. Choose imagery from OpenAerialMap or enter a custom tile server URL."
                 : "Search OpenAerialMap, preview available imagery, and select an image to start mapping."}
@@ -192,7 +199,9 @@ export const ImageryLocationDialog = ({
                 <>
                   <div
                     className={cn(
-                      "absolute top-4 left-1/2 -translate-x-1/2 w-[calc(100%-128px)] max-w-[384px] z-30 transition-opacity duration-200",
+                      // Phones: the search spans the map up to the zoom
+                      // controls; wider screens centre it between them.
+                      "absolute top-3 left-3 right-14 z-30 transition-opacity duration-200 sm:top-4 sm:right-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-[calc(100%-128px)] sm:max-w-[384px]",
                       !showSearch && "opacity-0 pointer-events-none invisible",
                     )}
                   >

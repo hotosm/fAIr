@@ -79,12 +79,18 @@ export const RecentMappingCard = ({
       : getFeatureIcon(label, MapIcon);
 
   return (
-    <section className="contour-bg grid min-h-[410px] min-w-0 grid-cols-1 gap-4 overflow-hidden rounded-xl bg-dark p-4 font-archivo text-white sm:grid-cols-[200px_minmax(0,1fr)]">
-      <div className="flex min-w-0 flex-col p-1 sm:p-1">
+    // Phones: one column (details, map, then buttons side by side); the
+    // details column's children join the section's flow so they can be
+    // reordered. Wider screens: details and buttons beside the map.
+    <section className="contour-bg flex min-w-0 flex-col gap-4 overflow-hidden rounded-none bg-dark px-5 py-6 font-archivo text-white sm:grid sm:min-h-[410px] sm:grid-cols-[200px_minmax(0,1fr)] sm:rounded-xl sm:p-4">
+      <div className="contents sm:flex sm:min-w-0 sm:flex-col sm:p-1">
         <p className="text-sm font-semibold">Recent Mapping</p>
 
-        <div className="mt-12 flex flex-col gap-y-3">
-          <h3 className="truncate text-base font-semibold" title={state.name}>
+        <div className="flex flex-wrap items-center justify-between gap-3 sm:mt-12 sm:flex-col sm:items-start sm:justify-start">
+          <h3
+            className="w-full truncate text-base font-semibold"
+            title={state.name}
+          >
             {state.name}
           </h3>
           <span className="inline-flex w-fit items-center gap-1.5 rounded bg-grey px-2 py-1 text-xs capitalize leading-4 text-white">
@@ -96,14 +102,20 @@ export const RecentMappingCard = ({
           </p>
         </div>
 
-        <div className="mt-auto flex flex-col gap-3 pt-8">
+        <div className="order-last flex gap-3 sm:order-none sm:mt-auto sm:flex-col sm:pt-8">
           <Link
             href={getProjectPath(activity.pid)}
             nativeAnchor={false}
             title="Resume Mapping"
-            className="w-40"
+            className="flex-1 sm:w-40 sm:flex-none"
           >
-            <Button rounded capitalize={false} size="medium" fontSize="12px">
+            <Button
+              rounded
+              capitalize={false}
+              size="medium"
+              fontSize="12px"
+              className="w-full"
+            >
               Resume Mapping
             </Button>
           </Link>
@@ -111,10 +123,11 @@ export const RecentMappingCard = ({
             href={APPLICATION_ROUTES.TRY_FAIR}
             nativeAnchor={false}
             title="Start New Mapping"
-            className="w-40"
+            className="flex-1 sm:w-40 sm:flex-none"
           >
             <Button
               variant={ButtonVariant.SECONDARY}
+              className="w-full"
               rounded
               capitalize={false}
               size="medium"
@@ -127,7 +140,7 @@ export const RecentMappingCard = ({
       </div>
 
       <div
-        className="min-h-[260px] min-w-0 overflow-hidden rounded-xl bg-white/5 sm:min-h-0"
+        className="h-48 min-w-0 overflow-hidden rounded-xl bg-white/5 sm:h-auto sm:min-h-0"
         aria-label={`Map showing imagery for ${state.name}`}
       >
         <RecentMappingMap activity={activity} />
