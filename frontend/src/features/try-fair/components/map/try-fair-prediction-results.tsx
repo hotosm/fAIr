@@ -11,8 +11,13 @@ import {
 } from "@/features/try-fair/utils/helpers";
 import {
   buildClassColorExpression,
+  describePredictedFeature,
   PredictionClassStyle,
 } from "@/features/try-fair/utils/prediction-classes";
+import {
+  PredictionHover,
+  PredictionHoverTooltip,
+} from "@/features/try-fair/components/map/prediction-hover-tooltip";
 
 const SOURCE_ID = "try-fair-predictions";
 const FILL_LAYER = "try-fair-predictions-fill";
@@ -55,14 +60,9 @@ type Props = {
   ) => void;
   /** When set and `colored`, features are coloured by their predicted class. */
   classStyle?: PredictionClassStyle | null;
+  /** Shows feature details on hover regardless of sign-in and mapping mode. */
+  alwaysShowFeatureDetails?: boolean;
 };
-
-type HoverTooltip = {
-  x: number;
-  y: number;
-  label: string;
-  value: string;
-} | null;
 
 export const TryFairPredictionsLayer = ({
   map,
@@ -72,10 +72,12 @@ export const TryFairPredictionsLayer = ({
   outputType,
   onChoroplethBucketsChange,
   classStyle,
+  alwaysShowFeatureDetails = false,
 }: Props) => {
   const { mappingMode } = useTryFairParams();
   const { isAuthenticated } = useAuth();
-  const showConfidence = isAuthenticated && mappingMode === "advanced";
+  const showFeatureDetails =
+    alwaysShowFeatureDetails || (isAuthenticated && mappingMode === "advanced");
   const { choropleth, buckets } = useMemo(() => {
     if (
       outputType !== TryFairMapOutputType.CLUSTER ||
@@ -97,7 +99,7 @@ export const TryFairPredictionsLayer = ({
     onChoroplethBucketsChange?.(buckets);
   }, [buckets, onChoroplethBucketsChange]);
 
-  const [tooltip, setTooltip] = useState<HoverTooltip>(null);
+  const [tooltip, setTooltip] = useState<PredictionHover | null>(null);
   // Keep a ref so event handlers always read the latest map without stale closure
   const mapRef = useRef<Map | null>(null);
   mapRef.current = map;
@@ -264,8 +266,7 @@ export const TryFairPredictionsLayer = ({
       setTooltip({
         x: e.point.x,
         y: e.point.y,
-        label: "Features detected",
-        value: count.toLocaleString(),
+        rows: [{ label: "Features detected", value: count.toLocaleString() }],
       });
     };
 
@@ -292,29 +293,26 @@ export const TryFairPredictionsLayer = ({
         : outputType === TryFairMapOutputType.POLYGON
           ? FILL_LAYER
           : null;
-    if (!map || !predictionLayer || !showConfidence) {
+    if (!map || !predictionLayer || !showFeatureDetails || !classStyle) {
       setTooltip(null);
       return;
     }
 
-    const handleMouseMove = (e: MapMouseEvent) => {
+    const describeFeatureAt = (e: MapMouseEvent) => {
       const feature = map.queryRenderedFeatures(e.point, {
         layers: [predictionLayer],
       })[0];
-      const score = feature?.properties?.score;
-      if (typeof score !== "number") {
+      const rows = feature
+        ? describePredictedFeature(classStyle, feature.properties ?? {})
+        : [];
+      if (!rows.length) {
         setTooltip(null);
         map.getCanvas().style.cursor = "";
         return;
       }
 
       map.getCanvas().style.cursor = "pointer";
-      setTooltip({
-        x: e.point.x,
-        y: e.point.y,
-        label: "Confidence",
-        value: `${(score * 100).toFixed(1)}%`,
-      });
+      setTooltip({ x: e.point.x, y: e.point.y, rows });
     };
 
     const handleMouseLeave = () => {
@@ -322,43 +320,18 @@ export const TryFairPredictionsLayer = ({
       map.getCanvas().style.cursor = "";
     };
 
-    map.on("mousemove", predictionLayer, handleMouseMove);
+    map.on("mousemove", predictionLayer, describeFeatureAt);
     map.on("mouseleave", predictionLayer, handleMouseLeave);
+    map.on("click", describeFeatureAt);
 
     return () => {
-      map.off("mousemove", predictionLayer, handleMouseMove);
+      map.off("mousemove", predictionLayer, describeFeatureAt);
       map.off("mouseleave", predictionLayer, handleMouseLeave);
+      map.off("click", describeFeatureAt);
       map.getCanvas().style.cursor = "";
       setTooltip(null);
     };
-  }, [map, outputType, showConfidence]);
+  }, [map, outputType, showFeatureDetails, classStyle]);
 
-  if (!tooltip) return null;
-
-  return (
-    <div
-      className="pointer-events-none absolute z-50"
-      style={{ left: tooltip.x, top: tooltip.y }}
-    >
-      {/* Offset so the tooltip doesn't sit directly under the cursor */}
-      <div className="relative" style={{ transform: "translate(12px, -50%)" }}>
-        <div className="bg-white/95 backdrop-blur-sm border border-gray-border rounded-lg shadow-lg px-3 py-2 flex flex-col items-start gap-0.5 min-w-[120px]">
-          <p className="text-[10px] font-medium text-grey uppercase tracking-wide leading-none">
-            {tooltip.label}
-          </p>
-          <p className="text-base font-bold text-purple-700 leading-tight">
-            {tooltip.value}
-          </p>
-        </div>
-        <div
-          className="absolute top-1/2 -left-[6px] -translate-y-1/2 w-0 h-0"
-          style={{
-            borderTop: "6px solid transparent",
-            borderBottom: "6px solid transparent",
-            borderRight: "6px solid white",
-          }}
-        />
-      </div>
-    </div>
-  );
+  return tooltip ? <PredictionHoverTooltip hover={tooltip} /> : null;
 };

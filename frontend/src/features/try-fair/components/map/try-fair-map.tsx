@@ -226,6 +226,7 @@ export const TryFairMap = ({
           outputType={outputType}
           predictionBBox={predictionBBox}
           predictionGridZoom={predictionGridZoom}
+          classStyle={predictionClassStyle}
         />
       )}
 
