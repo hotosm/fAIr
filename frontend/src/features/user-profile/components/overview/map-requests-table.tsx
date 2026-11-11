@@ -9,7 +9,13 @@ import { ToolTip } from "@/components/ui/tooltip";
 import { useNavigate } from "react-router-dom";
 import { APPLICATION_ROUTES } from "@/constants/routes";
 import { MapRequestCardList } from "@/features/user-profile/components/overview/map-request-card-list";
-import { getPredictionName, getModelUsed, isPublished, isResultReady, getResultPath } from "@/features/user-profile/components/overview/map-request-fields";
+import {
+  getPredictionName,
+  getModelUsed,
+  isPublished,
+  isResultReady,
+  getResultPath,
+} from "@/features/user-profile/components/overview/map-request-fields";
 import { MapRequestStatusBadge } from "@/features/user-profile/components/overview/map-request-status-badge";
 
 // ---------------------------------------------------------------------------
