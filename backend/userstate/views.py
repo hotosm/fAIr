@@ -22,7 +22,7 @@ _STATE_EXAMPLE = OpenApiExample(
             "model": {"id": "dinov3s-buildings", "title": "DINO Buildings"},
             "imagery": {
                 "name": "Banepa drone survey",
-                "url": "https://api.imagery.hotosm.org/raster/collections/openaerialmap/items/44e68faf-21f9-4bba-8d5d-8c75dfdcf524/WebMercatorQuad/tilejson.json?assets=visual",
+                "url": "https://tiles.imagery.hotosm.org/raster/collections/openaerialmap/items/44e68faf-21f9-4bba-8d5d-8c75dfdcf524/WebMercatorQuad/tilejson.json?assets=visual",
             },
             "zoom": 19,
             "bbox": [85.5, 27.6, 85.52, 27.63],

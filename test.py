@@ -29,7 +29,7 @@ AOI_POLYGON = [
     [85.51678, 27.63133],
 ]
 IMAGERY = (
-    "https://api.imagery.hotosm.org/raster/collections/openaerialmap/items"
+    "https://tiles.imagery.hotosm.org/raster/collections/openaerialmap/items"
     "/62d86c65d8499800053796c4/tiles/WebMercatorQuad/{z}/{x}/{y}?assets=visual"
 )
 BASE_MODEL_ITEM_URL = (

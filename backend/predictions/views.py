@@ -96,7 +96,7 @@ class PredictionViewSet(viewsets.ReadOnlyModelViewSet):
                     "model_stac_id": "0311d82d-0f8e-4021-adc5-bb4d6b81a1d4",
                     "imagery": {
                         "image": (
-                            "https://api.imagery.hotosm.org/raster/collections/openaerialmap/items/"
+                            "https://tiles.imagery.hotosm.org/raster/collections/openaerialmap/items/"
                             "62d86c65d8499800053796c4/tiles/WebMercatorQuad/{z}/{x}/{y}?assets=visual"
                         )
                     },
@@ -125,7 +125,7 @@ class PredictionViewSet(viewsets.ReadOnlyModelViewSet):
                 value={
                     "model_stac_id": "0311d82d-0f8e-4021-adc5-bb4d6b81a1d4",
                     "image_uri": (
-                        "https://api.imagery.hotosm.org/raster/collections/openaerialmap/items/"
+                        "https://tiles.imagery.hotosm.org/raster/collections/openaerialmap/items/"
                         "62d86c65d8499800053796c4/tiles/WebMercatorQuad/{z}/{x}/{y}?assets=visual"
                     ),
                     "geometry": {

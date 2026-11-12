@@ -201,7 +201,7 @@ Response carries `properties.id` -> call this `AOI_ID`.
   "title": "smoke-banepa",
   "description": "e2e test",
   "imagery": {
-    "image": "https://api.imagery.hotosm.org/raster/collections/openaerialmap/items/62d86c65d8499800053796c4/tiles/WebMercatorQuad/{z}/{x}/{y}?assets=visual"
+    "image": "https://tiles.imagery.hotosm.org/raster/collections/openaerialmap/items/62d86c65d8499800053796c4/tiles/WebMercatorQuad/{z}/{x}/{y}?assets=visual"
   },
   "category": "buildings",
   "zoom": 19,
@@ -249,7 +249,7 @@ Response: `local_model_stac_id` -> `LM_STAC_ID`. Inspect with `GET /api/v1/local
 {
   "model_stac_id": "LM_STAC_ID",
   "imagery": {
-    "image": "https://api.imagery.hotosm.org/raster/collections/openaerialmap/items/62d86c65d8499800053796c4/tiles/WebMercatorQuad/{z}/{x}/{y}?assets=visual"
+    "image": "https://tiles.imagery.hotosm.org/raster/collections/openaerialmap/items/62d86c65d8499800053796c4/tiles/WebMercatorQuad/{z}/{x}/{y}?assets=visual"
   },
   "bbox": [85.51678, 27.63133, 85.52323, 27.63743],
   "zoom": 19,

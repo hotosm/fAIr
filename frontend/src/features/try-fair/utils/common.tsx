@@ -20,7 +20,7 @@ import { TreesIcon } from "@/components/ui/icons/trees-icon";
 export const TRY_FAIR_INITIAL_MAP_ZOOM = 18;
 
 export const FALLBACK_FAIR_IMAGERY =
-  "https://api.imagery.hotosm.org/raster/collections/openaerialmap/items/62d86c65d8499800053796c4/tiles/WebMercatorQuad/{z}/{x}/{y}?assets=visual";
+  "https://tiles.imagery.hotosm.org/raster/collections/openaerialmap/items/62d86c65d8499800053796c4/tiles/WebMercatorQuad/{z}/{x}/{y}?assets=visual";
 export const FALLBACK_FAIR_IMAGERY_CENTER: [number, number] = [
   85.5228, 27.6337,
 ];

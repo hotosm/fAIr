@@ -19,7 +19,7 @@ export const DEMO_MODEL_CONFIGS: DemoModelConfig[] = [
     localModelUri:
       "https://huggingface.co/kshitijrajsharma/dinov3-hot-buildings/resolve/main/dinov3s_buildings.onnx",
     tileServiceUrl:
-      "https://api.imagery.hotosm.org/raster/collections/openaerialmap/items/62d86c65d8499800053796c4/tiles/WebMercatorQuad/{z}/{x}/{y}?assets=visual",
+      "https://tiles.imagery.hotosm.org/raster/collections/openaerialmap/items/62d86c65d8499800053796c4/tiles/WebMercatorQuad/{z}/{x}/{y}?assets=visual",
     center: [85.5228304876195, 27.6337106889328],
     displayName: "Buildings",
     location: "Nepal",
@@ -32,7 +32,7 @@ export const DEMO_MODEL_CONFIGS: DemoModelConfig[] = [
     localModelUri:
       "https://s3.fair.krschap.tech/zenml/local-models/08e20666-f8fa-4b8a-8fe8-72661a590fd0/model/model.onnx",
     tileServiceUrl:
-      "https://api.imagery.hotosm.org/raster/collections/openaerialmap/items/62d86c65d8499800053796c4/tiles/WebMercatorQuad/{z}/{x}/{y}?assets=visual",
+      "https://tiles.imagery.hotosm.org/raster/collections/openaerialmap/items/62d86c65d8499800053796c4/tiles/WebMercatorQuad/{z}/{x}/{y}?assets=visual",
     center: [85.5228, 27.6337],
     displayName: "Buildings",
     location: "Nepal",
@@ -46,7 +46,7 @@ export const DEMO_MODEL_CONFIGS: DemoModelConfig[] = [
     localModelUri:
       "https://s3.fair.krschap.tech/zenml/local-models/27f6f5a6-d079-44ac-80b1-be9ff268c2cb/model/model.onnx",
     tileServiceUrl:
-      "https://api.imagery.hotosm.org/raster/collections/openaerialmap/items/62d86c65d8499800053796c4/tiles/WebMercatorQuad/{z}/{x}/{y}?assets=visual",
+      "https://tiles.imagery.hotosm.org/raster/collections/openaerialmap/items/62d86c65d8499800053796c4/tiles/WebMercatorQuad/{z}/{x}/{y}?assets=visual",
     center: [85.5228, 27.6337],
     displayName: "Buildings",
     location: "Nepal",
@@ -60,7 +60,7 @@ export const DEMO_MODEL_CONFIGS: DemoModelConfig[] = [
     localModelUri:
       "https://s3.fair.krschap.tech/zenml/local-models/1e398477-2472-46ea-9286-cd89411e1c32/model/model.onnx",
     tileServiceUrl:
-      "https://api.imagery.hotosm.org/raster/collections/openaerialmap/items/62d86c65d8499800053796c4/tiles/WebMercatorQuad/{z}/{x}/{y}?assets=visual",
+      "https://tiles.imagery.hotosm.org/raster/collections/openaerialmap/items/62d86c65d8499800053796c4/tiles/WebMercatorQuad/{z}/{x}/{y}?assets=visual",
     center: [85.5228, 27.6337],
     displayName: "Buildings",
     location: "Nepal",

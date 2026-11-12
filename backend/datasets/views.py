@@ -153,7 +153,7 @@ class DatasetViewSet(
                     "description": "Buildings training dataset",
                     "imagery": {
                         "image": (
-                            "https://api.imagery.hotosm.org/raster/collections/openaerialmap/items/"
+                            "https://tiles.imagery.hotosm.org/raster/collections/openaerialmap/items/"
                             "62d86c65d8499800053796c4/tiles/WebMercatorQuad/{z}/{x}/{y}?assets=visual"
                         )
                     },
