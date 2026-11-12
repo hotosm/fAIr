@@ -925,8 +925,6 @@ def test_banner_list_returns_only_running_banners(anon_client, db):
     [
         ("get", "/api/v1/workspace/?prefix="),
         ("get", "/api/v1/workspace/url/?key=x"),
-        ("get", "/api/v1/feedback/"),
-        ("post", "/api/v1/feedback/"),
         ("get", "/api/v1/notifications/me/"),
         ("get", "/api/v1/public-predictions/"),
         ("get", "/api/v1/pinned-models/"),
