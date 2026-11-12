@@ -941,7 +941,9 @@ export const TryFairPage = ({
         onClose={() => setIsLargeAreaSuccessDialogOpen(false)}
       />
 
-      <div className="flex h-screen md:h-[92vh] flex-col fullscreen">
+      {/* Phones: the screen minus the 63px navbar, so the page never
+          scrolls the navbar away (dvh follows the browser's toolbars). */}
+      <div className="flex h-[calc(100dvh-63px)] md:h-[92vh] flex-col fullscreen">
         <div className="flex-grow relative">
           <PredictionHistoryPanel
             open={showPredictionHistory}
@@ -973,6 +975,7 @@ export const TryFairPage = ({
               preImageryUrl={preImageryUrl}
               predictionClassStyle={predictionClassStyle}
               canFitToBounds={true}
+              showLegendOnPhones={!isFeedbackEnabled}
               onHelp={openGuidedTour}
             />
             <FeatureFeedbackLayer

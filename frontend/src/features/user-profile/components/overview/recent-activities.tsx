@@ -5,6 +5,7 @@ import { DataTable } from "@/components/ui/data-table";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { SavedUserState } from "@/features/try-fair/api/user-state";
 import { cn } from "@/utils";
+import { APPLICATION_ROUTES } from "@/constants/routes";
 import { useGetUserStates } from "@/features/user-profile/api/user-state";
 import { TableSkeleton } from "@/features/models/components/skeletons";
 import { OverviewEmptyState } from "@/features/user-profile/components/overview/overview-empty-state";
@@ -60,13 +61,23 @@ export const RecentActivities = ({
   return (
     <section
       className={cn(
-        // Phones: as tall as its rows; wider screens match the hero's height.
-        "flex min-w-0 flex-col w-full rounded-xl bg-frosted-blue p-2 md:p-5 sm:min-h-[410px]",
+        // Phones: edge to edge, as tall as its rows; wider screens match the
+        // hero's height.
+        "-mx-4 flex w-auto min-w-0 flex-col rounded-none bg-frosted-blue px-5 py-5 sm:mx-0 sm:w-full sm:min-h-[410px] sm:rounded-xl md:p-5",
         className,
       )}
     >
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-2 flex items-center justify-between sm:mb-4">
         <h2 className="text-sm font-semibold text-dark">Mapping History</h2>
+        {isSmallViewport && (
+          <Link
+            to={APPLICATION_ROUTES.PROFILE_MAPPING_HISTORY}
+            className="flex items-center gap-x-2 text-sm text-dark"
+          >
+            View All
+            <ChevronDownIcon className="size-3 -rotate-90" aria-hidden="true" />
+          </Link>
+        )}
         {showFilter && (
           <button
             type="button"
@@ -94,7 +105,10 @@ export const RecentActivities = ({
           Couldn't load history.
         </p>
       ) : activities.length && isSmallViewport ? (
-        <MappingHistoryList activities={activities} />
+        <MappingHistoryList
+          activities={activities}
+          className="[&_a]:px-0 [&_a]:hover:bg-transparent"
+        />
       ) : activities.length ? (
         <div className="min-w-0 max-w-full [&_table]:table-fixed [&_tbody_tr]:cursor-pointer [&_td]:p-2.5 [&_td]:text-[13px] [&_td]:font-medium [&_td]:text-[#404446] [&_th]:h-9 [&_th]:p-2.5 [&_th]:text-[12px] [&_th]:font-normal [&_th]:text-[#404446] [&_th:last-child]:w-[52px] [&_th:nth-child(2)]:w-[34%]">
           <DataTable

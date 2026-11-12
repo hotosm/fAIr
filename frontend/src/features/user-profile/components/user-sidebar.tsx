@@ -2,7 +2,6 @@ import {
   ChevronDownIcon,
   DatabaseIcon,
   SettingsIcon,
-  TimerIcon,
 } from "@/components/ui/icons";
 import { Link } from "@/components/ui/link";
 import { APPLICATION_ROUTES } from "@/constants";
@@ -12,6 +11,7 @@ import { useLocation } from "react-router-dom";
 import { cn } from "@/utils";
 import { OverviewIcon } from "@/components/ui/icons/overview-icon";
 import { AIModelIcon } from "@/components/ui/icons/ai-model-icon";
+import { RequestsIcon } from "@/components/ui/icons/timer-icon";
 
 /**
  * Dashboard navigation. `stacked` is the mobile menu layout: one column of
@@ -174,6 +174,6 @@ const SIDEBAR_LINKS = [
     id: 5,
     title: "Map Requests",
     href: APPLICATION_ROUTES.PROFILE_OFFLINE_PREDICTIONS,
-    Icon: TimerIcon,
+    Icon: RequestsIcon,
   },
 ];

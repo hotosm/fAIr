@@ -1,3 +1,4 @@
+import { createPortal } from "react-dom";
 import {
   SwitchSampleDialog,
   shouldShowSwitchWarning,
@@ -209,21 +210,25 @@ export const AdvancedModelPickerContent = ({
 
   return (
     <div className="flex flex-col min-h-[428px]">
-      {detailsModel && (
-        <ModelDetailsDialog
-          model={detailsModel}
-          source={source}
-          isSelected={
-            detailsModel !== null &&
-            highlightedModelId === detailsModel.stac_item_id
-          }
-          onClose={() => setDetailsModel(null)}
-          onUseModel={(model) => {
-            setDetailsModel(null);
-            handleSelectModel(model);
-          }}
-        />
-      )}
+      {/* Portalled: on phones the picker sits in a sheet that moves with a
+          transform, which would trap and clip this dialog inside it. */}
+      {detailsModel &&
+        createPortal(
+          <ModelDetailsDialog
+            model={detailsModel}
+            source={source}
+            isSelected={
+              detailsModel !== null &&
+              highlightedModelId === detailsModel.stac_item_id
+            }
+            onClose={() => setDetailsModel(null)}
+            onUseModel={(model) => {
+              setDetailsModel(null);
+              handleSelectModel(model);
+            }}
+          />,
+          document.body,
+        )}
       {pendingModel && (
         <SwitchSampleDialog
           message="Changing the feature or model in Samples mode will switch your imagery and map location to the selected sample’s imagery location and clear your current progress. You can restore saved predictions from History."

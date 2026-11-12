@@ -27,7 +27,7 @@ export const GridOffScreenNudge = ({
     <button
       type="button"
       onClick={onBringGrid}
-      className="absolute top-4 left-1/2 -translate-x-1/2 z-30 pointer-events-auto flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-full shadow-md border border-gray-border text-xs text-dark hover:bg-off-white transition-colors"
+      className="absolute top-16 md:top-4 left-1/2 -translate-x-1/2 z-30 pointer-events-auto flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-full shadow-md border border-gray-border text-xs text-dark hover:bg-off-white transition-colors"
       aria-label="Bring the grid to the current view"
     >
       {/* Arrow points toward the grid's current location. */}
