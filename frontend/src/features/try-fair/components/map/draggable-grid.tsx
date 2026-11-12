@@ -9,6 +9,10 @@ import { useTileGrid } from "@/features/try-fair/hooks/use-tile-grid";
 import { useGridDrag } from "@/features/try-fair/hooks/use-grid-drag";
 import { useGridVisibility } from "@/features/try-fair/hooks/use-grid-visibility";
 import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
+import {
+  describePredictedFeature,
+  PredictionClassStyle,
+} from "@/features/try-fair/utils/prediction-classes";
 import { GridOffScreenNudge } from "@/features/try-fair/components/map/grid-off-screen-nudge";
 import { computeCenteredAnchor } from "@/features/try-fair/utils/tile-math";
 import {
@@ -40,13 +44,14 @@ type TryFairDraggableGridProps = {
   predictionBBox?: BBOX | null;
   /** Grid zoom used for the current prediction result. */
   predictionGridZoom?: number | null;
+  classStyle?: PredictionClassStyle | null;
+  isFeedbackOpen?: boolean;
 };
 
 type HoverTooltip = {
   x: number;
   y: number;
-  label: string;
-  value: string;
+  rows: { label: string; value: string }[];
 } | null;
 
 export const TryFairDraggableGrid = ({
@@ -58,13 +63,16 @@ export const TryFairDraggableGrid = ({
   isPredicting = false,
   hasNoResults = false,
   outputType,
+  classStyle,
+  isFeedbackOpen = false,
 }: TryFairDraggableGridProps) => {
   // Grid anchor & bbox management
 
   const { isSmallViewport } = useScreenSize();
   const { mappingMode } = useTryFairParams();
   const { isAuthenticated } = useAuth();
-  const showConfidence = isAuthenticated && mappingMode === "advanced";
+  const showFeatureDetails =
+    isAuthenticated && mappingMode === "advanced" && !isFeedbackOpen;
   const [isNoResultsDismissed, setIsNoResultsDismissed] = useState(false);
 
   const { anchor, setAnchor, tileZoom } = useTileGrid({
@@ -117,7 +125,7 @@ export const TryFairDraggableGrid = ({
 
   useEffect(() => {
     setHoverTooltip(null);
-  }, [showConfidence, outputType]);
+  }, [showFeatureDetails, outputType]);
 
   //  Screen projection
 
@@ -234,25 +242,21 @@ export const TryFairDraggableGrid = ({
       setHoverTooltip({
         x: point.x,
         y: point.y,
-        label: "Features detected",
-        value: Number(feature[0].properties?.count ?? 0).toLocaleString(),
+        rows: [
+          {
+            label: "Features detected",
+            value: Number(feature[0].properties?.count ?? 0).toLocaleString(),
+          },
+        ],
       });
       return;
     }
 
-    const score = feature[0].properties?.score;
-    // The per-feature confidence tooltip is an advanced-mode only affordance.
-    if (typeof score !== "number" || !showConfidence) {
-      setHoverTooltip(null);
-      return;
-    }
-
-    setHoverTooltip({
-      x: point.x,
-      y: point.y,
-      label: "Confidence",
-      value: `${(score * 100).toFixed(1)}%`,
-    });
+    const rows =
+      showFeatureDetails && classStyle
+        ? describePredictedFeature(classStyle, feature[0].properties ?? {})
+        : [];
+    setHoverTooltip(rows.length ? { x: point.x, y: point.y, rows } : null);
   };
 
   const handleDragSurfaceWheel = (e: React.WheelEvent<SVGPolygonElement>) => {
@@ -353,14 +357,21 @@ export const TryFairDraggableGrid = ({
             className="relative"
             style={{ transform: "translate(12px, -50%)" }}
           >
-            <div className="bg-white/95 backdrop-blur-sm border border-gray-border rounded-lg shadow-lg px-3 py-2 flex flex-col items-start gap-0.5 min-w-[120px]">
-              <p className="text-[10px] font-medium text-grey uppercase tracking-wide leading-none">
-                {hoverTooltip.label}
-              </p>
-              <p className="text-base font-bold text-purple-700 leading-tight">
-                {hoverTooltip.value}
-              </p>
-            </div>
+            <dl className="bg-white border border-gray-border rounded-lg shadow-lg px-3 py-2 space-y-1.5 text-xs">
+              {hoverTooltip.rows.map((row, index) => (
+                <div
+                  key={index}
+                  className="flex items-start justify-between gap-3"
+                >
+                  <dt className="text-grey whitespace-nowrap capitalize">
+                    {row.label}
+                  </dt>
+                  <dd className="text-dark font-medium tabular-nums text-right">
+                    {row.value}
+                  </dd>
+                </div>
+              ))}
+            </dl>
             <div
               className="absolute top-1/2 -left-[6px] -translate-y-1/2 w-0 h-0"
               style={{

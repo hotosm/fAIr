@@ -46,6 +46,7 @@ type TryFairMapProps = {
   isPredicting?: boolean;
   preImageryUrl?: string | null;
   predictionClassStyle?: PredictionClassStyle | null;
+  isFeedbackOpen?: boolean;
   canFitToBounds: boolean;
   /** Opens the guided "how it works" tour. */
   onHelp?: () => void;
@@ -70,6 +71,7 @@ export const TryFairMap = ({
   isPredicting = false,
   preImageryUrl,
   predictionClassStyle,
+  isFeedbackOpen = false,
   canFitToBounds,
   onHelp,
 }: TryFairMapProps) => {
@@ -212,6 +214,7 @@ export const TryFairMap = ({
         outputType={outputType}
         onChoroplethBucketsChange={setChoroplethBuckets}
         classStyle={predictionClassStyle}
+        isFeedbackOpen={isFeedbackOpen}
       />
 
       {map && (
@@ -226,6 +229,8 @@ export const TryFairMap = ({
           outputType={outputType}
           predictionBBox={predictionBBox}
           predictionGridZoom={predictionGridZoom}
+          classStyle={predictionClassStyle}
+          isFeedbackOpen={isFeedbackOpen}
         />
       )}
 

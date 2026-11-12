@@ -69,3 +69,19 @@ export const useStacLocalModels = () => {
     error: error instanceof Error ? error.message : null,
   };
 };
+
+export const useStacModelItem = (id?: string) =>
+  useQuery({
+    queryKey: ["fair-model-item", id],
+    queryFn: async (): Promise<BaseModelStacItem> => {
+      const res = await stacClient.get(API_ENDPOINTS.GET_MODEL_ITEM(id!));
+      const item = res.data.features[0] as BaseModelStacItem | undefined;
+      if (!item) {
+        throw new Error(
+          `Model ${id} not found in STAC base-models or local-models`,
+        );
+      }
+      return item;
+    },
+    enabled: Boolean(id),
+  });

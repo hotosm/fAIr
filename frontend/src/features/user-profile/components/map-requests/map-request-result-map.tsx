@@ -10,6 +10,8 @@ import { TryFairPredictionsLayer } from "@/features/try-fair/components/map/try-
 import { TryFairPolygonLegend } from "@/features/try-fair/components/map/polygon-legend";
 import { TryFairPointsLegend } from "@/features/try-fair/components/map/points-legend";
 import { useQuery } from "@tanstack/react-query";
+import { useStacModelItem } from "@/features/try-fair/hooks/use-base-models";
+import { getPredictionClassStyle } from "@/features/try-fair/utils/prediction-classes";
 
 /**
  * Computes a tight [west, south, east, north] bbox from every coordinate in a
@@ -67,14 +69,25 @@ export const MapRequestResultMap = ({
   outputType,
   bounds,
   gridZoom,
+  modelStacId,
 }: {
   geojsonUrl: string;
   imageryUrl: string;
   outputType: TryFairMapOutputType;
   bounds: BBOX | null;
   gridZoom?: number;
+  modelStacId: string;
 }) => {
   const { mapContainerRef, map } = useMapInstance(false, false);
+  const { data: modelItem, error: modelItemError } =
+    useStacModelItem(modelStacId);
+  useEffect(() => {
+    if (modelItemError) showErrorToast(modelItemError);
+  }, [modelItemError]);
+  const classStyle = useMemo(
+    () => getPredictionClassStyle(modelItem),
+    [modelItem],
+  );
 
   // Load the result GeoJSON via React Query so the response is cached by URL.
   // The parent query (useGetSinglePrediction) has refetchOnWindowFocus: false
@@ -152,12 +165,20 @@ export const MapRequestResultMap = ({
           predictionBBox={effectiveBounds}
           predictionGridZoom={gridZoom}
           outputType={outputType}
+          classStyle={classStyle}
+          alwaysShowFeatureDetails
         />
 
         {outputType === TryFairMapOutputType.POINTS ? (
-          <TryFairPointsLegend predictions={predictions} />
+          <TryFairPointsLegend
+            predictions={predictions}
+            classStyle={classStyle}
+          />
         ) : outputType === TryFairMapOutputType.POLYGON ? (
-          <TryFairPolygonLegend predictions={predictions} />
+          <TryFairPolygonLegend
+            predictions={predictions}
+            classStyle={classStyle}
+          />
         ) : null}
       </MapComponent>
 

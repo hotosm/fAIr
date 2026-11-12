@@ -972,6 +972,7 @@ export const TryFairPage = ({
               isPredicting={isPredicting}
               preImageryUrl={preImageryUrl}
               predictionClassStyle={predictionClassStyle}
+              isFeedbackOpen={featureFeedback.selectedId !== null}
               canFitToBounds={true}
               onHelp={openGuidedTour}
             />
