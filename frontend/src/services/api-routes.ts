@@ -134,6 +134,8 @@ export const API_ENDPOINTS = {
     `/collections/local-models/items/?limit=${limit}`,
   GET_BASE_MODEL_BY_ID: (id: string): string =>
     `/collections/base-models/items/${id}`,
+  GET_MODEL_ITEM: (id: string): string =>
+    `/search?ids=${encodeURIComponent(id)}&collections=base-models,local-models`,
 
   GET_CATEGORIES: "/categories/",
   GET_API_BASE_MODELS: (category: string) =>

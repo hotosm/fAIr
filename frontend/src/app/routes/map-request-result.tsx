@@ -273,6 +273,7 @@ export const MapRequestResultPage = () => {
               outputType={outputType}
               bounds={bounds}
               gridZoom={prediction.zoom}
+              modelStacId={prediction.local_model_stac_id}
             />
           ) : (
             <div className="flex h-full items-center justify-center bg-off-white">
