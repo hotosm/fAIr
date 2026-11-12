@@ -298,9 +298,7 @@ export const TryFairMap = ({
       {legend && !isSmallViewport && legend}
       {legend && isSmallViewport && showLegendOnPhones && hasPredictions && (
         // Under the Mode/Menu chips, clear of the settings sheet.
-        <div className="absolute left-3 top-14 z-10">
-          {legend}
-        </div>
+        <div className="absolute left-3 top-14 z-10">{legend}</div>
       )}
     </div>
   );

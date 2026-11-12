@@ -32,5 +32,3 @@ export const RequestsIcon: React.FC<IconProps> = (props) => (
     ></path>
   </svg>
 );
-
-
