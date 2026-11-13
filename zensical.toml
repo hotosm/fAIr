@@ -52,6 +52,7 @@ nav = [
     { "Operations" = [
       { "Infrastructure" = "architecture/infrastructure.md" },
       { "Dev environment" = "architecture/dev-environment.md" },
+      { "Release QA" = "architecture/release-qa.md" },
       { "Decision records" = "architecture/decisions/index.md" },
     ] },
   ] },
