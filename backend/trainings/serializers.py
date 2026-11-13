@@ -29,8 +29,8 @@ class TrainingSubmitSerializer(serializers.Serializer):
         default=list,
         help_text=(
             "Extra keywords carried onto the published STAC item. Merged "
-            "additively at publish time with base-model keywords, dataset "
-            "keywords, and the dataset's geometry_type."
+            "additively at publish time with base-model keywords and the "
+            "dataset's keywords other than geometry types."
         ),
     )
     description = serializers.CharField(required=False, allow_blank=True, default="")

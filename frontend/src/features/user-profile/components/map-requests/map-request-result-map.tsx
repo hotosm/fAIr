@@ -12,6 +12,7 @@ import { TryFairPointsLegend } from "@/features/try-fair/components/map/points-l
 import { useQuery } from "@tanstack/react-query";
 import { useStacModelItem } from "@/features/try-fair/hooks/use-base-models";
 import { getPredictionClassStyle } from "@/features/try-fair/utils/prediction-classes";
+import useScreenSize from "@/hooks/use-screen-size";
 
 /**
  * Computes a tight [west, south, east, north] bbox from every coordinate in a
@@ -78,6 +79,7 @@ export const MapRequestResultMap = ({
   gridZoom?: number;
   modelStacId: string;
 }) => {
+  const { isSmallViewport } = useScreenSize();
   const { mapContainerRef, map } = useMapInstance(false, false);
   const { data: modelItem, error: modelItemError } =
     useStacModelItem(modelStacId);
@@ -169,17 +171,18 @@ export const MapRequestResultMap = ({
           alwaysShowFeatureDetails
         />
 
-        {outputType === TryFairMapOutputType.POINTS ? (
-          <TryFairPointsLegend
-            predictions={predictions}
-            classStyle={classStyle}
-          />
-        ) : outputType === TryFairMapOutputType.POLYGON ? (
-          <TryFairPolygonLegend
-            predictions={predictions}
-            classStyle={classStyle}
-          />
-        ) : null}
+        {!isSmallViewport &&
+          (outputType === TryFairMapOutputType.POINTS ? (
+            <TryFairPointsLegend
+              predictions={predictions}
+              classStyle={classStyle}
+            />
+          ) : outputType === TryFairMapOutputType.POLYGON ? (
+            <TryFairPolygonLegend
+              predictions={predictions}
+              classStyle={classStyle}
+            />
+          ) : null)}
       </MapComponent>
 
       {/* Only show on first load — once predictions are cached this never shows again. */}

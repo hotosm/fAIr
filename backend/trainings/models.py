@@ -23,7 +23,7 @@ class TrainingRunRef(models.Model):
     )
     overrides = models.JSONField(default=dict, blank=True)
     title = models.CharField(max_length=200, blank=True, default="")
-    # keywords + dataset keywords + dataset fair:geometry_type) at publish.
+    # Merged at publish with the base model's keywords and the dataset's non-geometry keywords.
     keywords = models.JSONField(default=list, blank=True)
     description = models.TextField(blank=True)
     status = models.CharField(

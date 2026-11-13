@@ -64,6 +64,7 @@ export type BaseModelStacItem = {
     "mlm:framework": string;
     "fair:pinned": boolean;
     "mlm:hyperparameters": Record<string, string | number | boolean>;
+    "mlm:input": { name: string }[];
     "mlm:output"?: ModelOutput[];
     "cube:variables"?: Record<string, CubeVariable>;
     "fair:hyperparameters_spec": HyperParamSpec[];
@@ -121,7 +122,7 @@ export const getInferenceParams = (
 
 export type PredictPayload = {
   model_uri: string;
-  image_uri: string;
+  imagery: Record<string, string>;
   bbox: BBOX;
   zoom: number;
   params: Record<string, number | string | boolean>;

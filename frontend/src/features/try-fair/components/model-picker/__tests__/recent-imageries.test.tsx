@@ -90,6 +90,7 @@ const sample: BaseModelStacItem = {
     "mlm:name": "Sample model",
     "mlm:architecture": "",
     "mlm:tasks": [],
+    "mlm:input": [{ name: "image" }],
     "mlm:framework": "",
     "fair:pinned": false,
     "mlm:hyperparameters": {},

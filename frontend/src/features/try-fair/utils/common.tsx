@@ -99,6 +99,22 @@ export const getModelOutputType = (
     ? TryFairMapOutputType.POINTS
     : TryFairMapOutputType.POLYGON;
 
+/** Tile URLs keyed by the model's input names: `pre` takes the preview's pre-event imagery, every other input `imageUri`. */
+export const getModelImagery = (
+  model: BaseModelStacItem,
+  imageUri: string,
+): Record<string, string> =>
+  Object.fromEntries(
+    model.properties["mlm:input"].map(({ name }) => {
+      if (name !== "pre") return [name, imageUri];
+      const preImageryUrl = model.properties["fair:preview"]?.pre_imagery?.url;
+      if (!preImageryUrl) {
+        throw new Error(`${model.id} needs pre-event imagery in its preview.`);
+      }
+      return [name, preImageryUrl];
+    }),
+  );
+
 // Prediction layer IDs (kept in sync with try-fair-prediction-results.tsx)
 export const PREDICTION_LAYER_IDS = [
   "try-fair-predictions-fill",

@@ -9,7 +9,7 @@ export type MapLargeAreaParams = {
 
 export type MapLargeAreaRequest = {
   model_stac_id: string;
-  image_uri: string;
+  imagery: Record<string, string>;
   /** Whole-imagery requests use the imagery extent. */
   bbox?: BBOX;
   /** Drawn/uploaded AOIs preserve their polygon in the request. */

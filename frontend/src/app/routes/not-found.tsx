@@ -1,4 +1,5 @@
 import { APPLICATION_ROUTES, SHARED_CONTENT } from "@/constants";
+import { isNavigationRouteEnabled } from "@/constants/general";
 import { Button } from "@/components/ui/button";
 import { Head } from "@/components/seo";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -9,11 +10,13 @@ export const PageNotFound = () => {
   const buttonLabelFromState = location.state?.buttonLabel;
   const redirectPathFromState = location.state?.redirectPath;
 
-  const modelNotFound = fromPath.includes(APPLICATION_ROUTES.MODELS);
+  const modelNotFound =
+    fromPath.includes(APPLICATION_ROUTES.MODELS) &&
+    isNavigationRouteEnabled(APPLICATION_ROUTES.MODELS);
 
-  const trainingDatasetNotFound = fromPath.includes(
-    APPLICATION_ROUTES.DATASETS,
-  );
+  const trainingDatasetNotFound =
+    fromPath.includes(APPLICATION_ROUTES.DATASETS) &&
+    isNavigationRouteEnabled(APPLICATION_ROUTES.DATASETS);
 
   const fallbackRedirectPath = modelNotFound
     ? APPLICATION_ROUTES.MODELS

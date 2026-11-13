@@ -28,7 +28,10 @@ import {
   useSubmitMapLargeArea,
 } from "@/features/try-fair/api/map-large-area";
 import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
-import { TRY_FAIR_RESOLUTION_ZOOM } from "@/features/try-fair/utils/common";
+import {
+  getModelImagery,
+  TRY_FAIR_RESOLUTION_ZOOM,
+} from "@/features/try-fair/utils/common";
 
 export type AOITab = "whole" | "draw" | "upload";
 
@@ -91,7 +94,7 @@ export const useMapLargeArea = ({
   const { mutate: submitMapLargeArea, isPending: isSubmittingMapLargeArea } =
     useSubmitMapLargeArea();
 
-  const { modelId, selectedModel, inferenceParams, resolution, confidence } =
+  const { selectedModel, inferenceParams, resolution, confidence } =
     useTryFairParams();
   const [activeTab, setActiveTab] = useState<AOITab>("draw");
   const [selectedAOI, setSelectedAOI] = useState<Feature | null>(null);
@@ -529,7 +532,7 @@ export const useMapLargeArea = ({
   }, [clearTerraDraw, setDrawingMode]);
 
   const handleSubmit = () => {
-    if (!selectedAOI || !description.trim()) return;
+    if (!selectedAOI || !description.trim() || !selectedModel) return;
 
     // Convert resolution to numeric zoom level
     const zoomNumber = TRY_FAIR_RESOLUTION_ZOOM[resolution] ?? 18;
@@ -544,12 +547,22 @@ export const useMapLargeArea = ({
       });
     }
 
-    const payload: MapLargeAreaRequest = {
-      model_stac_id: selectedModel?.id ?? modelId,
-      image_uri:
+    let imagery: Record<string, string>;
+    try {
+      imagery = getModelImagery(
+        selectedModel,
         currentModelType === ModelType.DEMO
           ? (tileServerURL ?? "")
           : (selectedImagery?.tileUrl ?? ""),
+      );
+    } catch (error) {
+      showErrorToast(error);
+      return;
+    }
+
+    const payload: MapLargeAreaRequest = {
+      model_stac_id: selectedModel.id,
+      imagery,
       zoom: zoomNumber,
       description: description,
       params: {

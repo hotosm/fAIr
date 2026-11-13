@@ -40,18 +40,16 @@ export const navLinks: TNavBarLinks = [
   },
 ];
 
-/**
- * Determines whether a URL is available according to the navigation config.
- *
- * A disabled top-level item also disables every route below its URL. This keeps
- * a hidden navigation item from still being accessible by pasting its URL.
- */
+/** Returns false for a disabled nav item, its children, and every route below them. */
 export const isNavigationRouteEnabled = (pathname: string): boolean => {
   return !navLinks.some((link) => {
-    if (link.active || !link.href) return false;
+    if (link.active) return false;
 
-    const route = link.href.replace(/\/$/, "");
-    return pathname === route || pathname.startsWith(`${route}/`);
+    return [link, ...(link.children ?? [])].some(({ href }) => {
+      if (!href) return false;
+      const route = href.replace(/\/$/, "");
+      return pathname === route || pathname.startsWith(`${route}/`);
+    });
   });
 };
 

@@ -2,7 +2,10 @@ import { useMutation } from "@tanstack/react-query";
 import { BaseModelStacItem, runPredict } from "@/features/try-fair/api/stac";
 import { TryFairResolution } from "@/enums/try-fair";
 import { BBOX } from "@/types";
-import { TRY_FAIR_RESOLUTION_ZOOM } from "@/features/try-fair/utils/common";
+import {
+  getModelImagery,
+  TRY_FAIR_RESOLUTION_ZOOM,
+} from "@/features/try-fair/utils/common";
 import { useCallback, useRef, useState } from "react";
 export type PredictResult = {
   predictions: GeoJSON.FeatureCollection;
@@ -55,7 +58,7 @@ export const useFairPredict = (initialResult: PredictResult | null = null) => {
           inferenceEndpoint,
           {
             model_uri: modelUri,
-            image_uri: imageUri,
+            imagery: getModelImagery(model, imageUri),
             bbox,
             zoom: gridZoom ?? TRY_FAIR_RESOLUTION_ZOOM[resolution],
             params,
