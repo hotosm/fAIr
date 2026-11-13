@@ -25,11 +25,11 @@ STAC / React + Vite / uv / Ruff / pre-commit
 
 ## Required Reading Order
 
-1. `docs/architecture/index.md`, `backend.md` and `api.md` - the end-to-end flow,
+1. `docs/architecture/index.md`, `backend.md` and `api.md`: the end-to-end flow,
    the **key invariants**, the database schema and the endpoints. Read these
    before changing any backend behaviour.
-2. `docs/architecture/decisions/` - architectural decision records.
-3. `CONTRIBUTING.md` - contribution rules, including AI tool usage.
+2. `docs/architecture/decisions/`: architectural decision records.
+3. `CONTRIBUTING.md`: contribution rules, including AI tool usage.
 4. The app you are touching (`datasets/`, `trainings/`, `predictions/`,
    `modelregistry/`).
 

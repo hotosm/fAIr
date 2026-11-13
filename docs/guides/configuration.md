@@ -7,7 +7,7 @@ description: The environment variables of the fAIr backend and frontend.
 
 ## Backend
 
-`.env` is read by `pydantic-settings`. Empty values are treated as unset and fall back to defaults. Required vars raise at process boot if missing. `SecretStr` values are masked in tracebacks. `backend/env_example` mirrors the tables below.
+`.env` is read by `pydantic-settings`. Empty values are treated as unset and fall back to defaults. Required vars raise at process boot if missing. `backend/env_example` mirrors the tables below.
 
 ### Core Django
 
@@ -59,7 +59,7 @@ With `AUTH_PROVIDER=hanko`, the `hotosm_auth` library reads the cookie, JWT and 
 
 `FAIR_*` values are read by this backend. The `ZENML_STORE_*` values are read by
 the `zenml` library itself when it opens a connection, so both sets point at the
-same server. Authenticate with either an API key or a username and password.
+same server.
 
 | Name                   | Required         | Default | Description                                                                                                         |
 | ---------------------- | ---------------- | ------- | ------------------------------------------------------------------------------------------------------------------- |
@@ -84,9 +84,9 @@ same server. Authenticate with either an API key or a username and password.
 | `AWS_ENDPOINT_URL`      | no               | `null`      | Set for non-AWS S3 (MinIO, Cloudflare R2, etc.). |
 | `PRESIGNED_URL_EXPIRY`  | no               | `900`       | Presigned-URL TTL in seconds.                    |
 
-### Rate limits + database pool
+### Rate limits and database pool
 
-DRF throttle scopes use `<count>/<period>`, e.g. `1000/h`. Use the Django-native pool OR PgBouncer, not both.
+DRF throttle scopes use `<count>/<period>`, e.g. `1000/h`. Use the Django pool or PgBouncer, not both.
 
 | Name                    | Required | Default  | Description                                            |
 | ----------------------- | -------- | -------- | ------------------------------------------------------ |
@@ -134,8 +134,6 @@ Only checked when `DEBUG=false`.
 | `SENTRY_DSN`    | when `ENABLE_SENTRY=true` | `null`  | Sentry project DSN.                                                   |
 
 ### Operational tuning
-
-Each has a default.
 
 | Name                            | Required | Default | Description                                                                                                                                    |
 | ------------------------------- | -------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |

@@ -37,6 +37,8 @@ For each base model whose fAIr-models item or image changed in this release, an 
 | `GET /base-models/{id}/?expand=stac` | `fair:category` matches the `category` |
 | `GET /health` on the host of the item's `mlm:inference-endpoint` | 200 |
 
+When a release changes a base model's prediction outputs, an operator re-registers the base model first, then runs `python manage.py sync_local_model_outputs --base-model <mlm:name> --dry-run`, then again without `--dry-run`. The local models fine-tuned from it take the base model's current outputs and runtime images. Then run Map an area with one of them to confirm.
+
 ## UI checks
 
 Each page is opened from the menu, at 1440 px and at 390 px width.
@@ -89,7 +91,7 @@ The flow runs for each model in the [model matrix](#model-matrix) that supports 
 | `buildings` | `dinov3s-buildings` | Yes | Yes | Yes |
 | `buildings` | `sklearn-rgb-segmentation`, the test model `test.py` registers | Yes | Yes | Yes |
 
-The standard training run uses `deepforest-tree` in Freetown (around -13.298, 8.494, zoom 20), labels from OSM `natural=tree`, and `model_name` `qa-freetown-trees-test`, which belongs to the QA test account. On dev, damage models run one at a time.
+The standard training run uses `deepforest-tree` in Freetown (around -13.298, 8.494, zoom 20), labels from OSM `natural=tree`, and `model_name` `qa-freetown-trees-test`, which belongs to the QA test account.
 
 ## After the checks
 

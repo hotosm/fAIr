@@ -99,6 +99,20 @@ def test_source_labels_keep_matching_features_inside_the_aois():
     assert dropped == 4
 
 
+def test_source_labels_keep_a_background_class_with_value_zero():
+    background = _feature(_square(85.502, 27.602), {"cover": "background"})
+    waste = _feature(_square(85.504, 27.604), {"cover": "waste"})
+    classes = [
+        {"name": "cover", "classes": ["waste"], "value": 1},
+        {"name": "cover", "classes": ["background"], "value": 0},
+    ]
+
+    features, dropped = _stamp_source_labels([background, waste], AOI_POLYGON, classes, "polygon")
+
+    assert [f["properties"]["label"] for f in features] == [0, 1]
+    assert dropped == 0
+
+
 def test_fetch_rejects_a_non_https_url():
     with pytest.raises(public_urls.NonPublicURLError, match="https"):
         fetch_labels_geojson("http://example.org/labels.geojson")

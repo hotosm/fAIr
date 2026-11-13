@@ -41,11 +41,11 @@ fAIr uses and shares all labels under the [ODbL 1.0](https://opendatacommons.org
 
 ## Predictions
 
-A prediction comes from the submitted imagery and a model. Before reusing predictions, check the license of the source imagery and of the model that made them. [Datasets](../datasets/index.md#prediction-and-crisis-outputs) lists the license of each prediction dataset HOT publishes, where one is set.
+Before reusing predictions, check the license of the source imagery and of the model that made them. [Datasets](../datasets/index.md#prediction-and-crisis-outputs) lists the license of each prediction dataset HOT publishes, where one is set.
 
 ## Base models
 
-Each base model carries its own license. A local model fine-tuned from a base model inherits that license.
+A local model fine-tuned from a base model inherits its license.
 
 | Base model | License |
 |---|---|

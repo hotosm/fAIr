@@ -56,7 +56,7 @@ request and are registered on the dev instance through the API.
 
 1. When we want to stabilise and push out a **new model**, or **updates to the
    API / website**, we use the staging setup.
-2. First a PR must be raised on the fAIr repo from `stage` to `main`.
+2. Open a PR on the fAIr repo from `stage` to `main`.
    This will set up `https://stage.ai.hotosm.org` with ZenML / STAC /
    Knative registration.
 3. The **staging** STAC is separate from production and persists between PRs.

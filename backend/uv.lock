@@ -1011,7 +1011,7 @@ requires-dist = [
     { name = "djangorestframework", specifier = ">=3.15" },
     { name = "djangorestframework-gis", specifier = ">=1.1" },
     { name = "drf-spectacular", specifier = ">=0.29" },
-    { name = "fair-py-ops", extras = ["k8s"], specifier = "==0.3.29" },
+    { name = "fair-py-ops", extras = ["k8s"], specifier = "==0.3.30" },
     { name = "geomltoolkits", specifier = ">=2.1.0" },
     { name = "geopandas", specifier = ">=1.0" },
     { name = "gpxpy", specifier = ">=1.6" },
@@ -1041,7 +1041,7 @@ test = [{ name = "pytest-django", specifier = ">=4.5" }]
 
 [[package]]
 name = "fair-py-ops"
-version = "0.3.29"
+version = "0.3.30"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiohttp" },
@@ -1054,9 +1054,9 @@ dependencies = [
     { name = "universal-pathlib" },
     { name = "zenml" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/fb/92/67cd143fae8dc7b0f4af3ee713638e31205dec5144ef4d96f0366fc81bf7/fair_py_ops-0.3.29.tar.gz", hash = "sha256:ba1bd2c74cd4f25b9572e09ea05cd5deea43d9d88f35b5cdaa48500e2993722b", size = 3990093, upload-time = "2026-11-13T13:10:30.973Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/22/0f/8f6a1fb6ecbc425d8c8ab3c7a6e30aa04d764169fa969718b0c0705c5147/fair_py_ops-0.3.30.tar.gz", hash = "sha256:4dee9221509308bbe07a202929f7292a8515e5ca99e67ea3440045960dd914ae", size = 3990703, upload-time = "2026-11-13T16:18:31.422Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/11/ec/a77b42bbb1afcd90447844e6c39905692adc6510e306d11aa3566517078f/fair_py_ops-0.3.29-py3-none-any.whl", hash = "sha256:5cd4c74904104fdef64be32698ffd99f0799ae3d64c10859db4a90b78831925c", size = 4128933, upload-time = "2026-11-13T13:10:29.125Z" },
+    { url = "https://files.pythonhosted.org/packages/29/83/2051c2c11a4813dba3025b0bf43a360d4b7360604add2ade4a49a2fcfbba/fair_py_ops-0.3.30-py3-none-any.whl", hash = "sha256:a810619073338e69373561c60a8caac73b33c0bca86a0233318443dad3480c15", size = 4129942, upload-time = "2026-11-13T16:18:29.297Z" },
 ]
 
 [package.optional-dependencies]

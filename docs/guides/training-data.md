@@ -14,7 +14,9 @@ Training data is imagery with every object of interest labelled on it.
 3. Work out the area ([Area to label](#area-to-label)).
 4. Find imagery that covers it, or plan to collect it ([Collect imagery](#collect-imagery)).
 5. Estimate the labelling time ([Effort](#effort)).
-6. [Label every object](#label-every-object) with its [attributes](#add-attributes), in areas chosen as in [Choose the area](#choose-the-area), then train and [check the result](#check-the-result).
+6. [Choose the areas](#choose-the-areas).
+7. [Label every object](#label-every-object) and [add attributes](#add-attributes).
+8. Train, then [check the result](#check-the-result).
 
 ## Features and imagery
 
@@ -31,7 +33,7 @@ Training data is imagery with every object of interest labelled on it.
 | Vehicles and boats | Boxes | 5 to 15 cm | 20 to 22 |
 | Farm fields and land use | Outlines | 50 cm to 1 m | 17 to 18 |
 
-The first four rows follow fAIr's models. The others are starting points: check a few tiles of your imagery and confirm the object is clearly visible before labelling.
+The first four rows follow fAIr's models. The others are starting points: check a few tiles of your imagery and confirm the object is visible before labelling.
 
 - Building damage: grade each outline no damage, minor, major or destroyed.
 - Trees: a point becomes a square crown the size of its `diameter_crown` tag, or 5 m without one.
@@ -46,11 +48,11 @@ Each model's README in [fAIr-models](https://github.com/hotosm/fAIr-models/tree/
 | Start with | at least 1,000 | 3 to 5 km² |
 | Ideal | 10,000 | 10 to 15 km² |
 
-The ideal follows the [Ultralytics recommendation](https://docs.ultralytics.com/guides/data-collection-and-annotation/#how-many-images-do-i-need-for-training-ultralytics-yolo-models) of 10,000 labelled objects and 1,500 images per object type. The start follows the first delivery in HOT's [MapSwipe Locate tutorials](https://hotosm.github.io/mapswipe-locate-tutorials/guides/what-to-deliver/#number-of-labels): 1,000 labels on at least 500 tiles. Later work adds to it until it reaches the ideal.
+The ideal follows the [Ultralytics recommendation](https://docs.ultralytics.com/guides/data-collection-and-annotation/#how-many-images-do-i-need-for-training-ultralytics-yolo-models) of 10,000 labelled objects and 1,500 images per object type. The start follows the first delivery in HOT's [MapSwipe Locate tutorials](https://hotosm.github.io/mapswipe-locate-tutorials/guides/what-to-deliver/#number-of-labels): 1,000 labels on at least 500 tiles.
 
 The spread is the land the labelled objects sit on. Spread the labels out: 10,000 buildings from one dense block teach the model only that block. The figures are for imagery of about 30 cm (zoom 19). With 15 cm imagery (zoom 20), a quarter of the area is enough.
 
-The counts apply to each object type the model must find. For a first delivery, HOT's tutorials accept 1,000 of the most common type; other types can have fewer, but every object still gets a label. For lines, such as roads and drains, label the lines in 6 to 8 km² of ground to start, and 10 to 15 km² ideally.
+The counts apply to each object type the model must find. For a first delivery, HOT's tutorials accept 1,000 of the most common type; other types can have fewer. For lines, such as roads and drains, label the lines in 6 to 8 km² of ground to start, and 10 to 15 km² ideally.
 
 ## Area to label
 
@@ -60,7 +62,7 @@ The counts apply to each object type the model must find. For a first delivery, 
 | Rooftop solar panels, in a tenth of the area | about 50 | 30 to 50 km² | about 200 km² |
 | Drains, in a quarter of the area | lines, counted by area | 24 to 32 km² | 40 to 60 km² |
 
-For buildings, and for solar panels at the start, the spread sets the area. For the ideal solar panel count, the object count sets it.
+The larger of the two needs sets the area: the spread for buildings, the object count for solar panels.
 
 To estimate the area for your object:
 
@@ -78,7 +80,7 @@ Check first whether imagery of the right resolution already covers the area, for
 | Small drone, such as a DJI Mini 4 Pro, about USD 1,000 | 1 to 4 km² at 5 cm |
 | Fixed-wing mapping drone, about USD 20,000 | more than 20 km² |
 
-These rates come from the [Drone Tasking Manager](https://docs.drone.hotosm.org/about/faq), which has the details for planning a drone project. With one small drone, 15 km² takes 4 to 15 flying days, and 200 km² takes 50 to 200; more drones finish sooner. For a rare object, such as solar panels, plan around existing imagery, or choose an area where the object is common.
+The rates come from the [Drone Tasking Manager FAQ](https://docs.drone.hotosm.org/about/faq). With one small drone, 15 km² takes 4 to 15 flying days, and 200 km² takes 50 to 200. For a rare object, such as solar panels, plan around existing imagery, or choose an area where the object is common.
 
 ## Effort
 
@@ -86,7 +88,7 @@ These rates come from the [Drone Tasking Manager](https://docs.drone.hotosm.org/
 2. Multiply by the objects you need, and divide by a working day of 480 minutes (8 hours) for mapper-days. At 1 minute per building, 1,000 buildings take about 2 mapper-days, and 10,000 take about 21 mapper-days, or about 4 days for a team of 5.
 3. For a rare object, add the time to find it. A MapSwipe Locate project over the area first shows mappers where to look.
 4. Add time for a validator: time one on 50 objects the same way.
-5. Where OpenStreetMap already maps the area completely, the labels come from it, and the work is checking that nothing is missing and the labels line up with the imagery.
+5. Where OpenStreetMap maps the area completely, the labels come from it; the work is checking for missing objects and alignment with the imagery.
 
 ## Label every object
 
@@ -99,7 +101,7 @@ Label every object on every tile, including the ones cut off at the tile edge. T
 
 ## Add attributes
 
-Give each object as much information as you can, not only its outline. Attributes such as the roof material, roof colour, roof shape or road surface let the same labels train a model on each of them later, and help check the labels.
+Attributes let the same labels train other models later, such as one for roof material, and help check the labels.
 
 | Object | Attributes to add |
 |---|---|
@@ -110,19 +112,13 @@ Give each object as much information as you can, not only its outline. Attribute
 
 In OpenStreetMap, use the standard tags, such as `roof:material`, `roof:colour`, `roof:shape`, `building:levels`, `surface`, `leaf_type` and `diameter_crown`. In your own labels file, add them as properties of each feature. fAIr keeps every property of a label in the dataset.
 
-## Cover the variety
+## Choose the areas
 
-The model maps well only the kinds of places it has seen in training.
-
-- Cover the variety of the area to map: roof types, building sizes and densities, terrain, vegetation, and lighting.
-- Label several areas spread across the region.
+- Pick areas that look like the area to map: the same imagery, season and type of settlement, and its variety of roof types, building sizes and densities, terrain, vegetation and lighting.
+- Spread the labels over several areas across the region.
 - Include some ground without the object, so the model learns what to ignore.
-
-## Choose the area
-
-- Pick areas that look like the area to map: the same imagery, season and type of settlement.
-- Prefer areas that OpenStreetMap maps completely, or map them completely first, for example in the [Tasking Manager](https://tasks.hotosm.org/) or with the [Locate tutorials' labelling tools](https://hotosm.github.io/mapswipe-locate-tutorials/guides/training-data/).
-- Keep one area apart from the training data to check the result, see [Evaluation](../overview/evaluation.md#recommendations-for-model-developers).
+- Prefer areas OpenStreetMap maps completely, or map them first in the [Tasking Manager](https://tasks.hotosm.org/) or with the [Locate tutorials' labelling tools](https://hotosm.github.io/mapswipe-locate-tutorials/guides/training-data/).
+- Keep one area apart to check the result, see [Evaluation](../overview/evaluation.md#recommendations-for-model-developers).
 
 ## Check the result
 

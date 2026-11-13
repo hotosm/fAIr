@@ -77,7 +77,11 @@ class DatasetCreateSerializer(serializers.Serializer):
             'values OR ["*"] for any value}. e.g. '
             '{"name": "building", "classes": ["yes"]} or '
             '{"name": "amenity", "classes": ["hospital", "school"]}. '
-            "With labels_url, name is a feature property and classes are its values."
+            "With labels_url, name is a feature property and classes are its values. "
+            'Optional "value": the integer label the matching features get, e.g. '
+            '{"name": "destroyed:building", "classes": ["*"], "value": 4}; without values, '
+            "entries are numbered 1, 2, 3 in order. Either every entry has a value or none has. "
+            "A feature takes the first entry it matches."
         ),
     )
     labels_url = serializers.URLField(
@@ -121,6 +125,15 @@ class DatasetCreateSerializer(serializers.Serializer):
                     f"label_classes[{index}] must include a non-empty 'classes' list "
                     '(use ["*"] for any value, or specific OSM tag values like ["yes"])'
                 )
+            class_value = cls.get("value")
+            if "value" in cls and (
+                isinstance(class_value, bool) or not isinstance(class_value, int) or class_value < 0
+            ):
+                raise serializers.ValidationError(
+                    f"label_classes[{index}].value must be a non-negative integer"
+                )
+        if len({"value" in cls for cls in value}) > 1:
+            raise serializers.ValidationError("label_classes: give every entry a 'value', or none")
         return value
 
     def validate(self, attrs: dict) -> dict:

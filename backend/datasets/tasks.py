@@ -101,26 +101,19 @@ def _build_osm_filters(label_classes: list[dict[str, Any]], geometry_type: str) 
 
 
 def _stamp_class_label(feat: dict[str, Any], label_classes: list[dict[str, Any]]) -> int | None:
-    """Stamp `properties.label = i+1` for the first matching label_classes entry.
-
-    Returns the assigned class index (1-based; 0 reserved for background) or
-    ``None`` if no class matched. The raw-data API only returns matching
-    features, so a no-match is not expected in practice.
-    """
     tags = (feat.get("properties") or {}).get("tags") or {}
-    index = _class_index(tags, label_classes)
-    if index is not None:
-        feat.setdefault("properties", {})["label"] = index
-    return index
+    value = _class_value(tags, label_classes)
+    if value is not None:
+        feat.setdefault("properties", {})["label"] = value
+    return value
 
 
-def _class_index(attributes: dict[str, Any], label_classes: list[dict[str, Any]]) -> int | None:
-    """1-based index of the first label_classes entry whose key and value `attributes` carries."""
+def _class_value(attributes: dict[str, Any], label_classes: list[dict[str, Any]]) -> int | None:
     for index, label_class in enumerate(label_classes, start=1):
         key = label_class["name"]
         values = label_class["classes"]
         if key in attributes and (values == ["*"] or attributes[key] in values):
-            return index
+            return label_class.get("value", index)
     return None
 
 
@@ -148,10 +141,10 @@ def _stamp_source_labels(
         if not aoi_union.intersects(GEOSGeometry(json.dumps(geometry), srid=4326)):
             continue
         properties = feature.get("properties") or {}
-        index = _class_index(properties, label_classes)
-        if index is None:
+        value = _class_value(properties, label_classes)
+        if value is None:
             continue
-        features.append({**feature, "properties": {**properties, "label": index}})
+        features.append({**feature, "properties": {**properties, "label": value}})
     return features, len(source_features) - len(features)
 
 
@@ -224,7 +217,6 @@ def _materialize_dataset_assets(
             f"Dataset {dataset.id}: no tile has imagery for every input {sorted(imagery)}"
         )
 
-    # Labels are 1-based class indices, keeping 0 for background; unmatched features are dropped.
     features: list[dict[str, Any]] = []
     skipped = 0
     if labels_source is not None:

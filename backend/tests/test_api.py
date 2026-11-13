@@ -300,6 +300,23 @@ def test_stamp_class_label_assigns_index_for_first_match():
     assert "label" not in feat_none["properties"]
 
 
+def test_stamp_class_label_uses_each_class_value_including_zero():
+    from datasets.tasks import _stamp_class_label
+
+    label_classes = [
+        {"name": "building", "classes": ["*"], "value": 1},
+        {"name": "destroyed:building", "classes": ["*"], "value": 4},
+        {"name": "background", "classes": ["*"], "value": 0},
+    ]
+    destroyed = {"properties": {"tags": {"destroyed:building": "yes"}}}
+    background = {"properties": {"tags": {"background": "yes"}}}
+
+    assert _stamp_class_label(destroyed, label_classes) == 4
+    assert destroyed["properties"]["label"] == 4
+    assert _stamp_class_label(background, label_classes) == 0
+    assert background["properties"]["label"] == 0
+
+
 def test_dataset_list_paginates(client, published_dataset):
     response = client.get("/api/v1/datasets/")
     assert response.status_code == 200

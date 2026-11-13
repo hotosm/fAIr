@@ -55,6 +55,41 @@ def test_dataset_build_rejects_label_class_without_name(client, aoi):
     assert response.status_code == 400
 
 
+@pytest.mark.parametrize(
+    ("label_classes", "message"),
+    [
+        (
+            [
+                {"name": "building", "classes": ["*"], "value": 1},
+                {"name": "destroyed:building", "classes": ["*"]},
+            ],
+            "give every entry a 'value', or none",
+        ),
+        ([{"name": "building", "classes": ["*"], "value": -1}], "non-negative integer"),
+        ([{"name": "building", "classes": ["*"], "value": True}], "non-negative integer"),
+        ([{"name": "building", "classes": ["*"], "value": None}], "non-negative integer"),
+    ],
+    ids=["mixed", "negative", "boolean", "null"],
+)
+def test_dataset_build_rejects_unusable_label_values(client, aoi, label_classes, message):
+    response = client.post(
+        "/api/v1/datasets/build/",
+        data={
+            "title": "My dataset",
+            "description": "demo",
+            "source_imagery": "https://tiles.example/{z}/{x}/{y}.png",
+            "zoom": 19,
+            "aoi_ids": [aoi.id],
+            "label_tasks": ["semantic-segmentation"],
+            "label_classes": label_classes,
+            "keywords": ["buildings"],
+        },
+        format="json",
+    )
+    assert response.status_code == 400
+    assert message in str(response.json()["error"]["details"])
+
+
 def test_dataset_build_rejects_unknown_aoi(client):
     response = client.post(
         "/api/v1/datasets/build/",

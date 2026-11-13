@@ -34,7 +34,7 @@ The heavy ML work is handled by the external `fair` package (`fair-py-ops`), whi
 
 ## Database schema
 
-The tables hold ownership and lifecycle state and point at STAC items; per-version metadata stays in STAC. The diagram shows how the core tables of the training and prediction flow relate; each app's `models.py` holds every field.
+The tables hold ownership and lifecycle state and point at STAC items; per-version metadata stays in STAC. Each app's `models.py` holds every field.
 
 ```mermaid
 erDiagram
