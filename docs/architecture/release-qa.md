@@ -5,7 +5,7 @@ description: The checks to run on dev, staging and production before and after e
 
 # Release QA
 
-Run these checks in order, as a signed-in end user, through the UI, the public API and, where the API lacks an endpoint, the Django admin. A check passes when it shows the expected result with no error toast, no console error, no broken layout and no endless spinner. Record each one as pass or fail, with a screenshot or the response status.
+The checks run in order, as a signed-in user, through the UI, the public API and, where the API lacks an endpoint, the Django admin. A check passes when it shows the expected result, the browser console stays free of errors, the layout holds and loading finishes. Each check is recorded as pass or fail, with a screenshot or the response status.
 
 ## Environments
 
@@ -20,12 +20,12 @@ Each site's `config.js` names its API in `VITE_BASE_API_URL`.
 ## Before you start
 
 1. `GET /api/` returns the released `app_version`.
-2. On dev, an operator confirms the API image date and migrations (`python manage.py showmigrations`), and checks free memory with `free -m`. Run one training or prediction at a time.
-3. Sign in with a test account that has no admin rights. Use an admin account only to register a base model and for the Django admin cleanup steps. Run one QA session per account, because the default API limit is 1000 requests per user per hour.
+2. On dev, an operator confirms the API image date and migrations (`python manage.py showmigrations`), and checks free memory with `free -m`. Trainings and predictions run one at a time.
+3. A test account without admin rights runs the checks. An admin account registers base models and runs the Django admin cleanup. Each account runs one QA session at a time, because the default API limit is 1000 requests per user per hour.
 
 ## Automated API run
 
-Run `test.py` before the manual checks: `uv run test.py` on a local stack, `just test e2e` on staging. It registers `sklearn-rgb-segmentation`, builds a dataset, trains, promotes and predicts, and on staging also calls the live Knative service. It stops at the first failure. Dev has no recipe for it, so dev starts at the base model registration. See [Test the whole flow](../guides/run-locally.md#test-the-whole-flow).
+`test.py` runs before the manual checks: `uv run test.py` on a local stack, `just test e2e` on staging. It registers `sklearn-rgb-segmentation`, builds a dataset, trains, promotes and predicts, and on staging also calls the live Knative service. It stops at the first failure. Dev lacks a recipe for it, so dev QA starts at the base model registration. See [Test the whole flow](../guides/run-locally.md#test-the-whole-flow).
 
 ## Base model registration
 
@@ -39,7 +39,7 @@ For each base model whose fAIr-models item or image changed in this release, an 
 
 ## UI checks
 
-Open each page from the menu, at 1440 px and at 390 px width.
+Each page is opened from the menu, at 1440 px and at 390 px width.
 
 | Page | Check |
 |---|---|
@@ -55,7 +55,7 @@ Open each page from the menu, at 1440 px and at 390 px width.
 
 ## End-to-end flow
 
-Run this for each model in the [model matrix](#model-matrix) that supports training. Steps 1 to 6 use the API, because the UI can't fine-tune yet; Swagger at `/api/docs/` has a request body for each. [Architecture](index.md) shows the same flow as a diagram.
+The flow runs for each model in the [model matrix](#model-matrix) that supports training. Steps 1 to 6 use the API, because the UI can't fine-tune yet; Swagger at `/api/docs/` has a request body for each. [Architecture](index.md) shows the same flow as a diagram.
 
 | Step | Action | Expected |
 |---|---|---|
@@ -74,7 +74,7 @@ Run this for each model in the [model matrix](#model-matrix) that supports train
 ### Permission checks
 
 - Signed-out calls to private endpoints return 401.
-- Another user gets 404 on your private dataset and local model, and sees your feedback only when they own the model.
+- Another user gets 404 on a private dataset and local model they don't own, and sees feedback on a model only when they own it.
 - `GET /feedback/` filters by `stac_id`, `action`, `user` and `in_bbox`.
 
 ## Model matrix
@@ -85,15 +85,15 @@ Run this for each model in the [model matrix](#model-matrix) that supports train
 | `trees` | `deepforest-tree` | Yes | Yes | Yes |
 | `solid-waste` | `yolo_swag_waste_grid_segmentation` | Yes | Yes | Yes |
 | `building-damage` | `dinov3-damage` | Yes | Yes, with `post` and `pre` imagery | Not on dev, where the 8 GiB step limit stops it |
-| `building-damage` | `nepal-flood-damage` (dev only) | Yes | No, it has no batch runtime | No |
+| `building-damage` | `nepal-flood-damage` (dev only) | Yes | No, it lacks a batch runtime | No |
 | `buildings` | `dinov3s-buildings` | Yes | Yes | Yes |
 | `buildings` | `sklearn-rgb-segmentation`, the test model `test.py` registers | Yes | Yes | Yes |
 
-The standard training run uses `deepforest-tree` in Freetown (around -13.298, 8.494, zoom 20), labels from OSM `natural=tree`, and `model_name` `qa-freetown-trees-test`, which belongs to the QA test account. On dev, run damage models one at a time.
+The standard training run uses `deepforest-tree` in Freetown (around -13.298, 8.494, zoom 20), labels from OSM `natural=tree`, and `model_name` `qa-freetown-trees-test`, which belongs to the QA test account. On dev, damage models run one at a time.
 
 ## After the checks
 
-An operator runs `python manage.py check_stac_drift` in the API container and gets no drift.
+An operator runs `python manage.py check_stac_drift` in the API container, which reports that the database and STAC agree.
 
 Dev keeps its test items, so `qa-freetown-trees-test` gains a version per run. On staging and production, clean up in this order:
 
@@ -107,4 +107,4 @@ Dev keeps its test items, so `qa-freetown-trees-test` gains a version per run. O
 | 6 | AOI without a dataset | `DELETE /aois/{id}/` |
 | 7 | Local model | `POST /local-models/{id}/unpublish/`. Local models can't be deleted, because that would orphan their STAC versions. |
 
-Then run `check_stac_drift` again.
+`check_stac_drift` then runs again.
