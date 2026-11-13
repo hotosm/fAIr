@@ -1,5 +1,30 @@
-import { render, screen, fireEvent, cleanup } from "@testing-library/react";
+import {
+  render,
+  screen,
+  fireEvent,
+  cleanup,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import type { ComponentProps, ReactNode } from "react";
+
+// jsdom has no layout, so framer-motion's (shared layout) animations never
+// finish here: render motion elements as plain ones.
+vi.mock("framer-motion", () => {
+  const motionKeys = ["layoutId", "initial", "animate", "exit", "transition"];
+  const strip = <P extends object>(props: P) =>
+    Object.fromEntries(
+      Object.entries(props).filter(([key]) => !motionKeys.includes(key)),
+    ) as P;
+  return {
+    AnimatePresence: ({ children }: { children: ReactNode }) => children,
+    motion: {
+      div: (props: ComponentProps<"div">) => <div {...strip(props)} />,
+      img: (props: ComponentProps<"img">) => <img {...strip(props)} />,
+    },
+  };
+});
 import { OAMImageryPanel } from "@/features/try-fair/components/imagery/imagery-search-panel";
 import { OAMImageryItem } from "@/features/try-fair/api/hot-imagery";
 
@@ -121,7 +146,7 @@ describe("OAMImageryPanel", () => {
 
   it("collapses results for a preview and expands them for a new area", () => {
     const { rerender } = render(<OAMImageryPanel expanded {...defaultProps} />);
-    fireEvent.click(screen.getByRole("button", { name: /Nairobi High Res/ }));
+    fireEvent.click(screen.getByRole("button", { name: /^Nairobi High Res/ }));
     expect(defaultProps.onSelect).toHaveBeenCalledWith(mockImages[0]);
     expect(
       screen.getByRole("button", { name: "Expand imagery results" }),
@@ -143,5 +168,30 @@ describe("OAMImageryPanel", () => {
     expect(
       screen.getByRole("button", { name: "Collapse imagery results" }),
     ).toHaveAttribute("aria-expanded", "true");
+  });
+  it("opens a large preview from the expand button, without selecting", async () => {
+    render(<OAMImageryPanel {...defaultProps} />);
+    // Only images with a preview can be expanded.
+    expect(
+      screen.queryByRole("button", { name: "Expand image Mombasa Survey" }),
+    ).not.toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Expand image Nairobi High Res" }),
+    );
+    expect(defaultProps.onSelect).not.toHaveBeenCalled();
+    const preview = screen.getByRole("dialog", { name: "Nairobi High Res" });
+    expect(
+      within(preview).getByAltText("Nairobi High Res"),
+    ).toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Close image preview" }),
+    );
+    await waitFor(() =>
+      expect(
+        screen.queryByRole("dialog", { name: "Nairobi High Res" }),
+      ).not.toBeInTheDocument(),
+    );
   });
 });

@@ -80,7 +80,10 @@ export const NavBar = () => {
 
           <div className={styles.loginButtonContainer}>
             {isAuthenticated && (
-              <DashboardLink className="!w-[17.5rem] flex !h-[40px] !text-center !rounded-lg" />
+              <DashboardLink
+                className="!w-[17.5rem] flex !h-[40px] !text-center !rounded-lg"
+                onClick={() => setOpen(false)}
+              />
             )}
             <MobileAuthSection
               isAuthenticated={isAuthenticated}

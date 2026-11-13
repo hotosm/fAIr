@@ -56,6 +56,8 @@ export const ImageryLocationDialog = ({
     ImagerySource.OPEN_AERIAL_MAP,
   );
   const [selectedCell, setSelectedCell] = useState<SelectedCell | null>(null);
+  const [previewContainer, setPreviewContainer] =
+    useState<HTMLDivElement | null>(null);
   const { isSmallViewport } = useScreenSize();
   const [cellImages, setCellImages] = useState<OAMImageryItem[]>([]);
   const [cellLoading, setCellLoading] = useState<boolean>(false);
@@ -151,7 +153,11 @@ export const ImageryLocationDialog = ({
         size={SHOELACE_SIZES.LARGE}
       >
         {isOpened && (
-          <div className="flex flex-col gap-4">
+          // Positioned so the enlarged image preview centres over it.
+          <div
+            ref={setPreviewContainer}
+            className="relative flex flex-col gap-4"
+          >
             {showBackToModelPicker && (
               <button
                 type="button"
@@ -220,6 +226,7 @@ export const ImageryLocationDialog = ({
                     onSelect={setSelectedItem}
                     onClose={() => setSelectedCell(null)}
                     handleApplyOAMItem={handleApplyOAMItem}
+                    previewContainer={previewContainer}
                   />
                 </>
               ) : (

@@ -23,7 +23,8 @@ export const ImagerySourceToggle = ({
     className={
       expanded
         ? "flex items-center rounded-lg bg-off-white p-1 gap-1 w-full max-w-[420px] mx-auto"
-        : "flex items-center max-w-[500px] w-full mx-auto md:flex-row flex-col justify-center gap-3"
+        : // Side by side on every screen size, as in the mobile design.
+          "flex items-center max-w-[500px] w-full mx-auto justify-center gap-2 sm:gap-3"
     }
   >
     {IMAGERY_SOURCES.filter(
@@ -47,13 +48,17 @@ export const ImagerySourceToggle = ({
                     : "border-transparent text-grey hover:text-dark",
                 )
               : cn(
-                  "flex items-center bg-frosted-blue justify-between gap-6 w-full md:min-w-[200px] px-4 py-2.5 rounded-lg transition-colors",
-                  isSelected ? "border-primary border " : "  ",
+                  "flex flex-1 min-w-0 items-center bg-frosted-blue justify-between gap-2 sm:gap-6 md:min-w-[200px] px-3 py-2 sm:px-4 sm:py-2.5 rounded-lg border transition-colors",
+                  isSelected ? "border-primary" : "border-transparent",
                 )
           }
         >
           <span
-            className={expanded ? "whitespace-nowrap" : "text-sm text-dark"}
+            className={
+              expanded
+                ? "whitespace-nowrap"
+                : "truncate text-xs sm:text-sm text-dark"
+            }
           >
             {source.label}
           </span>

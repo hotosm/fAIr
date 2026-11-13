@@ -50,6 +50,8 @@ type TryFairMapProps = {
   canFitToBounds: boolean;
   /** Opens the guided "how it works" tour. */
   onHelp?: () => void;
+  /** Phones hide the legend unless this is set (Basic mode, with results). */
+  showLegendOnPhones?: boolean;
 };
 
 const mapActionButtonClassName =
@@ -74,6 +76,7 @@ export const TryFairMap = ({
   isFeedbackOpen = false,
   canFitToBounds,
   onHelp,
+  showLegendOnPhones = false,
 }: TryFairMapProps) => {
   const { isSmallViewport } = useScreenSize();
   const [choroplethBuckets, setChoroplethBuckets] = useState<
@@ -295,9 +298,13 @@ export const TryFairMap = ({
         </div>
       )}
 
-      {/* Phones don't show the legend: there's no room for it over the map
-          and settings sheet. */}
+      {/* Phones show the legend only when asked (Basic mode with results):
+          in Advanced the Results card takes that space. */}
       {legend && !isSmallViewport && legend}
+      {legend && isSmallViewport && showLegendOnPhones && hasPredictions && (
+        // Under the Mode/Menu chips, clear of the settings sheet.
+        <div className="absolute left-3 top-14 z-10">{legend}</div>
+      )}
     </div>
   );
 };

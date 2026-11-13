@@ -8,6 +8,7 @@ import { getFeatureIcon } from "@/features/try-fair/components/model-picker/mode
 import { MapComponent } from "@/components/map/map";
 import { useMapInstance } from "@/hooks/use-map-instance";
 import { useEffect } from "react";
+import useScreenSize from "@/hooks/use-screen-size";
 
 const getProjectPath = (pid: number) =>
   APPLICATION_ROUTES.TRY_FAIR_PROJECT.replace(":pid", String(pid));
@@ -72,6 +73,7 @@ export const RecentMappingCard = ({
   activity: SavedUserState;
 }) => {
   const { state } = activity;
+  const { isSmallViewport } = useScreenSize();
   const label = state.category || state.type;
   const Icon =
     label === "mapping" || label === "prediction"
@@ -79,14 +81,14 @@ export const RecentMappingCard = ({
       : getFeatureIcon(label, MapIcon);
 
   return (
-    // Phones: one column (details, map, then buttons side by side); the
+    // Phones: one column (details, buttons side by side, then the map); the
     // details column's children join the section's flow so they can be
     // reordered. Wider screens: details and buttons beside the map.
     <section className="contour-bg flex min-w-0 flex-col gap-4 overflow-hidden rounded-none bg-dark px-5 py-6 font-archivo text-white sm:grid sm:min-h-[410px] sm:grid-cols-[200px_minmax(0,1fr)] sm:rounded-xl sm:p-4">
       <div className="contents sm:flex sm:min-w-0 sm:flex-col sm:p-1">
         <p className="text-sm font-semibold">Recent Mapping</p>
 
-        <div className="flex flex-wrap items-center justify-between gap-3 sm:mt-12 sm:flex-col sm:items-start sm:justify-start">
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-x-3 gap-y-4 sm:mt-12 sm:flex-col sm:items-start sm:justify-start">
           <h3
             className="w-full truncate text-base font-semibold"
             title={state.name}
@@ -102,7 +104,7 @@ export const RecentMappingCard = ({
           </p>
         </div>
 
-        <div className="order-last flex gap-3 sm:order-none sm:mt-auto sm:flex-col sm:pt-8">
+        <div className="mt-3 flex gap-3 sm:mt-auto sm:flex-col sm:pt-8">
           <Link
             href={getProjectPath(activity.pid)}
             nativeAnchor={false}
@@ -113,7 +115,7 @@ export const RecentMappingCard = ({
               rounded
               capitalize={false}
               size="medium"
-              fontSize="12px"
+              fontSize={isSmallViewport ? "14px" : "12px"}
               className="w-full"
             >
               Resume Mapping
@@ -131,7 +133,7 @@ export const RecentMappingCard = ({
               rounded
               capitalize={false}
               size="medium"
-              fontSize="12px"
+              fontSize={isSmallViewport ? "14px" : "12px"}
             >
               Start New Mapping
             </Button>
@@ -140,7 +142,7 @@ export const RecentMappingCard = ({
       </div>
 
       <div
-        className="h-48 min-w-0 overflow-hidden rounded-xl bg-white/5 sm:h-auto sm:min-h-0"
+        className="h-48 min-w-0 overflow-hidden rounded bg-white/5 sm:rounded-xl sm:h-auto sm:min-h-0"
         aria-label={`Map showing imagery for ${state.name}`}
       >
         <RecentMappingMap activity={activity} />
