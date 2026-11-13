@@ -41,7 +41,7 @@ backend:
 
   port: 8000
 
-  # -- Non-secret env vars; backend/README.md lists every variable
+  # -- Non-secret env vars; docs/guides/configuration.md lists every variable
   env: {}
     # FRONTEND_URL: "https://fair.example.com"
     # API_BASE_URL: "https://fair.example.com/api/v1"

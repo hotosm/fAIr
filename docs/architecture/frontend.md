@@ -19,3 +19,7 @@ The app is organized by feature, not by technical layer.
 ## Feature to model mapping
 
 The try-fair model picker builds its "feature to map" list from the backend `Category` table, then queries base and local models for each category slug. A feature that has no model under its slug is shown but disabled. A model's category is set at registration and stored in both the database row and the STAC item's `fair:category`.
+
+## Prediction history
+
+Try fAIr keeps each mapping project's successful predictions, with their model, imagery, parameters and map bounds, and restores one without running inference again. Signed-in users' history saves through the user-state API; anonymous history lasts for the page session. A failed save keeps the history in memory while the page stays open.

@@ -99,7 +99,7 @@ compose service names as hosts.
 
 To run Django on the host against the containerised dependencies, use
 `backend/env_example` instead, which points at `localhost` and the published
-ports. See [backend/README.md](https://github.com/hotosm/fAIr/blob/develop/backend/README.md) for every variable.
+ports. See [Configuration](configuration.md) for every variable.
 
 ## Notes
 
@@ -113,5 +113,5 @@ into the worker.
 ## Help
 
 - [Developer setup](developer-setup.md)
-- [backend/README.md](https://github.com/hotosm/fAIr/blob/develop/backend/README.md)
+- [Configuration](configuration.md)
 - <https://github.com/hotosm/fAIr/issues>

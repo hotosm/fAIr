@@ -42,9 +42,9 @@ The stack also runs the STAC catalog on port 8082, MinIO on 9000 and 9001, MLflo
 
 ## Repository layout
 
-`backend/` holds the Django REST API. Its apps cover accounts, datasets, the model registry (base models and local models), trainings, predictions, feedback labels, banners, stars and saved user state. The backend orchestrates ZenML pipelines and the STAC catalog through the `fair-py-ops` package, stores artifacts in MinIO or S3, and runs background jobs with `django_tasks`. See [backend/README.md](backend/README.md).
+`backend/` holds the Django REST API. Its apps cover accounts, datasets, the model registry (base models and local models), trainings, predictions, feedback labels, banners, stars and saved user state. The backend orchestrates ZenML pipelines and the STAC catalog through the `fair-py-ops` package, stores artifacts in MinIO or S3, and runs background jobs with `django_tasks`. See [Backend](https://hotosm.github.io/fAIr/architecture/backend/).
 
-`frontend/` holds the React single-page app, built with pnpm and Vite. See [frontend/README.md](frontend/README.md).
+`frontend/` holds the React single-page app, built with pnpm and Vite. See [Frontend](https://hotosm.github.io/fAIr/architecture/frontend/).
 
 `docs/` holds the source of the documentation site. `chart/` holds the Helm chart used for production deployments. `docker-compose.yml` defines the full local stack, and `test.py` runs an end-to-end check against a running stack through the public API.
 
@@ -58,4 +58,4 @@ Read the [code of conduct](docs/community/code-of-conduct.md) and the [contribut
 
 ## License
 
-fAIr is licensed under the GNU Affero General Public License v3.0. See [LICENSE](LICENSE). The terms for the imagery and labels you submit are on [Imagery and label licensing](https://hotosm.github.io/fAIr/overview/data-licensing/).
+fAIr is licensed under the GNU Affero General Public License v3.0. See [LICENSE](LICENSE). Base model, imagery and label licenses are on [Licensing](https://hotosm.github.io/fAIr/overview/data-licensing/).

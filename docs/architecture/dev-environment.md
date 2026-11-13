@@ -32,7 +32,7 @@ Everything lives in `/opt/fAIr-app` (a `develop` checkout):
 
 ## Deploy / redeploy
 
-`fAIr-autodeploy.timer` redeploys `develop` every 5 minutes; see `infra/systemd/Readme.md`.
+`fAIr-autodeploy.timer` redeploys `develop`, see [Auto-deploy](#auto-deploy).
 To redeploy by hand, pull the latest images and restart. Migrations run automatically on start.
 The ZenML stack is imported from the compose file only when it does not exist yet, so a later
 change to the orchestrator's `run_args` needs `zenml orchestrator update docker_compose` on the
@@ -44,6 +44,18 @@ cd /opt/fAIr-app
 git pull
 docker compose pull
 sudo systemctl restart fAIr-app
+```
+
+## Auto-deploy
+
+`fair-autodeploy.sh` runs every 5 minutes from `fAIr-autodeploy.timer`. It fast-forwards `/opt/fAIr-app` to `origin/develop`, pulls the `:develop` images and runs `docker compose up -d` when the commit or an image differs from the last successful deploy, recorded in `/var/lib/fair-autodeploy/deployed`. A failed deploy leaves that record unchanged, so the next run tries again. After a deploy it removes superseded (untagged) fAIr app images; model images stay cached for pipeline runs. The fast-forward stops when a local edit touches a file the update changes, or when the checkout has diverged.
+
+Install it from `/opt/fAIr-app`:
+
+```bash
+sudo install -m 755 infra/systemd/fair-autodeploy.sh /usr/local/bin/fair-autodeploy.sh
+sudo cp infra/systemd/fAIr-autodeploy.service infra/systemd/fAIr-autodeploy.timer /etc/systemd/system/
+sudo systemctl daemon-reload && sudo systemctl enable --now fAIr-autodeploy.timer
 ```
 
 ## Start / stop / status

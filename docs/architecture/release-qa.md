@@ -5,7 +5,7 @@ description: The checks to run on dev, staging and production before and after e
 
 # Release QA
 
-Run these checks as a signed-in end user, through the UI, the public API and, where the API lacks an endpoint, the Django admin. A check passes when it shows the expected result with no error toast, no console error, no broken layout and no endless spinner. Record each one as pass or fail, with a screenshot or the response status.
+Run these checks in order, as a signed-in end user, through the UI, the public API and, where the API lacks an endpoint, the Django admin. A check passes when it shows the expected result with no error toast, no console error, no broken layout and no endless spinner. Record each one as pass or fail, with a screenshot or the response status.
 
 ## Environments
 
@@ -20,8 +20,22 @@ Each site's `config.js` names its API in `VITE_BASE_API_URL`.
 ## Before you start
 
 1. `GET /api/` returns the released `app_version`.
-2. Sign in with a test account that has no admin rights. Use an admin account only to register a changed base model, see [Register a base model](../guides/register-a-base-model.md), and for the Django admin cleanup steps. Run one QA session per account, because the default API limit is 1000 requests per user per hour.
-3. On dev, an operator checks free memory with `free -m` and confirms migrations with `python manage.py showmigrations`. Run one training or prediction at a time.
+2. On dev, an operator confirms the API image date and migrations (`python manage.py showmigrations`), and checks free memory with `free -m`. Run one training or prediction at a time.
+3. Sign in with a test account that has no admin rights. Use an admin account only to register a base model and for the Django admin cleanup steps. Run one QA session per account, because the default API limit is 1000 requests per user per hour.
+
+## Automated API run
+
+Run `test.py` before the manual checks: `uv run test.py` on a local stack, `just test e2e` on staging. It registers `sklearn-rgb-segmentation`, builds a dataset, trains, promotes and predicts, and on staging also calls the live Knative service. It stops at the first failure. Dev has no recipe for it, so dev starts at the base model registration. See [Test the whole flow](../guides/run-locally.md#test-the-whole-flow).
+
+## Base model registration
+
+For each base model whose fAIr-models item or image changed in this release, an admin registers it, or re-registers it from the Django admin ([Register a base model](../guides/register-a-base-model.md#register)).
+
+| Check | Expected |
+|---|---|
+| `GET /base-models/{id}/` | `status` is `active`, `error` is empty |
+| `GET /base-models/{id}/?expand=stac` | `fair:category` matches the `category` |
+| `GET /health` on the host of the item's `mlm:inference-endpoint` | 200 |
 
 ## UI checks
 
@@ -35,7 +49,7 @@ Open each page from the menu, at 1440 px and at 390 px width.
 | Start Mapping, Advanced mode | Each base model and each own local model runs. The hover card lists the STAC fields. Saved projects reopen. |
 | Feedback | Clicking a feature opens one popup. Thumbs up turns green and thumbs down turns red, Results counts follow, marks return after leaving and coming back, tapping the active thumb removes the mark. |
 | Map an area | Upload a GeoJSON and draw an area. The request appears under Map Requests and moves to ready. |
-| Map request result | Legend, hover card and download work |
+| Map request result | Legend (hidden at phone width), hover card and download work |
 | Profile | The overview shows recent activity, mapping history and map requests. AI Models and Datasets show "Coming soon". Settings save. |
 | Hidden pages | `/ai-models`, `/datasets`, `/ai-predictions`, `/resources` and their sub-pages open the 404 page |
 
@@ -49,7 +63,7 @@ Run this for each model in the [model matrix](#model-matrix) that supports train
 | 2 API | `POST /datasets/build/` with `imagery` keyed by the model's input names, then poll `GET /datasets/{id}/` | `built` |
 | 3 API | `POST /datasets/{id}/publish/` | Dataset public |
 | 4 API | `POST /trainings/submit/` with `base_model_stac_id`, `dataset_stac_id` and `model_name`, then poll | `completed` |
-| 5 API | `POST /trainings/{id}/publish/`, then find the id with `GET /local-models/?search=<model_name>&published=all` | Local model with a STAC item |
+| 5 API | `POST /trainings/{id}/publish/`, then find the id with `GET /local-models/?search=<model_name>&published=all` | Local model with a STAC item that carries the base model's `fair:category` and output geometry keyword |
 | 6 API | `POST /local-models/{id}/publish/` | Local model public |
 | 7 UI | Start Mapping, Advanced, model picker | The local model is listed |
 | 8 UI | Run the local model | Results draw, hover card shows |
@@ -70,14 +84,16 @@ Run this for each model in the [model matrix](#model-matrix) that supports train
 | `trees` | `unet-tree-segmentation` | Yes | Yes | No, prediction only |
 | `trees` | `deepforest-tree` | Yes | Yes | Yes |
 | `solid-waste` | `yolo_swag_waste_grid_segmentation` | Yes | Yes | Yes |
-| `building-damage` | `dinov3-damage` | Yes | Yes | Not on dev, where the 8 GiB step limit stops it |
+| `building-damage` | `dinov3-damage` | Yes | Yes, with `post` and `pre` imagery | Not on dev, where the 8 GiB step limit stops it |
 | `building-damage` | `nepal-flood-damage` (dev only) | Yes | No, it has no batch runtime | No |
 | `buildings` | `dinov3s-buildings` | Yes | Yes | Yes |
-| `buildings` | `sklearn-rgb-segmentation`, a test model for deployment and registration | Yes | Yes | Yes |
+| `buildings` | `sklearn-rgb-segmentation`, the test model `test.py` registers | Yes | Yes | Yes |
 
-The standard training run uses `deepforest-tree` in Freetown (around -13.298, 8.494, zoom 20), labels from OSM `natural=tree`, and `model_name` `qa-freetown-trees-test`, which belongs to the QA test account.
+The standard training run uses `deepforest-tree` in Freetown (around -13.298, 8.494, zoom 20), labels from OSM `natural=tree`, and `model_name` `qa-freetown-trees-test`, which belongs to the QA test account. On dev, run damage models one at a time.
 
-## Cleanup
+## After the checks
+
+An operator runs `python manage.py check_stac_drift` in the API container and gets no drift.
 
 Dev keeps its test items, so `qa-freetown-trees-test` gains a version per run. On staging and production, clean up in this order:
 
@@ -91,4 +107,4 @@ Dev keeps its test items, so `qa-freetown-trees-test` gains a version per run. O
 | 6 | AOI without a dataset | `DELETE /aois/{id}/` |
 | 7 | Local model | `POST /local-models/{id}/unpublish/`. Local models can't be deleted, because that would orphan their STAC versions. |
 
-An operator then runs `python manage.py check_stac_drift` in the API container and gets no drift.
+Then run `check_stac_drift` again.

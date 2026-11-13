@@ -1,9 +1,54 @@
 ---
 icon: lucide/scale
-description: Terms for the imagery links and labels submitted to fAIr, and the licenses fAIr applies to them.
+description: The licenses of the fAIr code, its base models, and the imagery and labels submitted to it.
 ---
 
-# Imagery and label licensing
+# Licensing
+
+## Code
+
+The fAIr code and the [fAIr-models](https://github.com/hotosm/fAIr-models) code are licensed under the [GNU Affero General Public License v3.0](https://www.gnu.org/licenses/agpl-3.0.html). See [LICENSE](https://github.com/hotosm/fAIr/blob/develop/LICENSE).
+
+### Bundled frontend libraries
+
+The frontend bundles portions of this open source software:
+
+- [Shoelace (MIT)](https://github.com/shoelace-style/shoelace).
+- [TanStack Query (MIT)](https://github.com/TanStack/query).
+- [TanStack Table (MIT)](https://github.com/TanStack/table).
+- [Terraformer WKT (MIT)](https://github.com/terraformer-js/terraformer).
+- [Turf JS (MIT)](https://github.com/Turfjs/turf).
+- [Axios (MIT)](https://github.com/axios/axios).
+- [Clsx (MIT)](https://github.com/lukeed/clsx).
+- [Framer Motion (MIT)](https://github.com/motiondivision/motion).
+- [React (MIT)](https://github.com/facebook/react).
+- [React Dropzone (MIT)](https://github.com/react-dropzone/react-dropzone).
+- [React Error Boundary (MIT)](https://github.com/bvaughn/react-error-boundary).
+- [React Confetti Explosion (MIT)](https://github.com/herrethan/react-confetti-explosion).
+- [React Markdown (MIT)](https://github.com/remarkjs/react-markdown).
+- [Remark Gfm (MIT)](https://github.com/remarkjs/remark-gfm).
+- [Tailwind Merge (MIT)](https://github.com/dcastil/tailwind-merge).
+- [React Router (MIT)](https://github.com/remix-run/react-router).
+- [Terra Draw (MIT)](https://github.com/JamesLMilner/terra-draw).
+- [Vaul (MIT)](https://github.com/emilkowalski/vaul).
+- [XMLBuilder2 (MIT)](https://github.com/oozcitak/xmlbuilder2).
+- [Maplibre GL JS (BSD-3-Clause)](https://github.com/maplibre/maplibre-gl-js).
+- [PMTiles (BSD-3-Clause)](https://github.com/protomaps/PMTiles).
+- [React Medium Image Zoom (BSD-3-Clause)](https://github.com/rpearce/react-medium-image-zoom).
+- Map fonts from [Maplibre Demo Tiles](https://github.com/maplibre/demotiles).
+
+## Base models
+
+Each base model's weights carry their own license, in the `license` field of its STAC item. A local model fine-tuned from a base model inherits that license.
+
+| Base model | License |
+|---|---|
+| `deepforest-tree` | MIT |
+| `dinov3-damage` | CC-BY-NC-SA-4.0 |
+| `dinov3s-buildings` | Apache-2.0 |
+| `sklearn-rgb-segmentation` | Apache-2.0 |
+| `unet-tree-segmentation` | CC-BY-4.0 |
+| `yolo_swag_waste_grid_segmentation` | MIT |
 
 ## Imagery
 

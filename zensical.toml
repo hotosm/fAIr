@@ -9,7 +9,7 @@ repo_url = "https://github.com/hotosm/fAIr"
 repo_name = "hotosm/fAIr"
 edit_uri = "edit/develop/docs/"
 
-extra_css = ["assets/logos.css", "assets/status.css"]
+extra_css = ["assets/logos.css", "assets/status.css", "assets/tables.css"]
 
 nav = [
   { "Home" = "index.md" },
@@ -22,7 +22,7 @@ nav = [
     { "Evaluation" = "overview/evaluation.md" },
     { "Validation" = "overview/validation.md" },
     { "FAQ" = "overview/faq.md" },
-    { "Imagery and label licensing" = "overview/data-licensing.md" },
+    { "Licensing" = "overview/data-licensing.md" },
   ] },
   { "Roadmap" = [
     { "Roadmap" = "roadmap/index.md" },
@@ -40,13 +40,16 @@ nav = [
   ] },
   { "Guides" = [
     { "Using fAIr" = "guides/using-fair.md" },
+    { "Prepare training data" = "guides/training-data.md" },
     { "Run locally" = "guides/run-locally.md" },
     { "Developer setup" = "guides/developer-setup.md" },
+    { "Configuration" = "guides/configuration.md" },
     { "Register a base model" = "guides/register-a-base-model.md" },
   ] },
   { "Architecture" = [
     { "Overview" = "architecture/index.md" },
     { "Backend" = "architecture/backend.md" },
+    { "API" = "architecture/api.md" },
     { "ML pipeline" = "architecture/ml-pipeline.md" },
     { "Frontend" = "architecture/frontend.md" },
     { "Operations" = [
