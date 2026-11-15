@@ -185,7 +185,7 @@ def build_dataset(fair: Fair, ctx: dict) -> str:
             "zoom": 19,
             "aoi_ids": [ctx["aoi_id"]],
             "label_tasks": ["semantic-segmentation"],
-            "label_classes": [{"name": "building", "classes": ["*"]}],
+            "osm_tags": {"building": ["*"]},
             "keywords": ["building", "polygon"],
             "label_type": "vector",
             "geometry_type": "polygon",

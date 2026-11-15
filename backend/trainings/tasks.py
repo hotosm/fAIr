@@ -30,6 +30,7 @@ def submit_training(*, training_run_ref_id: int) -> None:
         dataset_id=run_ref.dataset.stac_id,
         model_name=run_ref.local_model.name,
         overrides=run_ref.overrides or {},
+        class_map=run_ref.class_map or None,
     )
     run_ref.zenml_run_id = zenml_run_id
     run_ref.status = PipelineRunStatus.SUBMITTED

@@ -25,8 +25,15 @@ def published_dataset(db, user: OsmUser) -> Dataset:
     )
 
 
+_BUILDING_CLASSES = [
+    {"name": "background", "value": 0},
+    {"name": "building", "value": 1, "fair:osm_tags": {"building": ["*"]}},
+]
+
+
 def _base_model_item(*asset_keys: str) -> pystac.Item:
-    item = pystac.Item("unet-segmentation", None, None, datetime.now(UTC), {})
+    properties = {"mlm:output": [{"name": "mask", "classification:classes": _BUILDING_CLASSES}]}
+    item = pystac.Item("unet-segmentation", None, None, datetime.now(UTC), properties)
     for key in asset_keys:
         item.add_asset(key, pystac.Asset(f"ghcr.io/hotosm/fair-models/unet:{key}"))
     return item
@@ -35,7 +42,17 @@ def _base_model_item(*asset_keys: str) -> pystac.Item:
 @pytest.fixture
 def registered_base_model(db, user: OsmUser):
     """A base model row, with its STAC lookup patched to an item that has a training runtime."""
-    with patch("trainings.views.get_base_model", return_value=_base_model_item("mlm:training")):
+    dataset_item = pystac.Item(
+        "buildings-banepa",
+        None,
+        None,
+        datetime.now(UTC),
+        {"label:properties": ["building"], "label:classes": [{"name": "building", "classes": ["yes"]}]},
+    )
+    with (
+        patch("trainings.views.get_base_model", return_value=_base_model_item("mlm:training")),
+        patch("trainings.views.get_dataset", return_value=dataset_item),
+    ):
         yield BaseModel.objects.create(
             name="unet-segmentation",
             stac_item_id="unet-segmentation",
@@ -134,3 +151,17 @@ def test_failed_training_submission_marks_run_failed(training_ref: TrainingRunRe
     training_ref.refresh_from_db()
     assert training_ref.status == PipelineRunStatus.FAILED
     assert training_ref.error == "RuntimeError: zenml unreachable"
+
+
+@override_settings(TASKS={"default": {"BACKEND": "django_tasks.backends.immediate.ImmediateBackend"}})
+def test_training_submission_passes_the_class_map_to_the_pipeline(training_ref: TrainingRunRef) -> None:
+    training_ref.class_map = {"roof=iron": "building"}
+    training_ref.save(update_fields=["class_map"])
+
+    with patch("trainings.tasks.for_user") as for_user, patch("trainings.tasks.sync_training_status"):
+        for_user.return_value.submit_finetune.return_value = "run-1"
+        submit_training.enqueue(training_run_ref_id=training_ref.id)
+
+    assert for_user.return_value.submit_finetune.call_args.kwargs["class_map"] == {"roof=iron": "building"}
+    training_ref.refresh_from_db()
+    assert training_ref.zenml_run_id == "run-1"

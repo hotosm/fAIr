@@ -1,8 +1,11 @@
+import json
 from collections.abc import Callable
 from typing import Any
 
 from fair.stac.inputs import IMAGE_INPUT, INPUT_NAME_PATTERN
 from rest_framework import serializers
+from rest_framework.fields import empty
+from rest_framework.utils import html
 
 from accounts.permissions import is_admin
 from shared.imagery import INPUT_NAME_MAX_LENGTH
@@ -51,6 +54,35 @@ def imagery_from_shorthand(attrs: dict[str, Any], shorthand: str) -> dict[str, A
     if url is not None:
         attrs["imagery"] = {IMAGE_INPUT: url}
     return attrs
+
+
+class JSONFormFieldMixin:
+    """Reads the field as a JSON string from a multipart form, and as is from a JSON body."""
+
+    field_name: str
+
+    def get_value(self, dictionary: Any) -> Any:
+        if not html.is_html_input(dictionary):
+            return super().get_value(dictionary)  # type: ignore[misc]
+        if self.field_name not in dictionary:
+            return empty
+        raw = dictionary.get(self.field_name)
+        if not isinstance(raw, str):
+            # A file part; None gives one "may not be null" error instead of one per line.
+            return None
+        try:
+            return json.loads(raw)
+        except (json.JSONDecodeError, RecursionError):
+            # The field's own validation then reports the wrong type.
+            return raw
+
+
+class JSONFormDictField(JSONFormFieldMixin, serializers.DictField):
+    pass
+
+
+class JSONFormListField(JSONFormFieldMixin, serializers.ListField):
+    pass
 
 
 class StacAssetSerializer(serializers.Serializer):

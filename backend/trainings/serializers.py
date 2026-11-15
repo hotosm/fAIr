@@ -12,6 +12,15 @@ class TrainingSubmitSerializer(serializers.Serializer):
     dataset_stac_id = serializers.CharField(max_length=200)
     model_name = serializers.CharField(max_length=200)
     overrides = serializers.DictField(required=False, default=dict)
+    class_map = serializers.DictField(
+        child=serializers.CharField(max_length=200),
+        required=False,
+        default=dict,
+        help_text=(
+            'Dataset classes ("property=value") to model class names, '
+            'e.g. {"roof=iron": "metal_sheet"}.'
+        ),
+    )
     title = serializers.CharField(
         required=False,
         allow_blank=True,
@@ -60,6 +69,7 @@ class TrainingRunRefSerializer(OwnerOnlyErrorMixin, serializers.ModelSerializer)
             "base_model_stac_id",
             "dataset",
             "overrides",
+            "class_map",
             "title",
             "keywords",
             "description",

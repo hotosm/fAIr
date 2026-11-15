@@ -30,9 +30,32 @@ def aoi(db, user: OsmUser) -> AOI:
 @pytest.fixture
 def registered_base_model(db, user: OsmUser):
     """A base model row, with its STAC lookup patched to an item that has a training runtime."""
-    item = pystac.Item("unet-segmentation", None, None, datetime.now(UTC), {})
+    classes = [
+        {"name": "background", "value": 0},
+        {"name": "building", "value": 1, "fair:osm_tags": {"building": ["*"]}},
+    ]
+    item = pystac.Item(
+        "unet-segmentation",
+        None,
+        None,
+        datetime.now(UTC),
+        {"mlm:output": [{"name": "mask", "classification:classes": classes}]},
+    )
     item.add_asset("mlm:training", pystac.Asset("ghcr.io/hotosm/fair-models/unet:latest"))
-    with patch("trainings.views.get_base_model", return_value=item):
+    dataset_item = pystac.Item(
+        "dataset",
+        None,
+        None,
+        datetime.now(UTC),
+        {
+            "label:properties": ["building"],
+            "label:classes": [{"name": "building", "classes": ["yes"]}],
+        },
+    )
+    with (
+        patch("trainings.views.get_base_model", return_value=item),
+        patch("trainings.views.get_dataset", return_value=dataset_item),
+    ):
         yield BaseModel.objects.create(
             name="unet-segmentation",
             stac_item_id="unet-segmentation",
@@ -229,7 +252,7 @@ def test_dataset_build_creates_record_and_enqueues(mock_task, client, aoi):
         "zoom": 19,
         "aoi_ids": [aoi.id],
         "label_tasks": ["semantic-segmentation"],
-        "label_classes": [{"name": "building", "classes": ["yes"]}],
+        "osm_tags": {"building": ["yes"]},
         "keywords": ["buildings"],
         "geometry_type": "polygon",
     }
@@ -250,71 +273,6 @@ def test_dataset_build_creates_record_and_enqueues(mock_task, client, aoi):
     enqueue_kwargs = mock_task.enqueue.call_args.kwargs
     assert enqueue_kwargs["geometry_type"] == "polygon"
     assert "feature_type" not in enqueue_kwargs
-
-
-def test_build_osm_filters_simple():
-    from datasets.tasks import _build_osm_filters
-
-    filters = _build_osm_filters([{"name": "building", "classes": ["yes"]}], "polygon")
-    assert filters == {"tags": {"polygon": {"join_or": {"building": ["yes"]}}}}
-
-
-def test_build_osm_filters_wildcard_translates_to_empty_list():
-    from datasets.tasks import _build_osm_filters
-
-    filters = _build_osm_filters([{"name": "building", "classes": ["*"]}], "polygon")
-    assert filters["tags"]["polygon"]["join_or"]["building"] == []
-
-
-def test_build_osm_filters_multi_class():
-    from datasets.tasks import _build_osm_filters
-
-    filters = _build_osm_filters(
-        [
-            {"name": "building", "classes": ["*"]},
-            {"name": "amenity", "classes": ["hospital", "school"]},
-        ],
-        "polygon",
-    )
-    assert filters == {
-        "tags": {"polygon": {"join_or": {"building": [], "amenity": ["hospital", "school"]}}}
-    }
-
-
-def test_stamp_class_label_assigns_index_for_first_match():
-    from datasets.tasks import _stamp_class_label
-
-    label_classes = [
-        {"name": "building", "classes": ["*"]},
-        {"name": "amenity", "classes": ["hospital"]},
-    ]
-    feat_b = {"properties": {"tags": {"building": "yes"}}}
-    feat_h = {"properties": {"tags": {"amenity": "hospital"}}}
-    feat_none = {"properties": {"tags": {"highway": "primary"}}}
-
-    assert _stamp_class_label(feat_b, label_classes) == 1
-    assert feat_b["properties"]["label"] == 1
-    assert _stamp_class_label(feat_h, label_classes) == 2
-    assert feat_h["properties"]["label"] == 2
-    assert _stamp_class_label(feat_none, label_classes) is None
-    assert "label" not in feat_none["properties"]
-
-
-def test_stamp_class_label_uses_each_class_value_including_zero():
-    from datasets.tasks import _stamp_class_label
-
-    label_classes = [
-        {"name": "building", "classes": ["*"], "value": 1},
-        {"name": "destroyed:building", "classes": ["*"], "value": 4},
-        {"name": "background", "classes": ["*"], "value": 0},
-    ]
-    destroyed = {"properties": {"tags": {"destroyed:building": "yes"}}}
-    background = {"properties": {"tags": {"background": "yes"}}}
-
-    assert _stamp_class_label(destroyed, label_classes) == 4
-    assert destroyed["properties"]["label"] == 4
-    assert _stamp_class_label(background, label_classes) == 0
-    assert background["properties"]["label"] == 0
 
 
 def test_dataset_list_paginates(client, published_dataset):
@@ -1294,3 +1252,55 @@ def test_admin_sees_all_datasets(admin_client, published_dataset):
     response = admin_client.get("/api/v1/datasets/")
     assert response.status_code == 200
     assert len(response.json()["results"]) == 1
+
+
+def _roof_dataset() -> pystac.Item:
+    properties = {"label:properties": ["roof"], "label:classes": [{"name": "roof", "classes": ["iron"]}]}
+    return pystac.Item("roofs", None, None, datetime.now(UTC), properties)
+
+
+def _submit(client, dataset: Dataset, **extra) -> object:
+    payload = {
+        "base_model_stac_id": "unet-segmentation",
+        "dataset_stac_id": dataset.stac_id,
+        "model_name": "roofs-v1",
+        **extra,
+    }
+    return client.post("/api/v1/trainings/submit/", data=payload, format="json")
+
+
+@patch("trainings.views.item_exists", return_value=True)
+@patch("trainings.views.submit_training")
+def test_training_submit_keeps_a_class_map_that_resolves_the_dataset(
+    mock_task, mock_item_exists, client, published_dataset, registered_base_model
+):
+    with patch("trainings.views.get_dataset", return_value=_roof_dataset()):
+        response = _submit(client, published_dataset, class_map={"roof=iron": "building"})
+
+    assert response.status_code == 202, response.content
+    assert response.json()["class_map"] == {"roof=iron": "building"}
+    assert TrainingRunRef.objects.get(local_model__name="roofs-v1").class_map == {"roof=iron": "building"}
+    mock_task.enqueue.assert_called_once()
+
+
+@pytest.mark.parametrize(
+    ("class_map", "message"),
+    [
+        ({}, "dataset classes ['roof=iron'] match no model class ['background', 'building']"),
+        ({"roof=iron": "metal"}, "'metal' is not a model class"),
+        ({"roof=tin": "building"}, "'roof=tin' is not a dataset class"),
+    ],
+    ids=["unmatched", "unknown-model-class", "unknown-dataset-class"],
+)
+@patch("trainings.views.item_exists", return_value=True)
+@patch("trainings.views.submit_training")
+def test_training_submit_rejects_classes_that_do_not_map(
+    mock_task, mock_item_exists, client, published_dataset, registered_base_model, class_map, message
+):
+    with patch("trainings.views.get_dataset", return_value=_roof_dataset()):
+        response = _submit(client, published_dataset, class_map=class_map)
+
+    assert response.status_code == 400
+    assert message in response.json()["error"]["details"]["class_map"][0]
+    assert not TrainingRunRef.objects.filter(local_model__name="roofs-v1").exists()
+    mock_task.enqueue.assert_not_called()

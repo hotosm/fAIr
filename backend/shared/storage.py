@@ -84,6 +84,12 @@ class StoragePaths:
         return f"{cls.dataset_labels_dir_key(stac_id)}/{cls.LABELS_GEOJSON_FILENAME}"
 
     @classmethod
+    def dataset_source_labels_uri(cls, stac_id: str) -> str:
+        return cls._uri(
+            f"{_folder()}{cls.DATASETS_ROOT}/{stac_id}/source/{cls.LABELS_GEOJSON_FILENAME}"
+        )
+
+    @classmethod
     def prediction_dir_key(cls, prediction_id: int) -> str:
         return f"{_folder()}{cls.PREDICTIONS_ROOT}/{prediction_id}"
 

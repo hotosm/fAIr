@@ -1,7 +1,9 @@
 from django.conf import settings
+from django.core.files.uploadedfile import UploadedFile
 from django.utils.http import MAX_URL_LENGTH
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
+from fair.datasets import DEFAULT_CLASS_PROPERTY
 from rest_framework import serializers
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
 
@@ -12,6 +14,8 @@ from shared.serializers import (
     MAX_ZOOM,
     MIN_ZOOM,
     TMS_PLACEHOLDERS,
+    JSONFormDictField,
+    JSONFormListField,
     OwnerOnlyErrorMixin,
     StacFacetSerializer,
     imagery_from_shorthand,
@@ -20,11 +24,16 @@ from shared.serializers import (
 )
 
 from .label_sources import (
-    LABELS_URL_MAX_BYTES,
+    LABELS_MAX_BYTES,
     LABELS_URL_MAX_REDIRECTS,
     LABELS_URL_TOTAL_SECONDS,
+    LabelsSourceError,
+    parse_labels_geojson,
 )
 from .models import AOI, Dataset
+
+# https://wiki.openstreetmap.org/wiki/Elements: keys and values are up to 255 characters.
+OSM_TAG_MAX_LENGTH = 255
 
 
 def _validate_tms_url(value: str) -> str:
@@ -39,7 +48,7 @@ def _validate_tms_url(value: str) -> str:
 class DatasetCreateSerializer(serializers.Serializer):
     title = serializers.CharField(max_length=200)
     description = serializers.CharField()
-    imagery = serializers.DictField(
+    imagery = JSONFormDictField(
         child=serializers.URLField(max_length=MAX_URL_LENGTH),
         required=False,
         allow_empty=False,
@@ -57,8 +66,8 @@ class DatasetCreateSerializer(serializers.Serializer):
     )
     category = serializers.SlugRelatedField(slug_field="slug", queryset=Category.objects.all())
     zoom = serializers.IntegerField(min_value=MIN_ZOOM, max_value=MAX_ZOOM)
-    aoi_ids = serializers.ListField(child=serializers.IntegerField(), min_length=1)
-    label_tasks = serializers.ListField(
+    aoi_ids = JSONFormListField(child=serializers.IntegerField(), min_length=1)
+    label_tasks = JSONFormListField(
         child=serializers.ChoiceField(
             choices=[
                 "semantic-segmentation",
@@ -69,37 +78,44 @@ class DatasetCreateSerializer(serializers.Serializer):
         ),
         min_length=1,
     )
-    label_classes = serializers.ListField(
-        child=serializers.DictField(),
-        min_length=1,
+    osm_tags = JSONFormDictField(
+        child=serializers.ListField(
+            child=serializers.CharField(max_length=OSM_TAG_MAX_LENGTH), min_length=1
+        ),
+        required=False,
+        allow_empty=False,
         help_text=(
-            'Each entry: {"name": OSM tag key, "classes": list of OSM tag '
-            'values OR ["*"] for any value}. e.g. '
-            '{"name": "building", "classes": ["yes"]} or '
-            '{"name": "amenity", "classes": ["hospital", "school"]}. '
-            "With labels_url, name is a feature property and classes are its values. "
-            'Optional "value": the integer label the matching features get, e.g. '
-            '{"name": "destroyed:building", "classes": ["*"], "value": 4}; without values, '
-            "entries are numbered 1, 2, 3 in order. Either every entry has a value or none has. "
-            "A feature takes the first entry it matches."
+            'OSM tags for the labels, e.g. {"building": ["*"]}. Give one of osm_tags, '
+            "labels_file or labels_url."
+        ),
+    )
+    labels_file = serializers.FileField(
+        required=False,
+        help_text=(
+            f"GeoJSON FeatureCollection upload, up to {LABELS_MAX_BYTES // 2**20} MB, sent as "
+            "multipart/form-data; each feature names its class in class_property."
         ),
     )
     labels_url = serializers.URLField(
         required=False,
         help_text=(
-            "Public https URL of a GeoJSON FeatureCollection; when set, labels come from it and "
-            "OSM is skipped. It is downloaded when the dataset builds, up to "
-            f"{LABELS_URL_MAX_BYTES // 2**20} MB within {LABELS_URL_TOTAL_SECONDS} s, following up "
-            f"to {LABELS_URL_MAX_REDIRECTS} redirects to other public https URLs. Features that "
-            "intersect the AOIs and match geometry_type and label_classes are kept."
+            "Public https URL of a GeoJSON FeatureCollection; each feature names its class in "
+            "class_property. It is downloaded when the dataset builds, up to "
+            f"{LABELS_MAX_BYTES // 2**20} MB within {LABELS_URL_TOTAL_SECONDS} s, following up "
+            f"to {LABELS_URL_MAX_REDIRECTS} redirects to other public https URLs."
         ),
     )
-    keywords = serializers.ListField(child=serializers.CharField(max_length=80), min_length=1)
+    class_property = serializers.CharField(
+        required=False,
+        max_length=200,
+        help_text=(f'Feature property holding the class (default "{DEFAULT_CLASS_PROPERTY}").'),
+    )
+    keywords = JSONFormListField(child=serializers.CharField(max_length=80), min_length=1)
     label_type = serializers.ChoiceField(choices=["vector", "raster"], default="vector")
     geometry_type = serializers.ChoiceField(
         choices=["point", "line", "polygon"],
         help_text=(
-            "Geometry type of the labels, from OSM or labels_url. A dataset is "
+            "Geometry type of the labels. A dataset is "
             "single-geometry-type; mixing requires separate datasets."
         ),
     )
@@ -110,33 +126,42 @@ class DatasetCreateSerializer(serializers.Serializer):
     def validate_imagery(self, value: dict[str, str]) -> dict[str, str]:
         return validate_input_imagery(value, _validate_tms_url)
 
+    def validate_osm_tags(self, value: dict[str, list[str]]) -> dict[str, list[str]]:
+        if invalid := [key for key in value if not key.strip() or len(key) > OSM_TAG_MAX_LENGTH]:
+            raise serializers.ValidationError(
+                f"OSM keys must be 1 to {OSM_TAG_MAX_LENGTH} characters, got {invalid}"
+            )
+        return value
+
     def validate_labels_url(self, value: str) -> str:
         return validate_public_url(value, ("https",))
 
-    def validate_label_classes(self, value: list[dict]) -> list[dict]:
-        for index, cls in enumerate(value):
-            if "name" not in cls or not cls["name"]:
-                raise serializers.ValidationError(
-                    f"label_classes[{index}] must include a non-empty 'name'"
-                )
-            classes = cls.get("classes")
-            if not isinstance(classes, list) or not classes:
-                raise serializers.ValidationError(
-                    f"label_classes[{index}] must include a non-empty 'classes' list "
-                    '(use ["*"] for any value, or specific OSM tag values like ["yes"])'
-                )
-            class_value = cls.get("value")
-            if "value" in cls and (
-                isinstance(class_value, bool) or not isinstance(class_value, int) or class_value < 0
-            ):
-                raise serializers.ValidationError(
-                    f"label_classes[{index}].value must be a non-negative integer"
-                )
-        if len({"value" in cls for cls in value}) > 1:
-            raise serializers.ValidationError("label_classes: give every entry a 'value', or none")
+    def validate_labels_file(self, value: UploadedFile) -> UploadedFile:
+        if value.size is None or value.size > LABELS_MAX_BYTES:
+            raise serializers.ValidationError(
+                f"labels_file is larger than {LABELS_MAX_BYTES} bytes"
+            )
+        try:
+            parse_labels_geojson(value.read())
+        except LabelsSourceError as exc:
+            raise serializers.ValidationError(str(exc)) from exc
         return value
 
     def validate(self, attrs: dict) -> dict:
+        sources = [name for name in ("osm_tags", "labels_file", "labels_url") if name in attrs]
+        if len(sources) != 1:
+            raise serializers.ValidationError(
+                {"osm_tags": ["Give exactly one of osm_tags, labels_file or labels_url."]}
+            )
+        if "osm_tags" in attrs and "class_property" in attrs:
+            raise serializers.ValidationError(
+                {
+                    "class_property": [
+                        "class_property names a property of labels_file or labels_url."
+                    ]
+                }
+            )
+        attrs.setdefault("class_property", DEFAULT_CLASS_PROPERTY)
         return imagery_from_shorthand(attrs, "source_imagery")
 
 

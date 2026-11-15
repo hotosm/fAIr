@@ -6,6 +6,7 @@ from drf_spectacular.utils import (
     extend_schema_view,
     inline_serializer,
 )
+from fair.stac.label_classes import LabelClassError, resolve_classes
 from fair.stac.validators import is_trainable
 from fair.zenml.runs import get_run_status, is_terminal
 from rest_framework import filters, serializers, status, viewsets
@@ -24,6 +25,7 @@ from shared.integrations.stac import (
     LOCAL_MODELS_COLLECTION,
     get_active_local_model_item,
     get_base_model,
+    get_dataset,
     invalidate_stac_cache,
     item_exists,
 )
@@ -131,7 +133,8 @@ class TrainingViewSet(viewsets.ReadOnlyModelViewSet):
             stac_id=payload["dataset_stac_id"],
             status=Dataset.Status.BUILT,
         )
-        if not is_trainable(get_base_model(base_model.stac_item_id).assets):
+        base_item = get_base_model(base_model.stac_item_id)
+        if not is_trainable(base_item.assets):
             raise ValidationError(
                 {
                     "base_model_stac_id": [
@@ -139,6 +142,14 @@ class TrainingViewSet(viewsets.ReadOnlyModelViewSet):
                     ]
                 }
             )
+        try:
+            resolve_classes(
+                get_dataset(payload["dataset_stac_id"]).properties,
+                base_item.properties,
+                payload["class_map"],
+            )
+        except LabelClassError as exc:
+            raise ValidationError({"class_map": [str(exc)]}) from exc
 
         local_model, created = LocalModel.objects.get_or_create(
             name=payload["model_name"],
@@ -170,6 +181,7 @@ class TrainingViewSet(viewsets.ReadOnlyModelViewSet):
             base_model_stac_id=payload["base_model_stac_id"],
             dataset=dataset,
             overrides=payload["overrides"],
+            class_map=payload["class_map"],
             title=payload["title"],
             keywords=payload["keywords"],
             description=payload["description"],
