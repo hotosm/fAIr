@@ -32,7 +32,7 @@ from shared.integrations.stac import (
     item_exists,
 )
 from shared.public_urls import require_public_url
-from shared.run_endpoints import stop_pipeline_run
+from shared.run_endpoints import enqueue_status_sync_once, mark_stopping, stop_pipeline_run
 from shared.storage import StoragePaths, presigned_get_url
 
 from .models import Prediction
@@ -41,7 +41,7 @@ from .serializers import (
     PredictionSerializer,
     PredictionSubmitSerializer,
 )
-from .tasks import submit_prediction
+from .tasks import submit_prediction, sync_prediction_status
 
 
 def _require_public_url_params(params: dict, model_item: pystac.Item) -> None:
@@ -283,7 +283,8 @@ class PredictionViewSet(viewsets.ReadOnlyModelViewSet):
         prediction = self._run_for_caller(run_id)
         graceful = request.query_params.get("graceful", "false").lower() == "true"
         stop_pipeline_run(run_id, graceful=graceful)
-        Prediction.objects.filter(pk=prediction.pk).update(status="stopping")
+        mark_stopping(Prediction, prediction.pk)
+        enqueue_status_sync_once(sync_prediction_status, prediction_id=prediction.pk)
         return Response({"run_id": run_id, "status": "stopping", "graceful": graceful})
 
 

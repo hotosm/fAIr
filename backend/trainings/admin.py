@@ -1,9 +1,10 @@
 from django.contrib import admin
 from fair.zenml.runs import is_terminal
 
-from shared.run_endpoints import stop_runs
+from shared.run_endpoints import enqueue_status_sync_once, stop_runs
 
 from .models import TrainingRunRef
+from .tasks import sync_training_status
 
 
 @admin.register(TrainingRunRef)
@@ -31,6 +32,9 @@ class TrainingRunRefAdmin(admin.ModelAdmin):
     autocomplete_fields = ["local_model", "dataset", "user"]
 
     actions = [stop_runs]
+
+    def enqueue_status_sync(self, pk: int) -> None:
+        enqueue_status_sync_once(sync_training_status, training_run_ref_id=pk)
 
     def has_add_permission(self, request) -> bool:
         return False

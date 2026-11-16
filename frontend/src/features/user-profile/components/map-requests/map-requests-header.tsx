@@ -25,7 +25,7 @@ export const MapRequestsHeader = () => {
         </button>
       )}
       <ProfilePageTitle
-        title={isSmallViewport ? "Map Request" : "Map Requests"}
+        title="Map Requests"
         showModeSwitch={false}
         // Phones have Back here, so no ☰ next to the title.
         showSidebarButton={!isSmallViewport}

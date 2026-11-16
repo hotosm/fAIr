@@ -487,3 +487,13 @@ hotosm-auth {
   background-position: center;
   background-repeat: no-repeat;
 }
+
+/* sl-tooltip leaves its popup's shift-padding at the default 0 and does not expose it. */
+sl-tooltip.tooltip-off-screen-edges::part(body) {
+  margin-inline: 1rem;
+}
+@media (max-width: 639px) {
+  sl-tooltip {
+    --max-width: min(20rem, calc(100vw - 2rem));
+  }
+}

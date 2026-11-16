@@ -1,5 +1,6 @@
 import { InfoIcon } from "@/components/ui/icons";
 import { ToolTipPlacement } from "@/enums";
+import { cn } from "@/utils";
 import SlTooltip, {
   SlHideEvent,
 } from "@shoelace-style/shoelace/dist/react/tooltip/index.js";
@@ -48,12 +49,6 @@ const ToolTip: React.FC<ToolTipProps> = ({
     e.stopPropagation();
   };
   if (!content) return children;
-  const icon = (
-    <>
-      {!children && <InfoIcon className="icon" />}
-      {children}
-    </>
-  );
   const openProps = pinOnClick
     ? { trigger: pinned ? "manual" : "hover focus", open: pinned }
     : open !== undefined
@@ -61,6 +56,11 @@ const ToolTip: React.FC<ToolTipProps> = ({
       : {};
   const tooltip = (
     <SlTooltip
+      className={cn(
+        (placement === ToolTipPlacement.TOP ||
+          placement === ToolTipPlacement.BOTTOM) &&
+          "tooltip-off-screen-edges",
+      )}
       onSlAfterHide={(e) => stopPropagations(e)}
       onSlAfterShow={(e) => stopPropagations(e)}
       onSlHide={(e) => stopPropagations(e)}
@@ -71,23 +71,16 @@ const ToolTip: React.FC<ToolTipProps> = ({
       <span slot="content">
         {typeof content === "string" ? <span>{content}</span> : content}
       </span>
-      {pinOnClick ? (
-        <button
-          type="button"
-          className="inline-flex cursor-pointer"
-          aria-label={typeof content === "string" ? content : undefined}
-          onClick={() => setPinned((value) => !value)}
-        >
-          {icon}
-        </button>
-      ) : (
-        icon
-      )}
+      {children ?? <InfoIcon className="icon" />}
     </SlTooltip>
   );
   if (!pinOnClick) return tooltip;
   return (
-    <span ref={wrapperRef} className="inline-flex">
+    <span
+      ref={wrapperRef}
+      className="inline-flex max-w-full cursor-pointer"
+      onClick={() => setPinned((value) => !value)}
+    >
       {tooltip}
     </span>
   );

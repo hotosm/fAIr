@@ -84,7 +84,11 @@ export const MapRequestCardList = ({
 
           <div className="flex flex-wrap items-center gap-2">
             {request.category && <FeatureBadge category={request.category} />}
-            <MapRequestStatusBadge status={request.status} size="small" />
+            <MapRequestStatusBadge
+              status={request.status}
+              error={request.error}
+              size="small"
+            />
           </div>
 
           <div className="flex items-center justify-between gap-3 text-sm text-dark">

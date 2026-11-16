@@ -1,10 +1,11 @@
 from django.contrib import admin
 from fair.zenml.runs import is_terminal
 
-from shared.run_endpoints import stop_runs
+from shared.run_endpoints import enqueue_status_sync_once, stop_runs
 
 from .deletion import delete_prediction
 from .models import Prediction
+from .tasks import sync_prediction_status
 
 
 @admin.register(Prediction)
@@ -25,6 +26,9 @@ class PredictionAdmin(admin.ModelAdmin):
     autocomplete_fields = ["user"]
 
     actions = [stop_runs]
+
+    def enqueue_status_sync(self, pk: int) -> None:
+        enqueue_status_sync_once(sync_prediction_status, prediction_id=pk)
 
     def has_add_permission(self, request) -> bool:
         return False

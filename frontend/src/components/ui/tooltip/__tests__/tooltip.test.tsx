@@ -1,19 +1,27 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { ToolTipPlacement } from "@/enums";
 import ToolTip from "../tooltip";
 
 vi.mock("@shoelace-style/shoelace/dist/react/tooltip/index.js", () => ({
   default: ({
     trigger,
     open,
+    className,
     children,
   }: {
     trigger?: string;
     open?: boolean;
+    className?: string;
     children?: ReactNode;
   }) => (
-    <div data-testid="tooltip" data-trigger={trigger} data-open={String(open)}>
+    <div
+      data-testid="tooltip"
+      data-trigger={trigger}
+      data-open={String(open)}
+      className={className}
+    >
       {children}
     </div>
   ),
@@ -103,5 +111,58 @@ describe("ToolTip", () => {
       trigger: "hover focus",
       open: "false",
     });
+  });
+
+  it("leaves a plain element's tooltip hover-only unless asked to pin", () => {
+    render(
+      <ToolTip content="Zoom In">
+        <span>+</span>
+      </ToolTip>,
+    );
+
+    fireEvent.click(screen.getByText("+"));
+
+    expect(tooltip().dataset).toMatchObject({ open: "undefined" });
+    expect(tooltip().dataset.trigger).toBeUndefined();
+  });
+
+  it("pins over a button child without wrapping it in another button", () => {
+    render(
+      <ToolTip content="RuntimeError: run_inference failed" pinOnClick>
+        <button type="button">Failed</button>
+      </ToolTip>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Failed" }));
+
+    expect(screen.getAllByRole("button")).toHaveLength(1);
+    expect(tooltip().dataset.open).toBe("true");
+  });
+
+  it("marks top and bottom tooltips to keep off the screen edges, not side ones", () => {
+    render(
+      <>
+        <ToolTip content="Above">
+          <span>top</span>
+        </ToolTip>
+        <ToolTip content="Beside" placement={ToolTipPlacement.RIGHT}>
+          <span>right</span>
+        </ToolTip>
+      </>,
+    );
+
+    const [above, beside] = screen.getAllByTestId("tooltip");
+    expect(above).toHaveClass("tooltip-off-screen-edges");
+    expect(beside).not.toHaveClass("tooltip-off-screen-edges");
+  });
+
+  it("adds no wrapper around a tooltip that does not pin", () => {
+    const { container } = render(
+      <ToolTip content="Zoom In">
+        <span>+</span>
+      </ToolTip>,
+    );
+
+    expect(container.firstElementChild).toBe(tooltip());
   });
 });

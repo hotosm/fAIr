@@ -9,6 +9,15 @@ import { TModelDetails } from "@/types";
 import { extractYouTubeVideoId } from "./regex-utils";
 import { UpdateCoverImage } from "@/assets/images";
 
+const firstFieldError = (details: unknown): string | undefined => {
+  if (!details || typeof details !== "object" || Array.isArray(details))
+    return undefined;
+  const first = Object.values(details)[0];
+  if (Array.isArray(first))
+    return typeof first[0] === "string" ? first[0] : undefined;
+  return typeof first === "string" ? first : undefined;
+};
+
 /**
  * Displays an error message as a toast notification.
  *
@@ -28,6 +37,7 @@ export const showErrorToast = (
 ) => {
   const toast = useToastNotification();
   let message = "An unexpected error occurred";
+  const fieldError = firstFieldError(error?.response?.data?.error?.details);
   if (customMessage) {
     message = customMessage;
   } else if (
@@ -41,6 +51,8 @@ export const showErrorToast = (
     error.response.data.error.details.length > 0
   ) {
     message = error.response.data.error.details[0];
+  } else if (fieldError) {
+    message = fieldError;
   } else if (
     error?.response?.data?.error &&
     typeof error?.response?.data?.error !== "object"

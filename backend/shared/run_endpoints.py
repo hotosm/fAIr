@@ -1,10 +1,30 @@
 from django.contrib import admin, messages
+from django.db.models import Model
+from django_tasks.base import Task, TaskResultStatus
+from django_tasks_db.models import DBTaskResult
 from fair.zenml.runs import fetch_run_logs, fetch_step_logs, is_terminal
 from rest_framework.exceptions import NotFound
 
 from shared.enums import PipelineRunStatus
 from shared.exceptions import RunAlreadyFinishedException
 from shared.serializers import LogEntrySerializer, RunLogsQuerySerializer
+
+_TERMINAL_STATUSES = [status for status in PipelineRunStatus if is_terminal(status)]
+
+
+def mark_stopping(model: type[Model], pk: int) -> None:
+    model.objects.filter(pk=pk).exclude(status__in=_TERMINAL_STATUSES).update(
+        status=PipelineRunStatus.STOPPING
+    )
+
+
+def enqueue_status_sync_once(task: Task, **kwargs: int) -> None:
+    # RUNNING rows are skipped: a worker killed mid-poll leaves its row RUNNING for good.
+    waiting = DBTaskResult.objects.filter(
+        task_path=task.module_path, status=TaskResultStatus.READY, args_kwargs__kwargs=kwargs
+    )
+    if not waiting.exists():
+        task.enqueue(**kwargs)
 
 
 def read_run_logs(run_id: str, query_params) -> list[dict]:
@@ -45,5 +65,6 @@ def stop_runs(modeladmin, request, queryset) -> None:
         except RunAlreadyFinishedException as exc:
             messages.warning(request, f"{run.zenml_run_id}: {exc}")
             continue
-        type(run).objects.filter(pk=run.pk).update(status=PipelineRunStatus.STOPPING)
+        mark_stopping(type(run), run.pk)
+        modeladmin.enqueue_status_sync(run.pk)
         messages.info(request, f"Stopping {run.zenml_run_id}.")

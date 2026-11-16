@@ -1,8 +1,22 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import type { ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { PredictionRequestStatus } from "@/enums";
 import type { TOfflinePrediction } from "@/types";
 import { MapRequestCardList } from "../map-request-card-list";
+
+vi.mock("@shoelace-style/shoelace/dist/react/tooltip/index.js", () => ({
+  default: ({ open, children }: { open?: boolean; children?: ReactNode }) => (
+    <div data-testid="tooltip" data-open={String(open)}>
+      {children}
+    </div>
+  ),
+}));
+
+const mode = vi.hoisted(() => ({ mappingMode: "advanced" }));
+vi.mock("@/features/try-fair/hooks/use-try-fair-params", () => ({
+  useTryFairParams: () => ({ mappingMode: mode.mappingMode }),
+}));
 
 afterEach(cleanup);
 
@@ -49,6 +63,48 @@ describe("MapRequestCardList", () => {
       />,
     );
     expect(screen.getByRole("button", { name: "View result" })).toBeDisabled();
+  });
+
+  it("gives a failed request its failure reason in advanced mode", () => {
+    mode.mappingMode = "advanced";
+    render(
+      <MapRequestCardList
+        requests={[
+          request(4, {
+            status: PredictionRequestStatus.FAILED,
+            results_ready: false,
+            error:
+              "ValueError: Prediction 4: AOI covers no whole tile at zoom 19",
+          }),
+        ]}
+        onViewResult={vi.fn()}
+      />,
+    );
+    const tooltip = screen.getByTestId("tooltip");
+    expect(tooltip).toHaveTextContent(
+      "ValueError: Prediction 4: AOI covers no whole tile at zoom 19",
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Failed" }));
+    expect(tooltip.dataset.open).toBe("true");
+  });
+
+  it("keeps the failure reason out of basic mode", () => {
+    mode.mappingMode = "basic";
+    render(
+      <MapRequestCardList
+        requests={[
+          request(5, {
+            status: PredictionRequestStatus.FAILED,
+            results_ready: false,
+            error:
+              "ValueError: Prediction 5: AOI covers no whole tile at zoom 19",
+          }),
+        ]}
+        onViewResult={vi.fn()}
+      />,
+    );
+    expect(screen.queryByTestId("tooltip")).toBeNull();
   });
 
   it("shows how long ago a running request was sent, and uses grey cards", () => {

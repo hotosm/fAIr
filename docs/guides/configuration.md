@@ -141,6 +141,7 @@ Only checked when `DEBUG=false`.
 | `HEALTH_PROBE_TIMEOUT`          | no       | `2.0`   | Seconds each HTTP probe waits before marking a dependency unreachable in `GET /api/v1/health/`.                                                |
 | `PREDICTION_SYNC_INTERVAL`      | no       | `15`    | Seconds between prediction-status poll re-enqueues.                                                                                            |
 | `DELETE_PREDICTION_INPUT_TILES` | no       | `true`  | When true, deletes a map request's staged input tiles from object storage once its run ends or its submission fails.                           |
+| `MAP_REQUEST_MAX_AREA_SQKM`     | no       | `5000`  | Largest map request area in km²; a larger one is rejected with HTTP 400. Keep it equal to the frontend's `VITE_MAP_LARGE_AREA_MAX_SIZE_SQKM`.  |
 | `TRAINING_SYNC_INTERVAL`        | no       | `30`    | Seconds between training-status poll re-enqueues.                                                                                              |
 | `STAC_CACHE_TTL`                | no       | `300`   | Seconds the shared cache holds a STAC item before re-fetching. Raise in prod for lower STAC load; lower in dev to see property changes faster. |
 | `STAC_BULK_FETCH_WORKERS`       | no       | `16`    | Thread pool size for parallel STAC item fetches when `?expand=stac` is used on list endpoints.                                                 |

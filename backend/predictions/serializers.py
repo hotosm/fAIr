@@ -1,7 +1,13 @@
+import shapely
+from django.conf import settings
 from django.utils.http import MAX_URL_LENGTH
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
+from pyproj import CRS, Transformer
 from rest_framework import serializers
+from shapely.errors import GEOSException
+from shapely.geometry import box, shape
+from shapely.validation import explain_validity
 
 from accounts.serializers import UserSerializer
 from shared.serializers import (
@@ -14,6 +20,10 @@ from shared.serializers import (
 )
 
 from .models import Prediction
+
+_WEB_MERCATOR_BOUNDS = CRS("EPSG:3857").area_of_use.bounds
+# EPSG:6933 is cylindrical equal-area (WGS84, 86S to 86N), so a lon/lat box measures its exact area.
+_TO_EQUAL_AREA = Transformer.from_crs("EPSG:4326", "EPSG:6933", always_xy=True)
 
 
 class PredictionSubmitSerializer(serializers.Serializer):
@@ -73,14 +83,36 @@ class PredictionSubmitSerializer(serializers.Serializer):
                     [[west, south], [east, south], [east, north], [west, north], [west, south]]
                 ],
             }
+            area = shape(attrs["geometry"])
         else:
-            from shapely.errors import GEOSException
-            from shapely.geometry import shape
-
             try:
-                shape(geometry)
+                area = shape(geometry)
             except (ValueError, KeyError, TypeError, GEOSException) as exc:
                 raise serializers.ValidationError({"geometry": f"invalid geometry: {exc}"}) from exc
+        field = "bbox" if bbox else "geometry"
+        if area.is_empty:
+            raise serializers.ValidationError({field: "The area is empty."})
+        if not area.is_valid:
+            raise serializers.ValidationError(
+                {field: f"The area is not a valid polygon: {explain_validity(area)}."}
+            )
+        if not box(*_WEB_MERCATOR_BOUNDS).contains(area):
+            west, south, east, north = _WEB_MERCATOR_BOUNDS
+            raise serializers.ValidationError(
+                {
+                    field: f"The area must lie within longitude {west:g} to {east:g} "
+                    f"and latitude {south:g} to {north:g}."
+                }
+            )
+        projected = shapely.transform(area, _TO_EQUAL_AREA.transform, interleaved=False)
+        area_sqkm = projected.area / 1_000_000
+        if area_sqkm > settings.MAP_REQUEST_MAX_AREA_SQKM:
+            raise serializers.ValidationError(
+                {
+                    field: f"The area is {area_sqkm:,.0f} km², larger than the "
+                    f"{settings.MAP_REQUEST_MAX_AREA_SQKM:,} km² limit for a map request."
+                }
+            )
         return attrs
 
 

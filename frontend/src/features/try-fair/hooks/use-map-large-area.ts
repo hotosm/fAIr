@@ -581,7 +581,7 @@ export const useMapLargeArea = ({
         closeDialog();
       },
       onError: (err) => {
-        showErrorToast(err, "Failed to submit map large area request.");
+        showErrorToast(err);
       },
     });
   };

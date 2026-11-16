@@ -1,9 +1,13 @@
+import tomllib
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pystac
 import pytest
 from django.contrib.gis.geos import Polygon
+from django.core.management import call_command
+from django_tasks_db.models import DBTaskResult
 from rest_framework.test import APIClient
 
 from accounts.models import OsmUser
@@ -13,9 +17,11 @@ from modelregistry.models import BaseModel, LocalModel
 from notifications.models import Banner
 from predictions.models import Prediction
 from predictions.post_run import PredictionOutputError
+from predictions.tasks import sync_prediction_status
 from shared.enums import FeedbackAction
 from stars.models import Star
 from trainings.models import TrainingRunRef
+from trainings.tasks import sync_training_status
 
 
 @pytest.fixture
@@ -130,7 +136,8 @@ def test_root_home_describes_api(anon_client):
     body = response.json()
     assert body["name"] == "fAIr API"
     assert body["api_version"] == "v1"
-    assert body["app_version"]  # sourced from pyproject.toml
+    release = tomllib.loads((Path(__file__).resolve().parents[2] / ".cz.toml").read_text())
+    assert body["app_version"] == release["tool"]["commitizen"]["version"]
     assert body["schema"] == "/api/schema/"
     assert body["docs"] == "/api/docs/"
 
@@ -601,6 +608,44 @@ def test_training_run_cancel_stops_zenml_run(mock_client_cls, mock_stop, client,
     mock_stop.assert_called_once()
 
 
+@pytest.mark.django_db(transaction=True, serialized_rollback=True)
+@patch("trainings.tasks.get_run_status", return_value="stopped")
+@patch("zenml.utils.run_utils.stop_run")
+@patch("zenml.client.Client")
+def test_training_run_cancel_reaches_stopped_without_a_running_poller(
+    mock_client_cls, mock_stop, mock_status, client, training_ref
+):
+    mock_client_cls.return_value.get_pipeline_run.return_value = MagicMock()
+    TrainingRunRef.objects.filter(pk=training_ref.pk).update(status="running")
+
+    client.post("/api/v1/trainings/runs/run-abc/cancel/")
+    call_command("db_worker", batch=True, no_startup_delay=True, interval=0)
+
+    training_ref.refresh_from_db()
+    assert training_ref.status == "stopped"
+
+
+def _queued_syncs(task, **kwargs) -> int:
+    return DBTaskResult.objects.filter(
+        task_path=task.module_path, status="READY", args_kwargs__kwargs=kwargs
+    ).count()
+
+
+@patch("zenml.utils.run_utils.stop_run")
+@patch("zenml.client.Client")
+def test_training_run_cancel_keeps_one_status_sync_while_one_is_queued(
+    mock_client_cls, mock_stop, client, training_ref
+):
+    mock_client_cls.return_value.get_pipeline_run.return_value = MagicMock()
+    TrainingRunRef.objects.filter(pk=training_ref.pk).update(status="running")
+    sync_training_status.enqueue(training_run_ref_id=training_ref.pk)
+
+    client.post("/api/v1/trainings/runs/run-abc/cancel/")
+    client.post("/api/v1/trainings/runs/run-abc/cancel/")
+
+    assert _queued_syncs(sync_training_status, training_run_ref_id=training_ref.pk) == 1
+
+
 def test_training_run_status_403s_for_non_owner(other_user, training_ref):
     other = APIClient()
     other.force_authenticate(user=other_user)
@@ -863,6 +908,83 @@ def test_prediction_run_cancel_stops_zenml_run(mock_client_cls, mock_stop, clien
     assert response.status_code == 200
     assert response.json()["status"] == "stopping"
     mock_stop.assert_called_once()
+
+
+@pytest.mark.django_db(transaction=True, serialized_rollback=True)
+@patch("predictions.tasks.remove_dir")
+@patch("predictions.tasks.get_run_status", return_value="stopped")
+@patch("zenml.utils.run_utils.stop_run")
+@patch("zenml.client.Client")
+def test_prediction_run_cancel_reaches_stopped_without_a_running_poller(
+    mock_client_cls, mock_stop, mock_status, mock_remove, client, prediction
+):
+    mock_client_cls.return_value.get_pipeline_run.return_value = MagicMock()
+    Prediction.objects.filter(pk=prediction.pk).update(status="running", results_ready=False)
+
+    client.post("/api/v1/predictions/runs/pred-run-1/cancel/")
+    call_command("db_worker", batch=True, no_startup_delay=True, interval=0)
+
+    prediction.refresh_from_db()
+    assert prediction.status == "stopped"
+
+
+@patch("zenml.utils.run_utils.stop_run")
+@patch("zenml.client.Client")
+def test_prediction_run_cancel_keeps_one_status_sync_while_one_is_queued(
+    mock_client_cls, mock_stop, client, prediction
+):
+    mock_client_cls.return_value.get_pipeline_run.return_value = MagicMock()
+    Prediction.objects.filter(pk=prediction.pk).update(status="running", results_ready=False)
+    sync_prediction_status.enqueue(prediction_id=prediction.pk)
+
+    client.post("/api/v1/predictions/runs/pred-run-1/cancel/")
+    client.post("/api/v1/predictions/runs/pred-run-1/cancel/")
+
+    assert _queued_syncs(sync_prediction_status, prediction_id=prediction.pk) == 1
+
+
+@patch("zenml.utils.run_utils.stop_run")
+@patch("zenml.client.Client")
+def test_prediction_run_cancel_queues_a_sync_past_a_poll_left_running_by_a_killed_worker(
+    mock_client_cls, mock_stop, client, prediction
+):
+    mock_client_cls.return_value.get_pipeline_run.return_value = MagicMock()
+    Prediction.objects.filter(pk=prediction.pk).update(status="running", results_ready=False)
+    sync_prediction_status.enqueue(prediction_id=prediction.pk)
+    DBTaskResult.objects.update(status="RUNNING")
+
+    client.post("/api/v1/predictions/runs/pred-run-1/cancel/")
+
+    assert _queued_syncs(sync_prediction_status, prediction_id=prediction.pk) == 1
+
+
+@patch("zenml.utils.run_utils.stop_run")
+@patch("zenml.client.Client")
+def test_prediction_run_cancel_is_not_blocked_by_another_runs_queued_sync(
+    mock_client_cls, mock_stop, client, prediction
+):
+    mock_client_cls.return_value.get_pipeline_run.return_value = MagicMock()
+    Prediction.objects.filter(pk=prediction.pk).update(status="running", results_ready=False)
+    sync_prediction_status.enqueue(prediction_id=prediction.pk + 1000)
+    sync_training_status.enqueue(training_run_ref_id=prediction.pk)
+
+    client.post("/api/v1/predictions/runs/pred-run-1/cancel/")
+
+    assert _queued_syncs(sync_prediction_status, prediction_id=prediction.pk) == 1
+
+
+@patch("zenml.utils.run_utils.stop_run")
+@patch("zenml.client.Client")
+def test_prediction_run_cancel_leaves_a_run_that_already_stopped_as_stopped(
+    mock_client_cls, mock_stop, client, prediction
+):
+    mock_client_cls.return_value.get_pipeline_run.return_value = MagicMock()
+    Prediction.objects.filter(pk=prediction.pk).update(status="stopped", results_ready=False)
+
+    client.post("/api/v1/predictions/runs/pred-run-1/cancel/")
+
+    prediction.refresh_from_db()
+    assert prediction.status == "stopped"
 
 
 def test_prediction_publish_toggle_round_trip(client, prediction):

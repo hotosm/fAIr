@@ -431,6 +431,8 @@ export type TNewOfflinePrediction = {
 export type TOfflinePrediction = {
   id: number;
   zenml_run_id: string | null;
+  /** Why the request failed; null unless status is failed. */
+  error?: string | null;
   local_model_stac_id: string;
   /** Title from the model's STAC item; null when STAC is unavailable. */
   model_title?: string | null;

@@ -30,7 +30,12 @@ from shared.integrations.stac import (
     item_exists,
 )
 from shared.integrations.zenml import for_user
-from shared.run_endpoints import read_run_logs, stop_pipeline_run
+from shared.run_endpoints import (
+    enqueue_status_sync_once,
+    mark_stopping,
+    read_run_logs,
+    stop_pipeline_run,
+)
 from shared.serializers import LogEntrySerializer, RunLogsQuerySerializer, RunStatusSerializer
 
 from .models import TrainingRunRef
@@ -39,7 +44,7 @@ from .serializers import (
     TrainingRunRefSerializer,
     TrainingSubmitSerializer,
 )
-from .tasks import submit_training
+from .tasks import submit_training, sync_training_status
 
 
 def _previous_version_description(model_name: str) -> str:
@@ -243,7 +248,8 @@ class TrainingViewSet(viewsets.ReadOnlyModelViewSet):
         run_ref = self._run_for_caller(run_id)
         graceful = request.query_params.get("graceful", "false").lower() == "true"
         stop_pipeline_run(run_id, graceful=graceful)
-        TrainingRunRef.objects.filter(pk=run_ref.pk).update(status="stopping")
+        mark_stopping(TrainingRunRef, run_ref.pk)
+        enqueue_status_sync_once(sync_training_status, training_run_ref_id=run_ref.pk)
         return Response({"run_id": run_id, "status": "stopping", "graceful": graceful})
 
     @extend_schema(
