@@ -1,3 +1,9 @@
+## v3.1.1 (2026-11-16)
+
+### Fix
+
+- **tiny-fixes-in-frontend,-added-prediction-data-types-with-model-name**: tooltip , added model name and consistent license readme terms in model card
+
 ## v3.1.0 (2026-11-15)
 
 ### Feat
