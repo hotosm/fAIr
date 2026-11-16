@@ -8,12 +8,13 @@ from urllib.parse import urlsplit
 from django.conf import settings
 from django.utils import timezone
 from django_tasks import task
+from fair.zenml.runs import get_run_status, is_terminal
 from upath import UPath
 
 from shared.chips import chip_files, chips_every_input_has, upload_chips
 from shared.enums import PipelineRunStatus
-from shared.integrations.zenml import for_user, get_run_status, is_terminal
-from shared.storage import StoragePaths
+from shared.integrations.zenml import for_user
+from shared.storage import StoragePaths, remove_dir
 
 from .models import Prediction
 from .post_run import PredictionOutputError, post_process_prediction
@@ -35,7 +36,7 @@ def submit_prediction(*, prediction_id: int) -> None:
         params=prediction.params,
     )
     prediction.zenml_run_id = zenml_run_id
-    prediction.status = "submitted"
+    prediction.status = PipelineRunStatus.SUBMITTED
     prediction.save(update_fields=["zenml_run_id", "status"])
 
     sync_prediction_status.using(
@@ -49,7 +50,7 @@ def sync_prediction_status(*, prediction_id: int) -> None:
     if prediction is None or not prediction.zenml_run_id:
         return
     pipeline_done = is_terminal(prediction.status)
-    outputs_done = prediction.status != "completed" or prediction.results_ready
+    outputs_done = prediction.status != PipelineRunStatus.COMPLETED or prediction.results_ready
     if pipeline_done and outputs_done:
         return
 
@@ -58,7 +59,7 @@ def sync_prediction_status(*, prediction_id: int) -> None:
         status=new_status, last_polled_at=timezone.now()
     )
 
-    needs_postrun = new_status == "completed" and not prediction.results_ready
+    needs_postrun = new_status == PipelineRunStatus.COMPLETED and not prediction.results_ready
     if not is_terminal(new_status) or needs_postrun:
         sync_prediction_status.using(
             run_after=timezone.now() + timedelta(seconds=_SYNC_INTERVAL_S)
@@ -71,8 +72,23 @@ def sync_prediction_status(*, prediction_id: int) -> None:
             # A model/STAC mismatch is permanent; a terminal status stops the poller.
             logger.exception("Prediction %s: outputs rejected", prediction_id)
             Prediction.objects.filter(id=prediction_id).update(status=PipelineRunStatus.FAILED)
+            delete_input_tiles(prediction)
             return
         Prediction.objects.filter(id=prediction_id).update(results_ready=True)
+    if is_terminal(new_status):
+        delete_input_tiles(prediction)
+
+
+@task()
+def delete_prediction_input_tiles(*, prediction_id: int) -> None:
+    delete_input_tiles(Prediction.objects.get(id=prediction_id))
+
+
+def delete_input_tiles(prediction: Prediction) -> None:
+    if not settings.DELETE_PREDICTION_INPUT_TILES:
+        return
+    for name in prediction.imagery:  # type: ignore[not-iterable]
+        remove_dir(StoragePaths.prediction_input_dir_uri(prediction.id, name))
 
 
 def _materialize_prediction_input(prediction: Prediction) -> dict[str, str]:

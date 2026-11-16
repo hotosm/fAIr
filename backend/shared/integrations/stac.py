@@ -102,8 +102,6 @@ def item_exists(collection_id: str, item_id: str) -> bool:
 def _public_links(links: list[dict]) -> list[dict]:
     # Internal STAC-host links are dead publicly; consumers navigate via this backend, so drop them.
     internal = settings.FAIR_STAC_API_URL
-    if not internal:
-        return links
     return [link for link in links if not str(link.get("href", "")).startswith(internal)]
 
 
@@ -144,10 +142,7 @@ def get_cached_item(collection_id: str, item_id: str) -> dict:
 def bulk_get_cached_items(
     pairs: list[tuple[str, str]],
 ) -> dict[tuple[str, str], dict]:
-    """Parallel cold-fetch for a page of items. Cached entries skip the network.
-
-    Raises if any backing STAC fetch fails (consistent with fail-loud).
-    """
+    """Fetch a page of items in parallel, skipping cached ones; raises if any fetch fails."""
     if not pairs:
         return {}
 
@@ -177,11 +172,7 @@ def invalidate_stac_cache(collection_id: str, item_id: str) -> None:
 
 
 def get_active_local_model_item(model_name: str) -> pystac.Item | None:
-    # STAC items are keyed by version UUID; callers that hold the slug
-    # (LocalModel.name == mlm:name) need this lookup before writing
-    # per-version properties.
-    # TODO(stac-cql2): linear scan via list_items. Plumb a CQL2 search through
-    # the StacBackend protocol once it's needed at scale.
+    # Items are keyed by version UUID, so finding a model by mlm:name scans the collection.
     for item in _backend().list_items(LOCAL_MODELS_COLLECTION):
         if item.properties.get("mlm:name") != model_name:
             continue
@@ -271,9 +262,7 @@ def mirror_and_relink_assets(collection_id: str, item_id: str) -> None:
         asset = item.assets.get(name)
         if asset is None or not asset.href:
             continue
-        if (
-            "/stac-assets/" in asset.href or "/artifacts/" in asset.href
-        ):  # this is poor choice , TODO : Change this to check the fair proxy itself
+        if "/stac-assets/" in asset.href or "/artifacts/" in asset.href:
             continue
         prefix = StoragePaths.stac_download_prefix(collection_id, item_id, name)
         _stream_href_to_bucket(asset.href, prefix)

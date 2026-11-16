@@ -20,12 +20,12 @@ export const truncateString = (string?: string, maxLength: number = 30) => {
 
 export const extractTileJSONURL = (OAMTMSURL: string) => {
   const hotRasterTileURL = OAMTMSURL.match(
-    /^https:\/\/api\.imagery\.hotosm\.org\/raster\/collections\/openaerialmap\/items\/([^\/?#]+)\/tiles\/WebMercatorQuad\/\{z\}\/\{x\}\/\{y\}(?:\?([^#]*))?$/,
+    /^https:\/\/((?:api|tiles)\.imagery\.hotosm\.org)\/raster\/collections\/openaerialmap\/items\/([^\/?#]+)\/tiles\/WebMercatorQuad\/\{z\}\/\{x\}\/\{y\}(?:\?([^#]*))?$/,
   );
   if (hotRasterTileURL) {
-    const [, itemId, query] = hotRasterTileURL;
+    const [, host, itemId, query] = hotRasterTileURL;
     const assetName = new URLSearchParams(query).get("assets") ?? "visual";
-    return `https://api.imagery.hotosm.org/raster/collections/openaerialmap/items/${itemId}/WebMercatorQuad/tilejson.json?assets=${encodeURIComponent(assetName)}&tilesize=256`;
+    return `https://${host}/raster/collections/openaerialmap/items/${itemId}/WebMercatorQuad/tilejson.json?assets=${encodeURIComponent(assetName)}&tilesize=256`;
   }
 
   // Before, when we hit this url https://tiles.openaerialmap.org/63b457ba3fb8c100063c55f0/0/63b457ba3fb8c100063c55f1/{z}/{x}/{y} (without the /{z}/{x}/{y}),

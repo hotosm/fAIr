@@ -3,7 +3,7 @@ fAIr has been deployed!
 Components:
   - Backend API: {{ include "fair.backend.fullname" . }}
 {{- if .Values.backend.djangoQ.enabled }}
-  - Django-Q:    running as sidecar in backend pod
+  - Worker:      django_tasks db_worker, running as sidecar in backend pod
 {{- end }}
 {{- if eq (.Values.frontend.mode | default "bundleWithBackend") "bundleWithBackend" }}
   - Frontend:    bundled - the API pod serves the SPA at `/` (Django + WhiteNoise)

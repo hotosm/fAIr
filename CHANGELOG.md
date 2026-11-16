@@ -1,3 +1,40 @@
+## v3.1.1 (2026-11-16)
+
+### Fix
+
+- **tiny-fixes-in-frontend,-added-prediction-data-types-with-model-name**: tooltip , added model name and consistent license readme terms in model card
+
+## v3.1.0 (2026-11-15)
+
+### Feat
+
+- enhance imagery selection and preview functionality
+- add mobile map toolbar and feedback components
+- enhance restoreParams to maintain mapping mode when restoring saved runs
+- implement feedback feature with thumbs up/down icons, feedback flow, and modals
+
+### Fix
+
+- **class**: add class map to models serializer
+- **labels**: read from stac for the label classes required for each modeel
+- **bump**: fair py ops
+- **license**: fix license of dino
+- **qa**: add qa docs plan to follow qa process before deployment
+- **qa**: migrate from image_uri to stac mlm input image
+- **feedback**: bringback feedback apis and validation after refactor
+- **hover**: dynamically hover the content of model details in frontend
+- additional updates for api.imager domains --> tiles.imagery (for caching)
+- **delete**: fix auth status and loud delete on s3 folder
+- update OAM api links to cached tiles.imagery.hotosm.org domain
+
+### Refactor
+
+- streamline legend rendering in TryFairMap component
+- reorganize imports for recent activities component
+- format import statements for better readability
+- **code**: refactors all dead api endpoints from v2
+- update OAM urls from v1 --> v2 address
+
 ## v3.0.0 (2026-10-26)
 
 ### Feat

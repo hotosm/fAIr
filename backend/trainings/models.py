@@ -22,8 +22,9 @@ class TrainingRunRef(models.Model):
         blank=True,
     )
     overrides = models.JSONField(default=dict, blank=True)
+    class_map = models.JSONField(default=dict, blank=True)
     title = models.CharField(max_length=200, blank=True, default="")
-    # keywords + dataset keywords + dataset fair:geometry_type) at publish.
+    # Merged at publish with the base model's keywords and the dataset's non-geometry keywords.
     keywords = models.JSONField(default=list, blank=True)
     description = models.TextField(blank=True)
     status = models.CharField(
@@ -45,9 +46,7 @@ class TrainingRunRef(models.Model):
 
     class Meta:
         indexes = [
-            models.Index(fields=["local_model"]),
             models.Index(fields=["status"]),
-            models.Index(fields=["user"]),
             models.Index(fields=["base_model_stac_id"]),
         ]
         constraints = [

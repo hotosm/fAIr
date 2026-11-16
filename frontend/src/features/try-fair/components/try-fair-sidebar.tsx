@@ -31,7 +31,13 @@ import { ToolTip } from "@/components/ui/tooltip";
 import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
 import { AdvancedModelPicker } from "@/features/try-fair/components/model-picker/advanced-model-picker-dialog";
 import { Spinner } from "@/components/ui/spinner";
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { Dialog } from "@/components/ui/dialog";
+import {
+  MapUnavailableNotice,
+  type MapUnavailableReason,
+} from "@/features/try-fair/components/map-unavailable-notice";
 import { AdvancedSettingsPanel } from "@/features/try-fair/components/advanced-settings-panel";
 import { DropDown } from "@/components/ui/dropdown";
 import type { SlDropdownType } from "@/types";
@@ -55,6 +61,10 @@ type TryFairSidebarProps = {
   onCancelPrediction: () => void;
   isPredicting: boolean;
   isMapButtonDisabled: boolean;
+  /** Set when Map is off because there's no model to map with. */
+  mapUnavailableReason?: MapUnavailableReason | null;
+  /** The feature being mapped, for the "no model" notice. */
+  featureLabel?: string;
   className?: string;
   openMobileModelPickerDialog?: () => void;
   openAdvancedModelPickerDialog?: () => void;
@@ -78,6 +88,8 @@ export const TryFairSidebar = ({
   onCancelPrediction,
   isPredicting,
   isMapButtonDisabled,
+  mapUnavailableReason = null,
+  featureLabel = "",
   className,
   openMobileModelPickerDialog,
   openAdvancedModelPickerDialog,
@@ -86,6 +98,7 @@ export const TryFairSidebar = ({
   const { mappingMode } = useTryFairParams();
   const { isAuthenticated } = useAuth();
   const advancedSettingsDropdownRef = useRef<SlDropdownType>(null);
+  const [isAdvancedSheetOpen, setIsAdvancedSheetOpen] = useState(false);
   const isAdvancedMode = isAuthenticated && mappingMode === "advanced";
 
   const supportsPolygon = selectedModel
@@ -105,6 +118,9 @@ export const TryFairSidebar = ({
     ({ key }) => key !== "confidence_threshold",
   );
 
+  const advancedSettingsTriggerClassName =
+    "flex w-full items-center justify-between text-left text-xs text-dark disabled:cursor-not-allowed disabled:opacity-50";
+
   return (
     <div
       className={cn(
@@ -112,14 +128,7 @@ export const TryFairSidebar = ({
         className,
       )}
     >
-      <div
-        className={cn(
-          "flex bg-gray-white border-[#687075] border rounded-lg overflow-hidden",
-          isSmallViewport
-            ? "flex-col items-stretch p-2.5 gap-2"
-            : "items-stretch",
-        )}
-      >
+      <div className="flex items-stretch bg-gray-white border-[#687075] border rounded-lg overflow-hidden">
         <div
           onClick={isPredicting ? undefined : openMobileModelPickerDialog}
           className={cn(
@@ -127,7 +136,7 @@ export const TryFairSidebar = ({
             isPredicting
               ? "cursor-not-allowed opacity-60"
               : "cursor-pointer hover:bg-black/[0.02] transition-colors",
-            !isSmallViewport && "pl-2.5 pr-2 py-2 rounded-l-lg",
+            "pl-2.5 pr-2 py-2 rounded-l-lg",
           )}
         >
           <ModelPicker
@@ -136,22 +145,17 @@ export const TryFairSidebar = ({
             models={models}
             disabled={isPredicting}
             loading={modelsLoading}
-            isSmallViewport={isSmallViewport}
             openMobileDialog={openMobileModelPickerDialog}
+            noSamples={mapUnavailableReason === "no-samples"}
           />
         </div>
 
         {/* Vertical divider */}
-        {!isSmallViewport && (
-          <div className="w-px my-2 bg-gray-border shrink-0" />
-        )}
+        <div className="w-px my-2 bg-gray-border shrink-0" />
 
         <div
           id={APP_TOUR_IDS.TRY_FAIR_MAP_BUTTON_TOOLTIP}
-          className={cn(
-            "flex items-center gap-2",
-            !isSmallViewport ? "p-2.5" : "",
-          )}
+          className="flex items-center gap-2 p-2.5"
         >
           {isPredicting ? (
             <>
@@ -185,6 +189,13 @@ export const TryFairSidebar = ({
           )}
         </div>
       </div>
+
+      {mapUnavailableReason === "no-model-for-feature" && (
+        <MapUnavailableNotice
+          featureLabel={featureLabel}
+          onOpenModelPicker={openMobileModelPickerDialog}
+        />
+      )}
 
       {/* ── Model selector (advanced mode only) ── */}
       {isAdvancedMode && (
@@ -345,14 +356,45 @@ export const TryFairSidebar = ({
           </div>
         )}
 
-        {hasAdvancedSettings && isAdvancedMode && (
+        {hasAdvancedSettings && isAdvancedMode && isSmallViewport && (
+          <>
+            <button
+              type="button"
+              disabled={isPredicting}
+              onClick={() => setIsAdvancedSheetOpen(true)}
+              className={advancedSettingsTriggerClassName}
+            >
+              Advanced Settings
+              <span className="text-lg leading-none">›</span>
+            </button>
+            {/* Portalled: the settings sheet moves with a transform, which
+                would otherwise trap the dialog inside it. */}
+            {createPortal(
+              <Dialog
+                isOpened={isAdvancedSheetOpen}
+                closeDialog={() => setIsAdvancedSheetOpen(false)}
+                noHeader
+                noPadding
+              >
+                <AdvancedSettingsPanel
+                  closePanel={() => setIsAdvancedSheetOpen(false)}
+                  inferenceParams={inferenceParams}
+                  paramValues={paramValues}
+                  onParamChange={onParamChange}
+                  onReset={onResetParameters}
+                  isPredicting={isPredicting}
+                  className="w-full max-h-none rounded-none border-0 shadow-none"
+                />
+              </Dialog>,
+              document.body,
+            )}
+          </>
+        )}
+
+        {hasAdvancedSettings && isAdvancedMode && !isSmallViewport && (
           <DropDown
             ref={advancedSettingsDropdownRef}
-            placement={
-              isSmallViewport
-                ? DropdownPlacement.BOTTOM_START
-                : DropdownPlacement.RIGHT_END
-            }
+            placement={DropdownPlacement.RIGHT_END}
             distance={20}
             hoist
             disableCheveronIcon
@@ -361,7 +403,7 @@ export const TryFairSidebar = ({
               <button
                 type="button"
                 disabled={isPredicting}
-                className="flex w-full items-center justify-between text-left text-xs text-dark disabled:cursor-not-allowed disabled:opacity-50"
+                className={advancedSettingsTriggerClassName}
               >
                 Advanced Settings
                 <span className="text-lg leading-none">›</span>

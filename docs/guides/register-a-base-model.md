@@ -45,7 +45,8 @@ A complete reference item lives in the fAIr-models repository, for example
 Send exactly one of `stac_item` (inline JSON) or `stac_item_url` (a link fetched
 once at request time). `category` is optional and defaults to `other`.
 `inference_endpoint` is optional; when given it is written as the
-`mlm:inference-endpoint` asset.
+`mlm:inference-endpoint` asset. The Django admin "Add base model" form takes the same
+fields.
 
 By URL:
 
@@ -129,8 +130,8 @@ curl -s "https://<stac-host>/collections/base-models/items/<mlm:name>" | jq '.pr
 ## Re-registering
 
 The "Re-register selected from STAC" admin action re-publishes an already-published
-model from its STAC item. A model that never published (no `stac_item_id`) must be
-submitted again through the API. Every registration writes the row's `is_pinned` to
+model from its STAC item. A model that never published (no `stac_item_id`) is
+registered again through `POST /base-models/` or the Django admin add form. Every registration writes the row's `is_pinned` to
 the new item's `fair:pinned`. Registering from the fAIr-models item replaces the title,
 description and `fair:preview` set since the last registration.
 
@@ -153,15 +154,17 @@ curl -X PATCH https://<host>/api/v1/base-models/<id>/pin/ \
 This flips `is_pinned` in the database and, for a published model, writes
 `fair:pinned` to the STAC item. `preview_imagery` and `preview_location` update
 the imagery, center and place of the item's `fair:preview`, which the model
-must already have. A new `preview_location` also clears the preview `bbox`. All pinned models (base and local) are listed together at
-`/api/v1/pinned-models/`.
+must already have. A new `preview_location` also clears the preview `bbox`.
 
 ## Edit the title, description and preview
 
 `PATCH /api/v1/base-models/<id>/metadata/` takes any of `title`, `description` and
-`fair_preview`, and writes them to the STAC item after validating the merged item.
+`fair_preview`, and writes them to the STAC item after validating the merged item. It
+returns `409` while the model has no STAC item.
 The Django admin change form edits the same three fields, and its "Pin selected" and
-"Unpin selected" actions behave like the pin endpoint.
+"Unpin selected" actions behave like the pin endpoint. Its "STAC patch" field takes the
+same body as `PATCH /api/v1/base-models/<id>/stac/` and is written together with those
+fields after one validation.
 
 ## Remove a model
 

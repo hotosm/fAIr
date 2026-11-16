@@ -675,7 +675,7 @@ export const HOT_IMAGERY_STAC_API_URL: string = parseStringEnv(
  */
 export const HOT_IMAGERY_RASTER_API_URL: string = parseStringEnv(
   ENVS.HOT_IMAGERY_RASTER_API_URL,
-  "https://api.imagery.hotosm.org/raster",
+  "https://tiles.imagery.hotosm.org/raster",
 );
 
 /**

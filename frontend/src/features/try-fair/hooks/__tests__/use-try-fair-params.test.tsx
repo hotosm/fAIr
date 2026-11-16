@@ -33,6 +33,7 @@ const modelWithZoom = (zoom?: number): BaseModelStacItem => ({
     "mlm:name": "Recommended model",
     "mlm:architecture": "",
     "mlm:tasks": [],
+    "mlm:input": [{ name: "image" }],
     "mlm:framework": "",
     "fair:pinned": false,
     "mlm:hyperparameters": {},
@@ -216,6 +217,24 @@ describe("useTryFairParams", () => {
     expect(search.get("output")).toBe(TryFairMapOutputType.POINTS);
     expect(search.get("resolution")).toBe(TryFairResolution.HIGH);
     expect(JSON.parse(search.get("params")!)).toEqual(snapshot.params);
+  });
+
+  it("keeps the current mapping mode when restoring a run saved in another mode", async () => {
+    const onUrlUpdate = vi.fn();
+    const { result } = renderHook(() => useTryFairParams(), {
+      wrapper: createWrapper({ mappingMode: "advanced" }, onUrlUpdate),
+    });
+    await act(async () => {
+      await result.current.restoreParams({
+        ...result.current.urlState,
+        model: "saved-model",
+        mappingMode: "basic",
+      });
+    });
+    const search = onUrlUpdate.mock.calls[0][0].searchParams as URLSearchParams;
+    expect(search.get("model")).toBe("saved-model");
+    expect(search.get("mappingMode")).toBe("advanced");
+    expect(result.current.mappingMode).toBe("advanced");
   });
 
   it("should initialize with default parameters when no query params are supplied", () => {

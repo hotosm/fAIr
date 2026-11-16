@@ -126,7 +126,7 @@ export const XYZTileServerInput = ({
           <span className="text-wrap text-xs">
             Ensure your imagery URL has CORS enabled and adheres to the{" "}
             <a
-              href="https://github.com/hotosm/fair?tab=readme-ov-file#imagery-license"
+              href="https://hotosm.github.io/fAIr/overview/data-licensing/#imagery"
               target="_blank"
               className="text-primary underline"
             >
@@ -139,7 +139,7 @@ export const XYZTileServerInput = ({
         <span className="text-wrap text-xs">
           Ensure your imagery URL has CORS enabled and <br /> adheres to the{" "}
           <a
-            href="https://github.com/hotosm/fair?tab=readme-ov-file#imagery-license"
+            href="https://hotosm.github.io/fAIr/overview/data-licensing/#imagery"
             target="_blank"
             className="text-primary underline"
           >

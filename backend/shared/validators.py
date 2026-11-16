@@ -5,12 +5,7 @@ from shapely.errors import GEOSException as ShapelyGEOSException
 from shapely.geometry import shape
 from shapely.validation import make_valid
 
-from .exceptions import (
-    GeometryValidationException,
-    ValidationException,
-    handle_geometry_error,
-    handle_validation_error,
-)
+from .exceptions import handle_geometry_error
 
 
 def validate_geometry(geom_data):
@@ -55,66 +50,3 @@ def validate_geometry(geom_data):
         if isinstance(geom_data, dict) and "type" in geom_data:
             geom_type = geom_data["type"]
         raise handle_geometry_error(geom_type, f"Invalid geometry format: {e!s}") from e
-
-
-def validate_geojson(geojson_data):
-    if isinstance(geojson_data, str):
-        try:
-            geojson_data = json.loads(geojson_data)
-        except json.JSONDecodeError as exc:
-            raise handle_validation_error(
-                "geojson", "Invalid JSON in GeoJSON field", geojson_data
-            ) from exc
-
-    if not isinstance(geojson_data, dict):
-        raise handle_validation_error(
-            "geojson", "GeoJSON must be a dictionary", type(geojson_data).__name__
-        )
-
-    if "type" not in geojson_data:
-        raise handle_validation_error("geojson", "GeoJSON must have a 'type' field")
-
-    geojson_type = geojson_data["type"]
-    if geojson_type == "FeatureCollection":
-        if "features" not in geojson_data:
-            raise handle_validation_error(
-                "geojson", "FeatureCollection must have a 'features' field"
-            )
-        for i, feature in enumerate(geojson_data["features"]):
-            try:
-                _validate_feature(feature)
-            except (ValidationException, GeometryValidationException) as e:
-                e.details["feature_index"] = i
-                raise e
-    elif geojson_type == "Feature":
-        _validate_feature(geojson_data)
-    elif geojson_type in {
-        "Point",
-        "LineString",
-        "Polygon",
-        "MultiPoint",
-        "MultiLineString",
-        "MultiPolygon",
-    }:
-        validate_geometry(geojson_data)
-    else:
-        raise handle_validation_error(
-            "geojson", f"Unsupported GeoJSON type: {geojson_type}", geojson_type
-        )
-    return geojson_data
-
-
-def _validate_feature(feature):
-    if not isinstance(feature, dict):
-        raise handle_validation_error(
-            "geojson_feature", "Feature must be a dictionary", type(feature).__name__
-        )
-    if feature.get("type") != "Feature":
-        raise handle_validation_error(
-            "geojson_feature", "Feature must have type 'Feature'", feature.get("type")
-        )
-    if "geometry" not in feature:
-        raise handle_validation_error("geojson_feature", "Feature must have a 'geometry' field")
-    if feature["geometry"] is not None:
-        validate_geometry(feature["geometry"])
-    return feature

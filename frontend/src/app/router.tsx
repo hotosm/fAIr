@@ -450,6 +450,16 @@ const router = createBrowserRouter([
               };
             },
           },
+          {
+            path: APPLICATION_ROUTES.PROFILE_MAPPING_HISTORY,
+            lazy: async () => {
+              const { UserProfileMappingHistoryPage } =
+                await import("@/app/routes/profile/mapping-history");
+              return {
+                Component: () => <UserProfileMappingHistoryPage />,
+              };
+            },
+          },
         ],
       },
       /**

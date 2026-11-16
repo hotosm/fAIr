@@ -90,6 +90,7 @@ const sample: BaseModelStacItem = {
     "mlm:name": "Sample model",
     "mlm:architecture": "",
     "mlm:tasks": [],
+    "mlm:input": [{ name: "image" }],
     "mlm:framework": "",
     "fair:pinned": false,
     "mlm:hyperparameters": {},
@@ -180,7 +181,7 @@ describe("Recent imagery", () => {
       selectedImagery: null,
     });
     render(<Picker />);
-    expect(screen.getByText("No models available")).toBeInTheDocument();
+    expect(screen.getByText("No samples available")).toBeInTheDocument();
   });
 
   it("replaces an unapplied recent choice with the newer browser selection", () => {

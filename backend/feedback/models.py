@@ -10,6 +10,7 @@ class Feedback(models.Model):
     Action = FeedbackAction
 
     stac_id = models.CharField(max_length=200, db_index=True)
+    model_name = models.CharField(max_length=200, blank=True, default="", db_index=True)
     geom = geomodels.GeometryField(srid=4326)
     action = models.CharField(
         max_length=6, choices=FeedbackAction.choices, default=FeedbackAction.ACCEPT
@@ -26,10 +27,7 @@ class Feedback(models.Model):
 
     class Meta:
         indexes = [
-            models.Index(fields=["stac_id"]),
-            models.Index(fields=["user"]),
             models.Index(fields=["action"]),
-            models.Index(fields=["geom"], name="feedback_geom_gist_idx", opclasses=["gist"]),
         ]
         ordering = ["-created_at"]
 

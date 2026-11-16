@@ -1,5 +1,7 @@
 import secrets
+import shutil
 
+from django.db import transaction
 from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -8,6 +10,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import (
     OpenApiExample,
+    OpenApiRequest,
     OpenApiResponse,
     extend_schema,
     extend_schema_view,
@@ -15,36 +18,33 @@ from drf_spectacular.utils import (
 from gpxpy.gpx import GPX, GPXTrack, GPXTrackPoint, GPXTrackSegment
 from rest_framework import filters, mixins, status, viewsets
 from rest_framework.decorators import action
+from rest_framework.parsers import JSONParser, MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_gis.filters import InBBoxFilter
+from upath import UPath
 
-from accounts.authentication import OsmAuthentication
 from accounts.permissions import (
     IsAdmin,
     IsOwnerOrAdmin,
     IsOwnerOrAdminOrReadOnly,
     PublishedReadOrAuthenticatedWrite,
-    _is_admin,
+    is_admin,
 )
 from shared.enums import Visibility
 from shared.integrations.stac import (
     DATASETS_COLLECTION,
     FAIR_PINNED_PROPERTY,
-    bulk_get_cached_items,
-    get_cached_item,
     set_item_property,
 )
+from shared.stac_expand import StacExpandMixin
+from shared.storage import StoragePaths
 
 from .deletion import delete_dataset
 from .models import AOI, Dataset
 from .serializers import AOISerializer, DatasetCreateSerializer, DatasetSerializer
 from .tasks import build_dataset
-
-
-def _wants_expand_stac(request) -> bool:
-    return request.query_params.get("expand") == "stac"
 
 
 @extend_schema_view(
@@ -76,6 +76,7 @@ def _wants_expand_stac(request) -> bool:
     build=extend_schema(description="Submit a dataset build job for the given AOIs."),
 )
 class DatasetViewSet(
+    StacExpandMixin,
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
     mixins.UpdateModelMixin,
@@ -84,14 +85,15 @@ class DatasetViewSet(
 ):
     """Datasets are created by the `build` action."""
 
+    stac_collection = DATASETS_COLLECTION
+    stac_id_field = "stac_id"
     queryset = Dataset.objects.all()
     serializer_class = DatasetSerializer
-    authentication_classes = [OsmAuthentication]
     permission_classes = [PublishedReadOrAuthenticatedWrite, IsOwnerOrAdminOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
-    filterset_fields = ["status", "visibility", "user"]
+    filterset_fields = ["status", "visibility", "category", "user"]
     search_fields = ["title", "stac_id"]
-    ordering_fields = ["created_at", "last_modified"]
+    ordering_fields = ["created_at", "last_modified", "star_count"]
 
     def get_queryset(self):
         from shared.stars import annotate_stars
@@ -100,7 +102,7 @@ class DatasetViewSet(
         user = self.request.user
         if not user.is_authenticated:
             qs = qs.filter(visibility=Visibility.PUBLIC)
-        elif not _is_admin(user):
+        elif not is_admin(user):
             qs = qs.filter(Q(user=user) | Q(visibility=Visibility.PUBLIC))
         return annotate_stars(qs, self.request)
 
@@ -113,36 +115,6 @@ class DatasetViewSet(
 
     def perform_destroy(self, instance: Dataset) -> None:
         delete_dataset(instance)
-
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context["stac_items_by_id"] = self._stac_items_for_request()
-        return context
-
-    def _stac_items_for_request(self) -> dict:
-        if not _wants_expand_stac(self.request):
-            return {}
-        if self.action == "retrieve":
-            obj = self.get_object()
-            payload = get_cached_item(DATASETS_COLLECTION, obj.stac_id)
-            return {(DATASETS_COLLECTION, obj.stac_id): payload}
-        if self.action == "list":
-            page = self.paginate_queryset(self.filter_queryset(self.get_queryset()))
-            if page is None:
-                page = list(self.filter_queryset(self.get_queryset()))
-            self._cached_page = page
-            pairs = [(DATASETS_COLLECTION, d.stac_id) for d in page]
-            return bulk_get_cached_items(pairs)
-        return {}
-
-    def list(self, request, *args, **kwargs):
-        if _wants_expand_stac(request):
-            self.get_serializer_context()
-            page = getattr(self, "_cached_page", None)
-            if page is not None and self.paginator is not None:
-                serializer = self.get_serializer(page, many=True)
-                return self.get_paginated_response(serializer.data)
-        return super().list(request, *args, **kwargs)
 
     @extend_schema(request=None, responses={200: DatasetSerializer})
     @action(detail=True, methods=["post"], url_path="publish")
@@ -177,7 +149,16 @@ class DatasetViewSet(
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @extend_schema(
-        request=DatasetCreateSerializer,
+        request={
+            "application/json": DatasetCreateSerializer,
+            "multipart/form-data": OpenApiRequest(
+                DatasetCreateSerializer,
+                encoding={
+                    name: {"contentType": "application/json"}
+                    for name in ("imagery", "aoi_ids", "label_tasks", "osm_tags", "keywords")
+                },
+            ),
+        },
         responses={202: DatasetSerializer},
         examples=[
             OpenApiExample(
@@ -187,15 +168,15 @@ class DatasetViewSet(
                     "description": "Buildings training dataset",
                     "imagery": {
                         "image": (
-                            "https://tiles.openaerialmap.org/62d85d11d8499800053796c1/0/"
-                            "62d85d11d8499800053796c2/{z}/{x}/{y}"
+                            "https://tiles.imagery.hotosm.org/raster/collections/openaerialmap/items/"
+                            "62d86c65d8499800053796c4/tiles/WebMercatorQuad/{z}/{x}/{y}?assets=visual"
                         )
                     },
                     "category": "buildings",
                     "zoom": 19,
                     "aoi_ids": [1],
                     "label_tasks": ["semantic-segmentation"],
-                    "label_classes": [{"name": "building", "classes": ["*"]}],
+                    "osm_tags": {"building": ["*"]},
                     "keywords": ["building", "polygon"],
                     "label_type": "vector",
                     "geometry_type": "polygon",
@@ -215,13 +196,8 @@ class DatasetViewSet(
                     "zoom": 18,
                     "aoi_ids": [1],
                     "label_tasks": ["semantic-segmentation"],
-                    "label_classes": [
-                        {"name": "damage", "classes": ["no-damage"]},
-                        {"name": "damage", "classes": ["minor-damage"]},
-                        {"name": "damage", "classes": ["major-damage"]},
-                        {"name": "damage", "classes": ["destroyed"]},
-                    ],
                     "labels_url": "https://example.org/damage-survey.geojson",
+                    "class_property": "damage",
                     "keywords": ["building", "polygon"],
                     "label_type": "vector",
                     "geometry_type": "polygon",
@@ -230,7 +206,12 @@ class DatasetViewSet(
             ),
         ],
     )
-    @action(detail=False, methods=["post"], url_path="build")
+    @action(
+        detail=False,
+        methods=["post"],
+        url_path="build",
+        parser_classes=[JSONParser, MultiPartParser],
+    )
     def build(self, request) -> Response:
         serializer = DatasetCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -243,28 +224,45 @@ class DatasetViewSet(
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        dataset = Dataset.objects.create(
-            stac_id=_slugify(payload["title"]),
-            title=payload["title"],
-            imagery=payload["imagery"],
-            primary_input=next(iter(payload["imagery"])),
-            category=payload["category"],
-            status=Dataset.Status.BUILDING,
-            user=request.user,
-        )
-        aoi_qs.update(dataset=dataset)
-
-        build_dataset.enqueue(
-            dataset_id=dataset.id,
-            description=payload["description"],
-            label_tasks=payload["label_tasks"],
-            label_classes=payload["label_classes"],
-            keywords=payload["keywords"],
-            label_type=payload["label_type"],
-            zoom=payload["zoom"],
-            geometry_type=payload["geometry_type"],
-            labels_url=payload.get("labels_url"),
-        )
+        stac_id = _slugify(payload["title"])
+        labels_file_uri = None
+        try:
+            if "labels_file" in payload:
+                # The build runs in a worker, so the upload waits in object storage until then.
+                labels_file_uri = StoragePaths.dataset_source_labels_uri(stac_id)
+                upload = payload["labels_file"]
+                upload.seek(0)
+                with UPath(labels_file_uri).open("wb") as target:
+                    shutil.copyfileobj(upload, target)
+            # The task row lives in the same database, so it commits or rolls back with the dataset.
+            with transaction.atomic():
+                dataset = Dataset.objects.create(
+                    stac_id=stac_id,
+                    title=payload["title"],
+                    imagery=payload["imagery"],
+                    primary_input=next(iter(payload["imagery"])),
+                    category=payload["category"],
+                    status=Dataset.Status.BUILDING,
+                    user=request.user,
+                )
+                aoi_qs.update(dataset=dataset)
+                build_dataset.enqueue(
+                    dataset_id=dataset.id,
+                    description=payload["description"],
+                    label_tasks=payload["label_tasks"],
+                    keywords=payload["keywords"],
+                    label_type=payload["label_type"],
+                    zoom=payload["zoom"],
+                    geometry_type=payload["geometry_type"],
+                    osm_tags=payload.get("osm_tags"),
+                    labels_url=payload.get("labels_url"),
+                    labels_file_uri=labels_file_uri,
+                    class_property=payload["class_property"],
+                )
+        except Exception:
+            if labels_file_uri:
+                UPath(labels_file_uri).unlink(missing_ok=True)
+            raise
         return Response(DatasetSerializer(dataset).data, status=status.HTTP_202_ACCEPTED)
 
 
@@ -303,7 +301,6 @@ class DatasetViewSet(
 class AOIViewSet(viewsets.ModelViewSet):
     queryset = AOI.objects.all()
     serializer_class = AOISerializer
-    authentication_classes = [OsmAuthentication]
     permission_classes = [IsAuthenticated, IsOwnerOrAdminOrReadOnly]
     filter_backends = [DjangoFilterBackend, InBBoxFilter]
     filterset_fields = ["dataset", "user"]
@@ -316,7 +313,6 @@ class AOIViewSet(viewsets.ModelViewSet):
 
 @extend_schema(tags=["datasets"])
 class GenerateGpxView(APIView):
-    authentication_classes = [OsmAuthentication]
     permission_classes = [IsAuthenticated]
 
     @extend_schema(

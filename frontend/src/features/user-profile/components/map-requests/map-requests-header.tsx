@@ -1,11 +1,16 @@
-import { ChevronDownIcon } from "@/components/ui/icons";
+import { ArrowBackIcon } from "@/components/ui/icons";
 import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
 import { useNavigate } from "react-router-dom";
+import { ProfilePageTitle } from "@/features/user-profile/components/profile-page-title";
+import useScreenSize from "@/hooks/use-screen-size";
 
 export const MapRequestsHeader = () => {
   const navigate = useNavigate();
   const { mappingMode } = useTryFairParams();
-  const showBackButton = mappingMode !== "advanced";
+  const { isSmallViewport } = useScreenSize();
+  // Phones always get Back (as in the mobile design); on wider screens the
+  // advanced sidebar is the way out, so only basic mode shows it.
+  const showBackButton = isSmallViewport || mappingMode !== "advanced";
 
   return (
     <div className="flex flex-col gap-y-4">
@@ -13,13 +18,18 @@ export const MapRequestsHeader = () => {
         <button
           type="button"
           onClick={() => navigate(-1)}
-          className="flex w-fit items-center gap-x-1.5 text-body-3 text-dark hover:text-primary transition-colors"
+          className="flex w-fit items-center gap-x-2 text-xs text-dark hover:text-primary transition-colors sm:text-sm"
         >
-          <ChevronDownIcon className="size-3.5 rotate-90" />
+          <ArrowBackIcon className="size-4" />
           Back
         </button>
       )}
-      <h1 className="text-title-2 font-bold text-dark">Map Requests</h1>
+      <ProfilePageTitle
+        title={isSmallViewport ? "Map Request" : "Map Requests"}
+        showModeSwitch={false}
+        // Phones have Back here, so no ☰ next to the title.
+        showSidebarButton={!isSmallViewport}
+      />
     </div>
   );
 };

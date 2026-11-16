@@ -1,4 +1,7 @@
 from django.contrib import admin
+from fair.zenml.runs import is_terminal
+
+from shared.run_endpoints import stop_runs
 
 from .models import TrainingRunRef
 
@@ -27,5 +30,11 @@ class TrainingRunRefAdmin(admin.ModelAdmin):
     list_per_page = 50
     autocomplete_fields = ["local_model", "dataset", "user"]
 
+    actions = [stop_runs]
+
     def has_add_permission(self, request) -> bool:
         return False
+
+    def has_delete_permission(self, request, obj=None) -> bool:
+        running = obj is not None and not is_terminal(obj.status)
+        return super().has_delete_permission(request, obj) and not running

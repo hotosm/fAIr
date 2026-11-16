@@ -2,6 +2,7 @@ from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+from fair.datasets import MaterializedDataset
 from django.contrib.gis.geos import Polygon
 from rest_framework.test import APIClient
 
@@ -12,18 +13,6 @@ from datasets.tasks import _materialize_dataset_assets, build_dataset
 
 POST_TMS = "https://tiles.example/post/{z}/{x}/{y}.png"
 PRE_TMS = "https://tiles.example/pre/{z}/{x}/{y}.png"
-
-
-@pytest.fixture
-def user(db) -> OsmUser:
-    return OsmUser.objects.create(osm_id=3001, username="mapper")
-
-
-@pytest.fixture
-def client(user: OsmUser) -> APIClient:
-    api = APIClient()
-    api.force_authenticate(user=user)
-    return api
 
 
 @pytest.fixture
@@ -42,7 +31,7 @@ def _payload(aoi: AOI, **imagery: object) -> dict:
         "zoom": 19,
         "aoi_ids": [aoi.id],
         "label_tasks": ["semantic-segmentation"],
-        "label_classes": [{"name": "building", "classes": ["*"]}],
+        "osm_tags": {"building": ["*"]},
         "keywords": ["buildings"],
         "geometry_type": "polygon",
         **imagery,
@@ -139,9 +128,11 @@ def _materialize(dataset: Dataset):
     return _materialize_dataset_assets(
         dataset,
         zoom=19,
-        label_classes=[{"name": "building", "classes": ["*"]}],
         geometry_type="polygon",
+        osm_tags={"building": ["*"]},
         labels_url=None,
+        labels_file_uri=None,
+        class_property="class",
     )
 
 
@@ -149,8 +140,18 @@ def _downloads(files_by_url: dict[str, list[str]]):
     return lambda url, *args: {name: Path(name) for name in files_by_url[url]}
 
 
+_BUILDING = {
+    "type": "Feature",
+    "properties": {"osm_id": 1, "osm_type": "way", "tags": {"building": "yes"}},
+    "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[85.502, 27.602], [85.503, 27.602], [85.503, 27.603], [85.502, 27.602]]],
+    },
+}
+
+
 @patch("datasets.tasks.UPath", side_effect=lambda uri: MagicMock(name=uri))
-@patch("geomltoolkits.downloader.osm.download_osm_data", AsyncMock(return_value={"features": []}))
+@patch("geomltoolkits.downloader.osm.download_osm_data", AsyncMock(return_value={"features": [_BUILDING]}))
 def test_materialize_keeps_the_tiles_every_input_has(mock_upath, user, aoi):
     dataset = _dataset(user, aoi)
     files = {POST_TMS: ["OAM-1-2-19.tif", "OAM-1-3-19.tif"], PRE_TMS: ["OAM-1-2-19.tif", "OAM-1-4-19.tif"]}
@@ -158,7 +159,7 @@ def test_materialize_keeps_the_tiles_every_input_has(mock_upath, user, aoi):
         patch("datasets.tasks._download_chips", side_effect=_downloads(files)) as download,
         patch("datasets.tasks.upload_chips") as upload,
     ):
-        chips_hrefs, *_ = _materialize(dataset)
+        chips_hrefs = _materialize(dataset).chips_dirs
 
     assert {call.args[0] for call in download.call_args_list} == {POST_TMS, PRE_TMS}
     first_call, second_call = download.call_args_list
@@ -226,15 +227,22 @@ def test_build_registers_the_primary_imagery_as_source_imagery(mock_materialize,
     dataset = _dataset(user, aoi)
     dataset.imagery = {"pre": PRE_TMS, "post": POST_TMS}
     dataset.save(update_fields=["imagery"])
-    mock_materialize.return_value = ({"post": "s3://c/post", "pre": "s3://c/pre"}, "s3://c/labels", {}, [0, 0, 1, 1])
+    mock_materialize.return_value = MaterializedDataset(
+        chips_dirs={"post": "s3://c/post", "pre": "s3://c/pre"},
+        labels_file="s3://c/labels",
+        geometry={},
+        bbox=[0, 0, 1, 1],
+        label_properties=["building"],
+        label_classes=[{"name": "building", "classes": ["yes"]}],
+    )
     mock_for_user.return_value.register_dataset.return_value = dataset.stac_id
 
     build_dataset.call(
         dataset_id=dataset.id,
         description="damage",
         label_tasks=["segmentation"],
-        label_classes=[{"name": "building", "classes": ["*"]}],
         keywords=["building"],
+        osm_tags={"building": ["*"]},
         label_type="vector",
         zoom=19,
         geometry_type="polygon",
@@ -243,6 +251,9 @@ def test_build_registers_the_primary_imagery_as_source_imagery(mock_materialize,
     params = mock_for_user.return_value.register_dataset.call_args.args[0]
     assert params.source_imagery == POST_TMS
     assert params.imagery_hrefs == {"post": POST_TMS, "pre": PRE_TMS}
+    assert params.label_properties == ["building"]
+    assert params.label_classes == [{"name": "building", "classes": ["yes"]}]
+    assert params.license_id == "ODbL-1.0"
 
 
 @patch("datasets.tasks._materialize_dataset_assets", side_effect=RuntimeError("no tile has every input"))
@@ -254,7 +265,6 @@ def test_a_failed_build_marks_the_dataset_failed_with_the_error(mock_materialize
             dataset_id=dataset.id,
             description="damage",
             label_tasks=["segmentation"],
-            label_classes=[{"name": "building", "classes": ["*"]}],
             keywords=["building"],
             label_type="vector",
             zoom=19,
