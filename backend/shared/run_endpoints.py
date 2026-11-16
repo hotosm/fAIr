@@ -9,6 +9,7 @@ from shared.enums import PipelineRunStatus
 from shared.exceptions import RunAlreadyFinishedException
 from shared.serializers import LogEntrySerializer, RunLogsQuerySerializer
 
+_ERROR_LEVELS = {"40", "50", "ERROR", "CRITICAL"}
 _TERMINAL_STATUSES = [status for status in PipelineRunStatus if is_terminal(status)]
 
 
@@ -25,6 +26,15 @@ def enqueue_status_sync_once(task: Task, **kwargs: int) -> None:
     )
     if not waiting.exists():
         task.enqueue(**kwargs)
+
+
+def run_failure_reason(run_id: str) -> str:
+    try:
+        entries = fetch_run_logs(run_id)
+    except RuntimeError as exc:  # fair raises when the stack has no log store; report that instead
+        return f"Run failed; its logs could not be read: {exc}"
+    errors = (e.message for e in entries if e.level in _ERROR_LEVELS)
+    return next(errors, "Run failed; ZenML logged no error.")
 
 
 def read_run_logs(run_id: str, query_params) -> list[dict]:

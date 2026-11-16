@@ -7,7 +7,9 @@ from upath import UPath
 
 from accounts.models import OsmUser
 from predictions.models import Prediction
-from predictions.tasks import _materialize_prediction_input, submit_prediction
+from fair.zenml.runs import LogEntry
+
+from predictions.tasks import _materialize_prediction_input, submit_prediction, sync_prediction_status
 from shared.enums import PipelineRunStatus
 
 _TILEJSON_URL = "https://imagery.example.com/WebMercatorQuad/tilejson.json?assets=visual"
@@ -165,3 +167,43 @@ def test_inputs_without_a_shared_tile_fail_before_staging(prediction: Prediction
         pytest.raises(RuntimeError, match="no tile has imagery for every input"),
     ):
         _materialize_prediction_input(_post_pre_prediction(prediction))
+
+
+@patch("predictions.tasks.delete_input_tiles")
+@patch(
+    "shared.run_endpoints.fetch_run_logs",
+    return_value=[
+        LogEntry(level="20", message="Node `run_inference` started (status: running)"),
+        LogEntry(level="40", message="Job for step `run_inference` failed: exit_code=137"),
+        LogEntry(level="40", message="The following steps failed: run_inference"),
+    ],
+)
+@patch("predictions.tasks.get_run_status", return_value=PipelineRunStatus.FAILED)
+def test_a_failed_run_records_the_first_error_zenml_logged(
+    _status, _logs, _delete, prediction: Prediction
+) -> None:
+    Prediction.objects.filter(pk=prediction.pk).update(zenml_run_id="run-1", status="running")
+
+    sync_prediction_status.call(prediction_id=prediction.pk)
+
+    prediction.refresh_from_db()
+    assert prediction.status == PipelineRunStatus.FAILED
+    assert prediction.error == "Job for step `run_inference` failed: exit_code=137"
+
+
+@patch("predictions.tasks.delete_input_tiles")
+@patch(
+    "shared.run_endpoints.fetch_run_logs",
+    side_effect=RuntimeError("active ZenML stack has no log_store; cannot fetch run logs."),
+)
+@patch("predictions.tasks.get_run_status", return_value=PipelineRunStatus.FAILED)
+def test_a_failed_run_without_readable_logs_says_so_and_still_cleans_up(
+    _status, _logs, delete, prediction: Prediction
+) -> None:
+    Prediction.objects.filter(pk=prediction.pk).update(zenml_run_id="run-1", status="running")
+
+    sync_prediction_status.call(prediction_id=prediction.pk)
+
+    prediction.refresh_from_db()
+    assert prediction.error == "Run failed; its logs could not be read: active ZenML stack has no log_store; cannot fetch run logs."
+    delete.assert_called_once()

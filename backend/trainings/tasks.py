@@ -8,6 +8,7 @@ from fair.zenml.runs import get_run_status, is_terminal
 
 from shared.enums import PipelineRunStatus
 from shared.integrations.zenml import for_user
+from shared.run_endpoints import run_failure_reason
 
 from .models import TrainingRunRef
 
@@ -54,6 +55,10 @@ def sync_training_status(*, training_run_ref_id: int) -> None:
     TrainingRunRef.objects.filter(id=training_run_ref_id).update(
         status=new_status, last_polled_at=timezone.now()
     )
+    if new_status == PipelineRunStatus.FAILED:
+        TrainingRunRef.objects.filter(id=training_run_ref_id).update(
+            error=run_failure_reason(run_ref.zenml_run_id)
+        )
 
     if not is_terminal(new_status):
         sync_training_status.using(

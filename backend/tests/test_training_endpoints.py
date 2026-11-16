@@ -4,13 +4,14 @@ from unittest.mock import patch
 import pystac
 import pytest
 from django.test import override_settings
+from fair.zenml.runs import LogEntry
 
 from accounts.models import OsmUser
 from datasets.models import Dataset
 from modelregistry.models import BaseModel, LocalModel
 from shared.enums import PipelineRunStatus
 from trainings.models import TrainingRunRef
-from trainings.tasks import submit_training
+from trainings.tasks import submit_training, sync_training_status
 
 
 @pytest.fixture
@@ -165,3 +166,23 @@ def test_training_submission_passes_the_class_map_to_the_pipeline(training_ref: 
     assert for_user.return_value.submit_finetune.call_args.kwargs["class_map"] == {"roof=iron": "building"}
     training_ref.refresh_from_db()
     assert training_ref.zenml_run_id == "run-1"
+
+
+@patch(
+    "shared.run_endpoints.fetch_run_logs",
+    return_value=[
+        LogEntry(level="20", message="Node `train_model` started (status: running)"),
+        LogEntry(level="ERROR", message="Job for step `train_model` failed: exit_code=137"),
+    ],
+)
+@patch("trainings.tasks.get_run_status", return_value="failed")
+def test_a_failed_training_records_the_first_error_zenml_logged(
+    _status, _logs, training_ref: TrainingRunRef
+) -> None:
+    TrainingRunRef.objects.filter(pk=training_ref.pk).update(status="running")
+
+    sync_training_status.call(training_run_ref_id=training_ref.pk)
+
+    training_ref.refresh_from_db()
+    assert training_ref.status == "failed"
+    assert training_ref.error == "Job for step `train_model` failed: exit_code=137"

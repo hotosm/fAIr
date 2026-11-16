@@ -14,6 +14,7 @@ from upath import UPath
 from shared.chips import chip_files, chips_every_input_has, upload_chips
 from shared.enums import PipelineRunStatus
 from shared.integrations.zenml import for_user
+from shared.run_endpoints import run_failure_reason
 from shared.storage import StoragePaths, remove_dir
 
 from .models import Prediction
@@ -58,6 +59,10 @@ def sync_prediction_status(*, prediction_id: int) -> None:
     Prediction.objects.filter(id=prediction_id).update(
         status=new_status, last_polled_at=timezone.now()
     )
+    if new_status == PipelineRunStatus.FAILED:
+        Prediction.objects.filter(id=prediction_id).update(
+            error=run_failure_reason(prediction.zenml_run_id)
+        )
 
     needs_postrun = new_status == PipelineRunStatus.COMPLETED and not prediction.results_ready
     if not is_terminal(new_status) or needs_postrun:

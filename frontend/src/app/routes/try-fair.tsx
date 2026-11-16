@@ -449,6 +449,7 @@ export const TryFairPage = ({
     setCurrentModelType(ModelType.DEMO);
     setMode(ModelType.DEMO);
     setImagery({ url: null, tileServiceType: null, oamItemId: null });
+    setSelectedModelId(null);
     handleSelectModel(model);
   };
 

@@ -29,10 +29,10 @@ requests, preview info, metrics spec).
 
 Two rules to keep in mind:
 
-- `keywords` are validated against an allowed list. Use the standard task and
-  domain terms (for example `building`, `semantic-segmentation`, `polygon`).
-  Do not put the category slug in `keywords`; the category is written
-  separately as the `fair:category` property during registration.
+- Fill `keywords` with task, feature and geometry terms (for example
+  `building`, `semantic-segmentation`, `polygon`). A dataset trains on the model
+  only when it shares at least one exact keyword with it. Leave the category
+  slug out; registration writes it as the `fair:category` property.
 - Model weight assets (`model`, `checkpoint`) should point to a location the
   platform can read. Registration mirrors them into the artifact store under a
   versioned path and publishes the mirrored hrefs.
