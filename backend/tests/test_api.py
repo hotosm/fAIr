@@ -490,6 +490,29 @@ def test_training_submit_rejects_unslugifiable_model_name(
 
 @patch("trainings.views.item_exists", return_value=True)
 @patch("trainings.views.submit_training")
+def test_training_submit_rejects_a_base_model_name_in_any_case(
+    mock_task, mock_item_exists, client, published_dataset, registered_base_model
+):
+    BaseModel.objects.filter(pk=registered_base_model.pk).update(name="UNet-Segmentation")
+
+    response = client.post(
+        "/api/v1/trainings/submit/",
+        data={
+            "base_model_stac_id": "unet-segmentation",
+            "dataset_stac_id": published_dataset.stac_id,
+            "model_name": "UNet Segmentation",
+        },
+        format="json",
+    )
+
+    assert response.status_code == 400
+    assert "is a base model name" in str(response.data)
+    assert not LocalModel.objects.filter(name="unet-segmentation").exists()
+    mock_task.enqueue.assert_not_called()
+
+
+@patch("trainings.views.item_exists", return_value=True)
+@patch("trainings.views.submit_training")
 def test_training_submit_403s_when_model_owned_by_other_user(
     mock_task, mock_item_exists, client, published_dataset, registered_base_model, db
 ):

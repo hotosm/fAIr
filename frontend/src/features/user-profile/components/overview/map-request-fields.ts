@@ -6,10 +6,10 @@ import type { TOfflinePrediction } from "@/types";
 // desktop table and the mobile cards.
 
 export const getModelUsed = (p: TOfflinePrediction): string =>
-  p.model_name || p.local_model_stac_id || "-";
+  p.model_title || p.model_name || p.local_model_stac_id || "-";
 
 export const getPredictionName = (p: TOfflinePrediction): string =>
-  p.description || `Prediction #${p.id}`;
+  p.description || `Map request #${p.id}`;
 
 export const isResultReady = (p: TOfflinePrediction): boolean =>
   p.results_ready ||

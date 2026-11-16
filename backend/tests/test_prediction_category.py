@@ -53,16 +53,30 @@ def test_prediction_detail_reports_the_model_category(
     assert response.json()["category"] == expected
 
 
-@pytest.mark.parametrize(("model_id", "expected"), [("banepa-local", "banepa"), ("waste-base", "waste"), ("removed-model", None)])
-def test_prediction_detail_reports_the_model_name(
-    client: APIClient, user: OsmUser, local_model: LocalModel, model_id: str, expected: str | None
+def test_prediction_detail_reports_the_recorded_model_name_and_title(
+    client: APIClient, user: OsmUser, local_model: LocalModel
 ) -> None:
-    prediction = _prediction(user, model_id)
+    prediction = _prediction(user, "banepa-local")
+    Prediction.objects.filter(pk=prediction.pk).update(model_name="banepa")
 
-    response = client.get(f"/api/v1/predictions/{prediction.id}/")
+    with patch("predictions.views.model_titles", return_value={"banepa-local": "Banepa buildings"}):
+        response = client.get(f"/api/v1/predictions/{prediction.id}/")
+
+    assert response.json()["model_name"] == "banepa"
+    assert response.json()["model_title"] == "Banepa buildings"
+
+
+@pytest.mark.parametrize("action", ["publish", "unpublish"])
+def test_publishing_returns_the_model_title(
+    client: APIClient, user: OsmUser, local_model: LocalModel, action: str
+) -> None:
+    prediction = _prediction(user, "banepa-local")
+
+    with patch("predictions.views.model_titles", return_value={"banepa-local": "Banepa buildings"}):
+        response = client.post(f"/api/v1/predictions/{prediction.id}/{action}/")
 
     assert response.status_code == 200
-    assert response.json()["model_name"] == expected
+    assert response.json()["model_title"] == "Banepa buildings"
 
 
 def test_prediction_list_category_costs_no_query_per_row(client: APIClient, user: OsmUser, local_model: LocalModel) -> None:
@@ -98,6 +112,7 @@ def test_submit_response_includes_the_category(
 
     assert response.status_code == 202
     assert response.json()["category"] == "buildings"
+    assert Prediction.objects.get(id=response.json()["id"]).model_name == "banepa"
 
 
 def test_anonymous_prediction_list_reports_the_category(user: OsmUser, local_model: LocalModel) -> None:

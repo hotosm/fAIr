@@ -22,13 +22,14 @@ class PredictionQuerySet(models.QuerySet):
     def with_model_details(self) -> "PredictionQuerySet":
         return self.annotate(
             category=_registered_model_field("category_id"),
-            model_name=_registered_model_field("name"),
         )
 
 
 class Prediction(InputImagery):
     zenml_run_id = models.CharField(max_length=64, unique=True, null=True, blank=True)
     local_model_stac_id = models.CharField(max_length=64)
+    # Stable across a local model's versions, whose STAC item ids differ.
+    model_name = models.CharField(max_length=200, blank=True, default="", db_index=True)
     geometry = models.JSONField()
     zoom = models.PositiveSmallIntegerField()
     params = models.JSONField(default=dict, blank=True)

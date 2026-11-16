@@ -58,6 +58,7 @@ export type BaseModelStacItem = {
     title: string;
     description: string;
     deprecated: boolean;
+    license?: string;
     "mlm:name": string;
     "mlm:architecture": string;
     "mlm:tasks": string[];
@@ -84,6 +85,8 @@ export type BaseModelStacItem = {
   assets: {
     model?: StacAsset;
     "mlm:inference-endpoint"?: StacAsset;
+    "source-code"?: StacAsset;
+    readme?: StacAsset;
     [key: string]: StacAsset | undefined;
   };
 };

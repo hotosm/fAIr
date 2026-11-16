@@ -105,6 +105,7 @@ class Settings(BaseSettings):
     anon_rate_limit: str = "100/h"
     training_rate_limit: str = "10/h"
     prediction_rate_limit: str = "50/h"
+    model_run_rate_limit: str = "600/h"
 
     # OSM raw-data API
     raw_data_api_url: AnyHttpUrl = AnyHttpUrl("https://api-prod.raw-data.hotosm.org/v1")

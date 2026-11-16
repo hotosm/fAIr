@@ -5,7 +5,7 @@ from collections.abc import Sequence
 import httpx
 from django.conf import settings
 from django.db import transaction
-from django.db.models import Count, Q
+from django.db.models import Count, F, Q
 from django.http import HttpResponse, HttpResponseRedirect
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.types import OpenApiTypes
@@ -20,6 +20,7 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound, ValidationError
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 
 from accounts.permissions import (
@@ -28,6 +29,7 @@ from accounts.permissions import (
     PublishedReadOrAuthenticatedWrite,
     is_admin,
 )
+from modelregistry.usage import annotate_usage
 from shared.enums import Visibility
 from shared.integrations.stac import (
     BASE_MODELS_COLLECTION,
@@ -54,6 +56,7 @@ from .serializers import (
     LocalModelSerializer,
     ModelMetadataSerializer,
     ModelPinSerializer,
+    PredictionRunSerializer,
     StacPropertiesPatchSerializer,
 )
 from .tasks import register_base_model
@@ -165,6 +168,33 @@ def _no_stac_version(verb: str) -> Response:
         {"detail": f"The model has no STAC item to {verb}."},
         status=status.HTTP_409_CONFLICT,
     )
+
+
+class PredictionRunView(APIView):
+    """Counts try-now runs, which go straight to the model service and leave no prediction row."""
+
+    permission_classes = [AllowAny]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "model_run"
+
+    @extend_schema(
+        request=PredictionRunSerializer,
+        responses={204: None, 404: OpenApiTypes.OBJECT},
+        description="Count one try-now run of the model with this STAC item id.",
+        examples=[OpenApiExample("Run", value={"stac_id": "dinov3s-buildings"}, request_only=True)],
+    )
+    def post(self, request) -> Response:
+        payload = PredictionRunSerializer(data=request.data)
+        payload.is_valid(raise_exception=True)
+        user = request.user
+        for model in (LocalModel, BaseModel):
+            rows = model.objects.filter(stac_item_id=payload.validated_data["stac_id"])
+            if not (user.is_authenticated and is_admin(user)):
+                visible = Q(visibility=Visibility.PUBLIC, status=model.Status.ACTIVE)
+                rows = rows.filter(visible | Q(user=user) if user.is_authenticated else visible)
+            if rows.update(prediction_runs=F("prediction_runs") + 1):
+                return Response(status=status.HTTP_204_NO_CONTENT)
+        raise NotFound("No model you can see has this STAC item id.")
 
 
 class ModelMetadataMixin:
@@ -290,6 +320,11 @@ def resolve_stac_item(data: dict) -> dict:
     stac_item = data.get("stac_item") or _fetch_stac_item(data["stac_item_url"])
     if error := _pipeline_error(stac_item):
         raise ValidationError({"stac_item": error})
+    name = stac_item.get("properties", {}).get("mlm:name")
+    if name and LocalModel.objects.filter(name__iexact=name).exists():
+        raise ValidationError(
+            {"stac_item": f"'{name}' is a local model name; choose another mlm:name."}
+        )
     if inference_endpoint := data.get("inference_endpoint"):
         stac_item.setdefault("assets", {})["mlm:inference-endpoint"] = {
             "href": inference_endpoint,
@@ -374,7 +409,7 @@ class LocalModelViewSet(StacExpandMixin, ModelMetadataMixin, viewsets.ReadOnlyMo
             qs = qs.filter(visible | Q(user=user))
         if self.action == "list":
             qs = self._filter_published(qs)
-        return annotate_stars(qs, self.request, key_field="name")
+        return annotate_usage(annotate_stars(qs, self.request, key_field="name"))
 
     def _filter_published(self, qs):
         user = self.request.user
@@ -501,7 +536,8 @@ class BaseModelViewSet(
             qs = qs.filter(visible)
         elif not is_admin(user):
             qs = qs.filter(visible | Q(user=user))
-        return annotate_stars(qs, self.request, key_field="name")
+        qs = qs.annotate(local_model_count=Count("local_models", distinct=True))
+        return annotate_usage(annotate_stars(qs, self.request, key_field="name"))
 
     def get_permissions(self):
         if self.action in {"create", "destroy", "pin", "metadata", "stac_properties"}:

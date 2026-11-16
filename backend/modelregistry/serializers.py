@@ -25,6 +25,9 @@ class LocalModelSerializer(serializers.ModelSerializer):
     star_count = serializers.IntegerField(read_only=True, default=0)
     is_starred = serializers.BooleanField(read_only=True, default=False)
     run_count = serializers.IntegerField(read_only=True, default=0)
+    map_request_count = serializers.IntegerField(read_only=True, default=0)
+    user_count = serializers.IntegerField(read_only=True, default=0)
+    feedback_count = serializers.IntegerField(read_only=True, default=0)
     stac = serializers.SerializerMethodField()
 
     class Meta:
@@ -43,6 +46,10 @@ class LocalModelSerializer(serializers.ModelSerializer):
             "star_count",
             "is_starred",
             "run_count",
+            "prediction_runs",
+            "map_request_count",
+            "user_count",
+            "feedback_count",
             "stac",
             "created_at",
             "last_modified",
@@ -57,6 +64,10 @@ class LocalModelSerializer(serializers.ModelSerializer):
             "star_count",
             "is_starred",
             "run_count",
+            "prediction_runs",
+            "map_request_count",
+            "user_count",
+            "feedback_count",
             "stac",
             "created_at",
             "last_modified",
@@ -73,6 +84,10 @@ class BaseModelSerializer(serializers.ModelSerializer):
     category = serializers.SlugRelatedField(slug_field="slug", read_only=True)
     star_count = serializers.IntegerField(read_only=True, default=0)
     is_starred = serializers.BooleanField(read_only=True, default=False)
+    map_request_count = serializers.IntegerField(read_only=True, default=0)
+    user_count = serializers.IntegerField(read_only=True, default=0)
+    feedback_count = serializers.IntegerField(read_only=True, default=0)
+    local_model_count = serializers.IntegerField(read_only=True, default=0)
     stac = serializers.SerializerMethodField()
 
     class Meta:
@@ -87,6 +102,11 @@ class BaseModelSerializer(serializers.ModelSerializer):
             "is_pinned",
             "star_count",
             "is_starred",
+            "prediction_runs",
+            "map_request_count",
+            "user_count",
+            "feedback_count",
+            "local_model_count",
             "error",
             "user",
             "stac",
@@ -223,3 +243,7 @@ class StacPropertiesPatchSerializer(serializers.Serializer):
                 f"Only {self._EXTENSION_HOST} schemas can be added: {', '.join(outside)}."
             )
         return value
+
+
+class PredictionRunSerializer(serializers.Serializer):
+    stac_id = serializers.CharField(max_length=200)

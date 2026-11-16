@@ -432,6 +432,8 @@ export type TOfflinePrediction = {
   id: number;
   zenml_run_id: string | null;
   local_model_stac_id: string;
+  /** Title from the model's STAC item; null when STAC is unavailable. */
+  model_title?: string | null;
   image_uri: string;
   category?: string;
   /** GeoJSON polygon describing the area of interest. null when bbox was used. */

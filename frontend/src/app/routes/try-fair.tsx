@@ -20,6 +20,7 @@ import {
 import { BBOX } from "@/types";
 import { MapLargeAreaModal } from "@/features/try-fair/components/start-mapping/map-large-area-modal";
 import { useFairPredict } from "@/features/try-fair/hooks/use-fair-predict";
+import { countPredictionRun } from "@/features/try-fair/api/prediction-runs";
 import { useTryFairImagery } from "@/features/try-fair/hooks/use-try-fair-imagery";
 import { useTryFairTour } from "@/features/try-fair/hooks/use-try-fair-tour";
 import {
@@ -545,6 +546,10 @@ export const TryFairPage = ({
       },
       {
         onSuccess: (result) => {
+          countPredictionRun(result.modelId).catch((error: unknown) => {
+            // The count is a usage figure; a failed report never interrupts the user's run.
+            console.warn("Couldn't count the prediction run", error);
+          });
           const entry: PredictionHistoryEntry = {
             id: crypto.randomUUID(),
             created_at: new Date().toISOString(),

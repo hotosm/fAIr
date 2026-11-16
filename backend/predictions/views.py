@@ -23,6 +23,7 @@ from accounts.permissions import (
     PublishedReadOrAuthenticatedWrite,
     is_admin,
 )
+from modelregistry.usage import model_titles, registered_model_name
 from shared.enums import Visibility
 from shared.integrations.stac import (
     BASE_MODELS_COLLECTION,
@@ -81,6 +82,21 @@ class PredictionViewSet(viewsets.ReadOnlyModelViewSet):
         if is_admin(user):
             return qs
         return qs.filter(Q(user=user) | Q(visibility=Visibility.PUBLIC))
+
+    def _with_titles(self, rows: list[Prediction]) -> dict:
+        titles = model_titles({row.local_model_stac_id for row in rows})
+        return {**self.get_serializer_context(), "model_titles": titles}
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        rows = list(queryset) if page is None else page
+        data = self.get_serializer(rows, many=True, context=self._with_titles(rows)).data
+        return Response(data) if page is None else self.get_paginated_response(data)
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        return Response(self.get_serializer(instance, context=self._with_titles([instance])).data)
 
     def get_permissions(self):
         if self.action in {"publish", "unpublish", "submit", "run_cancel"}:
@@ -194,6 +210,7 @@ class PredictionViewSet(viewsets.ReadOnlyModelViewSet):
 
         prediction = Prediction.objects.create(
             local_model_stac_id=payload["model_stac_id"],
+            model_name=registered_model_name(payload["model_stac_id"]),
             imagery=payload["imagery"],
             primary_input=input_names[0],
             geometry=payload["geometry"],
@@ -204,7 +221,10 @@ class PredictionViewSet(viewsets.ReadOnlyModelViewSet):
         )
         submit_prediction.enqueue(prediction_id=prediction.id)
         created = Prediction.objects.with_model_details().get(pk=prediction.pk)
-        return Response(PredictionSerializer(created).data, status=status.HTTP_202_ACCEPTED)
+        return Response(
+            PredictionSerializer(created, context=self._with_titles([created])).data,
+            status=status.HTTP_202_ACCEPTED,
+        )
 
     def _run_for_caller(self, run_id: str) -> Prediction:
         prediction = get_object_or_404(Prediction, zenml_run_id=run_id)
@@ -234,14 +254,18 @@ class PredictionViewSet(viewsets.ReadOnlyModelViewSet):
         prediction = self.get_object()
         prediction.visibility = Visibility.PUBLIC
         prediction.save(update_fields=["visibility"])
-        return Response(PredictionSerializer(prediction).data)
+        return Response(
+            PredictionSerializer(prediction, context=self._with_titles([prediction])).data
+        )
 
     @action(detail=True, methods=["post"], url_path="unpublish")
     def unpublish(self, request, pk: int | None = None) -> Response:
         prediction = self.get_object()
         prediction.visibility = Visibility.PRIVATE
         prediction.save(update_fields=["visibility"])
-        return Response(PredictionSerializer(prediction).data)
+        return Response(
+            PredictionSerializer(prediction, context=self._with_titles([prediction])).data
+        )
 
     @extend_schema(
         request=None,

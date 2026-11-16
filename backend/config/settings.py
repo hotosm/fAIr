@@ -180,6 +180,7 @@ REST_FRAMEWORK = {
         "anon": settings.anon_rate_limit,
         "training_submit": settings.training_rate_limit,
         "prediction_submit": settings.prediction_rate_limit,
+        "model_run": settings.model_run_rate_limit,
     },
 }
 

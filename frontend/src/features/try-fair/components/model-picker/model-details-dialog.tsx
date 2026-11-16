@@ -8,6 +8,8 @@ import {
 } from "@/features/try-fair/components/model-picker/model-picker-badges";
 import type { APIBaseModelItem } from "@/features/try-fair/types/data-types";
 import { getModelOutputType } from "@/features/try-fair/utils/common";
+import { ModelLinks } from "@/features/try-fair/components/model-picker/model-links";
+import { getModelUsage } from "@/features/try-fair/components/model-picker/model-usage";
 
 const formatDay = (iso?: string) =>
   iso
@@ -157,6 +159,11 @@ export const ModelDetailsDialog = ({
             />
             <Fact label="Created" value={formatDay(model.created_at)} />
             <Fact label="Updated" value={formatDay(model.last_modified)} />
+            {getModelUsage(model).map(({ label, value }) => (
+              <Fact key={label} label={label} value={value} />
+            ))}
+            <Fact label="License" value={properties.license} />
+            <ModelLinks item={model.stac} />
           </dl>
 
           {(properties.keywords?.length ?? 0) > 0 && (

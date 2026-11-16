@@ -29,6 +29,7 @@ import {
 } from "@/features/try-fair/components/model-picker/feature-to-map-list";
 import { APIBaseModelItem } from "@/features/try-fair/types/data-types";
 import { ModelDetailsDialog } from "@/features/try-fair/components/model-picker/model-details-dialog";
+import { formatRuns } from "@/features/try-fair/components/model-picker/model-usage";
 
 type ModelSource = "base" | "local";
 
@@ -370,7 +371,10 @@ export const AdvancedModelPickerContent = ({
                             {model.stac.properties.title}
                           </p>
                           <p className="text-grey text-xs mt-0.5">
-                            ID: {model.id}
+                            ID: {model.id} ·{" "}
+                            <span className="whitespace-nowrap">
+                              {formatRuns(model)}
+                            </span>
                           </p>
                         </div>
                         <RadioDot selected={isSelected} />

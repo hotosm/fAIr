@@ -94,6 +94,7 @@ DRF throttle scopes use `<count>/<period>`, e.g. `1000/h`. Use the Django pool o
 | `ANON_RATE_LIMIT`       | no       | `100/h`  | Anonymous requests.                                    |
 | `TRAINING_RATE_LIMIT`   | no       | `10/h`   | Training submission throttle.                          |
 | `PREDICTION_RATE_LIMIT` | no       | `50/h`   | Prediction submission throttle.                        |
+| `MODEL_RUN_RATE_LIMIT`  | no       | `600/h`  | Try-now run count throttle, per user or IP.            |
 | `DB_POOL_MIN_SIZE`      | no       | `4`      | Django 5.1+ native PostgreSQL connection pool minimum. |
 | `DB_POOL_MAX_SIZE`      | no       | `20`     | Pool maximum.                                          |
 | `DB_POOL_TIMEOUT`       | no       | `30`     | Seconds to wait for a free connection.                 |

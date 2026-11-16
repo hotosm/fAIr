@@ -116,6 +116,19 @@ def test_register_without_inference_endpoint_leaves_item(mock_task, admin_user: 
     assert "mlm:inference-endpoint" not in item.get("assets", {})
 
 
+def test_register_rejects_a_local_model_name_in_any_case(admin_user: OsmUser) -> None:
+    base = BaseModel.objects.create(name="other-base", user=admin_user, category_id="other")
+    LocalModel.objects.create(name="test-basemodel", base_model=base, user=admin_user)
+    item = copy.deepcopy(VALID_ITEM)
+    item["properties"]["mlm:name"] = "Test-BaseModel"
+
+    resp = _client(admin_user).post("/api/v1/base-models/", {"stac_item": item}, format="json")
+
+    assert resp.status_code == 400
+    assert "local model name" in str(resp.data)
+    assert not BaseModel.objects.filter(name="Test-BaseModel").exists()
+
+
 @pytest.mark.parametrize(
     "entrypoint",
     [None, "json:loads", "models.demo.pipeline", "models.not_bundled.pipeline:predict"],

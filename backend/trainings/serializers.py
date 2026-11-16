@@ -2,6 +2,7 @@ from django.utils.text import slugify
 from rest_framework import serializers
 
 from accounts.serializers import UserSerializer
+from modelregistry.models import BaseModel
 from shared.serializers import OwnerOnlyErrorMixin
 
 from .models import TrainingRunRef
@@ -50,6 +51,10 @@ class TrainingSubmitSerializer(serializers.Serializer):
         if not slug:
             raise serializers.ValidationError(
                 "model_name must contain at least one alphanumeric character."
+            )
+        if BaseModel.objects.filter(name__iexact=slug).exists():
+            raise serializers.ValidationError(
+                f"'{slug}' is a base model name; choose another model_name."
             )
         return slug
 

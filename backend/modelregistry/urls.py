@@ -6,6 +6,7 @@ from .views import (
     BaseModelViewSet,
     CategoryViewSet,
     LocalModelViewSet,
+    PredictionRunView,
     StacAssetDownloadView,
 )
 
@@ -15,6 +16,7 @@ router.register(r"local-models", LocalModelViewSet)
 router.register(r"base-models", BaseModelViewSet)
 
 urlpatterns = [
+    path("prediction-runs/", PredictionRunView.as_view(), name="prediction-runs"),
     path(
         "stac-assets/<str:collection>/<str:item_id>/<str:asset>/",
         StacAssetDownloadView.as_view(),

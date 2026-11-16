@@ -7,6 +7,7 @@ from rest_framework_gis.filters import InBBoxFilter
 
 from accounts.permissions import IsOwnerOrAdminOrReadOnly, is_admin
 from modelregistry.models import BaseModel, LocalModel
+from modelregistry.usage import registered_model_name
 
 from .models import Feedback
 from .serializers import FeedbackSerializer
@@ -67,4 +68,14 @@ class FeedbackViewSet(viewsets.ModelViewSet):
         )
 
     def perform_create(self, serializer) -> None:
-        serializer.save(user=self.request.user)
+        serializer.save(
+            user=self.request.user,
+            model_name=registered_model_name(serializer.validated_data["stac_id"]),
+        )
+
+    def perform_update(self, serializer) -> None:
+        stac_id = serializer.validated_data.get("stac_id")
+        if stac_id is None:
+            serializer.save()
+            return
+        serializer.save(model_name=registered_model_name(stac_id))

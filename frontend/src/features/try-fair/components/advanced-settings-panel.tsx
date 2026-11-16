@@ -151,7 +151,7 @@ export const AdvancedSettingsPanel = ({
                 <div className="flex items-center justify-between gap-3 text-xs text-dark">
                   <span className="flex items-center gap-2">
                     {label}
-                    <ToolTip content={spec.description}>
+                    <ToolTip content={spec.description} pinOnClick>
                       <InfoIcon className="size-3 text-grey" />
                     </ToolTip>
                   </span>

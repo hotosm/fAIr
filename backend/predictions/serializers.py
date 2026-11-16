@@ -103,11 +103,14 @@ class PredictionSerializer(OwnerOnlyErrorMixin, serializers.ModelSerializer):
     category = serializers.CharField(
         read_only=True, allow_null=True, help_text="Category slug of the model that ran."
     )
-    model_name = serializers.CharField(
-        read_only=True, allow_null=True, help_text="Registered name of the model that ran."
+    model_title = serializers.SerializerMethodField(
+        help_text="Title of the model that ran, from its STAC item; null when STAC is unavailable."
     )
     assets = serializers.SerializerMethodField()
     image_uri = serializers.SerializerMethodField(help_text="Imagery of the model's first input.")
+
+    def get_model_title(self, obj: Prediction) -> str | None:
+        return (self.context.get("model_titles") or {}).get(obj.local_model_stac_id)
 
     @extend_schema_field(OpenApiTypes.URI)
     def get_image_uri(self, obj: Prediction) -> str:
@@ -133,6 +136,7 @@ class PredictionSerializer(OwnerOnlyErrorMixin, serializers.ModelSerializer):
             "zenml_run_id",
             "local_model_stac_id",
             "model_name",
+            "model_title",
             "category",
             "imagery",
             "image_uri",

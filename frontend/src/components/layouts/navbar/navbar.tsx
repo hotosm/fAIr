@@ -24,6 +24,7 @@ import { useNavbarState } from "@/components/layouts/navbar/hooks/use-navbar-sta
 import { CloudSaveStatus } from "@/components/layouts/navbar/cloud-save-status";
 import { useGetSinglePrediction } from "@/features/user-profile/hooks/use-predictions";
 import type { TOfflinePrediction } from "@/types";
+import { getPredictionName } from "@/features/user-profile/components/overview/map-request-fields";
 
 const IS_HANKO_AUTH = AUTH_PROVIDER === "hanko";
 
@@ -46,7 +47,9 @@ export const NavBar = () => {
     resultMatch?.params.id,
     isMapRequestResult ? initialPrediction : undefined,
   );
-  const resultTitle = prediction?.description || "Map Request Result";
+  const resultTitle = prediction
+    ? getPredictionName(prediction)
+    : "Map Request Result";
 
   const isTryFairPage = location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR);
   const isProfilePage = location.pathname.includes(
@@ -100,11 +103,10 @@ export const NavBar = () => {
         className={`${styles.nav} relative app-padding z-30 py-1 border-b border-gray-border`}
       >
         <div className="min-w-0 flex-1 flex gap-4 items-center justify-start">
-          {showBackButton ? (
+          {showBackButton && (
             <BackButton showText={false} className="shrink-0" />
-          ) : (
-            <NavLogo />
           )}
+          {(!showBackButton || isMapRequestResult) && <NavLogo />}
 
           {isMapRequestResult && (
             <h1
