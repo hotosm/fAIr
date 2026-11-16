@@ -3,7 +3,7 @@ from typing import Any, cast
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from notifications.serializers import UserSerializer
+from accounts.serializers import UserSerializer
 from shared.integrations.stac import BASE_MODELS_COLLECTION, LOCAL_MODELS_COLLECTION
 from shared.serializers import TMS_PLACEHOLDERS, StacFacetSerializer
 
@@ -25,6 +25,9 @@ class LocalModelSerializer(serializers.ModelSerializer):
     star_count = serializers.IntegerField(read_only=True, default=0)
     is_starred = serializers.BooleanField(read_only=True, default=False)
     run_count = serializers.IntegerField(read_only=True, default=0)
+    map_request_count = serializers.IntegerField(read_only=True, default=0)
+    user_count = serializers.IntegerField(read_only=True, default=0)
+    feedback_count = serializers.IntegerField(read_only=True, default=0)
     stac = serializers.SerializerMethodField()
 
     class Meta:
@@ -43,6 +46,10 @@ class LocalModelSerializer(serializers.ModelSerializer):
             "star_count",
             "is_starred",
             "run_count",
+            "prediction_runs",
+            "map_request_count",
+            "user_count",
+            "feedback_count",
             "stac",
             "created_at",
             "last_modified",
@@ -57,6 +64,10 @@ class LocalModelSerializer(serializers.ModelSerializer):
             "star_count",
             "is_starred",
             "run_count",
+            "prediction_runs",
+            "map_request_count",
+            "user_count",
+            "feedback_count",
             "stac",
             "created_at",
             "last_modified",
@@ -73,6 +84,10 @@ class BaseModelSerializer(serializers.ModelSerializer):
     category = serializers.SlugRelatedField(slug_field="slug", read_only=True)
     star_count = serializers.IntegerField(read_only=True, default=0)
     is_starred = serializers.BooleanField(read_only=True, default=False)
+    map_request_count = serializers.IntegerField(read_only=True, default=0)
+    user_count = serializers.IntegerField(read_only=True, default=0)
+    feedback_count = serializers.IntegerField(read_only=True, default=0)
+    local_model_count = serializers.IntegerField(read_only=True, default=0)
     stac = serializers.SerializerMethodField()
 
     class Meta:
@@ -87,6 +102,11 @@ class BaseModelSerializer(serializers.ModelSerializer):
             "is_pinned",
             "star_count",
             "is_starred",
+            "prediction_runs",
+            "map_request_count",
+            "user_count",
+            "feedback_count",
+            "local_model_count",
             "error",
             "user",
             "stac",
@@ -102,16 +122,7 @@ class BaseModelSerializer(serializers.ModelSerializer):
 
 
 class BaseModelRegisterSerializer(serializers.Serializer):
-    """Register a base model from an inline STAC item or a URL to one.
-
-    Exactly one of ``stac_item`` (inline JSON) or ``stac_item_url`` (a link
-    fetched at request time) must be supplied. Either way the resolved item is
-    stored in ``stac_item``; the URL itself is not persisted.
-
-    ``inference_endpoint`` is optional: when given, its URL is written to the
-    item's ``mlm:inference-endpoint`` asset before registration; when omitted,
-    whatever the STAC item already carries is used unchanged.
-    """
+    """Register from exactly one of an inline `stac_item` or a `stac_item_url` fetched once."""
 
     stac_item = serializers.JSONField(required=False)
     stac_item_url = serializers.URLField(required=False)
@@ -234,13 +245,5 @@ class StacPropertiesPatchSerializer(serializers.Serializer):
         return value
 
 
-class TrainingRunSummarySerializer(serializers.Serializer):
-    """ZenML run summary, populated from fair.zenml.runs.RunSummary."""
-
-    id = serializers.CharField()
-    name = serializers.CharField()
-    status = serializers.CharField()
-    created_at = serializers.CharField(allow_null=True)
-    pipeline_name = serializers.CharField()
-    model_name = serializers.CharField(allow_null=True)
-    model_version = serializers.IntegerField(allow_null=True)
+class PredictionRunSerializer(serializers.Serializer):
+    stac_id = serializers.CharField(max_length=200)

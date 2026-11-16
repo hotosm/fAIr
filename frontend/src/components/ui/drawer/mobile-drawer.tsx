@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { cn } from "@/utils";
 import { Drawer } from "vaul";
 
@@ -28,9 +28,64 @@ export const MobileDrawer = ({
   const lastSnapPoint = snapPoints[snapPoints.length - 1];
 
   const pressStart = useRef<{ x: number; y: number } | null>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const gestureStart = useRef<{ x: number; y: number } | null>(null);
+  const gestureMoved = useRef(false);
+
+  // The whole sheet is draggable, so a drag can start on a button. Record
+  // where every press starts, and swallow the click that ends a drag so the
+  // button isn't activated (only real taps reach the sheet's controls).
+  const handleGestureDown = (event: React.PointerEvent) => {
+    gestureStart.current = { x: event.clientX, y: event.clientY };
+    gestureMoved.current = false;
+  };
+  const handleGestureUp = (event: React.PointerEvent) => {
+    const start = gestureStart.current;
+    gestureMoved.current = Boolean(
+      start &&
+      (Math.abs(event.clientX - start.x) > 8 ||
+        Math.abs(event.clientY - start.y) > 8),
+    );
+  };
+  const handleClickCapture = (event: React.MouseEvent) => {
+    if (!gestureMoved.current) return;
+    gestureMoved.current = false;
+    event.preventDefault();
+    event.stopPropagation();
+  };
+  const isNonModalSheet = !modal && snapPoints.length > 1;
+  const lowestSnapPoint = snapPoints[0];
+  const isRaised = snap !== lowestSnapPoint;
+
+  // A raised non-modal sheet (e.g. the try fAIr settings) collapses when the
+  // user presses anywhere outside it, such as on the map, so it never stays
+  // in the way. Presses inside pop-ups opened from the sheet (dialogs,
+  // dropdowns) don't count.
+  useEffect(() => {
+    if (!isNonModalSheet || !isRaised) return;
+    const handleOutsidePress = (event: PointerEvent) => {
+      const path = event.composedPath();
+      const content = contentRef.current;
+      if (content && path.includes(content)) return;
+      const insidePopup = path.some(
+        (node) =>
+          node instanceof Element &&
+          node.matches(
+            "sl-dialog, sl-drawer, sl-dropdown, sl-popup, [role='dialog'], [role='menu'], [role='listbox']",
+          ),
+      );
+      if (insidePopup) return;
+      setSnap(lowestSnapPoint);
+    };
+    document.addEventListener("pointerdown", handleOutsidePress, true);
+    return () =>
+      document.removeEventListener("pointerdown", handleOutsidePress, true);
+  }, [isNonModalSheet, isRaised, lowestSnapPoint]);
 
   const handlePressDown = (event: React.PointerEvent) => {
     pressStart.current = { x: event.clientX, y: event.clientY };
+    // vaul won't snap the sheet on release while any text is selected.
+    window.getSelection()?.removeAllRanges();
   };
 
   const handlePressUp = (event: React.PointerEvent) => {
@@ -56,12 +111,20 @@ export const MobileDrawer = ({
       repositionInputs={false}
       modal={modal}
       handleOnly={handleOnly}
+      // Without a close handler the sheet is permanent (e.g. the try fAIr
+      // settings): a hard swipe down must snap back to the lowest point,
+      // not dismiss it off screen with no way to bring it back.
+      dismissible={Boolean(closeDrawer)}
     >
       {showOverlay ? (
         <Drawer.Overlay className="fixed inset-0 bg-black/40" />
       ) : null}
       <Drawer.Portal>
         <Drawer.Content
+          ref={contentRef}
+          onPointerDownCapture={handleGestureDown}
+          onPointerUpCapture={handleGestureUp}
+          onClickCapture={handleClickCapture}
           data-testid="content"
           className="fixed z-[10] border border-gray-border flex flex-col bg-white border-b-none py-2 rounded-t-[10px] bottom-0 left-0 right-0  h-full max-h-[97%] mx-[-1px] lg:h-[320px] outline-none"
         >
@@ -93,12 +156,19 @@ export const MobileDrawer = ({
               aria-label="Expand or collapse panel"
               onPointerDown={handlePressDown}
               onPointerUp={handlePressUp}
-              className="mx-auto mb-3 flex w-full cursor-pointer justify-center py-2"
+              // select-none: a drag that starts here mustn't select the
+              // sheet's text, or vaul skips snapping when the finger lifts.
+              className="mx-auto mb-2 w-full cursor-pointer select-none"
             >
+              {/* The whole strip is the drag handle, not just the small bar,
+                  so the sheet can be swiped up or down with a finger. The !
+                  overrides vaul's own tiny-bar handle styles. */}
               <Drawer.Handle
                 preventCycle
-                className="w-12 h-1.5 flex-shrink-0 rounded-full bg-grey"
-              />
+                className="!flex !h-8 !w-full !items-center !justify-center !rounded-none !bg-transparent !opacity-100 [&>[data-vaul-handle-hitarea]]:flex [&>[data-vaul-handle-hitarea]]:items-center [&>[data-vaul-handle-hitarea]]:justify-center"
+              >
+                <span className="block h-1.5 w-12 rounded-full bg-grey" />
+              </Drawer.Handle>
             </div>
             {children}
           </div>

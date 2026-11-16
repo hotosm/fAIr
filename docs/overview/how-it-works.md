@@ -33,7 +33,7 @@ A model is only as good as the examples it learns from. fAIr takes labels and im
 fAIr needs two things:
 
 - **Imagery.** Openly licensed, very high-resolution RGB imagery from [OpenAerialMap](https://openaerialmap.org/) (which uses CC BY 4.0) or an open TMS source (a tiled imagery server).
-- **Labels.** Examples that teach the model what to find: existing OpenStreetMap features in the area, finding where objects are with [MapSwipe](validation.md#finding-training-data-with-mapswipe) as a starting point, for those new to mapping, tracing in HOT's [Tasking Manager](https://tasks.hotosm.org/) for experienced mappers, or features drawn by hand for advanced users.
+- **Labels.** Examples that teach the model what to find: existing OpenStreetMap features in the area, finding where objects are with [MapSwipe](validation.md#finding-training-data-with-mapswipe) as a starting point, for those new to mapping, tracing in HOT's [Tasking Manager](https://tasks.hotosm.org/) for experienced mappers, or features drawn by hand for advanced users. [Prepare training data](../guides/training-data.md) covers how many labels a fine-tune needs.
 
 ### 2. Inside fAIr
 

@@ -20,7 +20,7 @@ import { TreesIcon } from "@/components/ui/icons/trees-icon";
 export const TRY_FAIR_INITIAL_MAP_ZOOM = 18;
 
 export const FALLBACK_FAIR_IMAGERY =
-  "https://tiles.openaerialmap.org/62d85d11d8499800053796c1/0/62d85d11d8499800053796c2/{z}/{x}/{y}";
+  "https://tiles.imagery.hotosm.org/raster/collections/openaerialmap/items/62d86c65d8499800053796c4/tiles/WebMercatorQuad/{z}/{x}/{y}?assets=visual";
 export const FALLBACK_FAIR_IMAGERY_CENTER: [number, number] = [
   85.5228, 27.6337,
 ];
@@ -98,6 +98,22 @@ export const getModelOutputType = (
   model.properties.keywords.includes("point")
     ? TryFairMapOutputType.POINTS
     : TryFairMapOutputType.POLYGON;
+
+/** Tile URLs keyed by the model's input names: `pre` takes the preview's pre-event imagery, every other input `imageUri`. */
+export const getModelImagery = (
+  model: BaseModelStacItem,
+  imageUri: string,
+): Record<string, string> =>
+  Object.fromEntries(
+    model.properties["mlm:input"].map(({ name }) => {
+      if (name !== "pre") return [name, imageUri];
+      const preImageryUrl = model.properties["fair:preview"]?.pre_imagery?.url;
+      if (!preImageryUrl) {
+        throw new Error(`${model.id} needs pre-event imagery in its preview.`);
+      }
+      return [name, preImageryUrl];
+    }),
+  );
 
 // Prediction layer IDs (kept in sync with try-fair-prediction-results.tsx)
 export const PREDICTION_LAYER_IDS = [

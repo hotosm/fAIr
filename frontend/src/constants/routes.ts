@@ -63,6 +63,7 @@ export const APPLICATION_ROUTES = {
   PROFILE_MODELS: "/profile/models",
   PROFILE_DATASETS: "/profile/datasets",
   PROFILE_OFFLINE_PREDICTIONS: "/profile/map-requests",
+  PROFILE_MAPPING_HISTORY: "/profile/mapping-history",
 
   MAP_REQUEST_BASE: "/map-requests",
 

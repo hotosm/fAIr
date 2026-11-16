@@ -40,7 +40,14 @@ const STATUS_PRESENTATION: Record<
 const toTitleCase = (value: string) =>
   value.charAt(0).toUpperCase() + value.slice(1);
 
-export const MapRequestStatusBadge = ({ status }: { status: string }) => {
+export const MapRequestStatusBadge = ({
+  status,
+  size = "default",
+}: {
+  status: string;
+  /** "small" is the compact pill used on the mobile cards. */
+  size?: "default" | "small";
+}) => {
   const presentation = STATUS_PRESENTATION[status?.toLowerCase()] ?? {
     label: status ? toTitleCase(status) : "Unknown",
     variant: "default" as TBadgeVariants,
@@ -50,7 +57,11 @@ export const MapRequestStatusBadge = ({ status }: { status: string }) => {
     <Badge
       variant={presentation.variant}
       rounded
-      className="!h-fit font-medium !px-3"
+      className={
+        size === "small"
+          ? "!h-fit !px-2.5 !py-1 [&_span]:!text-[11px] [&_span]:!leading-none"
+          : "!h-fit font-medium !px-3"
+      }
     >
       {presentation.label}
     </Badge>

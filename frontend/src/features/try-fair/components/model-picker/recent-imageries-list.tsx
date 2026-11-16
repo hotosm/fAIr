@@ -5,6 +5,7 @@ import { cn } from "@/utils";
 import { PictureIcon } from "@/components/ui/icons/picture-icon";
 import { FeatureCheckIcon } from "@/components/ui/icons/feature-check-icon";
 import { useImageryCountry } from "@/features/try-fair/hooks/use-imagery-country";
+import useScreenSize from "@/hooks/use-screen-size";
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
@@ -95,21 +96,37 @@ export const RecentImageriesList = ({
 }: RecentImageriesListProps) => {
   // Show most recent first.
   const sortedEntries = [...recentImageries].reverse();
+  const { isSmallViewport } = useScreenSize();
 
   return (
     <div className="flex flex-col h-full">
-      {/* Header with back button */}
-      <button
-        type="button"
-        onClick={onBack}
-        className="mb-4 self-start flex items-center gap-1 pb-2 text-xs font-semibold text-dark transition-colors hover:text-primary"
-      >
-        <ChevronDownIcon className="size-3 rotate-90" />
-        Back to imagery
-      </button>
+      {/* Wider screens: a back link on its own line above the title. */}
+      {!isSmallViewport && (
+        <button
+          type="button"
+          onClick={onBack}
+          className="mb-4 self-start flex items-center gap-1 pb-2 text-xs font-semibold text-dark transition-colors hover:text-primary"
+        >
+          <ChevronDownIcon className="size-3 rotate-90" />
+          Back to imagery
+        </button>
+      )}
 
       <div className="flex items-center justify-between gap-3 pb-2">
-        <h2 className="text-sm text-dark">Recent imagery</h2>
+        {isSmallViewport ? (
+          // Phones: the title itself goes back, as one "‹ Recent Imageries" row.
+          <button
+            type="button"
+            onClick={onBack}
+            aria-label="Back to imagery"
+            className="flex items-center gap-2 text-sm text-dark"
+          >
+            <ChevronDownIcon className="size-3 rotate-90" />
+            Recent Imageries
+          </button>
+        ) : (
+          <h2 className="text-sm text-dark">Recent imagery</h2>
+        )}
         {sortedEntries.length > 0 && (
           <button
             type="button"

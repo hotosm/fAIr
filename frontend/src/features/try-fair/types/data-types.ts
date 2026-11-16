@@ -15,6 +15,13 @@ export type APIBaseModelItem = {
   is_pinned: boolean;
   star_count: number;
   is_starred: boolean;
+  /** Try-now runs reported by the app. */
+  prediction_runs?: number;
+  map_request_count?: number;
+  user_count?: number;
+  feedback_count?: number;
+  /** Base models only. */
+  local_model_count?: number;
   error: string;
   user: APIBaseModelUser;
   created_at: string;

@@ -30,8 +30,9 @@ export function useNavbarState() {
     showDashboardLink: isAuthenticated && isTryFair,
     showDesktopLinks: !isTryFair && !isProfile,
     showMobileLinks: !isTryFair,
+    // try fAIr shows it to everyone (disabled when signed out).
     showMappingMode:
-      isAuthenticated && (isTryFair || isProfile) && !isMapRequests,
+      (isTryFair || (isAuthenticated && isProfile)) && !isMapRequests,
     showNotifications: isAuthenticated,
   };
 }

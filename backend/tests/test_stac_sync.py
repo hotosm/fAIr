@@ -42,34 +42,24 @@ def _bundled_pipeline(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 @pytest.fixture
-def owner(db) -> OsmUser:
-    return OsmUser.objects.create(osm_id=51, username="mapper")
-
-
-@pytest.fixture
-def admin(db) -> OsmUser:
-    return OsmUser.objects.create(osm_id=52, username="boss", is_staff=True)
-
-
-@pytest.fixture
-def base_model(admin: OsmUser) -> BaseModel:
+def base_model(admin_user: OsmUser) -> BaseModel:
     return BaseModel.objects.create(
         name="dino",
         stac_item_id="dino",
-        user=admin,
+        user=admin_user,
         is_pinned=True,
         status=BaseModel.Status.ACTIVE,
     )
 
 
 @pytest.fixture
-def dataset(owner: OsmUser) -> Dataset:
+def dataset(user: OsmUser) -> Dataset:
     return Dataset.objects.create(
         stac_id="banepa",
         title="Banepa",
         imagery={"image": "https://t.example/{z}/{x}/{y}"},
         primary_input="image",
-        user=owner,
+        user=user,
         status=Dataset.Status.BUILT,
         visibility=Visibility.PUBLIC,
     )
@@ -88,9 +78,9 @@ def _item(item_id: str, **properties: object) -> pystac.Item:
 @patch("modelregistry.deletion.item_exists", return_value=True)
 @patch("modelregistry.deletion.get_master_client")
 def test_admin_deletes_base_model_with_its_stac_versions(
-    mock_client, mock_exists, admin: OsmUser, base_model: BaseModel
+    mock_client, mock_exists, admin_user: OsmUser, base_model: BaseModel
 ) -> None:
-    response = _client(admin).delete(f"/api/v1/base-models/{base_model.id}/")
+    response = _client(admin_user).delete(f"/api/v1/base-models/{base_model.id}/")
 
     assert response.status_code == 204
     mock_client.return_value.delete_base_model.assert_called_once_with("dino")
@@ -99,9 +89,9 @@ def test_admin_deletes_base_model_with_its_stac_versions(
 
 @patch("modelregistry.deletion.get_master_client")
 def test_non_admin_cannot_delete_base_model(
-    mock_client, owner: OsmUser, base_model: BaseModel
+    mock_client, user: OsmUser, base_model: BaseModel
 ) -> None:
-    response = _client(owner).delete(f"/api/v1/base-models/{base_model.id}/")
+    response = _client(user).delete(f"/api/v1/base-models/{base_model.id}/")
 
     assert response.status_code == 403
     mock_client.assert_not_called()
@@ -110,11 +100,11 @@ def test_non_admin_cannot_delete_base_model(
 
 @patch("modelregistry.deletion.get_master_client")
 def test_base_model_with_local_models_is_kept(
-    mock_client, admin: OsmUser, base_model: BaseModel
+    mock_client, admin_user: OsmUser, base_model: BaseModel
 ) -> None:
-    LocalModel.objects.create(name="banepa", base_model=base_model, user=admin)
+    LocalModel.objects.create(name="banepa", base_model=base_model, user=admin_user)
 
-    response = _client(admin).delete(f"/api/v1/base-models/{base_model.id}/")
+    response = _client(admin_user).delete(f"/api/v1/base-models/{base_model.id}/")
 
     assert response.status_code == 409
     mock_client.assert_not_called()
@@ -124,9 +114,9 @@ def test_base_model_with_local_models_is_kept(
 @patch("modelregistry.deletion.item_exists", return_value=False)
 @patch("modelregistry.deletion.get_master_client")
 def test_base_model_row_without_stac_item_is_still_deleted(
-    mock_client, mock_exists, admin: OsmUser, base_model: BaseModel
+    mock_client, mock_exists, admin_user: OsmUser, base_model: BaseModel
 ) -> None:
-    response = _client(admin).delete(f"/api/v1/base-models/{base_model.id}/")
+    response = _client(admin_user).delete(f"/api/v1/base-models/{base_model.id}/")
 
     assert response.status_code == 204
     mock_client.assert_not_called()
@@ -147,20 +137,20 @@ def test_stac_failure_keeps_the_base_model_row(
 
 
 @patch("modelregistry.deletion.get_master_client")
-def test_registering_base_model_is_kept(mock_client, admin: OsmUser, base_model: BaseModel) -> None:
+def test_registering_base_model_is_kept(mock_client, admin_user: OsmUser, base_model: BaseModel) -> None:
     BaseModel.objects.filter(pk=base_model.pk).update(status=BaseModel.Status.REGISTERING)
 
-    response = _client(admin).delete(f"/api/v1/base-models/{base_model.id}/")
+    response = _client(admin_user).delete(f"/api/v1/base-models/{base_model.id}/")
 
     assert response.status_code == 409
     mock_client.assert_not_called()
 
 
 @patch("datasets.deletion.get_master_client")
-def test_building_dataset_is_kept(mock_client, owner: OsmUser, dataset: Dataset) -> None:
+def test_building_dataset_is_kept(mock_client, user: OsmUser, dataset: Dataset) -> None:
     Dataset.objects.filter(pk=dataset.pk).update(status=Dataset.Status.BUILDING)
 
-    response = _client(owner).delete(f"/api/v1/datasets/{dataset.id}/")
+    response = _client(user).delete(f"/api/v1/datasets/{dataset.id}/")
 
     assert response.status_code == 409
     mock_client.assert_not_called()
@@ -169,9 +159,9 @@ def test_building_dataset_is_kept(mock_client, owner: OsmUser, dataset: Dataset)
 @patch("datasets.deletion.item_exists", return_value=True)
 @patch("datasets.deletion.get_master_client")
 def test_owner_deletes_dataset_with_its_stac_versions(
-    mock_client, mock_exists, owner: OsmUser, dataset: Dataset
+    mock_client, mock_exists, user: OsmUser, dataset: Dataset
 ) -> None:
-    response = _client(owner).delete(f"/api/v1/datasets/{dataset.id}/")
+    response = _client(user).delete(f"/api/v1/datasets/{dataset.id}/")
 
     assert response.status_code == 204
     mock_client.return_value.delete_dataset.assert_called_once_with("banepa")
@@ -191,14 +181,14 @@ def test_other_user_cannot_delete_dataset(mock_client, dataset: Dataset) -> None
 
 @patch("datasets.deletion.get_master_client")
 def test_dataset_used_by_a_training_run_is_kept(
-    mock_client, owner: OsmUser, dataset: Dataset, base_model: BaseModel
+    mock_client, user: OsmUser, dataset: Dataset, base_model: BaseModel
 ) -> None:
-    local_model = LocalModel.objects.create(name="banepa", base_model=base_model, user=owner)
+    local_model = LocalModel.objects.create(name="banepa", base_model=base_model, user=user)
     TrainingRunRef.objects.create(
-        local_model=local_model, base_model_stac_id="dino", dataset=dataset, user=owner
+        local_model=local_model, base_model_stac_id="dino", dataset=dataset, user=user
     )
 
-    response = _client(owner).delete(f"/api/v1/datasets/{dataset.id}/")
+    response = _client(user).delete(f"/api/v1/datasets/{dataset.id}/")
 
     assert response.status_code == 409
     mock_client.assert_not_called()
@@ -206,8 +196,8 @@ def test_dataset_used_by_a_training_run_is_kept(
 
 
 @pytest.mark.parametrize("is_pinned", [True, False])
-def test_registration_writes_the_row_pin_onto_the_item(admin: OsmUser, is_pinned: bool) -> None:
-    base_model = BaseModel.objects.create(name="dino", user=admin, is_pinned=is_pinned)
+def test_registration_writes_the_row_pin_onto_the_item(admin_user: OsmUser, is_pinned: bool) -> None:
+    base_model = BaseModel.objects.create(name="dino", user=admin_user, is_pinned=is_pinned)
     published: dict = {}
 
     def register(path: str, **kwargs: object) -> str:
@@ -224,8 +214,8 @@ def test_registration_writes_the_row_pin_onto_the_item(admin: OsmUser, is_pinned
     assert published["properties"]["fair:pinned"] is is_pinned
 
 
-def test_registration_refreshes_the_cache_of_the_published_item(admin: OsmUser) -> None:
-    base_model = BaseModel.objects.create(name="yolo-waste", user=admin)
+def test_registration_refreshes_the_cache_of_the_published_item(admin_user: OsmUser) -> None:
+    base_model = BaseModel.objects.create(name="yolo-waste", user=admin_user)
     with (
         patch("modelregistry.tasks.for_user") as mock_client,
         patch("modelregistry.tasks.invalidate_stac_cache") as mock_invalidate,
@@ -282,13 +272,13 @@ def test_drift_check_fails_on_each_kind_of_drift(
     assert finding in out.getvalue()
 
 
-def test_drift_check_ignores_a_dataset_still_building(owner: OsmUser) -> None:
+def test_drift_check_ignores_a_dataset_still_building(user: OsmUser) -> None:
     Dataset.objects.create(
         stac_id="pending",
         title="Pending",
         imagery={"image": "https://t.example/{z}/{x}/{y}"},
         primary_input="image",
-        user=owner,
+        user=user,
         status=Dataset.Status.BUILDING,
     )
 
@@ -296,14 +286,6 @@ def test_drift_check_ignores_a_dataset_still_building(owner: OsmUser) -> None:
     _run_drift(out)
 
     assert "no drift" in out.getvalue()
-
-
-@pytest.fixture
-def admin_site(db) -> Client:
-    superuser = OsmUser.objects.create(osm_id=54, username="root", is_staff=True, is_superuser=True)
-    client = Client()
-    client.force_login(superuser)
-    return client
 
 
 @patch("modelregistry.deletion.item_exists", return_value=True)
@@ -356,8 +338,8 @@ def test_admin_site_changelist_edits_save_without_touching_stac(
     assert base_model.visibility == "private"
 
 
-def test_a_pin_made_during_registration_reaches_the_new_item(admin: OsmUser) -> None:
-    base_model = BaseModel.objects.create(name="dino", user=admin, is_pinned=False)
+def test_a_pin_made_during_registration_reaches_the_new_item(admin_user: OsmUser) -> None:
+    base_model = BaseModel.objects.create(name="dino", user=admin_user, is_pinned=False)
 
     def register(path: str, **kwargs: object) -> str:
         BaseModel.objects.filter(pk=base_model.pk).update(is_pinned=True)
@@ -374,8 +356,8 @@ def test_a_pin_made_during_registration_reaches_the_new_item(admin: OsmUser) -> 
     mock_set.assert_called_once_with(BASE_MODELS_COLLECTION, "dino", "fair:pinned", True)
 
 
-def test_stac_patch_cannot_set_the_pin(admin: OsmUser, base_model: BaseModel) -> None:
-    response = _client(admin).patch(
+def test_stac_patch_cannot_set_the_pin(admin_user: OsmUser, base_model: BaseModel) -> None:
+    response = _client(admin_user).patch(
         f"/api/v1/base-models/{base_model.id}/stac/",
         {"properties": {"fair:pinned": False}},
         format="json",
@@ -397,9 +379,9 @@ def test_admin_site_delete_removes_dataset_stac_versions(
 
 
 def test_admin_site_cannot_delete_local_models(
-    admin_site: Client, admin: OsmUser, base_model: BaseModel
+    admin_site: Client, admin_user: OsmUser, base_model: BaseModel
 ) -> None:
-    local_model = LocalModel.objects.create(name="banepa", base_model=base_model, user=admin)
+    local_model = LocalModel.objects.create(name="banepa", base_model=base_model, user=admin_user)
 
     response = admin_site.post(
         f"/django-admin/modelregistry/localmodel/{local_model.id}/delete/", {"post": "yes"}
@@ -424,37 +406,41 @@ def test_admin_site_pin_actions_write_the_row_and_stac(
     mock_write.assert_called_once_with(BASE_MODELS_COLLECTION, "dino", {"fair:pinned": pinned})
 
 
-def _change_form(admin_site: Client, base_model: BaseModel, admin: OsmUser, **stac: str):
-    form = {"status": "active", "visibility": "public", "user": admin.osm_id}
+def _change_form(admin_site: Client, base_model: BaseModel, admin_user: OsmUser, **stac: str):
+    form = {"status": "active", "visibility": "public", "user": admin_user.osm_id}
     form.update({"stac_title": "Old", "stac_description": "Same", **stac})
     return admin_site.post(f"/django-admin/modelregistry/basemodel/{base_model.id}/change/", form)
 
 
 @patch("modelregistry.admin.get_item", return_value=_item("dino", title="Old", description="Same"))
 @patch("modelregistry.admin._validate_merge")
-@patch("modelregistry.admin._apply_metadata")
+@patch("modelregistry.admin._merge_validate_write")
 def test_admin_site_edits_the_stac_title_and_preview(
-    mock_apply, mock_validate, mock_get, admin_site: Client, admin: OsmUser, base_model: BaseModel
+    mock_apply, mock_validate, mock_get, admin_site: Client, admin_user: OsmUser, base_model: BaseModel
 ) -> None:
     preview = {"center": [1, 2], "zoom": {"recommended": 19}, "imagery": {"url": "u"}}
 
     response = _change_form(
-        admin_site, base_model, admin, stac_title="New", stac_preview=json.dumps(preview)
+        admin_site, base_model, admin_user, stac_title="New", stac_preview=json.dumps(preview)
     )
 
     assert response.status_code == 302
     mock_apply.assert_called_once_with(
-        BASE_MODELS_COLLECTION, "dino", {"title": "New", "fair_preview": preview}
+        BASE_MODELS_COLLECTION,
+        "dino",
+        properties={"title": "New", "fair:preview": preview},
+        assets=None,
+        stac_extensions=[],
     )
 
 
 @patch("modelregistry.admin.get_item", return_value=_item("dino", title="Old", description="Same"))
 @patch("modelregistry.admin._validate_merge", side_effect=ValidationError({"stac": ["bad"]}))
-@patch("modelregistry.admin._apply_metadata")
+@patch("modelregistry.admin._merge_validate_write")
 def test_admin_site_shows_a_schema_error_and_saves_nothing(
-    mock_apply, mock_validate, mock_get, admin_site: Client, admin: OsmUser, base_model: BaseModel
+    mock_apply, mock_validate, mock_get, admin_site: Client, admin_user: OsmUser, base_model: BaseModel
 ) -> None:
-    response = _change_form(admin_site, base_model, admin, stac_title="New")
+    response = _change_form(admin_site, base_model, admin_user, stac_title="New")
 
     assert response.status_code == 200
     assert "bad" in response.content.decode()
@@ -462,11 +448,11 @@ def test_admin_site_shows_a_schema_error_and_saves_nothing(
 
 
 @patch("modelregistry.admin.get_item", return_value=_item("dino", title="Old", description="Same"))
-@patch("modelregistry.admin._apply_metadata")
+@patch("modelregistry.admin._merge_validate_write")
 def test_admin_site_refuses_to_clear_a_stac_field(
-    mock_apply, mock_get, admin_site: Client, admin: OsmUser, base_model: BaseModel
+    mock_apply, mock_get, admin_site: Client, admin_user: OsmUser, base_model: BaseModel
 ) -> None:
-    response = _change_form(admin_site, base_model, admin, stac_title="")
+    response = _change_form(admin_site, base_model, admin_user, stac_title="")
 
     assert response.status_code == 200
     assert "cannot be cleared" in response.content.decode()
@@ -477,11 +463,56 @@ def test_admin_site_refuses_to_clear_a_stac_field(
     "modelregistry.admin.get_item",
     return_value=_item("dino", title="Old", description="line one\nline two"),
 )
-@patch("modelregistry.admin._apply_metadata")
+@patch("modelregistry.admin._merge_validate_write")
 def test_admin_site_ignores_line_ending_only_description_changes(
-    mock_apply, mock_get, admin_site: Client, admin: OsmUser, base_model: BaseModel
+    mock_apply, mock_get, admin_site: Client, admin_user: OsmUser, base_model: BaseModel
 ) -> None:
-    response = _change_form(admin_site, base_model, admin, stac_description="line one\r\nline two")
+    response = _change_form(admin_site, base_model, admin_user, stac_description="line one\r\nline two")
 
     assert response.status_code == 302
     mock_apply.assert_not_called()
+
+
+@patch("modelregistry.admin.get_item", return_value=_item("dino", title="Old", description="Same"))
+@patch("modelregistry.admin._validate_merge")
+@patch("modelregistry.admin._merge_validate_write")
+def test_admin_site_patches_stac_assets(
+    mock_write, mock_validate, mock_get, admin_site: Client, admin_user: OsmUser, base_model: BaseModel
+) -> None:
+    asset = {"href": "https://example.com/model.onnx", "roles": ["mlm:model"]}
+    patch_json = json.dumps({"assets": {"model": asset}})
+
+    response = _change_form(admin_site, base_model, admin_user, stac_patch=patch_json)
+
+    assert response.status_code == 302
+    mock_write.assert_called_once_with(
+        BASE_MODELS_COLLECTION, "dino", properties={}, assets={"model": asset}, stac_extensions=[]
+    )
+
+
+@patch("modelregistry.views.register_base_model")
+@patch("modelregistry.views._pipeline_error", return_value=None)
+def test_admin_site_registers_a_base_model(mock_pipeline, mock_task, admin_site: Client) -> None:
+    item = {"type": "Feature", "properties": {"mlm:name": "trees"}, "assets": {}}
+
+    response = admin_site.post(
+        "/django-admin/modelregistry/basemodel/add/",
+        {"stac_item": json.dumps(item), "category": "buildings"},
+    )
+
+    assert response.status_code == 302
+    registered = BaseModel.objects.get(name="trees")
+    assert (registered.status, registered.category_id) == (BaseModel.Status.REGISTERING, "buildings")
+    mock_task.enqueue.assert_called_once()
+
+
+@pytest.mark.parametrize("path", ["basemodel", "localmodel"])
+def test_admin_site_opens_an_unpublished_model(admin_site: Client, user: OsmUser, path: str) -> None:
+    base = BaseModel.objects.create(name="draft-base", user=user)
+    local = LocalModel.objects.create(name="draft-local", base_model=base, user=user)
+    model = base if path == "basemodel" else local
+
+    response = admin_site.get(f"/django-admin/modelregistry/{path}/{model.id}/change/")
+
+    assert response.status_code == 200
+    assert b"id_stac_patch" not in response.content

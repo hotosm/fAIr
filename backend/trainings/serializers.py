@@ -1,7 +1,8 @@
 from django.utils.text import slugify
 from rest_framework import serializers
 
-from notifications.serializers import UserSerializer
+from accounts.serializers import UserSerializer
+from modelregistry.models import BaseModel
 from shared.serializers import OwnerOnlyErrorMixin
 
 from .models import TrainingRunRef
@@ -12,6 +13,15 @@ class TrainingSubmitSerializer(serializers.Serializer):
     dataset_stac_id = serializers.CharField(max_length=200)
     model_name = serializers.CharField(max_length=200)
     overrides = serializers.DictField(required=False, default=dict)
+    class_map = serializers.DictField(
+        child=serializers.CharField(max_length=200),
+        required=False,
+        default=dict,
+        help_text=(
+            'Dataset classes ("property=value") to model class names, '
+            'e.g. {"roof=iron": "metal_sheet"}.'
+        ),
+    )
     title = serializers.CharField(
         required=False,
         allow_blank=True,
@@ -29,8 +39,8 @@ class TrainingSubmitSerializer(serializers.Serializer):
         default=list,
         help_text=(
             "Extra keywords carried onto the published STAC item. Merged "
-            "additively at publish time with base-model keywords, dataset "
-            "keywords, and the dataset's geometry_type."
+            "additively at publish time with base-model keywords and the "
+            "dataset's keywords other than geometry types."
         ),
     )
     description = serializers.CharField(required=False, allow_blank=True, default="")
@@ -41,6 +51,10 @@ class TrainingSubmitSerializer(serializers.Serializer):
         if not slug:
             raise serializers.ValidationError(
                 "model_name must contain at least one alphanumeric character."
+            )
+        if BaseModel.objects.filter(name__iexact=slug).exists():
+            raise serializers.ValidationError(
+                f"'{slug}' is a base model name; choose another model_name."
             )
         return slug
 
@@ -60,6 +74,7 @@ class TrainingRunRefSerializer(OwnerOnlyErrorMixin, serializers.ModelSerializer)
             "base_model_stac_id",
             "dataset",
             "overrides",
+            "class_map",
             "title",
             "keywords",
             "description",

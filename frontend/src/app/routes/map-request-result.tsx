@@ -17,8 +17,12 @@ const MAP_REQUEST_OUTPUT_TYPES = OUTPUT_TYPES.filter(
 );
 import { MapRequestResultMap } from "@/features/user-profile/components/map-requests/map-request-result-map";
 import { useGetSinglePrediction } from "@/features/user-profile/hooks/use-predictions";
+import {
+  getModelUsed,
+  getPredictionName,
+} from "@/features/user-profile/components/overview/map-request-fields";
 import { Spinner } from "@/components/ui/spinner";
-import { MobileDrawer } from "@/components/ui/drawer";
+import { MapBottomSheet } from "@/components/ui/drawer/map-bottom-sheet";
 import useScreenSize from "@/hooks/use-screen-size";
 import { BBOX, TOfflinePrediction } from "@/types";
 import {
@@ -32,16 +36,12 @@ import { Link, useLocation, useParams } from "react-router-dom";
 import { ImageIcon } from "@/components/ui/icons/image-icon";
 import { ParametersIcon } from "@/components/ui/icons/parameters-icon";
 
-const getPredictionName = (prediction: TOfflinePrediction): string =>
-  prediction.description ||
-  prediction.local_model_stac_id ||
-  `Prediction #${prediction.id}`;
-
-/** Info card shown over the map — styled like the Try fAIr sidebar. */
+/** Info card shown over the map, styled like the Try fAIr sidebar. */
 const ResultInfoCard = ({
   imageryName,
   imageryLink,
   featureMapped,
+  modelName,
   outputType,
   onOutputTypeChange,
   zoom,
@@ -52,6 +52,7 @@ const ResultInfoCard = ({
   imageryName: string;
   imageryLink: string;
   featureMapped: string;
+  modelName: string;
   outputType: TryFairMapOutputType;
   onOutputTypeChange: (type: TryFairMapOutputType) => void;
   zoom: TOfflinePrediction["zoom"];
@@ -106,6 +107,13 @@ const ResultInfoCard = ({
         <p className="text-dark text-xs mb-2">Feature Mapped</p>
         <div className="flex items-center gap-2 rounded-lg border border-gray-border bg-gray-white px-3 py-2.5 text-xs capitalize text-dark">
           {featureMapped}
+        </div>
+      </div>
+
+      <div>
+        <p className="text-dark text-xs mb-2">Model</p>
+        <div className="break-words rounded-lg border border-gray-border bg-gray-white px-3 py-2.5 text-xs text-dark">
+          {modelName}
         </div>
       </div>
 
@@ -273,6 +281,7 @@ export const MapRequestResultPage = () => {
               outputType={outputType}
               bounds={bounds}
               gridZoom={prediction.zoom}
+              modelStacId={prediction.local_model_stac_id}
             />
           ) : (
             <div className="flex h-full items-center justify-center bg-off-white">
@@ -286,6 +295,7 @@ export const MapRequestResultPage = () => {
                 imageryName={oamItem?.title || "Custom Imagery"}
                 imageryLink={prediction.image_uri ?? ""}
                 featureMapped={prediction?.category ?? "-"}
+                modelName={getModelUsed(prediction)}
                 outputType={outputType}
                 onOutputTypeChange={setOutputType}
                 zoom={prediction.zoom}
@@ -298,18 +308,12 @@ export const MapRequestResultPage = () => {
 
           {isSmallViewport && (
             <div className="relative">
-              <MobileDrawer
-                open={isSmallViewport}
-                dialogTitle="Map Request Result"
-                snapPoints={[0.5, 0.7]}
-                modal={false}
-                showOverlay={false}
-                handleOnly
-              >
+              <MapBottomSheet label="Map request details">
                 <ResultInfoCard
                   imageryName={oamItem?.title || "Custom Imagery"}
                   imageryLink={prediction.image_uri ?? ""}
                   featureMapped={prediction?.category ?? ""}
+                  modelName={getModelUsed(prediction)}
                   outputType={outputType}
                   onOutputTypeChange={setOutputType}
                   zoom={prediction.zoom}
@@ -317,7 +321,7 @@ export const MapRequestResultPage = () => {
                   showDownloadResult={isAuthenticated}
                   className="w-full shadow-none"
                 />
-              </MobileDrawer>
+              </MapBottomSheet>
             </div>
           )}
         </div>

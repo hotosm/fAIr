@@ -6,7 +6,6 @@ import { Input, Switch } from "@/components/ui/form";
 
 import { USER_PROFILE_PAGE_CONTENT } from "@/constants/ui-contents/user-profile-content";
 import { ButtonVariant, INPUT_TYPES } from "@/enums";
-import { NotificationDeliveryMethod } from "@/enums/user-profile";
 import {
   useEmailVerification,
   useUpdateUserProfile,
@@ -29,19 +28,9 @@ export const UserProfileSettingsPage = () => {
 
   const [isEmailPending, setIsEmailPending] = useState<boolean>(false);
 
-  const [notifications, setNotifications] = useState<{
-    monthlyNewsletter: boolean;
-    emailTrainingNotification: boolean;
-    webTrainingNotification: boolean;
-  }>({
-    monthlyNewsletter: user.newsletter_subscription,
-    emailTrainingNotification: user.notifications_delivery_methods.includes(
-      NotificationDeliveryMethod.MAIL,
-    ),
-    webTrainingNotification: user.notifications_delivery_methods.includes(
-      NotificationDeliveryMethod.WEB,
-    ),
-  });
+  const [newsletterSubscription, setNewsletterSubscription] = useState<boolean>(
+    user.newsletter_subscription,
+  );
 
   const [isNotificationPending, setIsNotificationPending] =
     useState<boolean>(false);
@@ -176,75 +165,41 @@ export const UserProfileSettingsPage = () => {
                 USER_PROFILE_PAGE_CONTENT.settings.notifications.sectionTitle
               }
             />
-            <div className="mt-2 space-y-4">
-              {USER_PROFILE_PAGE_CONTENT.settings.notifications.notificationTypes.map(
-                (notification, index) => (
-                  <div key={index} className="flex flex-col space-y-2">
-                    <div
-                      className={`flex justify-between items-center transition-opacity duration-200 ${user.email.length === 0 && notification.key !== USER_PROFILE_PAGE_CONTENT.settings.notifications.notificationKeys.webTrainingNotification ? "opacity-50" : ""}`}
-                    >
-                      <div className="flex flex-col gap-y-1">
-                        <h3 className="text-body-3 md:text-body-2">
-                          {notification.label}
-                        </h3>
-                        <p className="text-body-4 md:text-body-3 text-grey">
-                          {notification.description}
-                        </p>
-                      </div>
-                      <Switch
-                        disabled={
-                          isNotificationPending ||
-                          (!user.email_verified &&
-                            notification.key !==
-                              USER_PROFILE_PAGE_CONTENT.settings.notifications
-                                .notificationKeys.webTrainingNotification) ||
-                          (user.email.length === 0 &&
-                            notification.key !==
-                              USER_PROFILE_PAGE_CONTENT.settings.notifications
-                                .notificationKeys.webTrainingNotification)
-                        }
-                        checked={
-                          notifications[
-                            notification.key as keyof typeof notifications
-                          ]
-                        }
-                        handleSwitchChange={(e) => {
-                          const updatedNotifications = {
-                            ...notifications,
-                            [notification.key]: e.target.checked,
-                          };
-                          setIsNotificationPending(true);
-                          updateNotifications(
-                            {
-                              newsletter_subscription:
-                                updatedNotifications.monthlyNewsletter,
-                              notifications_delivery_methods: [
-                                ...(updatedNotifications.emailTrainingNotification
-                                  ? [NotificationDeliveryMethod.MAIL]
-                                  : []),
-                                ...(updatedNotifications.webTrainingNotification
-                                  ? [NotificationDeliveryMethod.WEB]
-                                  : []),
-                              ],
-                            },
-                            {
-                              onSuccess: () => {
-                                setNotifications(updatedNotifications);
-                              },
-                              onError: (error) => {
-                                showErrorToast(
-                                  error,
-                                  "Error updating notifications",
-                                );
-                              },
-                            },
-                          );
-                        }}
-                      />
-                    </div>
-                  </div>
-                ),
-              )}
+            <div
+              className={`mt-2 flex justify-between items-center transition-opacity duration-200 ${user.email.length === 0 ? "opacity-50" : ""}`}
+            >
+              <div className="flex flex-col gap-y-1">
+                <h3 className="text-body-3 md:text-body-2">
+                  {
+                    USER_PROFILE_PAGE_CONTENT.settings.notifications.newsletter
+                      .label
+                  }
+                </h3>
+                <p className="text-body-4 md:text-body-3 text-grey">
+                  {
+                    USER_PROFILE_PAGE_CONTENT.settings.notifications.newsletter
+                      .description
+                  }
+                </p>
+              </div>
+              <Switch
+                disabled={
+                  isNotificationPending ||
+                  !user.email_verified ||
+                  user.email.length === 0
+                }
+                checked={newsletterSubscription}
+                handleSwitchChange={(e) => {
+                  const subscribed = e.target.checked;
+                  setIsNotificationPending(true);
+                  updateNotifications(
+                    { newsletter_subscription: subscribed },
+                    {
+                      onSuccess: () => setNewsletterSubscription(subscribed),
+                    },
+                  );
+                }}
+              />
             </div>
           </div>
         </div>

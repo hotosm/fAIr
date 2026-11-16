@@ -10,9 +10,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from accounts.authentication import OsmAuthentication
-from config.settings import AuthProvider
-from notifications.serializers import UserStatsSerializer
+from config.env import AuthProvider
 from shared.exceptions import AuthenticationException, LoginException
 
 from .api_schemas import (
@@ -28,12 +26,12 @@ from .hanko_helpers import (
     is_real_osm_user,
 )
 from .models import OsmUser
+from .serializers import UserStatsSerializer
 from .tokens import email_verification_token
 
 
 @extend_schema(tags=["accounts"])
 class GetMyData(APIView):
-    authentication_classes = [OsmAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = UserStatsSerializer
 
@@ -46,7 +44,7 @@ class GetMyData(APIView):
         user.last_login = timezone.now()
         user.save(update_fields=["last_login"])
         serialized_field = UserStatsSerializer(instance=user)
-        return Response(serialized_field.data, status=status.HTTP_201_CREATED)
+        return Response(serialized_field.data)
 
     @extend_schema(
         description="Extend the caller's profile (email, deletion-request, prefs).",
@@ -88,7 +86,6 @@ class GetMyData(APIView):
 
 @extend_schema(tags=["accounts"])
 class RequestEmailVerification(APIView):
-    authentication_classes = [OsmAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = MessageResponse
 
@@ -156,9 +153,6 @@ class VerifyEmail(APIView):
             return Response({"message": "Email already verified."}, status=201)
 
         if email_verification_token.check_token(user, token):
-            if user.email_verified:
-                return Response({"message": "Email already verified."}, status=201)
-
             user.email_verified = True
             user.save(update_fields=["email_verified"])
             return Response({"message": "Email successfully verified."}, status=200)

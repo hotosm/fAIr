@@ -58,12 +58,14 @@ export type BaseModelStacItem = {
     title: string;
     description: string;
     deprecated: boolean;
+    license?: string;
     "mlm:name": string;
     "mlm:architecture": string;
     "mlm:tasks": string[];
     "mlm:framework": string;
     "fair:pinned": boolean;
     "mlm:hyperparameters": Record<string, string | number | boolean>;
+    "mlm:input": { name: string }[];
     "mlm:output"?: ModelOutput[];
     "cube:variables"?: Record<string, CubeVariable>;
     "fair:hyperparameters_spec": HyperParamSpec[];
@@ -72,11 +74,19 @@ export type BaseModelStacItem = {
     "fair:category": string;
     "fair:recommended_zoom"?: number;
     keywords: string[];
-    providers: Array<{ name: string; description?: string; url?: string }>;
+    providers: Array<{
+      name: string;
+      description?: string;
+      url?: string;
+      /** STAC provider roles: "producer", "licensor", "processor", "host". */
+      roles?: string[];
+    }>;
   };
   assets: {
     model?: StacAsset;
     "mlm:inference-endpoint"?: StacAsset;
+    "source-code"?: StacAsset;
+    readme?: StacAsset;
     [key: string]: StacAsset | undefined;
   };
 };
@@ -115,7 +125,7 @@ export const getInferenceParams = (
 
 export type PredictPayload = {
   model_uri: string;
-  image_uri: string;
+  imagery: Record<string, string>;
   bbox: BBOX;
   zoom: number;
   params: Record<string, number | string | boolean>;

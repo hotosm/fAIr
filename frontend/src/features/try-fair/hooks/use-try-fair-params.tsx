@@ -244,7 +244,13 @@ export const useTryFairParams = () => {
     chooseLocation: params.chooseLocation,
     parameterOverrides: params.params ?? {},
 
-    restoreParams: (snapshot: typeof params) => setParams(snapshot),
+    /** Restores a saved run's params. The mapping mode is left as it is: it's
+     *  the user's preference, so reopening an older run (e.g. one made in
+     *  basic mode) must not switch them out of advanced mode. */
+    restoreParams: ({
+      mappingMode: _mappingMode,
+      ...snapshot
+    }: typeof params) => setParams(snapshot),
     setModelId: (id: string) => setParams({ model: id }),
     setSelectedModelId: (id: string | null) =>
       setParams({ selectedModelId: id }),

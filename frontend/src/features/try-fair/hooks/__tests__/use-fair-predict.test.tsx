@@ -89,10 +89,11 @@ describe("saved prediction results", () => {
     vi.mocked(runPredict).mockResolvedValue(saved.predictions);
     const model = {
       id: "buildings",
+      properties: { "mlm:input": [{ name: "image" }] },
       assets: {
         "mlm:inference-endpoint": { href: "https://example.com/predict" },
       },
-    } as BaseModelStacItem;
+    } as unknown as BaseModelStacItem;
     const { result } = renderHook(() => useFairPredict(), {
       wrapper: wrapper(),
     });
@@ -108,5 +109,10 @@ describe("saved prediction results", () => {
       }),
     );
     await waitFor(() => expect(result.current.result).toEqual(saved));
+    expect(runPredict).toHaveBeenCalledWith(
+      "https://example.com/predict",
+      expect.objectContaining({ imagery: { image: saved.imageUri } }),
+      expect.any(AbortSignal),
+    );
   });
 });

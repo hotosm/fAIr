@@ -4,7 +4,7 @@ import secrets
 from django.conf import settings
 from rest_framework import authentication, exceptions
 
-from config.settings import AuthProvider
+from config.env import AuthProvider
 
 from .models import OsmUser
 
@@ -42,10 +42,11 @@ class HankoAuthentication(authentication.BaseAuthentication):
                 )
                 # Fall through to onboarding.
 
-        request.needs_onboarding = True
-        request.hanko_user_for_onboarding = hanko_user
         logger.debug(f"Hanko user {hanko_user.email} needs onboarding (no mapping)")
         return None
+
+    def authenticate_header(self, request):
+        return "Bearer"
 
 
 _DEV_USER_OSM_ID = 1
@@ -68,18 +69,12 @@ class DevAuthentication(authentication.BaseAuthentication):
 
     def authenticate(self, request):
         global _DEV_USER_CACHE
-        configured = getattr(settings, "FAIR_DEV_TOKEN", "") or ""
-        if not configured:
-            raise exceptions.AuthenticationFailed(
-                "AUTH_PROVIDER=dev requires FAIR_DEV_TOKEN to be set"
-            )
-
         header = request.META.get("HTTP_AUTHORIZATION", "")
         if not header.startswith(f"{self.keyword} "):
             return None
 
         provided = header[len(self.keyword) + 1 :]
-        if not secrets.compare_digest(provided, configured):
+        if not secrets.compare_digest(provided, settings.FAIR_DEV_TOKEN):
             raise exceptions.AuthenticationFailed("Invalid FAIR_DEV_TOKEN")
 
         if _DEV_USER_CACHE is None:

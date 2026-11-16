@@ -193,7 +193,7 @@ describe("project prediction history", () => {
 });
 
 describe("prediction history panel", () => {
-  it("shows newest first, marks only the active run, and restores the clicked snapshot", () => {
+  it("shows newest first, highlights only the active run, and restores the clicked snapshot", () => {
     const onSelect = vi.fn();
     const onClose = vi.fn();
     const entries = [historyEntry("1"), historyEntry("2")];
@@ -213,7 +213,13 @@ describe("prediction history panel", () => {
       expect.stringContaining("Run 2"),
       expect.stringContaining("Run 1"),
     ]);
-    expect(screen.getAllByText("Current")).toHaveLength(1);
+    // Every run shows its time; the active one is marked by aria-current.
+    expect(screen.queryByText("Current")).toBeNull();
+    expect(
+      screen
+        .getAllByRole("button")
+        .filter((button) => button.getAttribute("aria-current") === "true"),
+    ).toHaveLength(1);
     fireEvent.click(screen.getByRole("button", { name: /Run 1/ }));
     expect(onSelect).toHaveBeenCalledWith(entries[0]);
     view.rerender(

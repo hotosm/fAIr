@@ -36,7 +36,8 @@ describe("navbar mode switcher", () => {
     ["/map-requests/42", true, false],
     ["/about", true, false],
     ["/profile", false, false],
-    ["/try-fair?mappingMode=advanced", false, false],
+    ["/try-fair", false, true],
+    ["/try-fair?mappingMode=advanced", false, true],
   ])(
     "uses route %s and authentication %s to show mode switcher %s",
     (path, signedIn, expected) => {

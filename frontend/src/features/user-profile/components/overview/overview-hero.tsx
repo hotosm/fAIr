@@ -3,10 +3,10 @@ import { Link } from "@/components/ui/link";
 import { APPLICATION_ROUTES } from "@/constants/routes";
 import { SHARED_CONTENT } from "@/constants";
 import { useGetUserStates } from "@/features/user-profile/api/user-state";
-import { RecentMappingCard } from "./recent-mapping-card";
 import { MapComponent } from "@/components/map/map";
 import { useMapInstance } from "@/hooks/use-map-instance";
 import { useEffect } from "react";
+import { RecentMappingCard } from "@/features/user-profile/components/overview/recent-mapping-card";
 
 const EmptyHeroMap = () => {
   const { mapContainerRef, map } = useMapInstance();
@@ -38,7 +38,7 @@ const RecentMappingSkeleton = () => (
   <section
     role="status"
     aria-label="Loading recent mapping"
-    className="contour-bg grid min-h-[410px] min-w-0 grid-cols-1 gap-4 overflow-hidden rounded-xl bg-dark p-4 font-archivo text-white sm:grid-cols-[180px_minmax(0,1fr)]"
+    className="contour-bg grid min-h-[410px] min-w-0 grid-cols-1 gap-4 overflow-hidden rounded-none bg-dark p-5 font-archivo text-white sm:grid-cols-[180px_minmax(0,1fr)] sm:rounded-xl sm:p-4"
   >
     <div className="flex min-w-0 flex-col p-1">
       <p className="text-sm font-semibold">Recent Mapping</p>
@@ -76,8 +76,9 @@ export const OverviewHero = () => {
   }
 
   return (
-    <section className="grid min-w-0 grid-cols-1 sm:grid-cols-2 contour-bg gap-4 font-archivo rounded-md bg-dark p-4 text-white">
-      <div className="flex min-w-0 flex-col gap-y-6 p-2 sm:p-4">
+    // Phones: square corners and 20px padding (the section is full width).
+    <section className="grid min-w-0 grid-cols-1 sm:grid-cols-2 contour-bg gap-5 font-archivo rounded-none bg-dark px-5 py-6 text-white sm:gap-4 sm:rounded-md sm:p-4">
+      <div className="flex min-w-0 flex-col gap-y-4 sm:gap-y-6 sm:p-4">
         <h1 className="font-semibold text-2xl">
           {SHARED_CONTENT.homepage.jumbotronTitle}
         </h1>
@@ -96,7 +97,7 @@ export const OverviewHero = () => {
         </Link>
       </div>
 
-      <div className="hidden min-h-64 min-w-0 rounded-md w-full overflow-hidden bg-white/5 sm:block">
+      <div className="h-48 min-w-0 rounded-md w-full overflow-hidden bg-white/5 sm:h-auto sm:min-h-64">
         <EmptyHeroMap />
       </div>
     </section>

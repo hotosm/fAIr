@@ -39,7 +39,6 @@ export type TUser = {
   datasets_count: number;
   profile_completion_percentage: number;
   newsletter_subscription: boolean;
-  notifications_delivery_methods: string[];
   account_deletion_requested: boolean;
   unread_notifications_count: number;
   email_verified: boolean;
@@ -433,6 +432,8 @@ export type TOfflinePrediction = {
   id: number;
   zenml_run_id: string | null;
   local_model_stac_id: string;
+  /** Title from the model's STAC item; null when STAC is unavailable. */
+  model_title?: string | null;
   image_uri: string;
   category?: string;
   /** GeoJSON polygon describing the area of interest. null when bbox was used. */

@@ -312,6 +312,7 @@ export type TSharedContent = {
   navbar: {
     logoAlt: string;
     loginButton: string;
+    mobileLoginButton: string;
     hamburgerMenuAlt: string;
     hamburgerMenuTitle: string;
     routes: {
@@ -758,16 +759,10 @@ export type TUserProfilePageContent = {
     };
     notifications: {
       sectionTitle: string;
-      notificationKeys: {
-        monthlyNewsletter: string;
-        emailTrainingNotification: string;
-        webTrainingNotification: string;
-      };
-      notificationTypes: {
+      newsletter: {
         label: string;
-        key: string;
         description: string;
-      }[];
+      };
     };
     account: {
       sectionTitle: string;
