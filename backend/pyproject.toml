@@ -1,6 +1,6 @@
 [project]
 name = "fair-backend"
-version = "2.0.0"
+version = "3.1.2"
 description = "AI-Assisted Mapping backend"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -20,7 +20,7 @@ dependencies = [
   "djangorestframework>=3.15",
   "djangorestframework-gis>=1.1",
   "drf-spectacular>=0.29",
-  "fair-py-ops[k8s]==0.3.32",
+  "fair-py-ops[k8s]==0.3.35",
   "geomltoolkits>=2.1.0",
   "geopandas>=1.0",
   "gpxpy>=1.6",
@@ -29,10 +29,12 @@ dependencies = [
   "httpx>=0.28.1",
   "psycopg-pool>=3.3.1",
   "psycopg[binary]>=3.2",
+  "pyarrow>=23.0.1",
   "pydantic>=2.10",
   "pydantic-settings>=2.7",
+  "pyproj>=3.7.2",
   "pystac>=1.14.3",
-  "shapely>=2.0",
+  "shapely>=2.1",
   "universal-pathlib>=0.3.10",
   "whitenoise>=6.6",
   "zenml>=0.94.2",
@@ -83,11 +85,3 @@ filterwarnings = [
   # hotosm_auth (config.py, schemas/admin.py) uses pydantic's class-based Config.
   "ignore:Support for class-based `config` is deprecated:pydantic.warnings.PydanticDeprecatedSince20",
 ]
-
-[tool.commitizen]
-name = "cz_conventional_commits"
-tag_format = "v$version"
-version_scheme = "semver"
-version_provider = "pep621"
-update_changelog_on_bump = true
-major_version_zero = false

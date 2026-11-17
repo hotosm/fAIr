@@ -1,3 +1,4 @@
+import { isAxiosError } from "axios";
 import { TRY_FAIR_PAGE_CONTENT } from "@/constants/ui-contents/try-fair-contents";
 import { TryFairMapOutputType, TryFairResolution } from "@/enums/try-fair";
 import { BaseModelStacItem } from "@/features/try-fair/api/stac";
@@ -246,6 +247,12 @@ export const cleanFeatureLabel = (label: string) => {
   return (label ?? "").replace(/[-_]/g, " ");
 };
 
+/** A feature slug as shown to users, in sentence case: "solid-waste" reads "Solid waste". */
+export const featureDisplayName = (label: string) => {
+  const text = cleanFeatureLabel(label);
+  return text.charAt(0).toUpperCase() + text.slice(1);
+};
+
 export function elapsedTime(createdAt: string, now: number): string {
   const minutes = Math.max(
     0,
@@ -257,3 +264,17 @@ export function elapsedTime(createdAt: string, now: number): string {
   if (hours < 24) return `${hours} hr ago`;
   return new Date(createdAt).toLocaleDateString();
 }
+
+const MODEL_UNAVAILABLE_STATUSES = [502, 503, 504];
+
+/** A plain message when the model service is unreachable; undefined leaves the default error text. */
+export const predictErrorMessage = (error: unknown): string | undefined => {
+  if (!isAxiosError(error)) return undefined;
+  // A 503 from the serving gateway carries no CORS headers, so browsers report it as a network error.
+  const unreachable =
+    error.code === "ERR_NETWORK" ||
+    MODEL_UNAVAILABLE_STATUSES.includes(error.response?.status ?? 0);
+  return unreachable
+    ? "The model isn’t responding. It may still be starting; try again in a minute."
+    : undefined;
+};

@@ -106,15 +106,9 @@ export enum ImagerySource {
 }
 
 export enum PredictionRequestStatus {
-  INITIALIZING = "initializing",
   SUBMITTED = "submitted",
-  PROVISIONING = "provisioning",
   RUNNING = "running",
   COMPLETED = "completed",
   FAILED = "failed",
-  CACHED = "cached",
-  RETRYING = "retrying",
-  RETRIED = "retried",
-  STOPPING = "stopping",
-  STOPPED = "stopped",
+  CANCELLED = "cancelled",
 }

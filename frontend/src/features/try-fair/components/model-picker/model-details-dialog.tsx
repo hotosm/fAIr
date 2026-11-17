@@ -1,7 +1,10 @@
 import { Dialog } from "@/components/ui/dialog";
 import { StarredIcon } from "@/components/ui/icons/starred-icon";
 import { SHOELACE_SIZES } from "@/enums";
-import { getInferenceParams } from "@/features/try-fair/api/stac";
+import {
+  getInferenceParams,
+  type InferenceParam,
+} from "@/features/try-fair/api/stac";
 import {
   ExperimentalModelBadge,
   getFeatureIcon,
@@ -10,6 +13,7 @@ import type { APIBaseModelItem } from "@/features/try-fair/types/data-types";
 import { getModelOutputType } from "@/features/try-fair/utils/common";
 import { ModelLinks } from "@/features/try-fair/components/model-picker/model-links";
 import { getModelUsage } from "@/features/try-fair/components/model-picker/model-usage";
+import { featureDisplayName } from "@/features/try-fair/utils/common";
 
 const formatDay = (iso?: string) =>
   iso
@@ -19,6 +23,10 @@ const formatDay = (iso?: string) =>
         year: "numeric",
       })
     : null;
+
+/** A setting whose default is empty, such as an optional input URL, says nothing as a default. */
+export const listedDefaults = (params: InferenceParam[]) =>
+  params.filter(({ spec }) => spec.default !== "");
 
 const humanize = (value: string) =>
   value.replace(/[._-]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -57,7 +65,7 @@ export const ModelDetailsDialog = ({
   const FeatureIcon = getFeatureIcon(category);
   // Some models have no hyperparameters recorded; show no settings then.
   const params = properties?.["mlm:hyperparameters"]
-    ? getInferenceParams(model!.stac)
+    ? listedDefaults(getInferenceParams(model!.stac))
     : [];
   // The producer is the provider with the STAC "producer" role.
   const producers =
@@ -80,9 +88,9 @@ export const ModelDetailsDialog = ({
             </h3>
             <div className="flex flex-wrap items-center gap-2">
               {category && (
-                <span className="inline-flex items-center gap-1.5 rounded bg-grey px-2 py-1 text-xs capitalize leading-none text-white">
+                <span className="inline-flex items-center gap-1.5 rounded bg-grey px-2 py-1 text-xs leading-none text-white">
                   <FeatureIcon className="size-3" aria-hidden="true" />
-                  {category.replace(/[-_]/g, " ")}
+                  {featureDisplayName(category)}
                 </span>
               )}
               {model.is_pinned && (

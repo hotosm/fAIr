@@ -1,7 +1,13 @@
+import shapely
+from django.conf import settings
 from django.utils.http import MAX_URL_LENGTH
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
+from pyproj import CRS, Transformer
 from rest_framework import serializers
+from shapely.errors import GEOSException
+from shapely.geometry import box, shape
+from shapely.validation import explain_validity
 
 from accounts.serializers import UserSerializer
 from shared.serializers import (
@@ -14,6 +20,10 @@ from shared.serializers import (
 )
 
 from .models import Prediction
+
+_WEB_MERCATOR_BOUNDS = CRS("EPSG:3857").area_of_use.bounds
+# EPSG:6933 is cylindrical equal-area (WGS84, 86S to 86N), so a lon/lat box measures its exact area.
+_TO_EQUAL_AREA = Transformer.from_crs("EPSG:4326", "EPSG:6933", always_xy=True)
 
 
 class PredictionSubmitSerializer(serializers.Serializer):
@@ -73,29 +83,59 @@ class PredictionSubmitSerializer(serializers.Serializer):
                     [[west, south], [east, south], [east, north], [west, north], [west, south]]
                 ],
             }
+            area = shape(attrs["geometry"])
         else:
-            from shapely.errors import GEOSException
-            from shapely.geometry import shape
-
             try:
-                shape(geometry)
+                area = shape(geometry)
             except (ValueError, KeyError, TypeError, GEOSException) as exc:
                 raise serializers.ValidationError({"geometry": f"invalid geometry: {exc}"}) from exc
+        field = "bbox" if bbox else "geometry"
+        if area.is_empty:
+            raise serializers.ValidationError({field: "The area is empty."})
+        if not area.is_valid:
+            raise serializers.ValidationError(
+                {field: f"The area is not a valid polygon: {explain_validity(area)}."}
+            )
+        if not box(*_WEB_MERCATOR_BOUNDS).contains(area):
+            west, south, east, north = _WEB_MERCATOR_BOUNDS
+            raise serializers.ValidationError(
+                {
+                    field: f"The area must lie within longitude {west:g} to {east:g} "
+                    f"and latitude {south:g} to {north:g}."
+                }
+            )
+        projected = shapely.transform(area, _TO_EQUAL_AREA.transform, interleaved=False)
+        area_sqkm = projected.area / 1_000_000
+        if area_sqkm > settings.MAP_REQUEST_MAX_AREA_SQKM:
+            raise serializers.ValidationError(
+                {
+                    field: f"The area is {area_sqkm:,.0f} km², larger than the "
+                    f"{settings.MAP_REQUEST_MAX_AREA_SQKM:,} km² limit for a map request."
+                }
+            )
         return attrs
+
+
+def presigned_output_urls(prediction: Prediction) -> dict[str, str]:
+    from shared.storage import StoragePaths, presigned_get_url
+
+    urls = {
+        "geojson": presigned_get_url(StoragePaths.prediction_geojson_key(prediction.id)),
+        "geoparquet": presigned_get_url(StoragePaths.prediction_geoparquet_key(prediction.id)),
+    }
+    if prediction.feature_count != 0:
+        urls["pmtiles"] = presigned_get_url(StoragePaths.prediction_pmtiles_key(prediction.id))
+    return urls
 
 
 class PredictionResultSerializer(serializers.Serializer):
     """Presigned URLs for each materialized output format."""
 
     geojson = serializers.URLField()
-    fgb = serializers.URLField()
-    pmtiles = serializers.URLField()
-
-
-class PredictionAssetsSerializer(serializers.Serializer):
-    geojson = serializers.URLField()
-    fgb = serializers.URLField()
-    pmtiles = serializers.URLField()
+    geoparquet = serializers.URLField()
+    pmtiles = serializers.URLField(
+        required=False, help_text="Absent when the result has no features."
+    )
 
 
 class PredictionSerializer(OwnerOnlyErrorMixin, serializers.ModelSerializer):
@@ -116,18 +156,11 @@ class PredictionSerializer(OwnerOnlyErrorMixin, serializers.ModelSerializer):
     def get_image_uri(self, obj: Prediction) -> str:
         return obj.primary_imagery
 
-    @extend_schema_field(PredictionAssetsSerializer(allow_null=True))
+    @extend_schema_field(PredictionResultSerializer(allow_null=True))
     def get_assets(self, obj: Prediction) -> dict[str, str] | None:
         if not obj.results_ready:
             return None
-        from shared.storage import StoragePaths, presigned_get_url
-
-        out: dict[str, str] = {
-            "geojson": presigned_get_url(StoragePaths.prediction_geojson_key(obj.id)),
-            "fgb": presigned_get_url(StoragePaths.prediction_fgb_key(obj.id)),
-            "pmtiles": presigned_get_url(StoragePaths.prediction_pmtiles_key(obj.id)),
-        }
-        return out
+        return presigned_output_urls(obj)
 
     class Meta:
         model = Prediction
@@ -148,6 +181,7 @@ class PredictionSerializer(OwnerOnlyErrorMixin, serializers.ModelSerializer):
             "status",
             "error",
             "results_ready",
+            "feature_count",
             "assets",
             "user",
             "submitted_at",
@@ -162,6 +196,7 @@ class PredictionSerializer(OwnerOnlyErrorMixin, serializers.ModelSerializer):
             "status",
             "error",
             "results_ready",
+            "feature_count",
             "assets",
             "visibility",
             "user",

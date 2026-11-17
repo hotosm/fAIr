@@ -9,6 +9,7 @@ import { MapComponent } from "@/components/map/map";
 import { useMapInstance } from "@/hooks/use-map-instance";
 import { useEffect } from "react";
 import useScreenSize from "@/hooks/use-screen-size";
+import { featureDisplayName } from "@/features/try-fair/utils/common";
 
 const getProjectPath = (pid: number) =>
   APPLICATION_ROUTES.TRY_FAIR_PROJECT.replace(":pid", String(pid));
@@ -95,9 +96,9 @@ export const RecentMappingCard = ({
           >
             {state.name}
           </h3>
-          <span className="inline-flex w-fit items-center gap-1.5 rounded bg-grey px-2 py-1 text-xs capitalize leading-4 text-white">
+          <span className="inline-flex w-fit items-center gap-1.5 rounded bg-grey px-2 py-1 text-xs leading-4 text-white">
             <Icon className="size-3 shrink-0" aria-hidden="true" />
-            {label.replace(/[-_]/g, " ")}
+            {featureDisplayName(label)}
           </span>
           <p className="text-xs text-white/70">
             {formatEditedTime(activity.timestamp)}

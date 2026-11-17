@@ -1,7 +1,7 @@
 from django.contrib import admin
-from fair.zenml.runs import is_terminal
 
 from shared.run_endpoints import stop_runs
+from shared.run_status import is_terminal
 
 from .models import TrainingRunRef
 
@@ -31,6 +31,9 @@ class TrainingRunRefAdmin(admin.ModelAdmin):
     autocomplete_fields = ["local_model", "dataset", "user"]
 
     actions = [stop_runs]
+
+    def after_cancel(self, pk: int) -> None:
+        return None
 
     def has_add_permission(self, request) -> bool:
         return False

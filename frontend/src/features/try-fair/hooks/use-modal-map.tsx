@@ -1,4 +1,4 @@
-import maplibregl, { Map } from "maplibre-gl";
+import { Map } from "maplibre-gl";
 import { useEffect, useRef, useState } from "react";
 import { BASEMAPS } from "@/enums";
 import { MAP_STYLES, MAX_ZOOM_LEVEL } from "@/config";
@@ -22,7 +22,7 @@ export const useModalMap = ({
   useEffect(() => {
     if (!mapContainerRef.current) return;
 
-    const mapInstance = new maplibregl.Map({
+    const mapInstance = new Map({
       container: mapContainerRef.current,
       style: MAP_STYLES[BASEMAPS.OSM],
       center,

@@ -576,12 +576,11 @@ export const useMapLargeArea = ({
 
     submitMapLargeArea(payload, {
       onSuccess: () => {
-        showSuccessToast("Map large area request submitted successfully.");
         onSubmit();
         closeDialog();
       },
       onError: (err) => {
-        showErrorToast(err, "Failed to submit map large area request.");
+        showErrorToast(err);
       },
     });
   };

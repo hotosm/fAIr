@@ -6,14 +6,17 @@ from pathlib import Path
 from urllib.parse import urlsplit
 
 from django.conf import settings
+from django.db import transaction
+from django.db.models import F, Q, QuerySet
 from django.utils import timezone
 from django_tasks import task
-from fair.zenml.runs import get_run_status, is_terminal
 from upath import UPath
 
 from shared.chips import chip_files, chips_every_input_has, upload_chips
 from shared.enums import PipelineRunStatus
 from shared.integrations.zenml import for_user
+from shared.run_endpoints import RUN_GONE_ERROR, run_failure_reason, run_is_gone
+from shared.run_status import TERMINAL_STATUSES, get_run_status, is_terminal
 from shared.storage import StoragePaths, remove_dir
 
 from .models import Prediction
@@ -44,39 +47,92 @@ def submit_prediction(*, prediction_id: int) -> None:
     ).enqueue(prediction_id=prediction.id)
 
 
+# A completed run whose outputs are not written yet still needs its poll.
+_AWAITING_OUTPUTS = Q(status=PipelineRunStatus.COMPLETED, results_ready=False)
+MAX_POST_RUN_ATTEMPTS = 20
+
+
 @task()
 def sync_prediction_status(*, prediction_id: int) -> None:
     prediction = Prediction.objects.filter(id=prediction_id).first()
     if prediction is None or not prediction.zenml_run_id:
         return
-    pipeline_done = is_terminal(prediction.status)
-    outputs_done = prediction.status != PipelineRunStatus.COMPLETED or prediction.results_ready
-    if pipeline_done and outputs_done:
+    if prediction.is_finished:
         return
+    # Queued before polling, so a ZenML error or a worker killed mid-poll cannot end the chain.
+    sync_prediction_status.using(
+        run_after=timezone.now() + timedelta(seconds=_SYNC_INTERVAL_S)
+    ).enqueue(prediction_id=prediction_id)
 
-    new_status = get_run_status(prediction.zenml_run_id)
-    Prediction.objects.filter(id=prediction_id).update(
-        status=new_status, last_polled_at=timezone.now()
-    )
-
-    needs_postrun = new_status == PipelineRunStatus.COMPLETED and not prediction.results_ready
-    if not is_terminal(new_status) or needs_postrun:
-        sync_prediction_status.using(
-            run_after=timezone.now() + timedelta(seconds=_SYNC_INTERVAL_S)
-        ).enqueue(prediction_id=prediction_id)
-
-    if needs_postrun:
-        try:
-            post_process_prediction(prediction)
-        except PredictionOutputError:
-            # A model/STAC mismatch is permanent; a terminal status stops the poller.
-            logger.exception("Prediction %s: outputs rejected", prediction_id)
-            Prediction.objects.filter(id=prediction_id).update(status=PipelineRunStatus.FAILED)
+    try:
+        new_status = get_run_status(prediction.zenml_run_id)
+    except KeyError:  # ZenML raises KeyError for a missing run and any unrecognised 404, so confirm
+        if not run_is_gone(prediction.zenml_run_id):
+            raise
+        still_open = ~Q(status__in=TERMINAL_STATUSES) | _AWAITING_OUTPUTS
+        failed = Prediction.objects.filter(still_open, id=prediction_id).update(
+            status=PipelineRunStatus.FAILED, error=RUN_GONE_ERROR, last_polled_at=timezone.now()
+        )
+        if failed:
             delete_input_tiles(prediction)
-            return
-        Prediction.objects.filter(id=prediction_id).update(results_ready=True)
-    if is_terminal(new_status):
+        return
+    updated = (
+        Prediction.objects.filter(id=prediction_id)
+        .exclude(status__in=TERMINAL_STATUSES)
+        .update(status=new_status, last_polled_at=timezone.now())
+    )
+    # A completed row awaiting post-run is expected; any other finished row was cancelled mid-poll.
+    if not updated and prediction.status != PipelineRunStatus.COMPLETED:
+        return
+    if updated and new_status == PipelineRunStatus.FAILED:
+        Prediction.objects.filter(id=prediction_id).update(
+            error=run_failure_reason(prediction.zenml_run_id)
+        )
+
+    if new_status == PipelineRunStatus.COMPLETED:
+        _write_outputs(prediction_id)
+    elif is_terminal(new_status):
         delete_input_tiles(prediction)
+
+
+def _write_outputs(prediction_id: int) -> None:
+    awaiting = Prediction.objects.filter(_AWAITING_OUTPUTS, id=prediction_id)
+    claimed = None
+    try:
+        with transaction.atomic():
+            # Skips a row another worker is writing, so one worker writes each request's outputs.
+            claimed = awaiting.select_for_update(skip_locked=True).first()
+            if claimed is None:
+                return
+            if claimed.post_run_attempts >= MAX_POST_RUN_ATTEMPTS:
+                awaiting.update(
+                    status=PipelineRunStatus.FAILED,
+                    error=f"Writing the results failed {MAX_POST_RUN_ATTEMPTS} times.",
+                )
+            else:
+                _post_process(claimed, awaiting)
+    finally:
+        if claimed is not None:
+            _count_failed_attempt(awaiting)
+    delete_input_tiles(claimed)
+
+
+def _post_process(prediction: Prediction, awaiting: QuerySet[Prediction]) -> None:
+    try:
+        feature_count = post_process_prediction(prediction)
+    except PredictionOutputError:
+        # A model/STAC mismatch is permanent; a terminal status stops the poller.
+        logger.exception("Prediction %s: outputs rejected", prediction.id)
+        awaiting.update(status=PipelineRunStatus.FAILED)
+        return
+    awaiting.update(results_ready=True, feature_count=feature_count)
+
+
+def _count_failed_attempt(awaiting: QuerySet[Prediction]) -> None:
+    # Runs after the rollback, so only a failed attempt still matches awaiting.
+    with transaction.atomic():
+        if awaiting.select_for_update(skip_locked=True).exists():
+            awaiting.update(post_run_attempts=F("post_run_attempts") + 1)
 
 
 @task()

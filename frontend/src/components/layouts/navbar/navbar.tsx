@@ -110,7 +110,7 @@ export const NavBar = () => {
 
           {isMapRequestResult && (
             <h1
-              className="truncate text-base font-medium text-ink capitalize"
+              className="truncate text-base font-medium text-ink"
               title={resultTitle}
             >
               {resultTitle}

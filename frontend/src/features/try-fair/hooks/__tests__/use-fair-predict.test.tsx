@@ -8,11 +8,15 @@ import {
 } from "@/features/try-fair/hooks/use-fair-predict";
 import {
   runPredict,
+  waitForModel,
   type BaseModelStacItem,
 } from "@/features/try-fair/api/stac";
 import { TryFairResolution } from "@/enums";
 
-vi.mock("@/features/try-fair/api/stac", () => ({ runPredict: vi.fn() }));
+vi.mock("@/features/try-fair/api/stac", () => ({
+  runPredict: vi.fn(),
+  waitForModel: vi.fn(),
+}));
 
 const saved: PredictResult = {
   predictions: {
@@ -114,5 +118,132 @@ describe("saved prediction results", () => {
       expect.objectContaining({ imagery: { image: saved.imageUri } }),
       expect.any(AbortSignal),
     );
+  });
+
+  it("wakes the model first, then sends the prediction", async () => {
+    let modelAwake: () => void = () => {};
+    vi.mocked(waitForModel).mockReturnValue(
+      new Promise<void>((resolve) => {
+        modelAwake = resolve;
+      }),
+    );
+    vi.mocked(runPredict).mockResolvedValue(saved.predictions);
+    const model = {
+      id: "buildings",
+      properties: { "mlm:input": [{ name: "image" }] },
+      assets: {
+        "mlm:inference-endpoint": { href: "https://example.com/predict" },
+      },
+    } as unknown as BaseModelStacItem;
+    const { result } = renderHook(() => useFairPredict(), {
+      wrapper: wrapper(),
+    });
+
+    act(() =>
+      result.current.predict({
+        model,
+        modelUri: "model.onnx",
+        imageUri: saved.imageUri,
+        bbox: saved.bbox,
+        gridZoom: saved.gridZoom,
+        resolution: saved.resolution,
+        params: saved.params,
+      }),
+    );
+    await waitFor(() => expect(result.current.stage?.name).toBe("waking"));
+    expect(runPredict).not.toHaveBeenCalled();
+
+    let finishPrediction: (value: GeoJSON.FeatureCollection) => void = () => {};
+    vi.mocked(runPredict).mockReturnValue(
+      new Promise((resolve) => {
+        finishPrediction = resolve;
+      }),
+    );
+    act(() => modelAwake());
+    await waitFor(() => expect(result.current.stage?.name).toBe("predicting"));
+    act(() => finishPrediction(saved.predictions));
+    await waitFor(() => expect(result.current.result).toEqual(saved));
+    expect(waitForModel).toHaveBeenCalledWith(
+      "https://example.com/predict",
+      expect.any(AbortSignal),
+    );
+    expect(result.current.stage).toBeNull();
+  });
+
+  it("sends no prediction when the user stops while the model is waking", async () => {
+    vi.mocked(waitForModel).mockImplementation(
+      (_endpoint, signal) =>
+        new Promise<void>((_resolve, reject) => {
+          signal?.addEventListener("abort", () =>
+            reject(new Error("canceled")),
+          );
+        }),
+    );
+    const model = {
+      id: "buildings",
+      properties: { "mlm:input": [{ name: "image" }] },
+      assets: {
+        "mlm:inference-endpoint": { href: "https://example.com/predict" },
+      },
+    } as unknown as BaseModelStacItem;
+    const { result } = renderHook(() => useFairPredict(), {
+      wrapper: wrapper(),
+    });
+
+    act(() =>
+      result.current.predict({
+        model,
+        modelUri: "model.onnx",
+        imageUri: saved.imageUri,
+        bbox: saved.bbox,
+        gridZoom: saved.gridZoom,
+        resolution: saved.resolution,
+        params: saved.params,
+      }),
+    );
+    await waitFor(() => expect(result.current.stage?.name).toBe("waking"));
+    act(() => result.current.cancelPrediction());
+
+    await waitFor(() => expect(result.current.isPredicting).toBe(false));
+    expect(result.current.stage).toBeNull();
+    expect(runPredict).not.toHaveBeenCalled();
+  });
+
+  it("stops waiting for the model when the page closes", async () => {
+    let aborted = false;
+    vi.mocked(waitForModel).mockImplementation(
+      (_endpoint, signal) =>
+        new Promise<void>(() => {
+          signal?.addEventListener("abort", () => {
+            aborted = true;
+          });
+        }),
+    );
+    const model = {
+      id: "buildings",
+      properties: { "mlm:input": [{ name: "image" }] },
+      assets: {
+        "mlm:inference-endpoint": { href: "https://example.com/predict" },
+      },
+    } as unknown as BaseModelStacItem;
+    const { result, unmount } = renderHook(() => useFairPredict(), {
+      wrapper: wrapper(),
+    });
+    act(() =>
+      result.current.predict({
+        model,
+        modelUri: "model.onnx",
+        imageUri: saved.imageUri,
+        bbox: saved.bbox,
+        gridZoom: saved.gridZoom,
+        resolution: saved.resolution,
+        params: saved.params,
+      }),
+    );
+    await waitFor(() => expect(result.current.stage?.name).toBe("waking"));
+
+    unmount();
+
+    expect(aborted).toBe(true);
   });
 });

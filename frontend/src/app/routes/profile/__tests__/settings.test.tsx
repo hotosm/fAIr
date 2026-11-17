@@ -1,5 +1,5 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { UserProfileSettingsPage } from "../settings";
 
 const updateProfile = vi.fn();
@@ -21,6 +21,9 @@ vi.mock("@/features/user-profile/hooks/use-user-profile", () => ({
 }));
 
 vi.mock("@/components/seo", () => ({ Head: () => null }));
+vi.mock("@/features/try-fair/components/mapping-mode", () => ({
+  default: () => <div>Mode switch</div>,
+}));
 
 vi.mock("@/components/ui/form", () => ({
   Input: () => null,
@@ -43,7 +46,17 @@ vi.mock("@/components/ui/form", () => ({
   ),
 }));
 
+afterEach(cleanup);
+
 describe("UserProfileSettingsPage", () => {
+  it("titles the page Settings like the other dashboard pages", () => {
+    render(<UserProfileSettingsPage />);
+
+    expect(
+      screen.getByRole("heading", { name: "Settings" }),
+    ).toBeInTheDocument();
+  });
+
   it("toggles the newsletter by sending only newsletter_subscription", () => {
     render(<UserProfileSettingsPage />);
 

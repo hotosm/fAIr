@@ -229,7 +229,7 @@ def await_training(fair: Fair, ctx: dict) -> str:
         describe=lambda r: r["status"],
         fetch=lambda: fair.get(f"/trainings/{ctx['training_id']}/"),
         is_done=lambda r: (
-            r["status"] in {"completed", "failed", "stopped", "cached", "retried"}
+            r["status"] in {"completed", "failed", "cancelled"}
         ),
         timeout_s=1800,
         interval_s=15,
@@ -318,7 +318,7 @@ def await_prediction(fair: Fair, ctx: dict) -> str:
     prediction = poll(
         describe=lambda p: f"{p['status']}/results_ready={p['results_ready']}",
         fetch=lambda: fair.get(f"/predictions/{ctx['prediction_id']}/"),
-        is_done=lambda p: p["results_ready"] or p["status"] in {"failed", "stopped"},
+        is_done=lambda p: p["results_ready"] or p["status"] in {"failed", "cancelled"},
         timeout_s=1200,
         interval_s=10,
     )
@@ -328,8 +328,10 @@ def await_prediction(fair: Fair, ctx: dict) -> str:
 
 def check_prediction_results(fair: Fair, ctx: dict) -> str:
     results = fair.get(f"/predictions/{ctx['prediction_id']}/result/")
-    for key in ("geojson", "fgb", "pmtiles"):
-        require(key in results, f"missing '{key}' in {sorted(results)}")
+    feature_count = fair.get(f"/predictions/{ctx['prediction_id']}/")["feature_count"]
+    require(feature_count is not None, "feature_count not recorded for a ready result")
+    expected = {"geojson", "geoparquet"} | ({"pmtiles"} if feature_count != 0 else set())
+    require(set(results) == expected, f"outputs {sorted(results)}, expected {sorted(expected)}")
 
     # Locally, presigned URLs are signed for the in-network `minio` host. The fair-data
     # bucket allows anonymous download, so read the object directly instead.

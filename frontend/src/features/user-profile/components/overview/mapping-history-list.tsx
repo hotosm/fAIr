@@ -4,6 +4,7 @@ import { APPLICATION_ROUTES } from "@/constants/routes";
 import type { SavedUserState } from "@/features/try-fair/api/user-state";
 import { getFeatureIcon } from "@/features/try-fair/components/model-picker/model-picker-badges";
 import { cn } from "@/utils";
+import { featureDisplayName } from "@/features/try-fair/utils/common";
 
 export const getProjectPath = ({ pid }: SavedUserState) =>
   APPLICATION_ROUTES.TRY_FAIR_PROJECT.replace(":pid", String(pid));
@@ -22,11 +23,11 @@ export const MappingTypeBadge = ({
     label === "mapping" || label === "prediction"
       ? MapIcon
       : getFeatureIcon(label, MapIcon);
-  const text = label.replace(/[-_]/g, " ");
+  const text = featureDisplayName(label);
   return (
     <span
       className={cn(
-        "inline-flex max-w-full items-center gap-1.5 rounded bg-grey px-2 py-0.5 capitalize leading-4 text-white",
+        "inline-flex max-w-full items-center gap-1.5 rounded bg-grey px-2 py-0.5 leading-4 text-white",
         className,
       )}
       title={text}

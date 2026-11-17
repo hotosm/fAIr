@@ -33,7 +33,7 @@
     "clsx": "^2.1.1",
     "framer-motion": "^12.19.1",
     "geojson": "^0.5.0",
-    "maplibre-gl": "^5.3.1",
+    "maplibre-gl": "^6.16.0",
     "nuqs": "^2.8.9",
     "pmtiles": "^4.3.0",
     "react": "19.1.0",

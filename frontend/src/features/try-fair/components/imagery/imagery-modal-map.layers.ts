@@ -11,7 +11,8 @@
  *   basemap → density grid → count labels → selected-cell highlight → preview
  * The image preview is added last so it sits above the grid.
  */
-import maplibregl, {
+import {
+  addProtocol,
   GeoJSONSource,
   Map as MapLibreMap,
   PointLike,
@@ -105,7 +106,7 @@ const registerPmtilesProtocol = () => {
   const src = new FetchSource(HOT_IMAGERY_DENSITY_PMTILES_URL);
   src.chromeWindowsNoCache = true;
   protocol.add(new PMTiles(src));
-  maplibregl.addProtocol("pmtiles", protocol.tile);
+  addProtocol("pmtiles", protocol.tile);
   pmtilesProtocolRegistered = true;
 };
 
@@ -115,7 +116,7 @@ const POSITRON_STYLE_URL = "https://tiles.openfreemap.org/styles/positron";
 /** Create the shared modal map (OpenFreeMap Positron basemap, world view). */
 export const createImageryMap = (container: HTMLDivElement): MapLibreMap => {
   registerPmtilesProtocol();
-  return new maplibregl.Map({
+  return new MapLibreMap({
     container,
     style: POSITRON_STYLE_URL,
     center: [0, 20],

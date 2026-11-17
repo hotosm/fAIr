@@ -8,18 +8,19 @@ import {
   isResultReady,
 } from "@/features/user-profile/components/overview/map-request-fields";
 import { MapRequestStatusBadge } from "@/features/user-profile/components/overview/map-request-status-badge";
+import { isSettled } from "@/features/user-profile/api/factory";
+import { featureDisplayName } from "@/features/try-fair/utils/common";
 
 const FeatureBadge = ({ category }: { category: string }) => {
   const Icon = getFeatureIcon(category, MapIcon);
   return (
-    <span className="inline-flex items-center gap-1.5 rounded bg-grey px-2 py-1 text-[11px] capitalize leading-none text-white">
+    <span className="inline-flex items-center gap-1.5 rounded bg-grey px-2 py-1 text-[11px] leading-none text-white">
       <Icon className="size-3 shrink-0" aria-hidden="true" />
-      {category.replace(/[-_]/g, " ")}
+      {featureDisplayName(category)}
     </span>
   );
 };
 
-/** "10 mins ago" / "2 hrs ago" for requests still running; older: the date. */
 /** "25 Dec 2024", as in the mobile design. */
 const formatCardDate = (iso: string): string =>
   new Date(iso).toLocaleDateString("en-GB", {
@@ -84,7 +85,11 @@ export const MapRequestCardList = ({
 
           <div className="flex flex-wrap items-center gap-2">
             {request.category && <FeatureBadge category={request.category} />}
-            <MapRequestStatusBadge status={request.status} size="small" />
+            <MapRequestStatusBadge
+              status={request.status}
+              error={request.error}
+              size="small"
+            />
           </div>
 
           <div className="flex items-center justify-between gap-3 text-sm text-dark">
@@ -96,7 +101,7 @@ export const MapRequestCardList = ({
               {/* Running requests: how long ago; finished ones: the date. */}
               {!request.submitted_at
                 ? "-"
-                : resultReady
+                : isSettled(request)
                   ? formatCardDate(request.submitted_at)
                   : timeAgo(request.submitted_at)}
             </p>

@@ -30,7 +30,7 @@ class TrainingRunRef(models.Model):
     status = models.CharField(
         max_length=20,
         choices=PipelineRunStatus.choices,
-        default=PipelineRunStatus.INITIALIZING,
+        default=PipelineRunStatus.SUBMITTED,
     )
     error = models.TextField(
         blank=True, help_text="Why the run failed; empty unless status is failed."

@@ -3,7 +3,7 @@ import {
   SwitchSampleDialog,
   shouldShowSwitchWarning,
 } from "@/features/try-fair/components/model-picker/switch-sample-dialog";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import {
   useGetAllAPIBaseModels,
   useGetAllAPILocalModels,
@@ -18,7 +18,7 @@ import { SearchIcon } from "@/components/ui/icons/search-icon";
 import { ChevronDownIcon } from "@/components/ui/icons";
 import { DropDown } from "@/components/ui/dropdown";
 import { ToolTip } from "@/components/ui/tooltip";
-import { DropdownPlacement, ModelType } from "@/enums";
+import { DropdownPlacement, ModelType, ToolTipPlacement } from "@/enums";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import type { BaseModelStacItem } from "@/features/try-fair/api/stac";
 import { StarredIcon } from "@/components/ui/icons/starred-icon";
@@ -38,7 +38,7 @@ const MODEL_SOURCE_LABELS: Record<ModelSource, string> = {
   local: "Local Models",
 };
 
-const ITEMS_PER_PAGE = 3;
+const ITEMS_PER_PAGE = 9;
 
 type AdvancedModelPickerProps = {
   selectedModel: BaseModelStacItem | null;
@@ -158,6 +158,36 @@ export const AdvancedModelPickerContent = ({
   // Reset page when source or search changes
   const totalPages = Math.max(1, Math.ceil(models.length / ITEMS_PER_PAGE));
   const safePage = Math.min(page, totalPages - 1);
+  const toolbarRef = useRef<HTMLDivElement>(null);
+  const goToPage = (next: number, fromBottom: boolean) => {
+    setPage(Math.min(totalPages - 1, Math.max(0, next)));
+    if (fromBottom) toolbarRef.current?.scrollIntoView({ block: "start" });
+  };
+  const renderPager = (fromBottom: boolean) => (
+    <div className="flex items-center gap-2 text-sm text-grey shrink-0">
+      <span>
+        {startIdx}-{endIdx} of {models.length}
+      </span>
+      <button
+        type="button"
+        aria-label="Previous page"
+        disabled={safePage === 0}
+        onClick={() => goToPage(safePage - 1, fromBottom)}
+        className="p-1 rounded hover:bg-light-gray disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+      >
+        <ChevronDownIcon className="size-3 rotate-90" />
+      </button>
+      <button
+        type="button"
+        aria-label="Next page"
+        disabled={safePage >= totalPages - 1}
+        onClick={() => goToPage(safePage + 1, fromBottom)}
+        className="p-1 rounded hover:bg-light-gray disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+      >
+        <ChevronDownIcon className="size-3 -rotate-90" />
+      </button>
+    </div>
+  );
   const pageModels = models.slice(
     safePage * ITEMS_PER_PAGE,
     (safePage + 1) * ITEMS_PER_PAGE,
@@ -232,7 +262,7 @@ export const AdvancedModelPickerContent = ({
         )}
       {pendingModel && (
         <SwitchSampleDialog
-          message="Changing the feature or model in Samples mode will switch your imagery and map location to the selected sample’s imagery location and clear your current progress. You can restore saved predictions from History."
+          message="You’re mapping on sample imagery. Choosing this model moves the map to its sample imagery and location and clears your current progress. You can restore saved predictions from History."
           onCancel={() => setPendingModel(null)}
           onConfirm={() => applyModel(pendingModel)}
         />
@@ -259,7 +289,7 @@ export const AdvancedModelPickerContent = ({
         <div className="flex-1 space-y-4">
           <p className="text-xs pb-2">Models</p>
           {/* Toolbar */}
-          <div className="flex flex-wrap items-center gap-3">
+          <div ref={toolbarRef} className="flex flex-wrap items-center gap-3">
             {/* Search */}
             <div className="flex w-full items-center gap-2 border border-gray-border rounded-lg px-3 py-2 bg-white flex-shrink-0 sm:w-auto">
               <SearchIcon className="size-4 text-grey" />
@@ -310,28 +340,7 @@ export const AdvancedModelPickerContent = ({
             {/* Spacer */}
             <div className="flex-1" />
 
-            {/* Pagination */}
-            <div className="flex items-center gap-2 text-sm text-grey shrink-0">
-              <span>
-                {startIdx}-{endIdx} of {models.length}
-              </span>
-              <button
-                type="button"
-                disabled={safePage === 0}
-                onClick={() => setPage((p) => Math.max(0, p - 1))}
-                className="p-1 rounded hover:bg-light-gray disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-              >
-                <ChevronDownIcon className="size-3 rotate-90" />
-              </button>
-              <button
-                type="button"
-                disabled={safePage >= totalPages - 1}
-                onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
-                className="p-1 rounded hover:bg-light-gray disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-              >
-                <ChevronDownIcon className="size-3 -rotate-90" />
-              </button>
-            </div>
+            {renderPager(false)}
           </div>
           {/* Model cards */}
           {isLoading ? (
@@ -391,6 +400,11 @@ export const AdvancedModelPickerContent = ({
                         {model.is_pinned && (
                           <ToolTip
                             content={`This is a recommended model for mapping ${featureLabel.toLowerCase()}.`}
+                            placement={
+                              isSmallViewport
+                                ? ToolTipPlacement.BOTTOM
+                                : ToolTipPlacement.TOP
+                            }
                           >
                             <span className="inline-flex items-center rounded border border-primary bg-secondary px-2 py-0.5 text-[10px] font-semibold leading-tight text-primary">
                               Pinned
@@ -410,6 +424,11 @@ export const AdvancedModelPickerContent = ({
                   </div>
                 );
               })}
+            </div>
+          )}
+          {isSmallViewport && (
+            <div className="flex justify-end pb-16">
+              {totalPages > 1 && renderPager(true)}
             </div>
           )}
         </div>

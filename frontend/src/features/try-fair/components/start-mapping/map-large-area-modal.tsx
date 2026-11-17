@@ -335,7 +335,10 @@ const MapLargeAreaContent = ({
           <label className="text-dark text-sm font-medium sm:font-semibold">
             Map Request Name
           </label>
-          <ToolTip content="Enter map request name for your prediction request">
+          <ToolTip
+            content="Enter map request name for your prediction request"
+            pinOnClick
+          >
             <button
               type="button"
               className="text-grey hover:text-primary transition-colors"

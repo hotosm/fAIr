@@ -71,7 +71,7 @@ The flow runs for each model in the [model matrix](#model-matrix) that supports 
 | 8 UI | Run the local model | Results draw, hover card shows |
 | 9 UI | Thumbs up and down on a result | Marks save and colour, see [UI checks](#ui-checks) |
 | 10 UI | Map an area with the local model | The request reaches ready and its result page opens |
-| 11 API | `GET /predictions/{id}/`, then `GET /predictions/{id}/result/` | `results_ready` true, the `geojson`, `fgb` and `pmtiles` URLs download |
+| 11 API | `GET /predictions/{id}/`, then `GET /predictions/{id}/result/` | `results_ready` true, the `geojson`, `geoparquet` and `pmtiles` URLs download (`pmtiles` only when `feature_count` is above 0) |
 
 ### Permission checks
 

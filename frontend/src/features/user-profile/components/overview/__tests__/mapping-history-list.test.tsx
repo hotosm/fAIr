@@ -35,7 +35,7 @@ describe("MappingHistoryList", () => {
       "/try-fair/7",
     ]);
     expect(links[0]).toHaveTextContent("Banepa Nepal Imagery");
-    expect(links[0]).toHaveTextContent("buildings");
-    expect(links[1]).toHaveTextContent("trees");
+    expect(links[0]).toHaveTextContent("Buildings");
+    expect(links[1]).toHaveTextContent("Trees");
   });
 });

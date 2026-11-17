@@ -1,6 +1,5 @@
 from django.db import transaction
 from django.db.models import Q
-from fair.zenml.runs import is_terminal
 
 from datasets.deletion import delete_dataset
 from datasets.models import AOI, Dataset
@@ -9,6 +8,7 @@ from predictions.deletion import delete_prediction
 from predictions.models import Prediction
 from shared.enums import Visibility
 from shared.exceptions import ResourceInUseException
+from shared.run_status import is_terminal
 from trainings.models import TrainingRunRef
 
 from .models import OsmUser
@@ -17,9 +17,10 @@ DELETED_USER_OSM_ID = 0
 
 
 def has_work_in_progress(user: OsmUser) -> bool:
-    runs = [*Prediction.objects.filter(user=user), *TrainingRunRef.objects.filter(user=user)]
     building = Dataset.objects.filter(user=user, status=Dataset.Status.BUILDING).exists()
-    return building or any(not is_terminal(run.status) for run in runs)
+    predicting = any(not p.is_finished for p in Prediction.objects.filter(user=user))
+    training = any(not is_terminal(r.status) for r in TrainingRunRef.objects.filter(user=user))
+    return building or predicting or training
 
 
 @transaction.atomic

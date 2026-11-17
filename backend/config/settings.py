@@ -279,6 +279,7 @@ USER_STATE_MAX_BYTES = settings.user_state_max_bytes
 HEALTH_PROBE_TIMEOUT = settings.health_probe_timeout
 PREDICTION_SYNC_INTERVAL = settings.prediction_sync_interval
 DELETE_PREDICTION_INPUT_TILES = settings.delete_prediction_input_tiles
+MAP_REQUEST_MAX_AREA_SQKM = settings.map_request_max_area_sqkm
 TRAINING_SYNC_INTERVAL = settings.training_sync_interval
 STAC_CACHE_TTL = settings.stac_cache_ttl
 STAC_BULK_FETCH_WORKERS = settings.stac_bulk_fetch_workers

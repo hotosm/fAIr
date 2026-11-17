@@ -3,7 +3,7 @@ from unittest.mock import patch
 import pytest
 from django.test import Client
 
-from accounts.deletion import DELETED_USER_OSM_ID
+from accounts.deletion import DELETED_USER_OSM_ID, has_work_in_progress
 from accounts.models import OsmUser
 from datasets.models import Dataset
 from modelregistry.models import BaseModel, LocalModel
@@ -59,6 +59,7 @@ def _prediction(owner: OsmUser, run_id: str, status: str, visibility: str) -> Pr
         geometry={},
         zoom=19,
         status=status,
+        results_ready=status == "completed",
         visibility=visibility,
         user=owner,
     )
@@ -99,12 +100,17 @@ def test_deleting_a_user_removes_private_data_and_keeps_public_data(
 
 
 @pytest.mark.parametrize("bulk", [False, True])
-@pytest.mark.parametrize("blocked", ["running", "placeholder"])
+@pytest.mark.parametrize("blocked", ["running", "writing outputs", "placeholder"])
+@patch("predictions.deletion.remove_dir")
 def test_protected_users_are_not_deleted(
-    admin_site: Client, user: OsmUser, bulk: bool, blocked: str
+    mock_remove, admin_site: Client, user: OsmUser, bulk: bool, blocked: str
 ) -> None:
     if blocked == "running":
         _prediction(user, "run-4", "running", "private")
+        target = user
+    elif blocked == "writing outputs":
+        prediction = _prediction(user, "run-5", "completed", "private")
+        Prediction.objects.filter(pk=prediction.pk).update(results_ready=False)
         target = user
     else:
         target = OsmUser.objects.create(osm_id=DELETED_USER_OSM_ID, username="Deleted user")
@@ -118,3 +124,13 @@ def test_protected_users_are_not_deleted(
         admin_site.post(f"{USERS}/{target.pk}/delete/", {"post": "yes"})
 
     assert OsmUser.objects.filter(pk=target.pk).exists()
+    mock_remove.assert_not_called()
+
+
+def test_a_map_request_still_writing_outputs_is_work_in_progress(user: OsmUser) -> None:
+    prediction = _prediction(user, "run-6", "completed", "private")
+    assert not has_work_in_progress(user)
+
+    Prediction.objects.filter(pk=prediction.pk).update(results_ready=False)
+
+    assert has_work_in_progress(user)

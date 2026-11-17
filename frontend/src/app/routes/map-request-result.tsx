@@ -9,7 +9,10 @@ import { ButtonVariant, TryFairMapOutputType } from "@/enums";
 import { getImageryTileJSONUrl } from "@/features/try-fair/api/hot-imagery";
 import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
 import { useOAMItem } from "@/features/try-fair/hooks/use-oam-item";
-import { OUTPUT_TYPES } from "@/features/try-fair/utils/common";
+import {
+  featureDisplayName,
+  OUTPUT_TYPES,
+} from "@/features/try-fair/utils/common";
 
 /** Output types available in the map-request result view (choropleth excluded). */
 const MAP_REQUEST_OUTPUT_TYPES = OUTPUT_TYPES.filter(
@@ -80,7 +83,10 @@ const ResultInfoCard = ({
     >
       <div className="flex items-stretch overflow-hidden rounded-lg border border-[#687075] bg-gray-white">
         <div className="flex flex-1 min-w-0 items-center gap-2 pl-2.5 pr-2 py-2">
-          <p className="flex-1 min-w-0 truncate text-xs font-semibold capitalize leading-tight text-dark">
+          <p
+            className="flex-1 min-w-0 truncate text-xs font-semibold leading-tight text-dark"
+            title={imageryName}
+          >
             {imageryName}
           </p>
         </div>
@@ -105,7 +111,7 @@ const ResultInfoCard = ({
 
       <div>
         <p className="text-dark text-xs mb-2">Feature Mapped</p>
-        <div className="flex items-center gap-2 rounded-lg border border-gray-border bg-gray-white px-3 py-2.5 text-xs capitalize text-dark">
+        <div className="flex items-center gap-2 rounded-lg border border-gray-border bg-gray-white px-3 py-2.5 text-xs text-dark">
           {featureMapped}
         </div>
       </div>
@@ -224,6 +230,14 @@ export const MapRequestResultPage = () => {
   const oamItemId =
     prediction?.image_uri?.match(/\/items\/([^/?]+)/)?.[1] ?? null;
   const { item: oamItem } = useOAMItem(oamItemId);
+  const imageryName =
+    oamItem?.title ||
+    (prediction?.image_uri?.startsWith("https://tiles.openaerialmap.org/")
+      ? "OpenAerialMap imagery"
+      : "Custom imagery");
+  const featureMapped = prediction?.category
+    ? featureDisplayName(prediction.category)
+    : "-";
 
   if (isPending) {
     return (
@@ -292,9 +306,9 @@ export const MapRequestResultPage = () => {
           {!isSmallViewport && (
             <div className="absolute top-4 left-4 z-10">
               <ResultInfoCard
-                imageryName={oamItem?.title || "Custom Imagery"}
+                imageryName={imageryName}
                 imageryLink={prediction.image_uri ?? ""}
-                featureMapped={prediction?.category ?? "-"}
+                featureMapped={featureMapped}
                 modelName={getModelUsed(prediction)}
                 outputType={outputType}
                 onOutputTypeChange={setOutputType}
@@ -310,9 +324,9 @@ export const MapRequestResultPage = () => {
             <div className="relative">
               <MapBottomSheet label="Map request details">
                 <ResultInfoCard
-                  imageryName={oamItem?.title || "Custom Imagery"}
+                  imageryName={imageryName}
                   imageryLink={prediction.image_uri ?? ""}
-                  featureMapped={prediction?.category ?? ""}
+                  featureMapped={featureMapped}
                   modelName={getModelUsed(prediction)}
                   outputType={outputType}
                   onOutputTypeChange={setOutputType}

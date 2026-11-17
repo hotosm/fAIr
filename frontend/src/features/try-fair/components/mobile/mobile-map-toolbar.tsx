@@ -39,17 +39,17 @@ export const MobileMapToolbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const actions: MenuAction[] = [
-    { label: "Map Large Area", Icon: MapIcon, onClick: mapLargeArea },
-    { label: "Change Imagery", Icon: LoopIcon, onClick: changeImagery },
+    { label: "Map an area", Icon: MapIcon, onClick: mapLargeArea },
+    { label: "Change imagery", Icon: LoopIcon, onClick: changeImagery },
     {
-      label: "Download Result",
+      label: "Download result",
       Icon: CloudDownloadIcon,
       onClick: downloadResults,
       disabled: !hasPredictions,
     },
     { label: "Share", Icon: ShareIcon, onClick: share },
     {
-      label: "Prediction History",
+      label: "Prediction history",
       Icon: HistoryIcon,
       onClick: togglePredictionHistory,
     },

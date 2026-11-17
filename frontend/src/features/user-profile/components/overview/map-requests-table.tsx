@@ -46,7 +46,7 @@ const columnDefinitions = ({
     cell: (ctx) => {
       const value = ctx.getValue() as string;
       return (
-        <ToolTip content={value}>
+        <ToolTip content={value} pinOnClick>
           <span className="block max-w-[180px] truncate">
             {truncateString(value, 24)}
           </span>
@@ -61,7 +61,7 @@ const columnDefinitions = ({
     cell: (ctx) => {
       const value = ctx.getValue() as string;
       return (
-        <ToolTip content={value}>
+        <ToolTip content={value} pinOnClick>
           <span className="block max-w-[160px] truncate">
             {truncateString(value, 22)}
           </span>
@@ -86,7 +86,12 @@ const columnDefinitions = ({
     id: "status",
     header: "Status",
     accessorKey: "status",
-    cell: ({ row }) => <MapRequestStatusBadge status={row.original.status} />,
+    cell: ({ row }) => (
+      <MapRequestStatusBadge
+        status={row.original.status}
+        error={row.original.error}
+      />
+    ),
   },
   {
     id: "published",
@@ -180,11 +185,11 @@ export const MapRequestsTable = ({
       />
       <div
         className={cn(
-          "hidden md:block max-w-full overflow-x-auto [&_table]:min-w-[1152px] [&_table]:table-fixed",
+          "hidden md:block max-w-full overflow-x-auto [&_table]:min-w-[1024px] [&_table]:table-fixed",
           "[&_th]:h-8 [&_th]:px-5 [&_th]:text-[12px] [&_th]:font-normal [&_th]:text-[#404446]",
           "[&_td]:h-16 [&_td]:px-5 [&_td]:py-4 [&_td]:text-[13px] [&_td]:font-medium [&_td]:text-[#404446]",
-          "[&_th:nth-child(1)]:w-[9.3%] [&_th:nth-child(2)]:w-[23.4%] [&_th:nth-child(3)]:w-[14.8%]",
-          "[&_th:nth-child(4)]:w-[18.2%] [&_th:nth-child(5)]:w-[13.6%] [&_th:nth-child(6)]:w-[10.3%] [&_th:nth-child(7)]:w-[10.4%]",
+          "[&_th:nth-child(1)]:w-[9.3%] [&_th:nth-child(2)]:w-[21.4%] [&_th:nth-child(3)]:w-[14.8%]",
+          "[&_th:nth-child(4)]:w-[18.2%] [&_th:nth-child(5)]:w-[13.6%] [&_th:nth-child(6)]:w-[10.3%] [&_th:nth-child(7)]:w-[12.4%]",
         )}
       >
         <DataTable

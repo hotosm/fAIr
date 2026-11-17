@@ -40,7 +40,7 @@ See [Contributing a model](../overview/models.md#contributing-a-model).
 
 ## Releases
 
-1. Choose the next version with Commitizen (`cz bump`).
+1. On develop, bump the version from the repository root with `uv run --project backend cz bump`. It updates the version files, the lockfile and the changelog, then commits and tags.
 2. Merge develop → stage and open a PR from stage → main.
 3. Run [Release QA](../architecture/release-qa.md) at <https://stage.ai.hotosm.org>.
 4. Merge to main, publish the GitHub release (vX.Y.Z), and wait for the API and frontend images to publish.

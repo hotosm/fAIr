@@ -13,17 +13,20 @@ const isWebUrl = (href: string) => {
 };
 
 export const getModelLinks = (
-  item: Pick<BaseModelStacItem, "assets">,
+  item: Pick<BaseModelStacItem, "assets" | "links">,
 ): ModelLink[] =>
   [
     { label: "Source code", href: item.assets?.["source-code"]?.href },
     { label: "README", href: item.assets?.readme?.href },
+    ...(item.links ?? [])
+      .filter((link) => link.rel === "license")
+      .map((link) => ({ label: link.title ?? "License", href: link.href })),
   ].filter((link): link is ModelLink => !!link.href && isWebUrl(link.href));
 
 export const ModelLinks = ({
   item,
 }: {
-  item: Pick<BaseModelStacItem, "assets">;
+  item: Pick<BaseModelStacItem, "assets" | "links">;
 }) => {
   const links = getModelLinks(item);
   if (!links.length) return null;
@@ -37,7 +40,7 @@ export const ModelLinks = ({
             href={link.href}
             target="_blank"
             rel="noreferrer"
-            className="whitespace-nowrap underline hover:text-primary"
+            className="break-words underline hover:text-primary"
           >
             {link.label}
           </a>

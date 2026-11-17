@@ -132,6 +132,7 @@ class Settings(BaseSettings):
     health_probe_timeout: float = 2.0
     prediction_sync_interval: int = 15
     delete_prediction_input_tiles: bool = True
+    map_request_max_area_sqkm: PositiveInt = 5000
     training_sync_interval: int = 30
     stac_cache_ttl: int = 300
     stac_bulk_fetch_workers: int = 16

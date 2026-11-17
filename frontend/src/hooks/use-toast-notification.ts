@@ -28,9 +28,7 @@ export const useToastNotification = () => {
       variant,
       closable: true,
       duration,
-      innerHTML: `
-            ${message}
-          `,
+      textContent: message,
     });
     // make the variant the classname
     alert.classList.add(variant);

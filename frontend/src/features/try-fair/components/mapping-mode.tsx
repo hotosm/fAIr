@@ -54,7 +54,9 @@ const MappingMode = ({
     !BASIC_PROFILE_PAGES.includes(pathname.replace(/\/+$/, ""));
 
   const trigger = (
-    <div
+    <button
+      type="button"
+      aria-haspopup="menu"
       id={tourTarget ? APP_TOUR_IDS.TRY_FAIR_MAPPING_MODE : undefined}
       aria-disabled={!isAuthenticated || undefined}
       className={cn(
@@ -76,7 +78,7 @@ const MappingMode = ({
           isAuthenticated ? "text-dark" : "text-gray-disabled",
         )}
       />
-    </div>
+    </button>
   );
 
   // Signed out: shown but disabled; Advanced needs an account.

@@ -81,7 +81,7 @@ body {
 .sl-toast-stack {
   left: 0;
   right: auto;
-  top: 0;
+  top: 3rem;
   bottom: auto;
   z-index: 1000000000000;
 }
@@ -486,4 +486,14 @@ hotosm-auth {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+}
+
+/* sl-tooltip leaves its popup's shift-padding at the default 0 and does not expose it. */
+sl-tooltip.tooltip-off-screen-edges::part(body) {
+  margin-inline: 1rem;
+}
+@media (max-width: 639px) {
+  sl-tooltip {
+    --max-width: min(20rem, calc(100vw - 2rem));
+  }
 }

@@ -1,3 +1,11 @@
+## v3.1.2 (2026-11-17)
+
+### Fix
+
+- **qa**: fix al the issues raised in qa
+- **run**: add run failure reason track with logs
+- **qa**: fixes cancell status after qa and tiny tooltip
+
 ## v3.1.1 (2026-11-16)
 
 ### Fix

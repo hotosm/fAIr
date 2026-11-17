@@ -445,3 +445,131 @@ def test_prediction_submit_rejects_invalid_imagery(mock_task, mock_item_exists, 
     mock_task.enqueue.assert_not_called()
 
 
+@pytest.mark.parametrize(
+    ("geometry", "message"),
+    [
+        ({"type": "Polygon", "coordinates": []}, "The area is empty."),
+        (
+            {"type": "Polygon", "coordinates": [[[0, 80], [1, 80], [1, 90], [0, 90], [0, 80]]]},
+            "The area must lie within longitude -180 to 180 and latitude -85.06 to 85.06.",
+        ),
+        (
+            {"type": "Polygon", "coordinates": [[[0, 0], [1, 1], [1, 0], [0, 1], [0, 0]]]},
+            "The area is not a valid polygon: Self-intersection",
+        ),
+        (
+            {
+                "type": "Polygon",
+                "coordinates": [[[179.5, 0], [180.5, 0], [180.5, 1], [179.5, 1], [179.5, 0]]],
+            },
+            "The area must lie within longitude -180 to 180 and latitude -85.06 to 85.06.",
+        ),
+    ],
+)
+@patch("predictions.views.item_exists", return_value=True)
+def test_prediction_submit_rejects_an_empty_invalid_or_out_of_range_area(
+    mock_item_exists, client, geometry, message
+):
+    response = client.post(
+        "/api/v1/predictions/submit/",
+        data={
+            "model_stac_id": _LOCAL_MODEL_UUID,
+            "image_uri": _TMS_URL,
+            "geometry": geometry,
+            "zoom": 19,
+        },
+        format="json",
+    )
+
+    assert response.status_code == 400, response.json()
+    [actual] = response.json()["error"]["details"]["geometry"]
+    assert actual.startswith(message)
+
+
+@pytest.mark.parametrize(("side_degrees", "expected_status"), [(0.05, 202), (0.07, 400)])
+@patch("predictions.views.submit_prediction")
+@patch("predictions.views.item_exists", return_value=True)
+def test_prediction_submit_refuses_an_area_over_the_map_request_limit(
+    mock_item_exists, mock_task, client, settings, side_degrees, expected_status
+):
+    settings.MAP_REQUEST_MAX_AREA_SQKM = 50
+    response = client.post(
+        "/api/v1/predictions/submit/",
+        data={
+            "model_stac_id": _LOCAL_MODEL_UUID,
+            "image_uri": _TMS_URL,
+            "bbox": [85.5, 27.6, 85.5 + side_degrees, 27.6 + side_degrees],
+            "zoom": 18,
+        },
+        format="json",
+    )
+
+    assert response.status_code == expected_status, response.json()
+    if expected_status == 400:
+        [message] = response.json()["error"]["details"]["bbox"]
+        assert message.endswith("larger than the 50 km² limit for a map request.")
+
+
+@patch("predictions.views.submit_prediction")
+@patch("predictions.views.item_exists", return_value=True)
+def test_prediction_submit_sums_every_multipolygon_part_against_the_limit(
+    mock_item_exists, mock_task, client, settings
+):
+    settings.MAP_REQUEST_MAX_AREA_SQKM = 50
+    first = [[85.5, 27.6], [85.55, 27.6], [85.55, 27.65], [85.5, 27.65], [85.5, 27.6]]
+    second = [[85.6, 27.6], [85.65, 27.6], [85.65, 27.65], [85.6, 27.65], [85.6, 27.6]]
+    response = client.post(
+        "/api/v1/predictions/submit/",
+        data={
+            "model_stac_id": _LOCAL_MODEL_UUID,
+            "image_uri": _TMS_URL,
+            "geometry": {"type": "MultiPolygon", "coordinates": [[first], [second]]},
+            "zoom": 18,
+        },
+        format="json",
+    )
+
+    assert response.status_code == 400, response.json()
+    [message] = response.json()["error"]["details"]["geometry"]
+    assert message.endswith("larger than the 50 km² limit for a map request.")
+
+
+@patch("predictions.views.submit_prediction")
+@patch("predictions.views.item_exists", return_value=True)
+def test_prediction_submit_measures_a_world_wide_bbox_against_the_limit(
+    mock_item_exists, mock_task, client, settings
+):
+    settings.MAP_REQUEST_MAX_AREA_SQKM = 50
+    response = client.post(
+        "/api/v1/predictions/submit/",
+        data={
+            "model_stac_id": _LOCAL_MODEL_UUID,
+            "image_uri": _TMS_URL,
+            "bbox": [-180, -85, 180, 85],
+            "zoom": 14,
+        },
+        format="json",
+    )
+
+    assert response.status_code == 400, response.json()
+    [message] = response.json()["error"]["details"]["bbox"]
+    assert message.endswith("larger than the 50 km² limit for a map request.")
+
+
+@patch("predictions.views.submit_prediction")
+@patch("predictions.views.item_exists", return_value=True)
+def test_prediction_submit_accepts_an_area_ending_on_the_antimeridian(
+    mock_item_exists, mock_task, client
+):
+    response = client.post(
+        "/api/v1/predictions/submit/",
+        data={
+            "model_stac_id": _LOCAL_MODEL_UUID,
+            "image_uri": _TMS_URL,
+            "bbox": [179.9, 0.0, 180.0, 0.1],
+            "zoom": 18,
+        },
+        format="json",
+    )
+
+    assert response.status_code == 202, response.json()

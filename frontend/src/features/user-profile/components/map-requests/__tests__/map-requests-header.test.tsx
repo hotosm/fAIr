@@ -36,7 +36,7 @@ describe("MapRequestsHeader", () => {
     renderHeader();
     expect(screen.getByRole("button", { name: "Back" })).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: "Map Request" }),
+      screen.getByRole("heading", { name: "Map Requests" }),
     ).toBeInTheDocument();
     expect(screen.queryByText("Mode switch")).not.toBeInTheDocument();
     // Back is the way out here, so no dashboard menu button.
