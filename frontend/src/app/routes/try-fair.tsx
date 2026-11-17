@@ -36,6 +36,7 @@ import { MobileMapToolbar } from "@/features/try-fair/components/mobile/mobile-m
 import {
   getModelDefaultResolution,
   getModelOutputType,
+  predictErrorMessage,
 } from "@/features/try-fair/utils/common";
 import { Dialog } from "@/components/ui/dialog";
 import { useDialog } from "@/hooks/use-dialog";
@@ -46,7 +47,7 @@ import { SignInPromptDialog } from "@/features/try-fair/components/modals/sign-i
 import type { ImagerySelection } from "@/features/try-fair/types/imagery-types";
 import { MapLargeAreaRequestSuccess } from "@/features/try-fair/components/start-mapping/map-large-area-request-success-dialog";
 import { useShallow } from "zustand/react/shallow";
-import { showErrorToast } from "@/utils";
+import { showErrorToast, showWarningToast } from "@/utils";
 import { reverseGeocodeCountry } from "@/features/try-fair/api/hot-imagery";
 import { useRecentImageries } from "@/features/try-fair/hooks/use-recent-imageries";
 import type { RecentImageryEntry } from "@/features/try-fair/hooks/use-recent-imageries";
@@ -54,12 +55,16 @@ import { getPredictionClassStyle } from "@/features/try-fair/utils/prediction-cl
 import { useAuth } from "@/app/providers/auth-provider";
 import { useParams } from "react-router-dom";
 import { MappingProjectAutosave } from "@/features/try-fair/components/mapping-project-autosave";
-import { PREDICTION_HISTORY_LIMIT } from "@/config";
+import {
+  PREDICTION_HISTORY_LIMIT,
+  SAVED_PREDICTION_MAX_LENGTH,
+} from "@/config";
 import {
   appendPrediction,
   getHistoryUrlParams,
   getSavedPrediction,
   restorePredictionHistory,
+  savableHistory,
 } from "@/features/try-fair/utils/prediction-history";
 import { PredictionHistoryPanel } from "@/features/try-fair/components/prediction-history-panel";
 import {
@@ -391,6 +396,7 @@ export const TryFairPage = ({
   const {
     predict,
     isPredicting,
+    stage: predictionStage,
     result: predictResult,
     predictions,
     predictionBBox,
@@ -569,12 +575,21 @@ export const TryFairPage = ({
           setPredictionHistory((history) =>
             appendPrediction(history, entry, PREDICTION_HISTORY_LIMIT),
           );
+          if (
+            isAuthenticated &&
+            savableHistory([entry], SAVED_PREDICTION_MAX_LENGTH).length === 0
+          ) {
+            showWarningToast(
+              "Too large to save. This result stays on the map until you leave the page.",
+              8000,
+            );
+          }
           setActivePredictionId(entry.id);
           setHasSuccessfulPrediction(true);
         },
         onError: (error) => {
           if ((error as { code?: string }).code === "ERR_CANCELED") return;
-          showErrorToast(error ?? "An Error Occured.");
+          showErrorToast(error, predictErrorMessage(error));
           lastPredictedInputsRef.current = null;
         },
       },
@@ -594,6 +609,7 @@ export const TryFairPage = ({
     closeGuidedTour,
     recordMapRun,
     hasNoModelsForFeature,
+    isAuthenticated,
   ]);
 
   // Map is off when there's no model to map with; the sidebar says why.
@@ -735,6 +751,15 @@ export const TryFairPage = ({
   // Feedback (Results card, per-feature marking, feedback modals) is an
   // advanced-mode feature, which also means the user is signed in.
   const isFeedbackEnabled = isAuthenticated && mappingMode === "advanced";
+  const savedHistory = savableHistory(
+    predictionHistory,
+    SAVED_PREDICTION_MAX_LENGTH,
+  );
+  const savedActivePredictionId = savedHistory.some(
+    (entry) => entry.id === activePredictionId,
+  )
+    ? activePredictionId
+    : null;
 
   const feedbackContext = useMemo<FeatureFeedbackContext | null>(
     () =>
@@ -830,8 +855,8 @@ export const TryFairPage = ({
                   state: {
                     ...currentSnapshot,
                     prediction_result: undefined,
-                    prediction_history: predictionHistory,
-                    active_prediction_id: activePredictionId,
+                    prediction_history: savedHistory,
+                    active_prediction_id: savedActivePredictionId,
                   },
                 }
               : null
@@ -1017,6 +1042,7 @@ export const TryFairPage = ({
                 onMap={handleMap}
                 onCancelPrediction={handleCancelPrediction}
                 isPredicting={isPredicting}
+                predictionStage={predictionStage}
                 isMapButtonDisabled={isMapButtonDisabled}
                 mapUnavailableReason={mapUnavailableReason}
                 featureLabel={cleanFeatureLabel(feature)}
@@ -1070,6 +1096,7 @@ export const TryFairPage = ({
                     onMap={handleMap}
                     onCancelPrediction={handleCancelPrediction}
                     isPredicting={isPredicting}
+                    predictionStage={predictionStage}
                     isMapButtonDisabled={isMapButtonDisabled}
                     mapUnavailableReason={mapUnavailableReason}
                     featureLabel={cleanFeatureLabel(feature)}

@@ -28,7 +28,6 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 FROM python:${PYTHON_VERSION}-slim-bookworm AS runtime
 
-# Build-time deps for tippecanoe  : geojson2pmtilesfgb
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gdal-bin \
     libgdal32 \

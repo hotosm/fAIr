@@ -96,6 +96,35 @@ const card = (name: string) =>
   screen.getByRole("button", { name: new RegExp(`^${name}`) });
 
 describe("advanced model picker", () => {
+  it("repeats the pager below the list on phones and scrolls back up from it", () => {
+    const width = window.innerWidth;
+    buildings.push(
+      ...Array.from({ length: 10 }, (_, i) => model(`buildings-extra-${i}`)),
+    );
+    const scrollIntoView = vi.fn();
+    Element.prototype.scrollIntoView = scrollIntoView;
+    Object.defineProperty(window, "innerWidth", {
+      value: 390,
+      configurable: true,
+    });
+    try {
+      setup();
+      const nextButtons = screen.getAllByRole("button", { name: "Next page" });
+      expect(nextButtons).toHaveLength(2);
+
+      fireEvent.click(nextButtons[1]);
+
+      expect(screen.getAllByText("10-12 of 12")).toHaveLength(2);
+      expect(scrollIntoView).toHaveBeenCalledTimes(1);
+    } finally {
+      buildings.splice(2);
+      Object.defineProperty(window, "innerWidth", {
+        value: width,
+        configurable: true,
+      });
+    }
+  });
+
   it("opens on the current model and applies nothing by itself", () => {
     const { onSelect, onClose } = setup();
     expect(card("buildings-1")).toHaveAttribute("aria-pressed", "true");
@@ -165,7 +194,7 @@ describe("advanced model picker", () => {
       const expected = changeFeature ? trees[0] : buildings[1];
       fireEvent.click(card(expected.id));
       expect(screen.getByRole("dialog")).toHaveTextContent(
-        "imagery and map location",
+        "moves the map to its sample imagery",
       );
       expect(onSelect).not.toHaveBeenCalled();
 

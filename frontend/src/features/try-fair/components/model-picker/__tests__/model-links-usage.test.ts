@@ -7,6 +7,29 @@ import {
 } from "@/features/try-fair/components/model-picker/model-usage";
 
 describe("getModelLinks", () => {
+  it("adds the item's license links, named by their title", () => {
+    expect(
+      getModelLinks({
+        assets: {},
+        links: [
+          { rel: "self", href: "https://stac.example/items/dino" },
+          {
+            rel: "license",
+            href: "https://github.com/facebookresearch/dinov3/blob/main/LICENSE.md",
+            title: "DINOv3 License",
+          },
+          { rel: "license", href: "https://example.org/license" },
+        ],
+      }),
+    ).toEqual([
+      {
+        label: "DINOv3 License",
+        href: "https://github.com/facebookresearch/dinov3/blob/main/LICENSE.md",
+      },
+      { label: "License", href: "https://example.org/license" },
+    ]);
+  });
+
   it("lists the source code and README links", () => {
     expect(
       getModelLinks({

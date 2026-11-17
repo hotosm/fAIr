@@ -44,6 +44,7 @@ export const MappingProjectAutosave = ({
         }
       } catch {
         showErrorToast(
+          undefined,
           "Couldn’t save this project’s prediction history. Keep this page open and try again after your next change.",
         );
         // Keep mapping usable. A subsequent change can try saving again;

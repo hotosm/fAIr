@@ -93,8 +93,9 @@ These are invariants, not preferences. Do not "simplify" them away - see
   with a row whose `zenml_run_id` is null until a worker submits the pipeline.
   Nothing in a request handler may wait on a pipeline.
 - **`results_ready` is separate from `status=completed`.** Post-processing
-  (`.fgb` and `.pmtiles` via tippecanoe) happens after ZenML reports
-  completion; `/predictions/{id}/result/` returns 409 until then.
+  writes GeoJSON, GeoParquet and, when there are features, PMTiles (via
+  tippecanoe) after ZenML reports completion; `/predictions/{id}/result/`
+  returns 409 until then.
 - **Publish is the only step that writes a versioned local-model STAC item**,
   and it validates logged `mlm:hyperparameters` against the base model's
   `fair:hyperparameters_spec`.

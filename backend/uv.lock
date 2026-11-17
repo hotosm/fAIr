@@ -975,6 +975,7 @@ dependencies = [
     { name = "httpx" },
     { name = "psycopg", extra = ["binary"] },
     { name = "psycopg-pool" },
+    { name = "pyarrow" },
     { name = "pydantic" },
     { name = "pydantic-settings" },
     { name = "pyproj" },
@@ -1012,7 +1013,7 @@ requires-dist = [
     { name = "djangorestframework", specifier = ">=3.15" },
     { name = "djangorestframework-gis", specifier = ">=1.1" },
     { name = "drf-spectacular", specifier = ">=0.29" },
-    { name = "fair-py-ops", extras = ["k8s"], specifier = "==0.3.33" },
+    { name = "fair-py-ops", extras = ["k8s"], specifier = "==0.3.35" },
     { name = "geomltoolkits", specifier = ">=2.1.0" },
     { name = "geopandas", specifier = ">=1.0" },
     { name = "gpxpy", specifier = ">=1.6" },
@@ -1021,6 +1022,7 @@ requires-dist = [
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "psycopg", extras = ["binary"], specifier = ">=3.2" },
     { name = "psycopg-pool", specifier = ">=3.3.1" },
+    { name = "pyarrow", specifier = ">=23.0.1" },
     { name = "pydantic", specifier = ">=2.10" },
     { name = "pydantic-settings", specifier = ">=2.7" },
     { name = "pyproj", specifier = ">=3.7.2" },
@@ -1043,7 +1045,7 @@ test = [{ name = "pytest-django", specifier = ">=4.5" }]
 
 [[package]]
 name = "fair-py-ops"
-version = "0.3.33"
+version = "0.3.35"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiohttp" },
@@ -1056,9 +1058,9 @@ dependencies = [
     { name = "universal-pathlib" },
     { name = "zenml" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/00/22/1d4dbb308840e58a26c22b956f09142b5130c5abb9632ef822f139a4ffe1/fair_py_ops-0.3.33.tar.gz", hash = "sha256:adf6007c1678771983cfae14a28413f8b33968d1c513b2457d418f4e9e780092", size = 5980617, upload-time = "2026-11-16T13:24:41.954Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/46/fc/696a50642913b063df6b7996fb5d0bdebf750d43cea12a00d056a1143d1e/fair_py_ops-0.3.35.tar.gz", hash = "sha256:d6d57a5d63d3a127a3d64c0680622e93940d74ca03a81d8a177f5432e4d01705", size = 5982022, upload-time = "2026-11-17T15:10:08.341Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ec/77/b1b5c50f57a127edd9a25e1db1d06e475032320c481d55802a8651ae6de0/fair_py_ops-0.3.33-py3-none-any.whl", hash = "sha256:f356637284fb62a5ef2d321ea291eaf0983ff5e54505789f0a81ccb9c9da07e7", size = 106459, upload-time = "2026-11-16T13:24:40.301Z" },
+    { url = "https://files.pythonhosted.org/packages/d6/3c/96ca9d51f3edac0991297a70976410da14b6fb2c9017bec4963c2cb792d1/fair_py_ops-0.3.35-py3-none-any.whl", hash = "sha256:40214bca8b2d6819f9c2cb8b367019a968b28d4e7255f9cf2885d2e7ed5caa3c", size = 107319, upload-time = "2026-11-17T15:10:06.957Z" },
 ]
 
 [package.optional-dependencies]

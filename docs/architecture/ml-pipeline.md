@@ -74,12 +74,12 @@ flowchart LR
 
 ## Prediction
 
-`POST /predictions/submit/` enqueues inference. A worker downloads chips for the requested bbox, submits an inference pipeline, and a post-run step turns the GeoJSON into `.fgb` and `.pmtiles`, after which `GET /predictions/{id}/result/` returns three presigned URLs. A model with neither an `mlm:training` nor a `batch-inference` asset serves try-now only, and submitting a prediction for it returns `400`.
+`POST /predictions/submit/` enqueues inference. A worker downloads chips for the requested bbox, submits an inference pipeline, and a post-run step writes the results as GeoJSON, GeoParquet and, when there are features, PMTiles. `GET /predictions/{id}/result/` then returns a presigned URL for each file. A model with neither an `mlm:training` nor a `batch-inference` asset serves try-now only, and submitting a prediction for it returns `400`.
 
 ```mermaid
 flowchart LR
     A[submit] --> B[worker downloads chips,<br/>runs inference]
-    B --> C[post-run:<br/>geojson -> fgb + pmtiles]
+    B --> C[post-run:<br/>GeoJSON, GeoParquet, PMTiles]
     C --> D[results_ready = true]
-    D --> E[GET result/<br/>geojson, fgb, pmtiles]
+    D --> E[GET result/<br/>geojson, geoparquet, pmtiles]
 ```

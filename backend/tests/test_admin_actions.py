@@ -11,6 +11,7 @@ from modelregistry.models import BaseModel, Category, LocalModel
 from predictions.deletion import delete_prediction
 from predictions.models import Prediction
 from predictions.tasks import sync_prediction_status
+from shared.exceptions import ResourceInUseException
 from shared.integrations.stac import DATASETS_COLLECTION
 from shared.storage import StoragePaths
 from trainings.models import TrainingRunRef
@@ -28,6 +29,7 @@ def _prediction(user: OsmUser, run_id: str, status: str) -> Prediction:
         geometry={},
         zoom=19,
         status=status,
+        results_ready=status == "completed",
         user=user,
     )
 
@@ -62,7 +64,7 @@ def test_stop_action_stops_only_unfinished_runs(mock_stop, mock_client, admin_si
         mock_client.return_value.get_pipeline_run.return_value, graceful=False
     )
     running.refresh_from_db()
-    assert running.status == "stopping"
+    assert running.status == "cancelled"
 
 
 def _drain_worker() -> None:
@@ -71,11 +73,10 @@ def _drain_worker() -> None:
 
 @pytest.mark.django_db(transaction=True, serialized_rollback=True)
 @patch("predictions.tasks.remove_dir")
-@patch("predictions.tasks.get_run_status", return_value="stopped")
 @patch("zenml.client.Client")
 @patch("zenml.utils.run_utils.stop_run")
-def test_stopping_a_prediction_from_admin_reaches_stopped_without_a_running_poller(
-    mock_stop, mock_client, mock_status, mock_remove, admin_site: Client, user: OsmUser
+def test_stopping_a_prediction_from_admin_cancels_it_and_removes_its_input_tiles(
+    mock_stop, mock_client, mock_remove, admin_site: Client, user: OsmUser
 ) -> None:
     running = _prediction(user, "run-5", "running")
 
@@ -83,33 +84,15 @@ def test_stopping_a_prediction_from_admin_reaches_stopped_without_a_running_poll
     _drain_worker()
 
     running.refresh_from_db()
-    assert running.status == "stopped"
-
-
-@patch("zenml.client.Client")
-@patch("zenml.utils.run_utils.stop_run")
-def test_stopping_a_prediction_from_admin_keeps_one_status_sync_while_one_is_queued(
-    mock_stop, mock_client, admin_site: Client, user: OsmUser
-) -> None:
-    running = _prediction(user, "run-7", "running")
-    sync_prediction_status.enqueue(prediction_id=running.pk)
-
-    admin_site.post(PREDICTIONS + "/", {"action": "stop_runs", "_selected_action": [running.id]})
-
-    queued = DBTaskResult.objects.filter(
-        task_path=sync_prediction_status.module_path,
-        status="READY",
-        args_kwargs__kwargs={"prediction_id": running.pk},
-    )
-    assert queued.count() == 1
+    assert running.status == "cancelled"
+    mock_remove.assert_called_once()
 
 
 @pytest.mark.django_db(transaction=True, serialized_rollback=True)
-@patch("trainings.tasks.get_run_status", return_value="stopped")
 @patch("zenml.client.Client")
 @patch("zenml.utils.run_utils.stop_run")
-def test_stopping_a_training_from_admin_reaches_stopped_without_a_running_poller(
-    mock_stop, mock_client, mock_status, admin_site: Client, user: OsmUser
+def test_stopping_a_training_from_admin_cancels_it(
+    mock_stop, mock_client, admin_site: Client, user: OsmUser
 ) -> None:
     category, _ = Category.objects.get_or_create(slug="buildings", defaults={"label": "Buildings"})
     base = BaseModel.objects.create(name="unet", stac_item_id="unet", category=category, user=user)
@@ -129,7 +112,7 @@ def test_stopping_a_training_from_admin_reaches_stopped_without_a_running_poller
     _drain_worker()
 
     run.refresh_from_db()
-    assert run.status == "stopped"
+    assert run.status == "cancelled"
 
 
 @patch("predictions.deletion.remove_dir")
@@ -149,6 +132,22 @@ def test_a_running_prediction_cannot_be_deleted(admin_site: Client, user: OsmUse
 
     assert response.status_code == 403
     assert Prediction.objects.filter(pk=prediction.pk).exists()
+
+
+@patch("predictions.deletion.remove_dir")
+def test_a_completed_prediction_still_writing_outputs_cannot_be_deleted(
+    mock_remove, admin_site: Client, user: OsmUser
+) -> None:
+    prediction = _prediction(user, "run-6", "completed")
+    Prediction.objects.filter(pk=prediction.pk).update(results_ready=False)
+
+    response = admin_site.post(f"{PREDICTIONS}/{prediction.id}/delete/", {"post": "yes"})
+    with pytest.raises(ResourceInUseException):
+        delete_prediction(prediction)
+
+    assert response.status_code == 403
+    assert Prediction.objects.filter(pk=prediction.pk).exists()
+    mock_remove.assert_not_called()
 
 
 @patch("predictions.deletion.remove_dir")

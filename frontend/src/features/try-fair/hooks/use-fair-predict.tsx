@@ -1,12 +1,16 @@
 import { useMutation } from "@tanstack/react-query";
-import { BaseModelStacItem, runPredict } from "@/features/try-fair/api/stac";
+import {
+  BaseModelStacItem,
+  runPredict,
+  waitForModel,
+} from "@/features/try-fair/api/stac";
 import { TryFairResolution } from "@/enums/try-fair";
 import { BBOX } from "@/types";
 import {
   getModelImagery,
   TRY_FAIR_RESOLUTION_ZOOM,
 } from "@/features/try-fair/utils/common";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 export type PredictResult = {
   predictions: GeoJSON.FeatureCollection;
   bbox: BBOX;
@@ -15,6 +19,11 @@ export type PredictResult = {
   imageUri: string;
   resolution: TryFairResolution;
   params: Record<string, number | string | boolean>;
+};
+
+export type PredictionStage = {
+  name: "waking" | "predicting";
+  startedAt: number;
 };
 
 type PredictArgs = {
@@ -32,6 +41,9 @@ type PredictArgs = {
 export const useFairPredict = (initialResult: PredictResult | null = null) => {
   const abortControllerRef = useRef<AbortController | null>(null);
   const [result, setResult] = useState(initialResult);
+  const [stage, setStage] = useState<PredictionStage | null>(null);
+
+  useEffect(() => () => abortControllerRef.current?.abort(), []);
   const { mutate, isPending, error, reset } = useMutation<
     PredictResult,
     Error,
@@ -54,6 +66,9 @@ export const useFairPredict = (initialResult: PredictResult | null = null) => {
       const controller = new AbortController();
       abortControllerRef.current = controller;
       try {
+        setStage({ name: "waking", startedAt: Date.now() });
+        await waitForModel(inferenceEndpoint, controller.signal);
+        setStage({ name: "predicting", startedAt: Date.now() });
         const predictions = await runPredict(
           inferenceEndpoint,
           {
@@ -75,6 +90,7 @@ export const useFairPredict = (initialResult: PredictResult | null = null) => {
           params,
         };
       } finally {
+        setStage(null);
         if (abortControllerRef.current === controller) {
           abortControllerRef.current = null;
         }
@@ -91,6 +107,7 @@ export const useFairPredict = (initialResult: PredictResult | null = null) => {
   return {
     predict: mutate,
     isPredicting: isPending,
+    stage,
     result,
     predictions: result?.predictions ?? null,
     predictionBBox: result?.bbox ?? null,
