@@ -2,7 +2,7 @@
 name = "cz_conventional_commits"
 tag_format = "v$version"
 version_scheme = "semver2"
-version = "3.1.1"
+version = "3.1.2"
 version_files = ["backend/pyproject.toml:^version = "]
 pre_bump_hooks = ["uv lock --project backend"]
 update_changelog_on_bump = true

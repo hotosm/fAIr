@@ -952,7 +952,7 @@ wheels = [
 
 [[package]]
 name = "fair-backend"
-version = "3.1.1"
+version = "3.1.2"
 source = { virtual = "." }
 dependencies = [
     { name = "boto3" },
