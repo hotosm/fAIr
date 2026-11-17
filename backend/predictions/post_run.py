@@ -1,7 +1,7 @@
 """Post-run automation for predictions.
 
 Runs after a ZenML inference pipeline completes. Writes outputs at the
-deterministic prefix `StoragePaths.prediction_output_dir_uri(prediction.id)`;
+deterministic prefix `StoragePaths.prediction_output_dir_key(prediction.id)`;
 the API surfaces them by recomputing those keys when status is "completed".
 """
 
@@ -33,25 +33,19 @@ class PredictionOutputError(RuntimeError):
     """Predictions do not match what the model's STAC item declares."""
 
 
-def post_process_prediction(prediction: Prediction) -> None:
+def post_process_prediction(prediction: Prediction) -> int:
+    """Write each output (PMTiles only when there are features) and return the feature count."""
     if not prediction.zenml_run_id:
         raise RuntimeError(f"Prediction {prediction.id} has no zenml_run_id")
 
     geojson = _load_geojson(str(prediction.zenml_run_id))
     _check_against_model_item(geojson, str(prediction.local_model_stac_id))
 
-    if prediction.remove_osm:
-        # TODO(remove-osm): OSM conflation not yet implemented.
-        # Return features as-is; the removed_osm output file is not written.
-        logger.info(
-            "Prediction %s: remove_osm requested but not implemented; skipping",
-            prediction.id,
-        )
-
     UPath(StoragePaths.prediction_geojson_uri(prediction.id)).write_text(json.dumps(geojson))
-    _generate_fgb(geojson, prediction.id)
+    generate_geoparquet(geojson, prediction.id)
     _generate_pmtiles(geojson, prediction.id)
     logger.info("Prediction %s: post-run complete", prediction.id)
+    return len(geojson.get("features", []))
 
 
 def _check_against_model_item(geojson: dict[str, Any], model_id: str) -> None:
@@ -84,9 +78,7 @@ def _load_geojson(zenml_run_id: str) -> dict[str, Any]:
     return step.outputs["predictions"][0].load()
 
 
-def _generate_fgb(geojson: dict[str, Any], prediction_id: int) -> None:
-    # FlatGeobuf is range-queryable client-side (FlatGeobuf.js) so a public
-    # URL doesn't need to proxy bbox filtering through this service.
+def generate_geoparquet(geojson: dict[str, Any], prediction_id: int) -> None:
     import geopandas as gpd
 
     features = geojson.get("features", [])
@@ -95,10 +87,12 @@ def _generate_fgb(geojson: dict[str, Any], prediction_id: int) -> None:
     else:
         gdf = gpd.GeoDataFrame({"geometry": []}, crs="EPSG:4326")
 
-    with tempfile.TemporaryDirectory(prefix=f"fair-fgb-{prediction_id}-") as tmp:
-        local_fgb = Path(tmp) / "predictions.fgb"
-        gdf.to_file(local_fgb, driver="FlatGeobuf")
-        UPath(StoragePaths.prediction_fgb_uri(prediction_id)).write_bytes(local_fgb.read_bytes())
+    with tempfile.TemporaryDirectory(prefix=f"fair-geoparquet-{prediction_id}-") as tmp:
+        local_parquet = Path(tmp) / StoragePaths.PREDICTION_GEOPARQUET_FILENAME
+        gdf.to_parquet(local_parquet)
+        UPath(StoragePaths.prediction_geoparquet_uri(prediction_id)).write_bytes(
+            local_parquet.read_bytes()
+        )
 
 
 def _generate_pmtiles(geojson: dict[str, Any], prediction_id: int) -> None:

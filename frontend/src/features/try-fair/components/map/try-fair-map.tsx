@@ -46,9 +46,12 @@ type TryFairMapProps = {
   isPredicting?: boolean;
   preImageryUrl?: string | null;
   predictionClassStyle?: PredictionClassStyle | null;
+  isFeedbackOpen?: boolean;
   canFitToBounds: boolean;
   /** Opens the guided "how it works" tour. */
   onHelp?: () => void;
+  /** Phones hide the legend unless this is set (Basic mode, with results). */
+  showLegendOnPhones?: boolean;
 };
 
 const mapActionButtonClassName =
@@ -70,8 +73,10 @@ export const TryFairMap = ({
   isPredicting = false,
   preImageryUrl,
   predictionClassStyle,
+  isFeedbackOpen = false,
   canFitToBounds,
   onHelp,
+  showLegendOnPhones = false,
 }: TryFairMapProps) => {
   const { isSmallViewport } = useScreenSize();
   const [choroplethBuckets, setChoroplethBuckets] = useState<
@@ -212,6 +217,7 @@ export const TryFairMap = ({
         outputType={outputType}
         onChoroplethBucketsChange={setChoroplethBuckets}
         classStyle={predictionClassStyle}
+        isFeedbackOpen={isFeedbackOpen}
       />
 
       {map && (
@@ -226,6 +232,8 @@ export const TryFairMap = ({
           outputType={outputType}
           predictionBBox={predictionBBox}
           predictionGridZoom={predictionGridZoom}
+          classStyle={predictionClassStyle}
+          isFeedbackOpen={isFeedbackOpen}
         />
       )}
 
@@ -290,12 +298,13 @@ export const TryFairMap = ({
         </div>
       )}
 
-      {legend &&
-        (isSmallViewport ? (
-          <div className="absolute bottom-[25vh] right-4 z-10">{legend}</div>
-        ) : (
-          legend
-        ))}
+      {/* Phones show the legend only when asked (Basic mode with results):
+          in Advanced the Results card takes that space. */}
+      {legend && !isSmallViewport && legend}
+      {legend && isSmallViewport && showLegendOnPhones && hasPredictions && (
+        // Under the Mode/Menu chips, clear of the settings sheet.
+        <div className="absolute left-3 top-14 z-10">{legend}</div>
+      )}
     </div>
   );
 };

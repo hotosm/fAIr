@@ -34,9 +34,7 @@ export const ShareProjectModal: React.FC<ShareProjectModalProps> = ({
     : location.pathname;
   const currentUrl =
     typeof window !== "undefined"
-      ? encodeURI(
-          `${window.location.origin}${sharePath}${location.search}${location.hash}`,
-        )
+      ? `${window.location.origin}${sharePath}${location.search}${location.hash}`
       : "";
 
   const handleClose = () => {
@@ -106,8 +104,8 @@ export const ShareProjectModal: React.FC<ShareProjectModalProps> = ({
         <div className="flex items-start gap-2 text-grey">
           <InfoIcon className="size-3.5 shrink-0 mt-0.5" />
           <p className="text-xs leading-relaxed">
-            Anyone with this link can open the same project — model, imagery,
-            resolution and parameters will all be restored.
+            Anyone with this link can open the same mapping setup — model,
+            imagery, resolution and parameters will all be restored.
           </p>
         </div>
       </div>

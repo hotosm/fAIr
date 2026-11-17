@@ -1,9 +1,3 @@
-### Systemd templates
+# Systemd units for the dev instance
 
-Services required to setup fAIr in VM ( Dev env ).
-
-if frontend is hosted with nginx :
-
-```bash
-sudo systemctl restart fAIr-app && sudo nginx -t && sudo systemctl restart nginx
-```
+`fAIr-app.service` runs the compose stack on the dev instance, and `fAIr-autodeploy.timer` redeploys `develop` every 5 minutes. See [Dev environment](https://hotosm.github.io/fAIr/architecture/dev-environment/#auto-deploy).

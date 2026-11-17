@@ -3,16 +3,16 @@ from django.db import models, transaction
 
 from accounts.models import OsmUser
 from shared.enums import DatasetStatus, Visibility
+from shared.imagery import InputImagery
 from shared.validators import validate_geometry
 
 
-class Dataset(models.Model):
+class Dataset(InputImagery):
     # Module-level enum: a nested class body cannot see it from inside Meta.
     Status = DatasetStatus
 
     stac_id = models.CharField(max_length=200, unique=True)
     title = models.CharField(max_length=200)
-    source_imagery = models.URLField()
     category = models.ForeignKey(
         "modelregistry.Category",
         to_field="slug",
@@ -22,6 +22,9 @@ class Dataset(models.Model):
     )
     status = models.CharField(
         max_length=20, choices=DatasetStatus.choices, default=DatasetStatus.DRAFT
+    )
+    error = models.TextField(
+        blank=True, help_text="Why the build failed; empty unless status is failed."
     )
     visibility = models.CharField(
         max_length=20, choices=Visibility.choices, default=Visibility.PRIVATE, db_index=True
@@ -35,7 +38,6 @@ class Dataset(models.Model):
     class Meta:
         indexes = [
             models.Index(fields=["status"]),
-            models.Index(fields=["user"]),
         ]
         constraints = [
             models.CheckConstraint(
@@ -63,12 +65,6 @@ class AOI(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        indexes = [
-            models.Index(fields=["dataset"]),
-            models.Index(fields=["geom"], name="aoi_geom_gist_idx", opclasses=["gist"]),
-        ]
 
     @transaction.atomic
     def clean(self) -> None:

@@ -7,12 +7,11 @@ import { DashboardLink } from "./dashboard-link";
 import { NavLogo } from "@/components/layouts";
 import { APPLICATION_ROUTES, SHARED_CONTENT } from "@/constants";
 import { useAuth } from "@/app/providers/auth-provider";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useMatch, useNavigate } from "react-router-dom";
 import { useState } from "react";
 // import { UserNotifications } from "@/features/user-profile/components/notifications/user-notifications";
 import { AUTH_PROVIDER, FRONTEND_URL } from "@/config";
 import "@hotosm/ui/dist/components/tool-menu/tool-menu.js";
-import { Divider } from "@/components/ui/divider";
 import MappingMode from "@/features/try-fair/components/mapping-mode";
 import { ShareProjectModal } from "@/features/try-fair/components/modals/share-project-modal";
 import { NavBarLinks } from "@/components/layouts/navbar/navbar-links";
@@ -21,8 +20,11 @@ import {
   DesktopAuthSection,
 } from "@/components/layouts/navbar/device-navbars";
 import { BackButton } from "@/components/ui/button";
-import { DownloadResultButton } from "@/features/user-profile/components/map-requests/download-result-button";
 import { useNavbarState } from "@/components/layouts/navbar/hooks/use-navbar-state";
+import { CloudSaveStatus } from "@/components/layouts/navbar/cloud-save-status";
+import { useGetSinglePrediction } from "@/features/user-profile/hooks/use-predictions";
+import type { TOfflinePrediction } from "@/types";
+import { getPredictionName } from "@/features/user-profile/components/overview/map-request-fields";
 
 const IS_HANKO_AUTH = AUTH_PROVIDER === "hanko";
 
@@ -35,13 +37,19 @@ export const NavBar = () => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const {
-    showBackButton,
-    showDownloadResult,
-    showMappingMode,
-    showDashboardLink,
-    isMapRequestResult,
-  } = useNavbarState();
+  const { showBackButton, showMappingMode, isMapRequestResult } =
+    useNavbarState();
+  const resultMatch = useMatch(APPLICATION_ROUTES.MAP_REQUEST_RESULT);
+  const initialPrediction = (
+    location.state as { prediction?: TOfflinePrediction } | null
+  )?.prediction;
+  const { data: prediction } = useGetSinglePrediction(
+    resultMatch?.params.id,
+    isMapRequestResult ? initialPrediction : undefined,
+  );
+  const resultTitle = prediction
+    ? getPredictionName(prediction)
+    : "Map Request Result";
 
   const isTryFairPage = location.pathname.includes(APPLICATION_ROUTES.TRY_FAIR);
   const isProfilePage = location.pathname.includes(
@@ -69,20 +77,17 @@ export const NavBar = () => {
             </button>
           </div>
 
-          {!isTryFairPage && !isMapRequestResult && (
-            <div className={styles.navLinksContainer}>
-              <NavBarLinks
-                className={styles.mobileNavLinks}
-                setOpen={setOpen}
-              />
-            </div>
-          )}
-
-          {isAuthenticated && <Divider />}
-
-          {showMappingMode && <MappingMode tourTarget={false} />}
+          <div className={styles.navLinksContainer}>
+            <NavBarLinks className={styles.mobileNavLinks} setOpen={setOpen} />
+          </div>
 
           <div className={styles.loginButtonContainer}>
+            {isAuthenticated && (
+              <DashboardLink
+                className="!w-[17.5rem] flex !h-[40px] !text-center !rounded-lg"
+                onClick={() => setOpen(false)}
+              />
+            )}
             <MobileAuthSection
               isAuthenticated={isAuthenticated}
               isTryFairPage={isTryFairPage}
@@ -95,19 +100,41 @@ export const NavBar = () => {
       </Drawer>
 
       <nav
-        className={`${styles.nav} app-padding z-20 py-1 border-b border-gray-border`}
+        className={`${styles.nav} relative app-padding z-30 py-1 border-b border-gray-border`}
       >
-        <div className="flex-1 flex gap-4 items-center justify-start">
-          {showBackButton ? <BackButton /> : <NavLogo />}
+        <div className="min-w-0 flex-1 flex gap-4 items-center justify-start">
+          {showBackButton && (
+            <BackButton showText={false} className="shrink-0" />
+          )}
+          {(!showBackButton || isMapRequestResult) && <NavLogo />}
+
+          {isMapRequestResult && (
+            <h1
+              className="truncate text-base font-medium text-ink"
+              title={resultTitle}
+            >
+              {resultTitle}
+            </h1>
+          )}
+
+          <CloudSaveStatus />
         </div>
 
-        <div className="flex-1 hidden sm:flex items-center justify-center">
+        <div
+          className={
+            isMapRequestResult
+              ? "hidden"
+              : "flex-1 hidden sm:flex items-center justify-center"
+          }
+        >
           {!isTryFairPage && !isProfilePage && !isMapRequestResult && (
             <NavBarLinks className={styles.webNavLinks} />
           )}
         </div>
 
-        <div className="flex-1 hidden sm:flex items-center justify-end gap-x-3">
+        <div
+          className={`hidden ${isMapRequestResult ? "shrink-0" : "flex-1"} items-center justify-end gap-x-6 sm:flex`}
+        >
           {showMappingMode && <MappingMode />}
           <DesktopAuthSection
             isAuthenticated={isAuthenticated}
@@ -118,11 +145,8 @@ export const NavBar = () => {
           {IS_HANKO_AUTH && <hotosm-tool-menu></hotosm-tool-menu>}
         </div>
 
-        <div className="flex items-center gap-x-2 sm:hidden">
-          {showDashboardLink && <DashboardLink />}
-          {/* {isAuthenticated && <UserNotifications />} */}
-          {showDownloadResult && <DownloadResultButton />}
-
+        {/* Phones: menu and HOT apps; Dashboard lives in the menu. */}
+        <div className="flex items-center gap-x-3 sm:hidden">
           <button
             className={styles.hamburgerMenu}
             onClick={() => setOpen(true)}
@@ -135,6 +159,7 @@ export const NavBar = () => {
               height="20px"
             />
           </button>
+          {IS_HANKO_AUTH && <hotosm-tool-menu></hotosm-tool-menu>}
         </div>
       </nav>
       <ShareProjectModal />

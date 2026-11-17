@@ -1,13 +1,9 @@
-import hashlib
-
 from django.db import IntegrityError, transaction
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import serializers, status
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
-from accounts.authentication import OsmAuthentication
 
 from .models import Star
 
@@ -32,20 +28,9 @@ class StarErrorResponse(serializers.Serializer):
 _TARGET_ID_PARAM = OpenApiParameter("target_id", str, OpenApiParameter.QUERY, required=True)
 
 
-def _anon_key(request) -> str:
-    """Stable per-client key for anonymous starring; not personally identifying."""
-    ip = request.META.get("REMOTE_ADDR", "")
-    ua = request.META.get("HTTP_USER_AGENT", "")
-    return hashlib.sha256(f"{ip}|{ua}".encode()).hexdigest()[:64]
-
-
 @extend_schema(tags=["stars"])
 class StarView(APIView):
-    # Anonymous starring is keyed on a non-identifying SHA hash of
-    # IP+UA so naive double-clicks dedupe without auth overhead.
-
-    permission_classes = [AllowAny]
-    authentication_classes = [OsmAuthentication]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     serializer_class = StarStateResponse
 
     def _target_id(self, request) -> str:
@@ -53,15 +38,6 @@ class StarView(APIView):
         if not target_id:
             raise ValueError("target_id query parameter is required")
         return target_id
-
-    def _identity(self, request) -> tuple[object | None, str]:
-        user = (
-            request.user
-            if getattr(request, "user", None) and request.user.is_authenticated
-            else None
-        )
-        anon = "" if user else _anon_key(request)
-        return user, anon
 
     @extend_schema(
         parameters=[_TARGET_ID_PARAM],
@@ -74,13 +50,10 @@ class StarView(APIView):
             return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
 
         count = Star.objects.filter(target_id=target_id).count()
-        user, anon = self._identity(request)
-        if user is not None:
-            starred = Star.objects.filter(target_id=target_id, user=user).exists()
-        else:
-            starred = Star.objects.filter(
-                target_id=target_id, user__isnull=True, anon_key=anon
-            ).exists()
+        starred = (
+            request.user.is_authenticated
+            and Star.objects.filter(target_id=target_id, user=request.user).exists()
+        )
         return Response({"target_id": target_id, "count": count, "starred": starred})
 
     @extend_schema(
@@ -98,10 +71,9 @@ class StarView(APIView):
         except ValueError as exc:
             return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
 
-        user, anon = self._identity(request)
         try:
             with transaction.atomic():
-                Star.objects.create(target_id=target_id, user=user, anon_key=anon)
+                Star.objects.create(target_id=target_id, user=request.user)
             created = True
         except IntegrityError:
             created = False
@@ -121,9 +93,5 @@ class StarView(APIView):
         except ValueError as exc:
             return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
 
-        user, anon = self._identity(request)
-        if user is not None:
-            Star.objects.filter(target_id=target_id, user=user).delete()
-        else:
-            Star.objects.filter(target_id=target_id, user__isnull=True, anon_key=anon).delete()
+        Star.objects.filter(target_id=target_id, user=request.user).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

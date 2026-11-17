@@ -1,3 +1,4 @@
+import { isAxiosError } from "axios";
 import { TRY_FAIR_PAGE_CONTENT } from "@/constants/ui-contents/try-fair-contents";
 import { TryFairMapOutputType, TryFairResolution } from "@/enums/try-fair";
 import { BaseModelStacItem } from "@/features/try-fair/api/stac";
@@ -20,7 +21,7 @@ import { TreesIcon } from "@/components/ui/icons/trees-icon";
 export const TRY_FAIR_INITIAL_MAP_ZOOM = 18;
 
 export const FALLBACK_FAIR_IMAGERY =
-  "https://tiles.openaerialmap.org/62d85d11d8499800053796c1/0/62d85d11d8499800053796c2/{z}/{x}/{y}";
+  "https://tiles.imagery.hotosm.org/raster/collections/openaerialmap/items/62d86c65d8499800053796c4/tiles/WebMercatorQuad/{z}/{x}/{y}?assets=visual";
 export const FALLBACK_FAIR_IMAGERY_CENTER: [number, number] = [
   85.5228, 27.6337,
 ];
@@ -77,6 +78,16 @@ export const TRY_FAIR_RESOLUTION_ZOOM: Record<TryFairResolution, number> = {
   [TryFairResolution.HIGH]: 18,
 };
 
+/** Older catalogue items without a supported recommendation keep the Low fallback. */
+export const getModelDefaultResolution = (
+  model: BaseModelStacItem | null,
+): TryFairResolution =>
+  Object.values(TryFairResolution).find(
+    (resolution) =>
+      TRY_FAIR_RESOLUTION_ZOOM[resolution] ===
+      model?.properties["fair:recommended_zoom"],
+  ) ?? TryFairResolution.LOW;
+
 /**
  * The map output mode that matches a model's output geometry. The geometry is
  * carried as one of the model's keywords (point | line | polygon): point output
@@ -88,6 +99,22 @@ export const getModelOutputType = (
   model.properties.keywords.includes("point")
     ? TryFairMapOutputType.POINTS
     : TryFairMapOutputType.POLYGON;
+
+/** Tile URLs keyed by the model's input names: `pre` takes the preview's pre-event imagery, every other input `imageUri`. */
+export const getModelImagery = (
+  model: BaseModelStacItem,
+  imageUri: string,
+): Record<string, string> =>
+  Object.fromEntries(
+    model.properties["mlm:input"].map(({ name }) => {
+      if (name !== "pre") return [name, imageUri];
+      const preImageryUrl = model.properties["fair:preview"]?.pre_imagery?.url;
+      if (!preImageryUrl) {
+        throw new Error(`${model.id} needs pre-event imagery in its preview.`);
+      }
+      return [name, preImageryUrl];
+    }),
+  );
 
 // Prediction layer IDs (kept in sync with try-fair-prediction-results.tsx)
 export const PREDICTION_LAYER_IDS = [
@@ -218,4 +245,36 @@ export const flagEmoji = (code: string): string =>
 // Function to remove underscores from feature type
 export const cleanFeatureLabel = (label: string) => {
   return (label ?? "").replace(/[-_]/g, " ");
+};
+
+/** A feature slug as shown to users, in sentence case: "solid-waste" reads "Solid waste". */
+export const featureDisplayName = (label: string) => {
+  const text = cleanFeatureLabel(label);
+  return text.charAt(0).toUpperCase() + text.slice(1);
+};
+
+export function elapsedTime(createdAt: string, now: number): string {
+  const minutes = Math.max(
+    0,
+    Math.floor((now - Date.parse(createdAt)) / 60000),
+  );
+  if (minutes < 1) return "Just now";
+  if (minutes < 60) return `${minutes} min ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} hr ago`;
+  return new Date(createdAt).toLocaleDateString();
+}
+
+const MODEL_UNAVAILABLE_STATUSES = [502, 503, 504];
+
+/** A plain message when the model service is unreachable; undefined leaves the default error text. */
+export const predictErrorMessage = (error: unknown): string | undefined => {
+  if (!isAxiosError(error)) return undefined;
+  // A 503 from the serving gateway carries no CORS headers, so browsers report it as a network error.
+  const unreachable =
+    error.code === "ERR_NETWORK" ||
+    MODEL_UNAVAILABLE_STATUSES.includes(error.response?.status ?? 0);
+  return unreachable
+    ? "The model isn’t responding. It may still be starting; try again in a minute."
+    : undefined;
 };

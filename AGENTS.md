@@ -25,10 +25,11 @@ STAC / React + Vite / uv / Ruff / pre-commit
 
 ## Required Reading Order
 
-1. `backend/ARCHITECTURE.md` - the end-to-end flow, the database schema, and
-   the **key invariants**. Read this before changing any backend behaviour.
-2. `docs/architecture/decisions/` - architectural decision records.
-3. `CONTRIBUTING.md` - contribution rules, including AI tool usage.
+1. `docs/architecture/index.md`, `backend.md` and `api.md`: the end-to-end flow,
+   the **key invariants**, the database schema and the endpoints. Read these
+   before changing any backend behaviour.
+2. `docs/architecture/decisions/`: architectural decision records.
+3. `CONTRIBUTING.md`: contribution rules, including AI tool usage.
 4. The app you are touching (`datasets/`, `trainings/`, `predictions/`,
    `modelregistry/`).
 
@@ -83,7 +84,7 @@ Chart: `just chart <args>` from the repo root.
 ## Decisions Already Made
 
 These are invariants, not preferences. Do not "simplify" them away - see
-`backend/ARCHITECTURE.md` for the full statement of each.
+`docs/architecture/index.md` for the full statement of each.
 
 - **Datasets, base models and local models are STAC items.** The Postgres
   tables are thin pointers holding ownership and lifecycle state. Per-version
@@ -92,8 +93,9 @@ These are invariants, not preferences. Do not "simplify" them away - see
   with a row whose `zenml_run_id` is null until a worker submits the pipeline.
   Nothing in a request handler may wait on a pipeline.
 - **`results_ready` is separate from `status=completed`.** Post-processing
-  (`.fgb` and `.pmtiles` via tippecanoe) happens after ZenML reports
-  completion; `/predictions/{id}/result/` returns 409 until then.
+  writes GeoJSON, GeoParquet and, when there are features, PMTiles (via
+  tippecanoe) after ZenML reports completion; `/predictions/{id}/result/`
+  returns 409 until then.
 - **Publish is the only step that writes a versioned local-model STAC item**,
   and it validates logged `mlm:hyperparameters` against the base model's
   `fair:hyperparameters_spec`.
@@ -158,7 +160,7 @@ implement around it.
 
 ## Workflow
 
-1. Read `backend/ARCHITECTURE.md` and the relevant app before changing code.
+1. Read `docs/architecture/` and the relevant app before changing code.
 2. Keep the diff scoped to the task; raise anything else separately.
 3. Run `just test` and `just lint` from `backend/` (plus `pnpm test` for
    frontend changes).

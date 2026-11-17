@@ -1,14 +1,14 @@
 import { NavigateFunction } from "react-router-dom";
 import styles from "@/components/layouts/navbar/navbar.module.css";
 import { HankoAuthComponent } from "@/components/layouts/navbar/hanko-auth";
-import { LoginButton } from "@/components/layouts/navbar/login-button";
-import { UserProfile } from "@/components/layouts/navbar/user-profile";
-import { AUTH_PROVIDER, IS_DEV } from "@/config";
+import { AUTH_PROVIDER, HANKO_URL, IS_DEV } from "@/config";
+import { MobileAccountMenu } from "@/components/layouts/navbar/mobile-account-menu";
 import { APP_TOUR_IDS } from "@/constants/site-tour";
 import { StartMappingNavlinks } from "@/features/try-fair/components/try-fair-nav-links";
 // import { UserNotifications } from "@/features/user-profile/components/notifications/user-notifications";
-import { DownloadResultButton } from "@/features/user-profile/components/map-requests/download-result-button";
-import { APPLICATION_ROUTES } from "@/constants";
+import { APPLICATION_ROUTES, SHARED_CONTENT } from "@/constants";
+import { Button } from "@/components/ui/button";
+import { ButtonVariant } from "@/enums";
 import { useLocation } from "react-router-dom";
 import { useNavbarState } from "./hooks/use-navbar-state";
 import { DashboardLink } from "./dashboard-link";
@@ -25,58 +25,43 @@ type AuthSectionProps = {
   navigate: NavigateFunction;
 };
 
+/**
+ * Account part of the mobile menu: the user's account (avatar, email, My HOT
+ * Account, Log Out) when signed in, otherwise a Login button.
+ */
 export const MobileAuthSection = ({
   isAuthenticated,
-  isTryFairPage,
   returnTo,
   navigate,
   setOpen,
 }: AuthSectionProps & { setOpen: (open: boolean) => void }) => {
-  const showHankoBar = IS_HANKO_AUTH && !IS_DEV && !isTryFairPage;
-
-  if (showHankoBar) {
-    return (
-      <>
-        {isAuthenticated && (
-          <UserProfile
-            isHanko
-            hideFullName
-            variant="list"
-            onNavigate={() => setOpen(false)}
-            setOpen={setOpen}
-          />
-        )}
-
-        <span
-          className={isAuthenticated ? "border-t-2 w-full mt-2" : "pb-4 pl-4"}
-        >
-          <HankoAuthComponent displayBar redirectAfterLogin={returnTo} />
-        </span>
-      </>
-    );
-  }
-
   if (isAuthenticated) {
     return (
-      <UserProfile
-        isHanko={IS_HANKO_AUTH}
-        hideFullName={IS_HANKO_AUTH}
-        variant="list"
+      <MobileAccountMenu
+        returnTo={returnTo}
         onNavigate={() => setOpen(false)}
-        setOpen={setOpen}
       />
     );
   }
 
+  const login = () => {
+    if (IS_HANKO_AUTH) {
+      window.location.href = `${HANKO_URL}/app?return_to=${encodeURIComponent(returnTo)}`;
+      return;
+    }
+    navigate(location, { state: { backgroundLocation: location } });
+  };
+
   return (
-    <div className="relative pb-4 pl-4">
-      <LoginButton
-        isTryFairPage={isTryFairPage}
-        onClick={() =>
-          navigate(location, { state: { backgroundLocation: location } })
-        }
-      />
-    </div>
+    <Button
+      variant={ButtonVariant.PRIMARY}
+      size="large"
+      rounded
+      className="!w-60"
+      onClick={login}
+    >
+      {SHARED_CONTENT.navbar.mobileLoginButton}
+    </Button>
   );
 };
 
@@ -86,7 +71,7 @@ export const DesktopAuthSection = ({
   returnTo,
 }: AuthSectionProps) => {
   const { pathname } = useLocation();
-  const { showDownloadResult, showDashboardLink } = useNavbarState();
+  const { showDashboardLink } = useNavbarState();
   const dashboardButton =
     isAuthenticated &&
     (pathname === APPLICATION_ROUTES.HOMEPAGE ||
@@ -103,7 +88,6 @@ export const DesktopAuthSection = ({
       <>
         {/* {isAuthenticated && <UserNotifications />} */}
         {dashboardButton}
-        {showDownloadResult && <DownloadResultButton />}
         <div
           className={`${styles.headerHankoAuth} ${isAuthenticated && isTryFairPage ? "border-l border-gray-border pl-3 ml-1 !w-auto" : ""}`}
         >
@@ -119,12 +103,12 @@ export const DesktopAuthSection = ({
         {isTryFairPage && <StartMappingNavlinks />}
         {/* {!isTryFairPage && !isMapRequestsPage && <UserNotifications />} */}
         {dashboardButton}
-        {showDownloadResult && <DownloadResultButton />}
 
-        {showDashboardLink && <DashboardLink />}
         <div
-          className={`${styles.headerHankoAuth} ${isAuthenticated && isTryFairPage ? "border-l border-gray-border pl-3 ml-1 !w-auto" : ""}`}
+          className={`${styles.headerHankoAuth} flex items-center gap-x-2 ${isAuthenticated && isTryFairPage ? "border-l border-gray-border pl-3 ml-1 !w-auto" : ""}`}
         >
+          {showDashboardLink && <DashboardLink />}
+
           <HankoAuthComponent redirectAfterLogin={returnTo} />
         </div>
       </div>

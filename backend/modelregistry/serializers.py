@@ -3,7 +3,7 @@ from typing import Any, cast
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from notifications.serializers import UserSerializer
+from accounts.serializers import UserSerializer
 from shared.integrations.stac import BASE_MODELS_COLLECTION, LOCAL_MODELS_COLLECTION
 from shared.serializers import TMS_PLACEHOLDERS, StacFacetSerializer
 
@@ -25,6 +25,9 @@ class LocalModelSerializer(serializers.ModelSerializer):
     star_count = serializers.IntegerField(read_only=True, default=0)
     is_starred = serializers.BooleanField(read_only=True, default=False)
     run_count = serializers.IntegerField(read_only=True, default=0)
+    map_request_count = serializers.IntegerField(read_only=True, default=0)
+    user_count = serializers.IntegerField(read_only=True, default=0)
+    feedback_count = serializers.IntegerField(read_only=True, default=0)
     stac = serializers.SerializerMethodField()
 
     class Meta:
@@ -43,6 +46,10 @@ class LocalModelSerializer(serializers.ModelSerializer):
             "star_count",
             "is_starred",
             "run_count",
+            "prediction_runs",
+            "map_request_count",
+            "user_count",
+            "feedback_count",
             "stac",
             "created_at",
             "last_modified",
@@ -57,6 +64,10 @@ class LocalModelSerializer(serializers.ModelSerializer):
             "star_count",
             "is_starred",
             "run_count",
+            "prediction_runs",
+            "map_request_count",
+            "user_count",
+            "feedback_count",
             "stac",
             "created_at",
             "last_modified",
@@ -73,6 +84,10 @@ class BaseModelSerializer(serializers.ModelSerializer):
     category = serializers.SlugRelatedField(slug_field="slug", read_only=True)
     star_count = serializers.IntegerField(read_only=True, default=0)
     is_starred = serializers.BooleanField(read_only=True, default=False)
+    map_request_count = serializers.IntegerField(read_only=True, default=0)
+    user_count = serializers.IntegerField(read_only=True, default=0)
+    feedback_count = serializers.IntegerField(read_only=True, default=0)
+    local_model_count = serializers.IntegerField(read_only=True, default=0)
     stac = serializers.SerializerMethodField()
 
     class Meta:
@@ -87,6 +102,11 @@ class BaseModelSerializer(serializers.ModelSerializer):
             "is_pinned",
             "star_count",
             "is_starred",
+            "prediction_runs",
+            "map_request_count",
+            "user_count",
+            "feedback_count",
+            "local_model_count",
             "error",
             "user",
             "stac",
@@ -102,16 +122,7 @@ class BaseModelSerializer(serializers.ModelSerializer):
 
 
 class BaseModelRegisterSerializer(serializers.Serializer):
-    """Register a base model from an inline STAC item or a URL to one.
-
-    Exactly one of ``stac_item`` (inline JSON) or ``stac_item_url`` (a link
-    fetched at request time) must be supplied. Either way the resolved item is
-    stored in ``stac_item``; the URL itself is not persisted.
-
-    ``inference_endpoint`` is optional: when given, its URL is written to the
-    item's ``mlm:inference-endpoint`` asset before registration; when omitted,
-    whatever the STAC item already carries is used unchanged.
-    """
+    """Register from exactly one of an inline `stac_item` or a `stac_item_url` fetched once."""
 
     stac_item = serializers.JSONField(required=False)
     stac_item_url = serializers.URLField(required=False)
@@ -145,28 +156,26 @@ class BaseModelRegisterSerializer(serializers.Serializer):
 
 
 class ModelPinSerializer(serializers.Serializer):
-    """Pin/unpin a model. `is_pinned` flips the DB flag; when supplied,
-    `source_imagery` (a TMS template) and `pinned_location` (a GeoJSON Point)
-    are written onto the model's STAC item as `fair:source_imagery` and
-    `fair:preview_location`."""
+    """Pin or unpin a model; `preview_imagery` (TMS template) and `preview_location` (GeoJSON
+    Point) update the imagery, center and place of its STAC `fair:preview`."""
 
     is_pinned = serializers.BooleanField(default=True)
-    source_imagery = serializers.CharField(required=False, allow_blank=True, default="")
-    pinned_location = serializers.JSONField(required=False)
+    preview_imagery = serializers.CharField(required=False)
+    preview_location = serializers.JSONField(required=False)
 
-    def validate_source_imagery(self, value: str) -> str:
-        if value and any(p not in value for p in TMS_PLACEHOLDERS):
+    def validate_preview_imagery(self, value: str) -> str:
+        if any(p not in value for p in TMS_PLACEHOLDERS):
             raise serializers.ValidationError(
-                f"source_imagery must contain placeholders: {', '.join(TMS_PLACEHOLDERS)}"
+                f"preview_imagery must contain placeholders: {', '.join(TMS_PLACEHOLDERS)}"
             )
         return value
 
-    def validate_pinned_location(self, value: object) -> dict[str, Any]:
+    def validate_preview_location(self, value: object) -> dict[str, Any]:
         if not isinstance(value, dict):
-            raise serializers.ValidationError("pinned_location must be a GeoJSON Point.")
+            raise serializers.ValidationError("preview_location must be a GeoJSON Point.")
         location = cast("dict[str, Any]", value)
         if location.get("type") != "Point":
-            raise serializers.ValidationError("pinned_location must be a GeoJSON Point.")
+            raise serializers.ValidationError("preview_location must be a GeoJSON Point.")
         coordinates = location.get("coordinates")
         if not (isinstance(coordinates, list) and len(coordinates) == 2):
             raise serializers.ValidationError("Point coordinates must be [lon, lat].")
@@ -190,7 +199,7 @@ class ModelMetadataSerializer(serializers.Serializer):
 
 
 class StacPropertiesPatchSerializer(serializers.Serializer):
-    """Admin patch of a published model's STAC item properties.
+    """Admin patch of a published model's STAC item properties and assets.
 
     ``properties`` is shallow-merged onto the item's existing properties, so an
     admin can sync changed metadata or imagery from an updated source. The merged
@@ -198,13 +207,17 @@ class StacPropertiesPatchSerializer(serializers.Serializer):
     the database mirrors (``mlm:name``, ``fair:category``) are rejected, so the row
     and the STAC item cannot drift apart. ``stac_extensions`` lists schema URLs to add,
     so newly patched fields such as ``cube:variables`` are validated by their extension.
+    ``assets`` merges fields onto each named asset, or adds it when it carries an ``href``.
     """
 
-    _DENIED_KEYS = frozenset({"mlm:name", "fair:category"})
+    _DENIED_KEYS = frozenset({"mlm:name", "fair:category", "fair:pinned"})
     # Validation fetches each listed schema, so only the official extension host is accepted.
     _EXTENSION_HOST = "https://stac-extensions.github.io/"
 
-    properties = serializers.JSONField()
+    properties = serializers.JSONField(required=False)
+    assets = serializers.DictField(
+        child=serializers.DictField(allow_empty=False), allow_empty=False, required=False
+    )
     stac_extensions = serializers.ListField(
         child=serializers.URLField(), required=False, default=list
     )
@@ -219,6 +232,11 @@ class StacPropertiesPatchSerializer(serializers.Serializer):
             )
         return properties
 
+    def validate(self, attrs: dict[str, Any]) -> dict[str, Any]:
+        if "properties" not in attrs and "assets" not in attrs:
+            raise serializers.ValidationError("Provide properties, assets, or both.")
+        return attrs
+
     def validate_stac_extensions(self, value: list[str]) -> list[str]:
         if outside := [url for url in value if not url.startswith(self._EXTENSION_HOST)]:
             raise serializers.ValidationError(
@@ -227,13 +245,5 @@ class StacPropertiesPatchSerializer(serializers.Serializer):
         return value
 
 
-class TrainingRunSummarySerializer(serializers.Serializer):
-    """ZenML run summary, populated from fair.zenml.runs.RunSummary."""
-
-    id = serializers.CharField()
-    name = serializers.CharField()
-    status = serializers.CharField()
-    created_at = serializers.CharField(allow_null=True)
-    pipeline_name = serializers.CharField()
-    model_name = serializers.CharField(allow_null=True)
-    model_version = serializers.IntegerField(allow_null=True)
+class PredictionRunSerializer(serializers.Serializer):
+    stac_id = serializers.CharField(max_length=200)

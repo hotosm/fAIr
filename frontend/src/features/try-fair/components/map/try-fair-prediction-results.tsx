@@ -1,3 +1,5 @@
+import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
+import { useAuth } from "@/app/providers/auth-provider";
 import { TryFairMapOutputType } from "@/enums/try-fair";
 import { BBOX } from "@/types";
 import { ExpressionSpecification, Map, MapMouseEvent } from "maplibre-gl";
@@ -9,6 +11,7 @@ import {
 } from "@/features/try-fair/utils/helpers";
 import {
   buildClassColorExpression,
+  describePredictedFeature,
   PredictionClassStyle,
 } from "@/features/try-fair/utils/prediction-classes";
 
@@ -53,13 +56,14 @@ type Props = {
   ) => void;
   /** When set and `colored`, features are coloured by their predicted class. */
   classStyle?: PredictionClassStyle | null;
+  alwaysShowFeatureDetails?: boolean;
+  isFeedbackOpen?: boolean;
 };
 
 type HoverTooltip = {
   x: number;
   y: number;
-  label: string;
-  value: string;
+  rows: { label: string; value: string }[];
 } | null;
 
 export const TryFairPredictionsLayer = ({
@@ -70,7 +74,15 @@ export const TryFairPredictionsLayer = ({
   outputType,
   onChoroplethBucketsChange,
   classStyle,
+  alwaysShowFeatureDetails = false,
+  isFeedbackOpen = false,
 }: Props) => {
+  const { mappingMode } = useTryFairParams();
+  const { isAuthenticated } = useAuth();
+  const showFeatureDetails =
+    (alwaysShowFeatureDetails ||
+      (isAuthenticated && mappingMode === "advanced")) &&
+    !isFeedbackOpen;
   const { choropleth, buckets } = useMemo(() => {
     if (
       outputType !== TryFairMapOutputType.CLUSTER ||
@@ -104,7 +116,7 @@ export const TryFairPredictionsLayer = ({
 
     // Colour features by their predicted class when a coloured class style is
     // provided; otherwise fall back to the default single colour.
-    const polygonFillColor = classStyle?.colored
+    const polygonColor = classStyle?.colored
       ? buildClassColorExpression(classStyle)
       : "#A243DC";
     const circleColor = classStyle?.colored
@@ -113,12 +125,18 @@ export const TryFairPredictionsLayer = ({
 
     // ── Polygon ──────────────────────────────────────────────────────────────
     if (outputType === TryFairMapOutputType.POLYGON) {
-      map.addSource(SOURCE_ID, { type: "geojson", data: predictions });
+      // generateId gives each rendered feature its index in `predictions`, so
+      // feature-level feedback can map a click back to the source feature.
+      map.addSource(SOURCE_ID, {
+        type: "geojson",
+        data: predictions,
+        generateId: true,
+      });
       map.addLayer({
         id: FILL_LAYER,
         type: "fill",
         source: SOURCE_ID,
-        paint: { "fill-color": polygonFillColor, "fill-opacity": 0.3 },
+        paint: { "fill-color": polygonColor, "fill-opacity": 0.3 },
       });
       map.addLayer({
         id: CASING_LAYER,
@@ -134,7 +152,7 @@ export const TryFairPredictionsLayer = ({
         id: OUTLINE_LAYER,
         type: "line",
         source: SOURCE_ID,
-        paint: { "line-color": "#A243DC", "line-width": 1.5 },
+        paint: { "line-color": polygonColor, "line-width": 1.5 },
       });
 
       // ── Points ───────────────────────────────────────────────────────────────
@@ -259,8 +277,7 @@ export const TryFairPredictionsLayer = ({
       setTooltip({
         x: e.point.x,
         y: e.point.y,
-        label: "Features detected",
-        value: count.toLocaleString(),
+        rows: [{ label: "Features detected", value: count.toLocaleString() }],
       });
     };
 
@@ -287,7 +304,7 @@ export const TryFairPredictionsLayer = ({
         : outputType === TryFairMapOutputType.POLYGON
           ? FILL_LAYER
           : null;
-    if (!map || !predictionLayer) {
+    if (!map || !predictionLayer || !showFeatureDetails || !classStyle) {
       setTooltip(null);
       return;
     }
@@ -296,20 +313,17 @@ export const TryFairPredictionsLayer = ({
       const feature = map.queryRenderedFeatures(e.point, {
         layers: [predictionLayer],
       })[0];
-      const score = feature?.properties?.score;
-      if (typeof score !== "number") {
+      const rows = feature
+        ? describePredictedFeature(classStyle, feature.properties ?? {})
+        : [];
+      if (!rows.length) {
         setTooltip(null);
         map.getCanvas().style.cursor = "";
         return;
       }
 
       map.getCanvas().style.cursor = "pointer";
-      setTooltip({
-        x: e.point.x,
-        y: e.point.y,
-        label: "Confidence",
-        value: `${(score * 100).toFixed(1)}%`,
-      });
+      setTooltip({ x: e.point.x, y: e.point.y, rows });
     };
 
     const handleMouseLeave = () => {
@@ -326,7 +340,7 @@ export const TryFairPredictionsLayer = ({
       map.getCanvas().style.cursor = "";
       setTooltip(null);
     };
-  }, [map, outputType]);
+  }, [map, outputType, showFeatureDetails, classStyle]);
 
   if (!tooltip) return null;
 
@@ -337,14 +351,18 @@ export const TryFairPredictionsLayer = ({
     >
       {/* Offset so the tooltip doesn't sit directly under the cursor */}
       <div className="relative" style={{ transform: "translate(12px, -50%)" }}>
-        <div className="bg-white/95 backdrop-blur-sm border border-gray-border rounded-lg shadow-lg px-3 py-2 flex flex-col items-start gap-0.5 min-w-[120px]">
-          <p className="text-[10px] font-medium text-grey uppercase tracking-wide leading-none">
-            {tooltip.label}
-          </p>
-          <p className="text-base font-bold text-purple-700 leading-tight">
-            {tooltip.value}
-          </p>
-        </div>
+        <dl className="bg-white border border-gray-border rounded-lg shadow-lg px-3 py-2 space-y-1.5 text-xs">
+          {tooltip.rows.map((row, index) => (
+            <div key={index} className="flex items-start justify-between gap-3">
+              <dt className="text-grey whitespace-nowrap capitalize">
+                {row.label}
+              </dt>
+              <dd className="text-dark font-medium tabular-nums text-right">
+                {row.value}
+              </dd>
+            </div>
+          ))}
+        </dl>
         <div
           className="absolute top-1/2 -left-[6px] -translate-y-1/2 w-0 h-0"
           style={{

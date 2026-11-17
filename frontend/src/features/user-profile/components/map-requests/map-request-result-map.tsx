@@ -1,7 +1,7 @@
 import { TryFairMapOutputType } from "@/enums";
 import { errorMessages } from "@/constants";
 import { MapComponent, ZoomControls } from "@/components/map";
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useMapInstance } from "@/hooks/use-map-instance";
 import { showErrorToast } from "@/utils";
 import { BBOX } from "@/types";
@@ -10,6 +10,9 @@ import { TryFairPredictionsLayer } from "@/features/try-fair/components/map/try-
 import { TryFairPolygonLegend } from "@/features/try-fair/components/map/polygon-legend";
 import { TryFairPointsLegend } from "@/features/try-fair/components/map/points-legend";
 import { useQuery } from "@tanstack/react-query";
+import { useStacModelItem } from "@/features/try-fair/hooks/use-base-models";
+import { getPredictionClassStyle } from "@/features/try-fair/utils/prediction-classes";
+import useScreenSize from "@/hooks/use-screen-size";
 
 /**
  * Computes a tight [west, south, east, north] bbox from every coordinate in a
@@ -61,20 +64,39 @@ const bboxFromFeatureCollection = (
   return [west, south, east, north];
 };
 
+/** The result's features once loaded, else `fallback`; a request over a whole scene can find a small result. */
+export const resultFitBox = (
+  predictions: GeoJSON.FeatureCollection | null,
+  fallback: BBOX | null,
+): BBOX | null =>
+  (predictions && bboxFromFeatureCollection(predictions)) ?? fallback;
+
 export const MapRequestResultMap = ({
   geojsonUrl,
   imageryUrl,
   outputType,
   bounds,
   gridZoom,
+  modelStacId,
 }: {
   geojsonUrl: string;
   imageryUrl: string;
   outputType: TryFairMapOutputType;
   bounds: BBOX | null;
   gridZoom?: number;
+  modelStacId: string;
 }) => {
+  const { isSmallViewport } = useScreenSize();
   const { mapContainerRef, map } = useMapInstance(false, false);
+  const { data: modelItem, error: modelItemError } =
+    useStacModelItem(modelStacId);
+  useEffect(() => {
+    if (modelItemError) showErrorToast(modelItemError);
+  }, [modelItemError]);
+  const classStyle = useMemo(
+    () => getPredictionClassStyle(modelItem),
+    [modelItem],
+  );
 
   // Load the result GeoJSON via React Query so the response is cached by URL.
   // The parent query (useGetSinglePrediction) has refetchOnWindowFocus: false
@@ -105,20 +127,24 @@ export const MapRequestResultMap = ({
     return bboxFromFeatureCollection(predictions);
   }, [bounds, predictions]);
 
-  // Center on the result bounds instantly — no fly-in.
-  useEffect(() => {
-    if (!map || !effectiveBounds) return;
+  const fitBox = useMemo(
+    () => resultFitBox(predictions, effectiveBounds),
+    [predictions, effectiveBounds],
+  );
+
+  const fitToResult = useCallback(() => {
+    if (!map || !fitBox) return;
     map.resize();
-    map.fitBounds(
-      [
-        effectiveBounds[0],
-        effectiveBounds[1],
-        effectiveBounds[2],
-        effectiveBounds[3],
-      ],
-      { padding: 20, duration: 0, animate: false, essential: true },
-    );
-  }, [map, effectiveBounds]);
+    map.fitBounds([fitBox[0], fitBox[1], fitBox[2], fitBox[3]], {
+      padding: 20,
+      maxZoom: 18,
+      duration: 0,
+      animate: false,
+      essential: true,
+    });
+  }, [map, fitBox]);
+
+  useEffect(fitToResult, [fitToResult]);
 
   return (
     <div className="relative h-full w-full">
@@ -127,6 +153,7 @@ export const MapRequestResultMap = ({
         basemaps
         zoomControls={false}
         tileServiceURL={imageryUrl}
+        onTileServiceFitToBounds={fitToResult}
         mapContainerRef={mapContainerRef}
         map={map}
       >
@@ -152,13 +179,22 @@ export const MapRequestResultMap = ({
           predictionBBox={effectiveBounds}
           predictionGridZoom={gridZoom}
           outputType={outputType}
+          classStyle={classStyle}
+          alwaysShowFeatureDetails
         />
 
-        {outputType === TryFairMapOutputType.POINTS ? (
-          <TryFairPointsLegend predictions={predictions} />
-        ) : outputType === TryFairMapOutputType.POLYGON ? (
-          <TryFairPolygonLegend predictions={predictions} />
-        ) : null}
+        {!isSmallViewport &&
+          (outputType === TryFairMapOutputType.POINTS ? (
+            <TryFairPointsLegend
+              predictions={predictions}
+              classStyle={classStyle}
+            />
+          ) : outputType === TryFairMapOutputType.POLYGON ? (
+            <TryFairPolygonLegend
+              predictions={predictions}
+              classStyle={classStyle}
+            />
+          ) : null)}
       </MapComponent>
 
       {/* Only show on first load — once predictions are cached this never shows again. */}

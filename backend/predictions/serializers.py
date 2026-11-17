@@ -1,31 +1,64 @@
+import shapely
+from django.conf import settings
+from django.utils.http import MAX_URL_LENGTH
+from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
+from pyproj import CRS, Transformer
 from rest_framework import serializers
+from shapely.errors import GEOSException
+from shapely.geometry import box, shape
+from shapely.validation import explain_validity
 
-from notifications.serializers import UserSerializer
-from shared.serializers import MAX_ZOOM, MIN_ZOOM
+from accounts.serializers import UserSerializer
+from shared.serializers import (
+    MAX_ZOOM,
+    MIN_ZOOM,
+    OwnerOnlyErrorMixin,
+    imagery_from_shorthand,
+    validate_input_imagery,
+    validate_public_url,
+)
 
 from .models import Prediction
+
+_WEB_MERCATOR_BOUNDS = CRS("EPSG:3857").area_of_use.bounds
+# EPSG:6933 is cylindrical equal-area (WGS84, 86S to 86N), so a lon/lat box measures its exact area.
+_TO_EQUAL_AREA = Transformer.from_crs("EPSG:4326", "EPSG:6933", always_xy=True)
 
 
 class PredictionSubmitSerializer(serializers.Serializer):
     model_stac_id = serializers.CharField(max_length=64)
-    image_uri = serializers.URLField()
+    imagery = serializers.DictField(
+        child=serializers.URLField(max_length=MAX_URL_LENGTH),
+        required=False,
+        allow_empty=False,
+        help_text=(
+            "Imagery for each model input, keyed by the input's name, e.g. "
+            '{"post": "https://.../{z}/{x}/{y}", "pre": "https://.../{z}/{x}/{y}"}; a single-image '
+            'model reads {"image": ...}. Each is a TMS template or a TileJSON URL, and the '
+            "prediction keeps the tiles that every input has imagery for."
+        ),
+    )
+    image_uri = serializers.URLField(
+        max_length=MAX_URL_LENGTH,
+        required=False,
+        help_text='Shorthand for imagery {"image": ...}; give either imagery or image_uri.',
+    )
     bbox = serializers.ListField(
         child=serializers.FloatField(), min_length=4, max_length=4, required=False
     )
     geometry = serializers.JSONField(required=False)
     zoom = serializers.IntegerField(min_value=MIN_ZOOM, max_value=MAX_ZOOM)
     params = serializers.DictField(required=False, default=dict)
-    remove_osm = serializers.BooleanField(
-        required=False,
-        default=False,
-        help_text=(
-            "If true, the post-run job subtracts existing OSM building footprints "
-            "from the prediction set. Removed features are saved alongside the "
-            "output as removed_osm.geojson."
-        ),
-    )
     description = serializers.CharField(required=False, allow_blank=True, default="")
+
+    def validate_image_uri(self, value: str) -> str:
+        return validate_public_url(value, ("http", "https"))
+
+    def validate_imagery(self, value: dict[str, str]) -> dict[str, str]:
+        return validate_input_imagery(
+            value, lambda url: validate_public_url(url, ("http", "https"))
+        )
 
     def validate_geometry(self, value):
         if not isinstance(value, dict) or value.get("type") not in ("Polygon", "MultiPolygon"):
@@ -33,6 +66,7 @@ class PredictionSubmitSerializer(serializers.Serializer):
         return value
 
     def validate(self, attrs):
+        attrs = imagery_from_shorthand(attrs, "image_uri")
         bbox = attrs.pop("bbox", None)
         geometry = attrs.get("geometry")
         if bool(bbox) == bool(geometry):
@@ -49,50 +83,84 @@ class PredictionSubmitSerializer(serializers.Serializer):
                     [[west, south], [east, south], [east, north], [west, north], [west, south]]
                 ],
             }
+            area = shape(attrs["geometry"])
         else:
-            from shapely.errors import GEOSException
-            from shapely.geometry import shape
-
             try:
-                shape(geometry)
+                area = shape(geometry)
             except (ValueError, KeyError, TypeError, GEOSException) as exc:
                 raise serializers.ValidationError({"geometry": f"invalid geometry: {exc}"}) from exc
+        field = "bbox" if bbox else "geometry"
+        if area.is_empty:
+            raise serializers.ValidationError({field: "The area is empty."})
+        if not area.is_valid:
+            raise serializers.ValidationError(
+                {field: f"The area is not a valid polygon: {explain_validity(area)}."}
+            )
+        if not box(*_WEB_MERCATOR_BOUNDS).contains(area):
+            west, south, east, north = _WEB_MERCATOR_BOUNDS
+            raise serializers.ValidationError(
+                {
+                    field: f"The area must lie within longitude {west:g} to {east:g} "
+                    f"and latitude {south:g} to {north:g}."
+                }
+            )
+        projected = shapely.transform(area, _TO_EQUAL_AREA.transform, interleaved=False)
+        area_sqkm = projected.area / 1_000_000
+        if area_sqkm > settings.MAP_REQUEST_MAX_AREA_SQKM:
+            raise serializers.ValidationError(
+                {
+                    field: f"The area is {area_sqkm:,.0f} km², larger than the "
+                    f"{settings.MAP_REQUEST_MAX_AREA_SQKM:,} km² limit for a map request."
+                }
+            )
         return attrs
+
+
+def presigned_output_urls(prediction: Prediction) -> dict[str, str]:
+    from shared.storage import StoragePaths, presigned_get_url
+
+    urls = {
+        "geojson": presigned_get_url(StoragePaths.prediction_geojson_key(prediction.id)),
+        "geoparquet": presigned_get_url(StoragePaths.prediction_geoparquet_key(prediction.id)),
+    }
+    if prediction.feature_count != 0:
+        urls["pmtiles"] = presigned_get_url(StoragePaths.prediction_pmtiles_key(prediction.id))
+    return urls
 
 
 class PredictionResultSerializer(serializers.Serializer):
     """Presigned URLs for each materialized output format."""
 
     geojson = serializers.URLField()
-    fgb = serializers.URLField()
-    pmtiles = serializers.URLField()
+    geoparquet = serializers.URLField()
+    pmtiles = serializers.URLField(
+        required=False, help_text="Absent when the result has no features."
+    )
 
 
-class PredictionAssetsSerializer(serializers.Serializer):
-    geojson = serializers.URLField()
-    fgb = serializers.URLField()
-    pmtiles = serializers.URLField()
-
-
-class PredictionSerializer(serializers.ModelSerializer):
+class PredictionSerializer(OwnerOnlyErrorMixin, serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     category = serializers.CharField(
         read_only=True, allow_null=True, help_text="Category slug of the model that ran."
     )
+    model_title = serializers.SerializerMethodField(
+        help_text="Title of the model that ran, from its STAC item; null when STAC is unavailable."
+    )
     assets = serializers.SerializerMethodField()
+    image_uri = serializers.SerializerMethodField(help_text="Imagery of the model's first input.")
 
-    @extend_schema_field(PredictionAssetsSerializer(allow_null=True))
+    def get_model_title(self, obj: Prediction) -> str | None:
+        return (self.context.get("model_titles") or {}).get(obj.local_model_stac_id)
+
+    @extend_schema_field(OpenApiTypes.URI)
+    def get_image_uri(self, obj: Prediction) -> str:
+        return obj.primary_imagery
+
+    @extend_schema_field(PredictionResultSerializer(allow_null=True))
     def get_assets(self, obj: Prediction) -> dict[str, str] | None:
         if not obj.results_ready:
             return None
-        from shared.storage import StoragePaths, presigned_get_url
-
-        out: dict[str, str] = {
-            "geojson": presigned_get_url(StoragePaths.prediction_geojson_key(obj.id)),
-            "fgb": presigned_get_url(StoragePaths.prediction_fgb_key(obj.id)),
-            "pmtiles": presigned_get_url(StoragePaths.prediction_pmtiles_key(obj.id)),
-        }
-        return out
+        return presigned_output_urls(obj)
 
     class Meta:
         model = Prediction
@@ -100,18 +168,21 @@ class PredictionSerializer(serializers.ModelSerializer):
             "id",
             "zenml_run_id",
             "local_model_stac_id",
+            "model_name",
+            "model_title",
             "category",
+            "imagery",
             "image_uri",
             "geometry",
             "zoom",
             "params",
-            "remove_osm",
             "visibility",
             "description",
             "status",
+            "error",
             "results_ready",
+            "feature_count",
             "assets",
-            "mapswipe_project_id",
             "user",
             "submitted_at",
             "last_polled_at",
@@ -119,9 +190,13 @@ class PredictionSerializer(serializers.ModelSerializer):
         read_only_fields = [
             "id",
             "zenml_run_id",
+            "imagery",
+            "model_name",
             "category",
             "status",
+            "error",
             "results_ready",
+            "feature_count",
             "assets",
             "visibility",
             "user",

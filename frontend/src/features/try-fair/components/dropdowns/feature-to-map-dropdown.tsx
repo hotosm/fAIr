@@ -7,11 +7,11 @@ import { SolarPanelIcon } from "@/components/ui/icons/solar-panel-icon";
 import { SwimmingPoolIcon } from "@/components/ui/icons/swimming-pool-icon";
 import { TreesIcon } from "@/components/ui/icons/trees-icon";
 import {
-  FeatureToMapItem,
   useGetAPIBaseModels,
   useGetAPILocalModels,
   useGetFeaturesToMap,
 } from "@/features/try-fair/api/features-to-map";
+import { FeatureToMapItem } from "@/features/try-fair/types/data-types";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import { IconProps } from "@/types";
 import { cn } from "@/utils";

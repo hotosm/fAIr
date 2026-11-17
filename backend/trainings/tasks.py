@@ -5,7 +5,10 @@ from django.conf import settings
 from django.utils import timezone
 from django_tasks import task
 
-from shared.integrations.zenml import for_user, get_run_status, is_terminal
+from shared.enums import PipelineRunStatus
+from shared.integrations.zenml import for_user
+from shared.run_endpoints import RUN_GONE_ERROR, run_failure_reason, run_is_gone
+from shared.run_status import TERMINAL_STATUSES, get_run_status, is_terminal
 
 from .models import TrainingRunRef
 
@@ -28,9 +31,10 @@ def submit_training(*, training_run_ref_id: int) -> None:
         dataset_id=run_ref.dataset.stac_id,
         model_name=run_ref.local_model.name,
         overrides=run_ref.overrides or {},
+        class_map=run_ref.class_map or None,
     )
     run_ref.zenml_run_id = zenml_run_id
-    run_ref.status = "submitted"
+    run_ref.status = PipelineRunStatus.SUBMITTED
     run_ref.save(update_fields=["zenml_run_id", "status"])
 
     sync_training_status.using(
@@ -46,13 +50,30 @@ def sync_training_status(*, training_run_ref_id: int) -> None:
         return
     if is_terminal(run_ref.status):
         return
+    # Queued before polling, so a ZenML error or a worker killed mid-poll cannot end the chain.
+    sync_training_status.using(
+        run_after=timezone.now() + timedelta(seconds=_SYNC_INTERVAL_S)
+    ).enqueue(training_run_ref_id=training_run_ref_id)
 
-    new_status = get_run_status(run_ref.zenml_run_id)
-    TrainingRunRef.objects.filter(id=training_run_ref_id).update(
-        status=new_status, last_polled_at=timezone.now()
+    try:
+        new_status = get_run_status(run_ref.zenml_run_id)
+    except KeyError:  # ZenML raises KeyError for a missing run and any unrecognised 404, so confirm
+        if not run_is_gone(run_ref.zenml_run_id):
+            raise
+        TrainingRunRef.objects.filter(id=training_run_ref_id).exclude(
+            status__in=TERMINAL_STATUSES
+        ).update(
+            status=PipelineRunStatus.FAILED, error=RUN_GONE_ERROR, last_polled_at=timezone.now()
+        )
+        return
+    updated = (
+        TrainingRunRef.objects.filter(id=training_run_ref_id)
+        .exclude(status__in=TERMINAL_STATUSES)
+        .update(status=new_status, last_polled_at=timezone.now())
     )
-
-    if not is_terminal(new_status):
-        sync_training_status.using(
-            run_after=timezone.now() + timedelta(seconds=_SYNC_INTERVAL_S)
-        ).enqueue(training_run_ref_id=training_run_ref_id)
+    if not updated:
+        return
+    if new_status == PipelineRunStatus.FAILED:
+        TrainingRunRef.objects.filter(id=training_run_ref_id).update(
+            error=run_failure_reason(run_ref.zenml_run_id)
+        )

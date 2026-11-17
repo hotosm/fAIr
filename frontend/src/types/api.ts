@@ -39,7 +39,6 @@ export type TUser = {
   datasets_count: number;
   profile_completion_percentage: number;
   newsletter_subscription: boolean;
-  notifications_delivery_methods: string[];
   account_deletion_requested: boolean;
   unread_notifications_count: number;
   email_verified: boolean;
@@ -381,8 +380,9 @@ export type TPredictionRequestParams = {
 /** Downloadable output assets attached to a completed prediction request. */
 export type TPredictionRequestAssets = {
   geojson: string;
-  fgb: string;
-  pmtiles: string;
+  geoparquet: string;
+  /** Absent when the result has no features. */
+  pmtiles?: string;
 } | null;
 
 /**
@@ -405,6 +405,8 @@ export type TNewOfflinePrediction = {
   description: string;
   status: PredictionRequestStatus;
   results_ready: boolean;
+  /** Features in the result; null until it is counted. */
+  feature_count: number | null;
   assets: TPredictionRequestAssets;
   mapswipe_project_id: string;
   user: {
@@ -432,7 +434,11 @@ export type TNewOfflinePrediction = {
 export type TOfflinePrediction = {
   id: number;
   zenml_run_id: string | null;
+  /** Why the request failed; null unless status is failed. */
+  error?: string | null;
   local_model_stac_id: string;
+  /** Title from the model's STAC item; null when STAC is unavailable. */
+  model_title?: string | null;
   image_uri: string;
   category?: string;
   /** GeoJSON polygon describing the area of interest. null when bbox was used. */
@@ -446,6 +452,8 @@ export type TOfflinePrediction = {
   description: string;
   status: PredictionRequestStatus;
   results_ready: boolean;
+  /** Features in the result; null until it is counted. */
+  feature_count: number | null;
   assets: TPredictionRequestAssets;
   mapswipe_project_id: string;
   user: {

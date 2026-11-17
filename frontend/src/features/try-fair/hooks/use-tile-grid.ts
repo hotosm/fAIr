@@ -52,8 +52,8 @@ const bboxesAreEqual = (a: BBOX, b: BBOX): boolean =>
  * Consolidates the four separate recentering effects from the original
  * implementation into a single effect with explicit priority:
  *
- *   1. Resolution changed → recenter (grid size changes)
- *   2. Imagery center changed → recenter on new center
+ *   1. Imagery center changed → recenter on new center (including history restores)
+ *   2. Resolution changed → recenter (grid size changes)
  *   3. No anchor yet → initialize
  */
 export const useTileGrid = ({
@@ -93,6 +93,16 @@ export const useTileGrid = ({
     previousResolutionRef.current = resolution;
     previousImageryCenterRef.current = imageryCenter;
 
+    // Imagery center resolved/changed — recenter on imagery.
+    if (imageryCenterChanged && imageryCenter) {
+      const nextAnchor = computeCenteredAnchor(
+        { lng: imageryCenter[0], lat: imageryCenter[1] },
+        tileZoom,
+      );
+      setAnchor(nextAnchor);
+      return;
+    }
+
     // Resolution changed: resize the grid in place. Recenter on the current
     // grid center at the new tile zoom so the grid only grows/shrinks where it
     // already is. If the grid has been left outside the current viewport, fall
@@ -112,16 +122,6 @@ export const useTileGrid = ({
         }
       }
       setAnchor(computeCenteredAnchor(center, tileZoom));
-      return;
-    }
-
-    // Imagery center resolved/changed — recenter on imagery.
-    if (imageryCenterChanged && imageryCenter) {
-      const nextAnchor = computeCenteredAnchor(
-        { lng: imageryCenter[0], lat: imageryCenter[1] },
-        tileZoom,
-      );
-      setAnchor(nextAnchor);
       return;
     }
 

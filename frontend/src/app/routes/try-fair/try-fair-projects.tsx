@@ -8,7 +8,9 @@ import type { SavedUserState } from "@/features/try-fair/api/user-state";
 import { getProjectSearchParams } from "@/features/try-fair/utils/restore-project";
 import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
 import { ModelType } from "@/enums";
-import { TryFairPage } from "../try-fair";
+import { TryFairPage } from "@/app/routes/try-fair";
+import { PREDICTION_HISTORY_LIMIT } from "@/config";
+import { limitProjectHistory } from "@/features/try-fair/utils/prediction-history";
 
 export const TryFairProjectPage = () => {
   const { pid } = useParams();
@@ -47,7 +49,9 @@ export const TryFairProjectPage = () => {
 
 const RestoreProject = ({ saved }: { saved: SavedUserState }) => {
   // Freeze the initial snapshot: autosave cache updates must not reset live edits.
-  const [initialProject] = useState(saved);
+  const [initialProject] = useState(() =>
+    limitProjectHistory(saved, PREDICTION_HISTORY_LIMIT),
+  );
   const [ready, setReady] = useState(false);
   const [, setSearchParams] = useSearchParams();
 

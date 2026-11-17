@@ -1,112 +1,110 @@
-from unittest.mock import MagicMock, patch
+from datetime import UTC, datetime
+from unittest.mock import patch
 
+import pystac
 import pytest
 from django.test import override_settings
-from rest_framework.test import APIClient
+from django_tasks_db.models import DBTaskResult
+from fair.zenml.runs import LogEntry
 
 from accounts.models import OsmUser
 from datasets.models import Dataset
 from modelregistry.models import BaseModel, LocalModel
 from shared.enums import PipelineRunStatus
 from trainings.models import TrainingRunRef
-from trainings.tasks import submit_training
+from trainings.tasks import submit_training, sync_training_status
 
 
 @pytest.fixture
-def authed_user(db) -> OsmUser:
-    return OsmUser.objects.create(osm_id=99, username="bob")
-
-
-@pytest.fixture
-def client(authed_user: OsmUser) -> APIClient:
-    api = APIClient()
-    api.force_authenticate(user=authed_user)
-    return api
-
-
-@pytest.fixture
-def published_dataset(db, authed_user: OsmUser) -> Dataset:
+def published_dataset(db, user: OsmUser) -> Dataset:
     return Dataset.objects.create(
         stac_id="buildings-banepa",
         title="Buildings Banepa",
-        source_imagery="https://tiles.example/{z}/{x}/{y}.png",
+        imagery={"image": "https://tiles.example/{z}/{x}/{y}.png"},
+        primary_input="image",
         status=Dataset.Status.BUILT,
-        user=authed_user,
+        user=user,
     )
 
 
+_BUILDING_CLASSES = [
+    {"name": "background", "value": 0},
+    {"name": "building", "value": 1, "fair:osm_tags": {"building": ["*"]}},
+]
+
+
+def _base_model_item(*asset_keys: str) -> pystac.Item:
+    properties = {"mlm:output": [{"name": "mask", "classification:classes": _BUILDING_CLASSES}]}
+    item = pystac.Item("unet-segmentation", None, None, datetime.now(UTC), properties)
+    for key in asset_keys:
+        item.add_asset(key, pystac.Asset(f"ghcr.io/hotosm/fair-models/unet:{key}"))
+    return item
+
+
 @pytest.fixture
-def registered_base_model(db, authed_user: OsmUser) -> BaseModel:
-    return BaseModel.objects.create(
-        name="unet-segmentation",
-        stac_item_id="unet-segmentation",
-        user=authed_user,
+def registered_base_model(db, user: OsmUser):
+    """A base model row, with its STAC lookup patched to an item that has a training runtime."""
+    dataset_item = pystac.Item(
+        "buildings-banepa",
+        None,
+        None,
+        datetime.now(UTC),
+        {"label:properties": ["building"], "label:classes": [{"name": "building", "classes": ["yes"]}]},
     )
+    with (
+        patch("trainings.views.get_base_model", return_value=_base_model_item("mlm:training")),
+        patch("trainings.views.get_dataset", return_value=dataset_item),
+    ):
+        yield BaseModel.objects.create(
+            name="unet-segmentation",
+            stac_item_id="unet-segmentation",
+            user=user,
+        )
 
 
 @pytest.fixture
-def local_model(db, authed_user: OsmUser, registered_base_model: BaseModel) -> LocalModel:
+def local_model(db, user: OsmUser, registered_base_model: BaseModel) -> LocalModel:
     return LocalModel.objects.create(
         name="my-existing-finetune",
         base_model=registered_base_model,
         status=LocalModel.Status.ACTIVE,
-        user=authed_user,
+        user=user,
     )
 
 
 @pytest.fixture
 def training_ref(
-    db, authed_user: OsmUser, local_model: LocalModel, published_dataset: Dataset
+    db, user: OsmUser, local_model: LocalModel, published_dataset: Dataset
 ) -> TrainingRunRef:
-    # Backs the run-id keyed actions (status/logs/cancel) so the new ownership
-    # check can resolve a TrainingRunRef row for "abc-123".
     return TrainingRunRef.objects.create(
         zenml_run_id="abc-123",
         local_model=local_model,
         base_model_stac_id="unet-segmentation",
         dataset=published_dataset,
-        user=authed_user,
+        user=user,
     )
 
 
-@patch("trainings.views.item_exists")
+@patch("trainings.views.item_exists", return_value=True)
 @patch("trainings.views.submit_training")
-def test_training_submit_creates_run_ref_and_enqueues(
+def test_training_submit_refuses_a_prediction_only_base_model(
     mock_task, mock_item_exists, client, published_dataset, registered_base_model
 ):
-    mock_item_exists.return_value = True
-    response = client.post(
-        "/api/v1/trainings/submit/",
-        data={
-            "base_model_stac_id": "unet-segmentation",
-            "dataset_stac_id": published_dataset.stac_id,
-            "model_name": "my-finetuned-v1",
-            "overrides": {"epochs": 3, "learning_rate": 0.001},
-            "description": "First attempt",
-        },
-        format="json",
-    )
-    assert response.status_code == 202, response.json()
-    body = response.json()
-    assert body["status"] == "initializing"
-    assert body["base_model_stac_id"] == "unet-segmentation"
-    assert TrainingRunRef.objects.filter(local_model__name="my-finetuned-v1").exists()
-    mock_task.enqueue.assert_called_once()
+    with patch("trainings.views.get_base_model", return_value=_base_model_item("mlm:inference", "batch-inference")):
+        response = client.post(
+            "/api/v1/trainings/submit/",
+            data={
+                "base_model_stac_id": "unet-segmentation",
+                "dataset_stac_id": published_dataset.stac_id,
+                "model_name": "never-trained",
+            },
+            format="json",
+        )
 
-
-def test_training_submit_404s_unknown_base_model(client, published_dataset):
-    # Base model is resolved from the DB; an unregistered id 404s before the
-    # dataset is checked.
-    response = client.post(
-        "/api/v1/trainings/submit/",
-        data={
-            "base_model_stac_id": "ghost",
-            "dataset_stac_id": published_dataset.stac_id,
-            "model_name": "x",
-        },
-        format="json",
-    )
-    assert response.status_code == 404
+    assert response.status_code == 400
+    assert "cannot be finetuned" in str(response.json())
+    assert not LocalModel.objects.filter(name="never-trained").exists()
+    mock_task.enqueue.assert_not_called()
 
 
 @patch("trainings.views.item_exists", return_value=False)
@@ -125,14 +123,15 @@ def test_training_submit_404s_dataset_not_in_stac(mock_item_exists, client, regi
 
 @patch("trainings.views.item_exists", return_value=True)
 def test_training_submit_404s_dataset_not_published(
-    mock_item_exists, client, authed_user, registered_base_model
+    mock_item_exists, client, user, registered_base_model
 ):
     Dataset.objects.create(
         stac_id="building-ds",
         title="Building",
-        source_imagery="https://tiles.example/{z}/{x}/{y}.png",
+        imagery={"image": "https://tiles.example/{z}/{x}/{y}.png"},
+        primary_input="image",
         status=Dataset.Status.BUILDING,
-        user=authed_user,
+        user=user,
     )
     response = client.post(
         "/api/v1/trainings/submit/",
@@ -146,27 +145,6 @@ def test_training_submit_404s_dataset_not_published(
     assert response.status_code == 404
 
 
-@patch("shared.run_endpoints.fetch_run_logs")
-def test_training_run_logs_default_returns_run_level(mock_fetch, client, training_ref):
-    mock_fetch.return_value = [
-        MagicMock(level="INFO", message="hello", timestamp="2026-05-02T10:00:00Z")
-    ]
-    response = client.get("/api/v1/trainings/runs/abc-123/logs/?tail=20")
-    assert response.status_code == 200
-    payload = response.json()
-    assert len(payload) == 1
-    assert payload[0]["message"] == "hello"
-    mock_fetch.assert_called_once_with("abc-123", tail=20, since=None)
-
-
-@patch("shared.run_endpoints.fetch_step_logs")
-def test_training_run_logs_with_step_param_routes_to_step(mock_fetch, client, training_ref):
-    mock_fetch.return_value = []
-    response = client.get("/api/v1/trainings/runs/abc-123/logs/?step=train_model&tail=5")
-    assert response.status_code == 200
-    mock_fetch.assert_called_once_with("abc-123", "train_model", tail=5, since=None)
-
-
 @override_settings(TASKS={"default": {"BACKEND": "django_tasks.backends.immediate.ImmediateBackend"}})
 def test_failed_training_submission_marks_run_failed(training_ref: TrainingRunRef) -> None:
     with patch("trainings.tasks.for_user", side_effect=RuntimeError("zenml unreachable")):
@@ -174,3 +152,120 @@ def test_failed_training_submission_marks_run_failed(training_ref: TrainingRunRe
 
     training_ref.refresh_from_db()
     assert training_ref.status == PipelineRunStatus.FAILED
+    assert training_ref.error == "RuntimeError: zenml unreachable"
+
+
+@override_settings(TASKS={"default": {"BACKEND": "django_tasks.backends.immediate.ImmediateBackend"}})
+def test_training_submission_passes_the_class_map_to_the_pipeline(training_ref: TrainingRunRef) -> None:
+    training_ref.class_map = {"roof=iron": "building"}
+    training_ref.save(update_fields=["class_map"])
+
+    with patch("trainings.tasks.for_user") as for_user, patch("trainings.tasks.sync_training_status"):
+        for_user.return_value.submit_finetune.return_value = "run-1"
+        submit_training.enqueue(training_run_ref_id=training_ref.id)
+
+    assert for_user.return_value.submit_finetune.call_args.kwargs["class_map"] == {"roof=iron": "building"}
+    training_ref.refresh_from_db()
+    assert training_ref.zenml_run_id == "run-1"
+
+
+@patch(
+    "shared.run_endpoints.fetch_run_logs",
+    return_value=[
+        LogEntry(level="20", message="Node `train_model` started (status: running)"),
+        LogEntry(level="ERROR", message="Job for step `train_model` failed: exit_code=137"),
+    ],
+)
+@patch("trainings.tasks.get_run_status", return_value="failed")
+def test_a_failed_training_records_the_first_error_zenml_logged(
+    _status, _logs, training_ref: TrainingRunRef
+) -> None:
+    TrainingRunRef.objects.filter(pk=training_ref.pk).update(status="running")
+
+    sync_training_status.call(training_run_ref_id=training_ref.pk)
+
+    training_ref.refresh_from_db()
+    assert training_ref.status == "failed"
+    assert training_ref.error == "Job for step `train_model` failed: exit_code=137"
+
+
+@patch("trainings.tasks.get_run_status", side_effect=ConnectionError("ZenML server unreachable"))
+def test_a_training_poll_that_cannot_reach_zenml_keeps_the_next_poll_queued(
+    _status, training_ref: TrainingRunRef
+) -> None:
+    TrainingRunRef.objects.filter(pk=training_ref.pk).update(status="running")
+
+    with pytest.raises(ConnectionError):
+        sync_training_status.call(training_run_ref_id=training_ref.pk)
+
+    queued = DBTaskResult.objects.filter(
+        task_path=sync_training_status.module_path,
+        status="READY",
+        args_kwargs__kwargs={"training_run_ref_id": training_ref.pk},
+    )
+    assert queued.count() == 1
+
+
+@patch("trainings.tasks.run_is_gone", return_value=True)
+@patch("trainings.tasks.get_run_status", side_effect=KeyError("No pipeline run with this ID found"))
+def test_a_training_zenml_no_longer_has_is_marked_failed_and_polling_stops(
+    _status, _gone, training_ref: TrainingRunRef
+) -> None:
+    TrainingRunRef.objects.filter(pk=training_ref.pk).update(status="running")
+
+    sync_training_status.call(training_run_ref_id=training_ref.pk)
+    sync_training_status.call(training_run_ref_id=training_ref.pk)
+
+    training_ref.refresh_from_db()
+    assert training_ref.status == PipelineRunStatus.FAILED
+    assert training_ref.error == "The pipeline run no longer exists in ZenML."
+    assert _status.call_count == 1
+
+
+@patch("trainings.tasks.run_is_gone", return_value=False)
+@patch("trainings.tasks.get_run_status", side_effect=KeyError("404 from a proxy"))
+def test_a_404_for_a_training_zenml_still_lists_leaves_the_row_running(
+    _status, _gone, training_ref: TrainingRunRef
+) -> None:
+    TrainingRunRef.objects.filter(pk=training_ref.pk).update(status="running")
+
+    with pytest.raises(KeyError):
+        sync_training_status.call(training_run_ref_id=training_ref.pk)
+
+    training_ref.refresh_from_db()
+    assert training_ref.status == "running"
+
+
+@pytest.mark.parametrize("zenml_says", [PipelineRunStatus.RUNNING, PipelineRunStatus.FAILED])
+@patch("trainings.tasks.run_failure_reason", return_value="boom")
+def test_a_training_cancel_during_a_poll_wins_whatever_zenml_reports(
+    _reason, zenml_says, training_ref: TrainingRunRef
+) -> None:
+    TrainingRunRef.objects.filter(pk=training_ref.pk).update(status="running")
+
+    def cancel_while_polling(_run_id: str) -> str:
+        TrainingRunRef.objects.filter(pk=training_ref.pk).update(status=PipelineRunStatus.CANCELLED)
+        return zenml_says
+
+    with patch("trainings.tasks.get_run_status", side_effect=cancel_while_polling):
+        sync_training_status.call(training_run_ref_id=training_ref.pk)
+
+    training_ref.refresh_from_db()
+    assert training_ref.status == PipelineRunStatus.CANCELLED
+    assert training_ref.error == ""
+
+
+@patch("trainings.views.get_run_status", return_value=PipelineRunStatus.RUNNING)
+def test_the_status_endpoint_never_undoes_a_cancel(_status, training_ref: TrainingRunRef) -> None:
+    from rest_framework.test import APIClient
+
+    TrainingRunRef.objects.filter(pk=training_ref.pk).update(status=PipelineRunStatus.CANCELLED)
+    client = APIClient()
+    client.force_authenticate(user=training_ref.user)
+
+    response = client.get(f"/api/v1/trainings/runs/{training_ref.zenml_run_id}/status/")
+
+    training_ref.refresh_from_db()
+    assert response.json()["status"] == PipelineRunStatus.CANCELLED
+    assert response.json()["is_terminal"] is True
+    assert training_ref.status == PipelineRunStatus.CANCELLED

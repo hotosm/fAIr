@@ -1,27 +1,26 @@
-import { ChevronDownIcon, MapIcon } from "@/components/ui/icons";
-import { APPLICATION_ROUTES } from "@/constants/routes";
-import { getFeatureIcon } from "@/features/try-fair/components/model-picker/model-picker-badges";
+import { ChevronDownIcon } from "@/components/ui/icons";
+import useScreenSize from "@/hooks/use-screen-size";
 import { Link, useNavigate } from "react-router-dom";
 import { DataTable } from "@/components/ui/data-table";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { SavedUserState } from "@/features/try-fair/api/user-state";
 import { cn } from "@/utils";
-import { OverviewEmptyState } from "./overview-empty-state";
+import { APPLICATION_ROUTES } from "@/constants/routes";
 import { useGetUserStates } from "@/features/user-profile/api/user-state";
 import { TableSkeleton } from "@/features/models/components/skeletons";
-
-const getProjectPath = ({ pid }: SavedUserState) =>
-  APPLICATION_ROUTES.TRY_FAIR_PROJECT.replace(":pid", String(pid));
+import { OverviewEmptyState } from "@/features/user-profile/components/overview/overview-empty-state";
+import {
+  MappingTypeBadge,
+  getProjectPath,
+  MappingHistoryList,
+} from "@/features/user-profile/components/overview/mapping-history-list";
 
 const columns: ColumnDef<SavedUserState>[] = [
   {
     accessorKey: "state.name",
     header: "Name",
     cell: ({ row }) => (
-      <span
-        className="block max-w-[220px] truncate text-sm"
-        title={row.original.state.name}
-      >
+      <span className="block truncate" title={row.original.state.name}>
         {row.original.state.name}
       </span>
     ),
@@ -29,20 +28,7 @@ const columns: ColumnDef<SavedUserState>[] = [
   {
     accessorKey: "state.type",
     header: "Type",
-    cell: ({ row }) => {
-      const { type, category } = row.original.state;
-      const label = category || type;
-      const Icon =
-        label === "mapping" || label === "prediction"
-          ? MapIcon
-          : getFeatureIcon(label);
-      return (
-        <span className="inline-flex min-w-[84px] items-center gap-1.5 whitespace-nowrap rounded bg-grey px-2 py-0.5 text-xs capitalize leading-4 text-white">
-          <Icon className="size-3 shrink-0" aria-hidden="true" />
-          {label.replace(/[-_]/g, " ")}
-        </span>
-      );
-    },
+    cell: ({ row }) => <MappingTypeBadge activity={row.original} />,
   },
   {
     id: "actions",
@@ -69,16 +55,29 @@ export const RecentActivities = ({
   className?: string;
 }) => {
   const { data, isPending, isError } = useGetUserStates();
+  const { isSmallViewport } = useScreenSize();
   const navigate = useNavigate();
+  const activities = data?.results.slice(1, 5) ?? [];
   return (
     <section
       className={cn(
-        "flex min-h-[410px] min-w-0 flex-col w-full rounded-xl bg-frosted-blue p-5",
+        // Phones: edge to edge, as tall as its rows; wider screens match the
+        // hero's height.
+        "-mx-4 flex w-auto min-w-0 flex-col rounded-none bg-frosted-blue px-5 py-5 sm:mx-0 sm:w-full sm:min-h-[410px] sm:rounded-xl md:p-5",
         className,
       )}
     >
-      <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-dark">Mapping Activities</h2>
+      <div className="mb-2 flex items-center justify-between sm:mb-4">
+        <h2 className="text-sm font-semibold text-dark">Mapping History</h2>
+        {isSmallViewport && (
+          <Link
+            to={APPLICATION_ROUTES.PROFILE_MAPPING_HISTORY}
+            className="flex items-center gap-x-2 text-sm text-dark"
+          >
+            View All
+            <ChevronDownIcon className="size-3 -rotate-90" aria-hidden="true" />
+          </Link>
+        )}
         {showFilter && (
           <button
             type="button"
@@ -103,18 +102,30 @@ export const RecentActivities = ({
         </div>
       ) : isError ? (
         <p role="alert" className="py-4 text-sm text-grey">
-          Couldn't load mapping activities.
+          Couldn't load history.
         </p>
-      ) : data?.results.length ? (
-        <div className="max-w-full overflow-x-auto [&_tbody_tr]:cursor-pointer">
+      ) : activities.length && isSmallViewport ? (
+        <MappingHistoryList
+          activities={activities}
+          className="[&_a]:px-0 [&_a]:hover:bg-transparent"
+        />
+      ) : activities.length ? (
+        <div className="min-w-0 max-w-full [&_table]:table-fixed [&_tbody_tr]:cursor-pointer [&_td]:p-2.5 [&_td]:text-[13px] [&_td]:font-medium [&_td]:text-[#404446] [&_th]:h-9 [&_th]:p-2.5 [&_th]:text-[12px] [&_th]:font-normal [&_th]:text-[#404446] [&_th:last-child]:w-[52px] [&_th:nth-child(2)]:w-[34%]">
           <DataTable
             columns={columns}
-            data={data.results.slice(0, 4)}
+            data={activities}
             onRowClick={(item) => navigate(getProjectPath(item))}
           />
         </div>
       ) : (
-        <OverviewEmptyState message="No activities yet" className="flex-1" />
+        <OverviewEmptyState
+          message={
+            data?.results.length
+              ? "No other activities yet"
+              : "No activities yet"
+          }
+          className="flex-1"
+        />
       )}
     </section>
   );

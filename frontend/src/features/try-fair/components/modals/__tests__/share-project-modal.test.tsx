@@ -24,22 +24,24 @@ describe("ShareProjectModal", () => {
   afterEach(cleanup);
 
   it("shares a protected project through the public Try fAIr route", () => {
+    const search =
+      "?model=tree-model&mode=imagery&params=%7B%22simplify_m%22%3A0.9626%7D";
     render(
-      <MemoryRouter
-        initialEntries={["/try-fair/42?model=tree-model&mode=imagery#map"]}
-      >
+      <MemoryRouter initialEntries={[`/try-fair/42${search}#map`]}>
         <ShareProjectModal isOpened closeDialog={vi.fn()} />
       </MemoryRouter>,
     );
 
     expect(
-      screen.getByText(/\/try-fair\?model=tree-model&mode=imagery#map$/),
+      screen.getByText(
+        /\/try-fair\?model=tree-model&mode=imagery&params=.*#map$/,
+      ),
     ).toBeInTheDocument();
 
     fireEvent.click(screen.getByText("Copy link").closest("sl-button")!);
 
     expect(copyToClipboard).toHaveBeenCalledWith(
-      `${window.location.origin}/try-fair?model=tree-model&mode=imagery#map`,
+      `${window.location.origin}/try-fair${search}#map`,
     );
   });
 

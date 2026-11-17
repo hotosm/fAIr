@@ -24,11 +24,17 @@ export const getProjectSearchParams = ({ state }: SavedUserState) => {
     imageryType: getTileServerTypeFromURL(state.imagery.url),
     oamItem: null,
     chooseLocation: false,
+    params: Object.fromEntries(
+      Object.entries(state.params ?? {}).filter(
+        ([key]) => key !== "confidence_threshold",
+      ),
+    ),
     ...state.url_params,
   };
   const search = new URLSearchParams();
   for (const [key, value] of Object.entries(values)) {
-    if (value !== null) search.set(key, String(value));
+    if (value === null) continue;
+    search.set(key, key === "params" ? JSON.stringify(value) : String(value));
   }
   return search;
 };

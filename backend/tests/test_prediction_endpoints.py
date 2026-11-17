@@ -1,22 +1,10 @@
+from datetime import UTC, datetime
 from unittest.mock import patch
 
+import pystac
 import pytest
-from rest_framework.test import APIClient
 
-from accounts.models import OsmUser
 from predictions.models import Prediction
-
-
-@pytest.fixture
-def authed_user(db) -> OsmUser:
-    return OsmUser.objects.create(osm_id=7, username="carol")
-
-
-@pytest.fixture
-def client(authed_user: OsmUser) -> APIClient:
-    api = APIClient()
-    api.force_authenticate(user=authed_user)
-    return api
 
 
 _LOCAL_MODEL_UUID = "3a0374bf-d73c-4b4d-b165-081ffa2a18ad"
@@ -29,28 +17,56 @@ def _bbox_polygon(bbox):
     return {"type": "Polygon", "coordinates": [[[w, s], [e, s], [e, n], [w, n], [w, s]]]}
 
 
+def _damage_model(*input_names: str) -> pystac.Item:
+    """A model declaring a numeric threshold, a free-form footprints URL and a choice of mode."""
+    model = pystac.Item("damage", None, None, datetime.now(UTC), {})
+    model.properties["mlm:input"] = [{"name": name} for name in input_names or ("image",)]
+    model.properties["mlm:hyperparameters"] = {
+        "inference.confidence_threshold": 0.5,
+        "inference.buildings_geojson_uri": "",
+        "inference.mode": "fast",
+    }
+    model.properties["fair:hyperparameters_spec"] = [
+        {"key": "confidence_threshold", "type": "float", "default": 0.5, "description": "score"},
+        {"key": "buildings_geojson_uri", "type": "str", "default": "", "description": "footprints"},
+        {"key": "mode", "type": "str", "default": "fast", "values": ["fast", "full"]},
+    ]
+    model.add_asset("mlm:training", pystac.Asset("ghcr.io/hotosm/fair-models/damage:latest"))
+    return model
+
+
+@pytest.fixture(autouse=True)
+def _single_image_model():
+    """Submissions read the model item; a test that needs another model patches `get_item` itself."""
+    with patch("predictions.views.get_item", return_value=_damage_model()):
+        yield
+
+
+def _prediction_only_model(runtime_asset: str | None) -> pystac.Item:
+    model = _damage_model()
+    del model.assets["mlm:training"]
+    if runtime_asset:
+        model.add_asset(runtime_asset, pystac.Asset("ghcr.io/hotosm/fair-models/trees:latest"))
+    return model
+
+
+@pytest.mark.parametrize(("runtime_asset", "expected_status"), [(None, 400), ("batch-inference", 202)])
 @patch("predictions.views.item_exists", return_value=True)
 @patch("predictions.views.submit_prediction")
-def test_prediction_submit_creates_record_and_enqueues(mock_task, mock_item_exists, client):
-    response = client.post(
-        "/api/v1/predictions/submit/",
-        data={
-            "model_stac_id": _LOCAL_MODEL_UUID,
-            "image_uri": _TMS_URL,
-            "bbox": _BBOX,
-            "zoom": 19,
-            "params": {"confidence_threshold": 0.5},
-        },
-        format="json",
-    )
-    assert response.status_code == 202, response.json()
-    assert Prediction.objects.count() == 1
-    prediction = Prediction.objects.first()
-    assert prediction is not None
-    assert prediction.local_model_stac_id == _LOCAL_MODEL_UUID
-    assert prediction.geometry == _bbox_polygon(_BBOX)
-    assert prediction.zoom == 19
-    mock_task.enqueue.assert_called_once()
+def test_prediction_submit_needs_an_image_for_map_requests(
+    mock_task, mock_item_exists, client, runtime_asset, expected_status
+):
+    with patch("predictions.views.get_item", return_value=_prediction_only_model(runtime_asset)):
+        response = client.post(
+            "/api/v1/predictions/submit/",
+            data={"model_stac_id": "trees", "image_uri": _TMS_URL, "bbox": _BBOX, "zoom": 19},
+            format="json",
+        )
+
+    assert response.status_code == expected_status, response.json()
+    if expected_status == 400:
+        assert set(response.json()["error"]["details"]) == {"model_stac_id"}
+    assert Prediction.objects.count() == (1 if expected_status == 202 else 0)
 
 
 @patch("predictions.views.submit_prediction")
@@ -153,7 +169,6 @@ def test_prediction_submit_bbox_is_stored_as_geometry(mock_item_exists, mock_tas
     assert response.status_code == 202, response.json()
     prediction = Prediction.objects.get()
     assert prediction.geometry == _bbox_polygon(_BBOX)
-    assert not hasattr(prediction, "bbox")
 
 
 @patch("predictions.views.item_exists", return_value=True)
@@ -195,3 +210,366 @@ def test_prediction_submit_rejects_invalid_geometry(mock_item_exists, client):
         format="json",
     )
     assert response.status_code == 400
+
+
+@patch("predictions.views.get_item")
+@patch("predictions.views.item_exists", return_value=True)
+@patch("predictions.views.submit_prediction")
+def test_prediction_submit_rejects_params_the_model_does_not_declare(
+    mock_task, mock_item_exists, mock_get_item, client
+):
+    model = pystac.Item("damage", None, None, datetime.now(UTC), {})
+    model.properties["mlm:input"] = [{"name": "image"}]
+    model.properties["mlm:hyperparameters"] = {"inference.confidence_threshold": 0.5}
+    model.properties["fair:hyperparameters_spec"] = [
+        {"key": "confidence_threshold", "type": "float", "default": 0.5, "description": "minimum score"}
+    ]
+    model.add_asset("mlm:training", pystac.Asset("ghcr.io/hotosm/fair-models/damage:latest"))
+    mock_get_item.return_value = model
+    response = client.post(
+        "/api/v1/predictions/submit/",
+        data={
+            "model_stac_id": "damage",
+            "image_uri": _TMS_URL,
+            "bbox": _BBOX,
+            "zoom": 19,
+            "params": {"confidence_threshold": 0.5, "buildings_geojson_uri": "https://data.example/buildings.geojson"},
+        },
+        format="json",
+    )
+    assert response.status_code == 400
+    assert "buildings_geojson_uri" in response.json()["error"]["details"]["params"][0]
+    assert Prediction.objects.count() == 0
+    mock_task.enqueue.assert_not_called()
+
+
+@pytest.mark.parametrize(
+    "buildings_geojson_uri",
+    [
+        "file:///etc/passwd",
+        "https://169.254.169.254/latest/meta-data/",
+        "https://10.0.0.5/{z}/{x}/{y}",
+        "https://[::1",
+    ],
+)
+@patch("predictions.views.get_item", return_value=_damage_model())
+@patch("predictions.views.item_exists", return_value=True)
+@patch("predictions.views.submit_prediction")
+def test_prediction_submit_rejects_a_url_param_that_is_not_a_public_url(
+    mock_task, mock_item_exists, mock_get_item, client, buildings_geojson_uri
+):
+    response = client.post(
+        "/api/v1/predictions/submit/",
+        data={
+            "model_stac_id": "damage",
+            "image_uri": _TMS_URL,
+            "bbox": _BBOX,
+            "zoom": 19,
+            "params": {"buildings_geojson_uri": buildings_geojson_uri},
+        },
+        format="json",
+    )
+    assert response.status_code == 400
+    assert "params" in response.json()["error"]["details"]
+    mock_task.enqueue.assert_not_called()
+
+
+@pytest.mark.parametrize("buildings_geojson_uri", ["https://data.example/buildings.geojson", ""])
+@patch("predictions.views.get_item", return_value=_damage_model())
+@patch("predictions.views.item_exists", return_value=True)
+@patch("predictions.views.submit_prediction")
+def test_prediction_submit_accepts_a_public_or_empty_url_param(
+    mock_task, mock_item_exists, mock_get_item, client, buildings_geojson_uri
+):
+    response = client.post(
+        "/api/v1/predictions/submit/",
+        data={
+            "model_stac_id": "damage",
+            "image_uri": _TMS_URL,
+            "bbox": _BBOX,
+            "zoom": 19,
+            "params": {"buildings_geojson_uri": buildings_geojson_uri},
+        },
+        format="json",
+    )
+    assert response.status_code == 202, response.json()
+
+
+@patch("predictions.views.get_item", return_value=_damage_model())
+@patch("predictions.views.item_exists", return_value=True)
+@patch("predictions.views.submit_prediction")
+def test_prediction_submit_accepts_a_str_param_value_from_its_declared_values(
+    mock_task, mock_item_exists, mock_get_item, client
+):
+    response = client.post(
+        "/api/v1/predictions/submit/",
+        data={
+            "model_stac_id": "damage",
+            "image_uri": _TMS_URL,
+            "bbox": _BBOX,
+            "zoom": 19,
+            "params": {"mode": "full"},
+        },
+        format="json",
+    )
+    assert response.status_code == 202, response.json()
+
+
+@patch("predictions.views.get_item", return_value=_damage_model())
+@patch("predictions.views.item_exists", side_effect=[False, True])
+@patch("predictions.views.submit_prediction")
+def test_prediction_submit_reads_params_spec_from_the_base_model_when_no_local_model_matches(
+    mock_task, mock_item_exists, mock_get_item, client
+):
+    response = client.post(
+        "/api/v1/predictions/submit/",
+        data={
+            "model_stac_id": "damage",
+            "image_uri": _TMS_URL,
+            "bbox": _BBOX,
+            "zoom": 19,
+            "params": {"confidence_threshold": 0.5},
+        },
+        format="json",
+    )
+    assert response.status_code == 202, response.json()
+    mock_get_item.assert_called_once_with("base-models", "damage")
+
+
+@patch("predictions.views.item_exists", return_value=True)
+@patch("predictions.views.submit_prediction")
+def test_prediction_submit_stores_an_image_uri_longer_than_200_characters(
+    mock_task, mock_item_exists, client
+):
+    image_uri = f"{_TMS_URL}?url=https://cogs.example/{'a' * 250}.tif"
+    response = client.post(
+        "/api/v1/predictions/submit/",
+        data={"model_stac_id": "m", "image_uri": image_uri, "bbox": _BBOX, "zoom": 19},
+        format="json",
+    )
+    assert response.status_code == 202, response.json()
+    assert Prediction.objects.get().imagery == {"image": image_uri}
+
+
+@patch("predictions.views.item_exists", return_value=True)
+@patch("predictions.views.submit_prediction")
+def test_prediction_submit_rejects_imagery_on_a_private_host(mock_task, mock_item_exists, client):
+    response = client.post(
+        "/api/v1/predictions/submit/",
+        data={"model_stac_id": "m", "image_uri": "http://10.0.0.5/{z}/{x}/{y}.png", "bbox": _BBOX, "zoom": 19},
+        format="json",
+    )
+    assert response.status_code == 400
+    assert "image_uri" in response.json()["error"]["details"]
+    mock_task.enqueue.assert_not_called()
+
+
+_POST_URL = "https://tile.example.com/post/{z}/{x}/{y}.png"
+_PRE_URL = "https://tile.example.com/pre/{z}/{x}/{y}.png"
+
+
+@patch("predictions.views.get_item", return_value=_damage_model("rgb", "dsm"))
+@patch("predictions.views.item_exists", return_value=True)
+@patch("predictions.views.submit_prediction")
+def test_prediction_submit_takes_the_model_first_input_as_primary_whatever_the_request_order(
+    mock_task, mock_item_exists, mock_get_item, client
+):
+    response = client.post(
+        "/api/v1/predictions/submit/",
+        data={"model_stac_id": "damage", "imagery": {"dsm": _PRE_URL, "rgb": _POST_URL}, "bbox": _BBOX, "zoom": 18},
+        format="json",
+    )
+    assert response.status_code == 202, response.json()
+    prediction = Prediction.objects.get()
+    assert prediction.imagery == {"rgb": _POST_URL, "dsm": _PRE_URL}
+    assert prediction.primary_input == "rgb"
+    assert Prediction.objects.get().primary_imagery == _POST_URL
+    assert response.json()["image_uri"] == _POST_URL
+
+
+@pytest.mark.parametrize(
+    "imagery",
+    [{"post": _POST_URL}, {"image": _POST_URL}, {"post": _POST_URL, "pre": _PRE_URL, "extra": _PRE_URL}],
+)
+@patch("predictions.views.get_item", return_value=_damage_model("post", "pre"))
+@patch("predictions.views.item_exists", return_value=True)
+@patch("predictions.views.submit_prediction")
+def test_prediction_submit_rejects_imagery_that_does_not_match_the_model_inputs(
+    mock_task, mock_item_exists, mock_get_item, client, imagery
+):
+    response = client.post(
+        "/api/v1/predictions/submit/",
+        data={"model_stac_id": "damage", "imagery": imagery, "bbox": _BBOX, "zoom": 18},
+        format="json",
+    )
+    assert response.status_code == 400
+    assert "['post', 'pre']" in response.json()["error"]["details"]["imagery"][0]
+    mock_task.enqueue.assert_not_called()
+
+
+@patch("predictions.views.item_exists", return_value=True)
+@patch("predictions.views.submit_prediction")
+def test_prediction_submit_rejects_image_uri_for_a_model_whose_input_is_not_named_image(
+    mock_task, mock_item_exists, client
+):
+    with patch("predictions.views.get_item", return_value=_damage_model("rgb")):
+        response = client.post(
+            "/api/v1/predictions/submit/",
+            data={"model_stac_id": "m", "image_uri": _TMS_URL, "bbox": _BBOX, "zoom": 19},
+            format="json",
+        )
+    assert response.status_code == 400
+    assert "['rgb']" in response.json()["error"]["details"]["imagery"][0]
+    mock_task.enqueue.assert_not_called()
+
+
+@pytest.mark.parametrize(
+    ("data", "field"),
+    [
+        ({"imagery": {"image": _TMS_URL}, "image_uri": _TMS_URL}, "imagery"),
+        ({}, "imagery"),
+        ({"imagery": {"Post Image": _TMS_URL}}, "imagery"),
+        ({"imagery": {"image": "http://10.0.0.5/{z}/{x}/{y}.png"}}, "imagery"),
+    ],
+)
+@patch("predictions.views.item_exists", return_value=True)
+@patch("predictions.views.submit_prediction")
+def test_prediction_submit_rejects_invalid_imagery(mock_task, mock_item_exists, client, data, field):
+    response = client.post(
+        "/api/v1/predictions/submit/",
+        data={"model_stac_id": "m", "bbox": _BBOX, "zoom": 19, **data},
+        format="json",
+    )
+    assert response.status_code == 400
+    assert field in response.json()["error"]["details"]
+    mock_task.enqueue.assert_not_called()
+
+
+@pytest.mark.parametrize(
+    ("geometry", "message"),
+    [
+        ({"type": "Polygon", "coordinates": []}, "The area is empty."),
+        (
+            {"type": "Polygon", "coordinates": [[[0, 80], [1, 80], [1, 90], [0, 90], [0, 80]]]},
+            "The area must lie within longitude -180 to 180 and latitude -85.06 to 85.06.",
+        ),
+        (
+            {"type": "Polygon", "coordinates": [[[0, 0], [1, 1], [1, 0], [0, 1], [0, 0]]]},
+            "The area is not a valid polygon: Self-intersection",
+        ),
+        (
+            {
+                "type": "Polygon",
+                "coordinates": [[[179.5, 0], [180.5, 0], [180.5, 1], [179.5, 1], [179.5, 0]]],
+            },
+            "The area must lie within longitude -180 to 180 and latitude -85.06 to 85.06.",
+        ),
+    ],
+)
+@patch("predictions.views.item_exists", return_value=True)
+def test_prediction_submit_rejects_an_empty_invalid_or_out_of_range_area(
+    mock_item_exists, client, geometry, message
+):
+    response = client.post(
+        "/api/v1/predictions/submit/",
+        data={
+            "model_stac_id": _LOCAL_MODEL_UUID,
+            "image_uri": _TMS_URL,
+            "geometry": geometry,
+            "zoom": 19,
+        },
+        format="json",
+    )
+
+    assert response.status_code == 400, response.json()
+    [actual] = response.json()["error"]["details"]["geometry"]
+    assert actual.startswith(message)
+
+
+@pytest.mark.parametrize(("side_degrees", "expected_status"), [(0.05, 202), (0.07, 400)])
+@patch("predictions.views.submit_prediction")
+@patch("predictions.views.item_exists", return_value=True)
+def test_prediction_submit_refuses_an_area_over_the_map_request_limit(
+    mock_item_exists, mock_task, client, settings, side_degrees, expected_status
+):
+    settings.MAP_REQUEST_MAX_AREA_SQKM = 50
+    response = client.post(
+        "/api/v1/predictions/submit/",
+        data={
+            "model_stac_id": _LOCAL_MODEL_UUID,
+            "image_uri": _TMS_URL,
+            "bbox": [85.5, 27.6, 85.5 + side_degrees, 27.6 + side_degrees],
+            "zoom": 18,
+        },
+        format="json",
+    )
+
+    assert response.status_code == expected_status, response.json()
+    if expected_status == 400:
+        [message] = response.json()["error"]["details"]["bbox"]
+        assert message.endswith("larger than the 50 km² limit for a map request.")
+
+
+@patch("predictions.views.submit_prediction")
+@patch("predictions.views.item_exists", return_value=True)
+def test_prediction_submit_sums_every_multipolygon_part_against_the_limit(
+    mock_item_exists, mock_task, client, settings
+):
+    settings.MAP_REQUEST_MAX_AREA_SQKM = 50
+    first = [[85.5, 27.6], [85.55, 27.6], [85.55, 27.65], [85.5, 27.65], [85.5, 27.6]]
+    second = [[85.6, 27.6], [85.65, 27.6], [85.65, 27.65], [85.6, 27.65], [85.6, 27.6]]
+    response = client.post(
+        "/api/v1/predictions/submit/",
+        data={
+            "model_stac_id": _LOCAL_MODEL_UUID,
+            "image_uri": _TMS_URL,
+            "geometry": {"type": "MultiPolygon", "coordinates": [[first], [second]]},
+            "zoom": 18,
+        },
+        format="json",
+    )
+
+    assert response.status_code == 400, response.json()
+    [message] = response.json()["error"]["details"]["geometry"]
+    assert message.endswith("larger than the 50 km² limit for a map request.")
+
+
+@patch("predictions.views.submit_prediction")
+@patch("predictions.views.item_exists", return_value=True)
+def test_prediction_submit_measures_a_world_wide_bbox_against_the_limit(
+    mock_item_exists, mock_task, client, settings
+):
+    settings.MAP_REQUEST_MAX_AREA_SQKM = 50
+    response = client.post(
+        "/api/v1/predictions/submit/",
+        data={
+            "model_stac_id": _LOCAL_MODEL_UUID,
+            "image_uri": _TMS_URL,
+            "bbox": [-180, -85, 180, 85],
+            "zoom": 14,
+        },
+        format="json",
+    )
+
+    assert response.status_code == 400, response.json()
+    [message] = response.json()["error"]["details"]["bbox"]
+    assert message.endswith("larger than the 50 km² limit for a map request.")
+
+
+@patch("predictions.views.submit_prediction")
+@patch("predictions.views.item_exists", return_value=True)
+def test_prediction_submit_accepts_an_area_ending_on_the_antimeridian(
+    mock_item_exists, mock_task, client
+):
+    response = client.post(
+        "/api/v1/predictions/submit/",
+        data={
+            "model_stac_id": _LOCAL_MODEL_UUID,
+            "image_uri": _TMS_URL,
+            "bbox": [179.9, 0.0, 180.0, 0.1],
+            "zoom": 18,
+        },
+        format="json",
+    )
+
+    assert response.status_code == 202, response.json()

@@ -1,0 +1,9 @@
+[Unit]
+Description=fAIr auto-deploy (fast-forward develop, pull images, redeploy on change)
+After=docker.service fAIr-app.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/fAIr-app
+ExecStart=/usr/local/bin/fair-autodeploy.sh

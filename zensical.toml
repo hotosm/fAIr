@@ -9,7 +9,7 @@ repo_url = "https://github.com/hotosm/fAIr"
 repo_name = "hotosm/fAIr"
 edit_uri = "edit/develop/docs/"
 
-extra_css = ["assets/logos.css", "assets/status.css"]
+extra_css = ["assets/logos.css", "assets/status.css", "assets/tables.css"]
 
 nav = [
   { "Home" = "index.md" },
@@ -18,30 +18,11 @@ nav = [
     { "How it works" = "overview/how-it-works.md" },
     { "User bases" = "overview/who-uses-it.md" },
     { "Models" = "overview/models.md" },
-    { "Evaluation" = "overview/evaluation.md" },
-    { "FAQ" = "overview/faq.md" },
-  ] },
-  { "Guides" = [
-    { "Using fAIr" = "guides/using-fair.md" },
-    { "Run locally" = "guides/run-locally.md" },
-    { "Developer setup" = "guides/developer-setup.md" },
-    { "Register a base model" = "guides/register-a-base-model.md" },
-  ] },
-  { "Architecture" = [
-    { "Overview" = "architecture/index.md" },
-    { "Backend" = "architecture/backend.md" },
-    { "ML pipeline" = "architecture/ml-pipeline.md" },
-    { "Frontend" = "architecture/frontend.md" },
-    { "Operations" = [
-      { "Infrastructure" = "architecture/infrastructure.md" },
-      { "Dev environment" = "architecture/dev-environment.md" },
-      { "Decision records" = "architecture/decisions/index.md" },
-    ] },
-  ] },
-  { "Progress" = [
-    { "Field projects" = "progress/field-projects.md" },
-    { "Activations" = "progress/activations.md" },
     { "Datasets" = "datasets/index.md" },
+    { "Evaluation" = "overview/evaluation.md" },
+    { "Validation" = "overview/validation.md" },
+    { "FAQ" = "overview/faq.md" },
+    { "Licensing" = "overview/data-licensing.md" },
   ] },
   { "Roadmap" = [
     { "Roadmap" = "roadmap/index.md" },
@@ -49,9 +30,34 @@ nav = [
     { "Vision" = "overview/where-fair-is-going.md" },
     { "About" = "overview/about.md" },
   ] },
+  { "Progress" = [
+    { "Field projects" = "progress/field-projects.md" },
+    { "Activations" = "progress/activations.md" },
+  ] },
   { "Community" = [
     { "Contributing" = "community/contributing.md" },
     { "Code of conduct" = "community/code-of-conduct.md" },
+  ] },
+  { "Guides" = [
+    { "Using fAIr" = "guides/using-fair.md" },
+    { "Prepare training data" = "guides/training-data.md" },
+    { "Run locally" = "guides/run-locally.md" },
+    { "Developer setup" = "guides/developer-setup.md" },
+    { "Configuration" = "guides/configuration.md" },
+    { "Register a base model" = "guides/register-a-base-model.md" },
+  ] },
+  { "Architecture" = [
+    { "Overview" = "architecture/index.md" },
+    { "Backend" = "architecture/backend.md" },
+    { "API" = "architecture/api.md" },
+    { "ML pipeline" = "architecture/ml-pipeline.md" },
+    { "Frontend" = "architecture/frontend.md" },
+    { "Operations" = [
+      { "Infrastructure" = "architecture/infrastructure.md" },
+      { "Dev environment" = "architecture/dev-environment.md" },
+      { "Release QA" = "architecture/release-qa.md" },
+      { "Decision records" = "architecture/decisions/index.md" },
+    ] },
   ] },
 ]
 

@@ -3,6 +3,8 @@ import { SlDrawer } from "@shoelace-style/shoelace/dist/react";
 import "./drawer.css";
 
 type DrawerProps = {
+  id?: string;
+  contained?: boolean;
   open: boolean;
   setOpen: (open: boolean) => void;
   placement: DrawerPlacements;
@@ -12,6 +14,8 @@ type DrawerProps = {
   className?: string;
 };
 const Drawer: React.FC<DrawerProps> = ({
+  id,
+  contained = false,
   children,
   open,
   setOpen,
@@ -22,6 +26,8 @@ const Drawer: React.FC<DrawerProps> = ({
 }) => {
   return (
     <SlDrawer
+      id={id}
+      contained={contained}
       label={label}
       placement={placement}
       open={open}

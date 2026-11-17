@@ -4,7 +4,10 @@ import { RoadsIcon } from "@/components/ui/icons/roads-icon";
 import { SolarPanelIcon } from "@/components/ui/icons/solar-panel-icon";
 import { SwimmingPoolIcon } from "@/components/ui/icons/swimming-pool-icon";
 import { TreesIcon } from "@/components/ui/icons/trees-icon";
-import { flagEmoji } from "@/features/try-fair/utils/common";
+import {
+  featureDisplayName,
+  flagEmoji,
+} from "@/features/try-fair/utils/common";
 import { IconProps } from "@/types";
 
 import { cn } from "@/utils";
@@ -14,16 +17,25 @@ const FEATURE_ICONS: Record<string, React.FC<IconProps>> = {
   buildings: BuildingIcon,
   tree: TreesIcon,
   trees: TreesIcon,
-  swimming_pool: SwimmingPoolIcon,
   "swimming-pool": SwimmingPoolIcon,
+  "swimming-pools": SwimmingPoolIcon,
   parking: ParkingIcon,
+  road: RoadsIcon,
   roads: RoadsIcon,
+  "solar-panel": SolarPanelIcon,
   "solar-panels": SolarPanelIcon,
-  solar_panels: SolarPanelIcon,
 };
 
-export const getFeatureIcon = (slug: string): React.FC<IconProps> =>
-  FEATURE_ICONS[slug] ?? BuildingIcon;
+const normalizeFeatureSlug = (slug: string) =>
+  slug
+    .trim()
+    .toLowerCase()
+    .replace(/[\s_]+/g, "-");
+
+export const getFeatureIcon = (
+  slug: string,
+  fallback: React.FC<IconProps> = BuildingIcon,
+): React.FC<IconProps> => FEATURE_ICONS[normalizeFeatureSlug(slug)] ?? fallback;
 
 export const ExperimentalModelBadge = ({
   category,
@@ -72,12 +84,11 @@ export const RadioDot = ({
 );
 
 export const FeatureBadge = ({ label }: { label: string | undefined }) => {
-  const Icon = FEATURE_ICONS[label ?? ""] ?? BuildingIcon;
-  const featureLabel = (label ?? "").replace(/[-_]/g, " ");
+  const Icon = getFeatureIcon(label ?? "");
   return (
-    <span className="inline-flex gap-2 items-center px-2 py-0.5 capitalize rounded bg-grey text-white text-xs font-medium">
+    <span className="inline-flex gap-2 items-center px-2 py-0.5 rounded bg-grey text-white text-xs font-medium">
       <Icon />
-      {featureLabel}
+      {featureDisplayName(label ?? "")}
     </span>
   );
 };

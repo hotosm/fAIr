@@ -6,32 +6,36 @@ from drf_spectacular.utils import (
     extend_schema_view,
     inline_serializer,
 )
+from fair.stac.label_classes import LabelClassError, resolve_classes
+from fair.stac.validators import is_trainable
 from rest_framework import filters, serializers, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import NotFound, PermissionDenied
+from rest_framework.exceptions import NotFound, PermissionDenied, ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.throttling import ScopedRateThrottle
 
-from accounts.authentication import OsmAuthentication
-from accounts.permissions import IsOwnerOrAdminOrReadOnly, _is_admin
+from accounts.permissions import IsOwnerOrAdminOrReadOnly, is_admin
 from datasets.models import Dataset
 from modelregistry.models import BaseModel, LocalModel
+from shared.enums import PipelineRunStatus
 from shared.integrations.stac import (
     DATASETS_COLLECTION,
     LOCAL_MODELS_COLLECTION,
     get_active_local_model_item,
+    get_base_model,
+    get_dataset,
     invalidate_stac_cache,
     item_exists,
 )
-from shared.integrations.zenml import (
-    for_user,
-    get_run_status,
-    is_terminal,
+from shared.integrations.zenml import for_user
+from shared.run_endpoints import (
+    mark_cancelled,
+    read_run_logs,
+    stop_pipeline_run,
 )
-from shared.run_endpoints import read_run_logs, stop_pipeline_run
+from shared.run_status import TERMINAL_STATUSES, get_run_status, is_terminal
 from shared.serializers import LogEntrySerializer, RunLogsQuerySerializer, RunStatusSerializer
-from shared.storage import BackendLocalModelPaths
 
 from .models import TrainingRunRef
 from .serializers import (
@@ -65,7 +69,7 @@ def _previous_version_description(model_name: str) -> str:
         description="Tail run logs (run-level by default, step-level with ?step=)."
     ),
     run_cancel=extend_schema(
-        description="Stop a running ZenML pipeline (graceful via ?graceful=true)."
+        description="Stop a running ZenML pipeline and mark the training cancelled."
     ),
     publish=extend_schema(
         description=(
@@ -78,12 +82,17 @@ def _previous_version_description(model_name: str) -> str:
 class TrainingViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = TrainingRunRef.objects.all()
     serializer_class = TrainingRunRefSerializer
-    authentication_classes = [OsmAuthentication]
     permission_classes = [IsAuthenticated, IsOwnerOrAdminOrReadOnly]
-    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ["local_model", "user", "status"]
+    search_fields = ["title", "description"]
     ordering_fields = ["submitted_at", "last_polled_at"]
     throttle_scope = "training_submit"
+
+    def get_queryset(self):
+        if is_admin(self.request.user):
+            return TrainingRunRef.objects.all()
+        return TrainingRunRef.objects.filter(user=self.request.user)
 
     @extend_schema(
         request=TrainingSubmitSerializer,
@@ -128,11 +137,24 @@ class TrainingViewSet(viewsets.ReadOnlyModelViewSet):
             stac_id=payload["dataset_stac_id"],
             status=Dataset.Status.BUILT,
         )
+        base_item = get_base_model(base_model.stac_item_id)
+        if not is_trainable(base_item.assets):
+            raise ValidationError(
+                {
+                    "base_model_stac_id": [
+                        f"'{base_model.stac_item_id}' is prediction-only and cannot be finetuned."
+                    ]
+                }
+            )
+        try:
+            resolve_classes(
+                get_dataset(payload["dataset_stac_id"]).properties,
+                base_item.properties,
+                payload["class_map"],
+            )
+        except LabelClassError as exc:
+            raise ValidationError({"class_map": [str(exc)]}) from exc
 
-        # TODO(clone-training): expose POST /api/v1/trainings/{id}/clone/ that
-        # copies an existing run's (base_model, dataset, overrides) into a new
-        # LocalModel owned by the caller. Removes the need for users to manually
-        # re-key configs to retrain on someone else's setup.
         local_model, created = LocalModel.objects.get_or_create(
             name=payload["model_name"],
             defaults={
@@ -144,7 +166,7 @@ class TrainingViewSet(viewsets.ReadOnlyModelViewSet):
         if (
             not created
             and local_model.user_id != request.user.osm_id
-            and not _is_admin(request.user)
+            and not is_admin(request.user)
         ):
             return Response(
                 {
@@ -163,6 +185,7 @@ class TrainingViewSet(viewsets.ReadOnlyModelViewSet):
             base_model_stac_id=payload["base_model_stac_id"],
             dataset=dataset,
             overrides=payload["overrides"],
+            class_map=payload["class_map"],
             title=payload["title"],
             keywords=payload["keywords"],
             description=payload["description"],
@@ -180,7 +203,7 @@ class TrainingViewSet(viewsets.ReadOnlyModelViewSet):
         # any other user's pipeline run.
         run = get_object_or_404(TrainingRunRef, zenml_run_id=run_id)
         user = self.request.user
-        if not _is_admin(user) and run.user_id != user.osm_id:
+        if not is_admin(user) and run.user_id != user.osm_id:
             raise PermissionDenied("Not allowed.")
         return run
 
@@ -189,10 +212,13 @@ class TrainingViewSet(viewsets.ReadOnlyModelViewSet):
     def run_status(self, request, run_id: str) -> Response:
         run = self._run_for_caller(run_id)
         run_status = get_run_status(run_id)
-        TrainingRunRef.objects.filter(pk=run.pk).update(status=run_status)
+        TrainingRunRef.objects.filter(pk=run.pk).exclude(status__in=TERMINAL_STATUSES).update(
+            status=run_status
+        )
+        run.refresh_from_db(fields=["status"])
         return Response(
             RunStatusSerializer(
-                {"run_id": run_id, "status": run_status, "is_terminal": is_terminal(run_status)}
+                {"run_id": run_id, "status": run.status, "is_terminal": is_terminal(run.status)}
             ).data
         )
 
@@ -215,17 +241,16 @@ class TrainingViewSet(viewsets.ReadOnlyModelViewSet):
             fields={
                 "run_id": serializers.CharField(),
                 "status": serializers.CharField(),
-                "graceful": serializers.BooleanField(),
             },
         ),
     )
     @action(detail=False, methods=["post"], url_path=r"runs/(?P<run_id>[^/]+)/cancel")
     def run_cancel(self, request, run_id: str) -> Response:
         run_ref = self._run_for_caller(run_id)
-        graceful = request.query_params.get("graceful", "false").lower() == "true"
-        stop_pipeline_run(run_id, graceful=graceful)
-        TrainingRunRef.objects.filter(pk=run_ref.pk).update(status="stopping")
-        return Response({"run_id": run_id, "status": "stopping", "graceful": graceful})
+        stop_pipeline_run(run_id)
+        mark_cancelled(TrainingRunRef, run_ref.pk)
+        run_ref.refresh_from_db(fields=["status"])
+        return Response({"run_id": run_id, "status": run_ref.status})
 
     @extend_schema(
         request=TrainingPublishSerializer,
@@ -249,7 +274,7 @@ class TrainingViewSet(viewsets.ReadOnlyModelViewSet):
         run_ref = self.get_object()
         if run_ref.user_id != request.user.osm_id:
             return Response({"detail": "Not allowed."}, status=status.HTTP_403_FORBIDDEN)
-        if run_ref.status != "completed":
+        if run_ref.status != PipelineRunStatus.COMPLETED:
             return Response(
                 {"detail": "Training run is not completed."},
                 status=status.HTTP_409_CONFLICT,
@@ -285,12 +310,14 @@ class TrainingViewSet(viewsets.ReadOnlyModelViewSet):
             title=title,
             keywords=keywords,
             pipeline_run_id=run_ref.zenml_run_id,
-            paths=BackendLocalModelPaths,
+            providers=[request.user.stac_producer()],
         )
+        previous_id = run_ref.local_model.stac_item_id
         run_ref.local_model.status = LocalModel.Status.ACTIVE
         run_ref.local_model.stac_item_id = local_id
         run_ref.local_model.save(update_fields=["status", "stac_item_id", "last_modified"])
-        invalidate_stac_cache(LOCAL_MODELS_COLLECTION, run_ref.local_model.name)
+        if previous_id:
+            invalidate_stac_cache(LOCAL_MODELS_COLLECTION, previous_id)
         from modelregistry.tasks import mirror_stac_assets_task
 
         mirror_stac_assets_task.enqueue(collection_id=LOCAL_MODELS_COLLECTION, item_id=local_id)

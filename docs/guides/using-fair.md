@@ -1,26 +1,33 @@
 ---
 icon: lucide/book-open
-description: Getting started with fAIr, with prerequisites and support while the step-by-step guide is updated for the new UI.
+description: How to run a fAIr model on your own area and get the results, with prerequisites and support.
 ---
 
 # Using fAIr
 
-This manual is a step-by-step guide to getting started with fAIr, aimed at mappers and community project managers.
+This guide covers running a model on your own area with the current version of fAIr at [dev.ai.hotosm.org](https://dev.ai.hotosm.org/). It is aimed at mappers and community project managers.
 
-![The five steps to use fAIr: check the model exists, get the imagery, map training samples, train the model, then predict and share.](../assets/flyer/use-fair.png)
+![The six steps to use fAIr: check the model exists, get the imagery, map training samples, train the model, predict across your area, then validate and share.](../assets/flyer/use-fair.png)
 
-!!! note "Step-by-step guide coming"
+Running a model works in the interface today. Creating datasets and training local models works through the [API](../architecture/ml-pipeline.md); the **My Datasets** and **My Models** screens are [planned](../roadmap/index.md#now-and-later).
 
-    A UI/UX refactor is ongoing. Step-by-step instructions and screenshots for the new interface will be added here once it lands. To try fAIr now, visit [ai.hotosm.org](https://ai.hotosm.org/).
+## Before you start
 
-<!-- TODO: add the step-by-step walkthrough (create dataset, train, predict, validate) from the new UI once the refactor lands -->
+- An account: sign in with your HOT account.
+- Imagery of your area on [OpenAerialMap](https://openaerialmap.org/) or another open TMS source, at very high resolution (the buildings model expects about 30 to 50 cm per pixel).
+- If you are new to mapping, the [Tasking Manager guide](https://tasks.hotosm.org/learn/map) is a good start.
 
-## Prerequisites
+## Run a model on your area
 
-- Stable Internet connection
-- Knowledge on mapping . If you are new to mapping we suggest you to read [this](https://tasks.hotosm.org/learn/map) .
-- Very basic knowledge on training AI Datasets and Models.
-- Account on [fAIr](https://ai.hotosm.org/) .
+1. Open fAIr and select **Start Mapping**.
+2. Pick a model from **Samples**, or choose **Custom setup** to pick your own feature and location. **Change imagery** switches to your imagery.
+3. Select **Map**. The predictions appear on the map; adjust **Size** and **Accuracy** to compare results.
+4. For a larger area, select **Map an area**, then draw or upload the area. This sends a map request that runs in the background.
+5. Open **Prediction Requests** from the profile menu. Each map request shows its status; select **View result** to see it on the map and download it as GeoJSON.
+
+![The Start Mapping screen with a building model selected over drone imagery of Freetown, with the Map button and parameters on the left.](../assets/guide/start-mapping.jpg)
+
+To check the results at scale, see [Validation](../overview/validation.md).
 
 ## Help and Support
 

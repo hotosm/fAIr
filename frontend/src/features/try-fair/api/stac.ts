@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { CanceledError } from "axios";
 import { BBOX } from "@/types";
 
 // ── STAC types ────────────────────────────────────────────────────────────────
@@ -58,26 +58,38 @@ export type BaseModelStacItem = {
     title: string;
     description: string;
     deprecated: boolean;
+    license?: string;
     "mlm:name": string;
     "mlm:architecture": string;
     "mlm:tasks": string[];
     "mlm:framework": string;
     "fair:pinned": boolean;
     "mlm:hyperparameters": Record<string, string | number | boolean>;
+    "mlm:input": { name: string }[];
     "mlm:output"?: ModelOutput[];
     "cube:variables"?: Record<string, CubeVariable>;
     "fair:hyperparameters_spec": HyperParamSpec[];
     "fair:preview"?: FairPreview;
     "fair:base_model_title"?: string;
     "fair:category": string;
+    "fair:recommended_zoom"?: number;
     keywords: string[];
-    providers: Array<{ name: string; description?: string; url?: string }>;
+    providers: Array<{
+      name: string;
+      description?: string;
+      url?: string;
+      /** STAC provider roles: "producer", "licensor", "processor", "host". */
+      roles?: string[];
+    }>;
   };
   assets: {
     model?: StacAsset;
     "mlm:inference-endpoint"?: StacAsset;
+    "source-code"?: StacAsset;
+    readme?: StacAsset;
     [key: string]: StacAsset | undefined;
   };
+  links?: { rel: string; href: string; title?: string }[];
 };
 
 /** A single inference-time parameter resolved from the STAC item */
@@ -114,10 +126,57 @@ export const getInferenceParams = (
 
 export type PredictPayload = {
   model_uri: string;
-  image_uri: string;
+  imagery: Record<string, string>;
   bbox: BBOX;
   zoom: number;
   params: Record<string, number | string | boolean>;
+};
+
+const pause = (ms: number, signal?: AbortSignal) =>
+  new Promise<void>((resolve) => {
+    const timer = setTimeout(resolve, ms);
+    signal?.addEventListener(
+      "abort",
+      () => {
+        clearTimeout(timer);
+        resolve();
+      },
+      { once: true },
+    );
+  });
+
+type RequestError = { code?: string; response?: { status?: number } };
+
+const isModelStarting = (error: unknown): boolean => {
+  const { code, response } = (error ?? {}) as RequestError;
+  return (
+    code === "ERR_NETWORK" ||
+    code === "ECONNABORTED" ||
+    [502, 503, 504].includes(response?.status ?? 0)
+  );
+};
+
+/** Resolve once the model behind `inferenceEndpoint` answers its health check; a cold model takes a while to start. */
+export const waitForModel = async (
+  inferenceEndpoint: string,
+  signal?: AbortSignal,
+  { intervalMs = 2_000, timeoutMs = 300_000 } = {},
+): Promise<void> => {
+  const healthUrl = new URL("/health", inferenceEndpoint).href;
+  const deadline = Date.now() + timeoutMs;
+  for (;;) {
+    try {
+      await axios.get(healthUrl, { timeout: 30_000, signal });
+      return;
+    } catch (error) {
+      if (signal?.aborted || !isModelStarting(error)) throw error;
+      if (Date.now() >= deadline) {
+        throw new Error("The model didn’t start in time. Try again later.");
+      }
+    }
+    await pause(intervalMs, signal);
+    if (signal?.aborted) throw new CanceledError();
+  }
 };
 
 /** POST to the model's mlm:inference-endpoint and return a GeoJSON FeatureCollection. */

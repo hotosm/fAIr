@@ -27,6 +27,7 @@ import { cn } from "@/utils";
 import { LocationSearch } from "./location-search";
 import { ChevronDownIcon, CloseIcon } from "@/components/ui/icons";
 import "./imagery-selector.css";
+import useScreenSize from "@/hooks/use-screen-size";
 
 export enum ImagerySource {
   OPEN_AERIAL_MAP = "openAerialMap",
@@ -55,6 +56,9 @@ export const ImageryLocationDialog = ({
     ImagerySource.OPEN_AERIAL_MAP,
   );
   const [selectedCell, setSelectedCell] = useState<SelectedCell | null>(null);
+  const [previewContainer, setPreviewContainer] =
+    useState<HTMLDivElement | null>(null);
+  const { isSmallViewport } = useScreenSize();
   const [cellImages, setCellImages] = useState<OAMImageryItem[]>([]);
   const [cellLoading, setCellLoading] = useState<boolean>(false);
   const [selectedItem, setSelectedItem] = useState<OAMImageryItem | null>(null);
@@ -135,17 +139,26 @@ export const ImageryLocationDialog = ({
     mapRef.current?.flyTo({ center: [0, 20], zoom: 1.4 });
   };
   const isOAM = source === ImagerySource.OPEN_AERIAL_MAP;
+  // On phones the image list covers the map with its own Back (to the map),
+  // so the Back to the model picker is hidden meanwhile.
+  const showBackToModelPicker =
+    Boolean(onBackToModelPicker) && !(isSmallViewport && selectedCell);
   if (!ENVS.EXPANDED_IMAGERY_SELECTOR) {
     return (
       <Dialog
         label="Imagery to map"
         isOpened={isOpened}
         closeDialog={closeDialog}
+        borderRadius="rounded"
         size={SHOELACE_SIZES.LARGE}
       >
         {isOpened && (
-          <div className="flex flex-col gap-4">
-            {onBackToModelPicker && (
+          // Positioned so the enlarged image preview centres over it.
+          <div
+            ref={setPreviewContainer}
+            className="relative flex flex-col gap-4"
+          >
+            {showBackToModelPicker && (
               <button
                 type="button"
                 onClick={onBackToModelPicker}
@@ -155,19 +168,18 @@ export const ImageryLocationDialog = ({
                 Back
               </button>
             )}
-            <p className="text-grey text-sm w-full md:w-1/2 -mt-6 shrink-0">
-              Select an imagery source to preview and map your location. You can
-              choose pre-existing imagery from OpenAerialMap or enter a custom
-              tile server URL.
+            {/* Phones go straight to the map, as in the mobile design. */}
+            <p className="text-grey text-sm w-full md:w-1/2 -mt-6 shrink-0 hidden sm:block">
+              {isCustomImageryEnabled
+                ? "Select an imagery source to preview and map your location. Choose imagery from OpenAerialMap or enter a custom tile server URL."
+                : "Search OpenAerialMap, preview available imagery, and select an image to start mapping."}
             </p>
-            <div className="shrink-0">
-              <ImagerySourceToggle
-                value={source}
-                onChange={setSource}
-                isCustomImageryEnabled={isCustomImageryEnabled}
-              />
-              {!isOAM && <Divider />}
-            </div>
+            {isCustomImageryEnabled && (
+              <div className="shrink-0">
+                <ImagerySourceToggle value={source} onChange={setSource} />
+                {!isOAM && <Divider />}
+              </div>
+            )}
 
             <div
               className="relative w-full rounded-lg overflow-hidden"
@@ -193,7 +205,9 @@ export const ImageryLocationDialog = ({
                 <>
                   <div
                     className={cn(
-                      "absolute top-4 left-1/2 -translate-x-1/2 w-[calc(100%-128px)] max-w-[384px] z-30 transition-opacity duration-200",
+                      // Phones: the search spans the map up to the zoom
+                      // controls; wider screens centre it between them.
+                      "absolute top-3 left-3 right-14 z-30 transition-opacity duration-200 sm:top-4 sm:right-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-[calc(100%-128px)] sm:max-w-[384px]",
                       !showSearch && "opacity-0 pointer-events-none invisible",
                     )}
                   >
@@ -212,6 +226,7 @@ export const ImageryLocationDialog = ({
                     onSelect={setSelectedItem}
                     onClose={() => setSelectedCell(null)}
                     handleApplyOAMItem={handleApplyOAMItem}
+                    previewContainer={previewContainer}
                   />
                 </>
               ) : (
@@ -241,7 +256,13 @@ export const ImageryLocationDialog = ({
     >
       {isOpened && (
         <div className="imagery-selector">
-          <header className="imagery-selector__header">
+          <header
+            className={cn(
+              "imagery-selector__header",
+              !isCustomImageryEnabled &&
+                "imagery-selector__header--single-source",
+            )}
+          >
             <div className="flex items-center gap-3 min-w-0">
               {onBackToModelPicker && (
                 <button
@@ -258,18 +279,21 @@ export const ImageryLocationDialog = ({
                   Choose imagery
                 </h2>
                 <p className="text-grey text-xs hidden xl:block">
-                  Find a location, preview an image, and start mapping.
+                  {isCustomImageryEnabled
+                    ? "Choose OpenAerialMap or custom imagery to start mapping."
+                    : "Search OpenAerialMap, preview available imagery, and start mapping."}
                 </p>
               </div>
             </div>
-            <div className="imagery-selector__tabs">
-              <ImagerySourceToggle
-                expanded
-                value={source}
-                onChange={setSource}
-                isCustomImageryEnabled={isCustomImageryEnabled}
-              />
-            </div>
+            {isCustomImageryEnabled && (
+              <div className="imagery-selector__tabs">
+                <ImagerySourceToggle
+                  expanded
+                  value={source}
+                  onChange={setSource}
+                />
+              </div>
+            )}
             <button
               type="button"
               aria-label="Close imagery selector"

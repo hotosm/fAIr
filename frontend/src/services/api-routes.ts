@@ -34,6 +34,9 @@ export const API_ENDPOINTS = {
   // Feedbacks
 
   CREATE_FEEDBACK: "feedback/",
+  COUNT_PREDICTION_RUN: "prediction-runs/",
+  GET_FEEDBACKS: "feedback/",
+  UPDATE_FEEDBACK: (id: number) => `feedback/${id}/`,
   DELETE_FEEDBACK: (id: number) => `feedback/${id}/`,
 
   // KPIs
@@ -132,6 +135,8 @@ export const API_ENDPOINTS = {
     `/collections/local-models/items/?limit=${limit}`,
   GET_BASE_MODEL_BY_ID: (id: string): string =>
     `/collections/base-models/items/${id}`,
+  GET_MODEL_ITEM: (id: string): string =>
+    `/search?ids=${encodeURIComponent(id)}&collections=base-models,local-models`,
 
   GET_CATEGORIES: "/categories/",
   GET_API_BASE_MODELS: (category: string) =>
@@ -139,6 +144,10 @@ export const API_ENDPOINTS = {
 
   GET_API_LOCAL_MODELS: (category: string) =>
     `/local-models/?category=${category}&ordering=star_count&expand=stac&is_pinned=true`,
+  GET_ALL_API_BASE_MODELS: (category: string) =>
+    `/base-models/?category=${category}&ordering=star_count&expand=stac`,
+  GET_ALL_API_LOCAL_MODELS: (category: string) =>
+    `/local-models/?category=${category}&ordering=star_count&expand=stac`,
   // Map large area
   MAP_LARGE_AREA_REQUEST: "/predictions/submit/",
 

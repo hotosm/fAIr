@@ -1,15 +1,17 @@
+import copy
 import importlib.util
 from collections.abc import Sequence
 
 import httpx
 from django.conf import settings
-from django.db.models import Count, Q
+from django.db import transaction
+from django.db.models import Count, F, Q
 from django.http import HttpResponse, HttpResponseRedirect
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import (
     OpenApiExample,
-    OpenApiResponse,
+    OpenApiParameter,
     extend_schema,
     extend_schema_view,
 )
@@ -18,15 +20,16 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound, ValidationError
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 
-from accounts.authentication import OsmAuthentication
 from accounts.permissions import (
     IsAdmin,
     IsOwnerOrAdmin,
     PublishedReadOrAuthenticatedWrite,
-    _is_admin,
+    is_admin,
 )
+from modelregistry.usage import annotate_usage
 from shared.enums import Visibility
 from shared.integrations.stac import (
     BASE_MODELS_COLLECTION,
@@ -34,18 +37,17 @@ from shared.integrations.stac import (
     DOWNLOADABLE_STAC_ASSETS,
     FAIR_CATEGORY_PROPERTY,
     FAIR_PINNED_PROPERTY,
-    FAIR_PREVIEW_LOCATION_PROPERTY,
-    FAIR_SOURCE_IMAGERY_PROPERTY,
+    FAIR_PREVIEW_PROPERTY,
     LOCAL_MODELS_COLLECTION,
-    add_stac_extensions,
-    bulk_get_cached_items,
+    apply_item_patch,
     get_cached_item,
     get_item,
-    set_item_properties,
+    patch_item,
 )
-from shared.integrations.zenml import list_runs_for_model
+from shared.stac_expand import StacExpandMixin
 from shared.stars import annotate_stars
 
+from .deletion import delete_base_model
 from .models import BaseModel, Category, LocalModel
 from .serializers import (
     BaseModelRegisterSerializer,
@@ -54,8 +56,8 @@ from .serializers import (
     LocalModelSerializer,
     ModelMetadataSerializer,
     ModelPinSerializer,
+    PredictionRunSerializer,
     StacPropertiesPatchSerializer,
-    TrainingRunSummarySerializer,
 )
 from .tasks import register_base_model
 
@@ -63,8 +65,8 @@ _STAC_FETCH_TIMEOUT_S = 30
 
 
 def _derive_preview_props(collection: str, item_id: str, properties: dict) -> dict:
-    """Reverse-geocode place/country from the pinned location via fair-py-ops so
-    the preview props stay consistent with how registration derives them."""
+    """Reverse-geocode place/country from the preview center via fair-py-ops so
+    the location props stay consistent with how registration derives them."""
     from fair.stac.location import derive_location_props
     from shapely.geometry import shape
 
@@ -74,61 +76,135 @@ def _derive_preview_props(collection: str, item_id: str, properties: dict) -> di
     return derive_location_props(properties, list(shape(geometry).bounds))
 
 
+def _updated_preview(collection: str, item_id: str, data: dict) -> dict:
+    """The item's `fair:preview` with the supplied imagery and location applied; a new
+    location also replaces the place, so the preview stays one consistent record."""
+    from fair.stac.location import place_from_center
+
+    preview = get_item(collection, item_id).properties.get(FAIR_PREVIEW_PROPERTY)
+    if preview is None:
+        raise ValidationError(
+            f"Model has no {FAIR_PREVIEW_PROPERTY} to update; set it with the metadata action."
+        )
+    preview = copy.deepcopy(preview)
+    if imagery := data.get("preview_imagery"):
+        preview["imagery"] = {"url": imagery, "type": "tms"}
+    if location := data.get("preview_location"):
+        lon, lat = location["coordinates"]
+        preview["center"] = [lon, lat]
+        preview["place"] = place_from_center(lon, lat)
+        preview.pop("bbox", None)
+    return preview
+
+
+@transaction.atomic
 def _apply_pin(model, collection: str, data: dict) -> None:
-    """Flip the DB flag, then mirror it (plus optional preview metadata) onto
-    the model's STAC item when the model has been published. A new preview
-    location re-derives the place/country props so they stay consistent."""
+    """Flip the DB flag, then mirror it (plus optional preview imagery and location) onto
+    the model's STAC item when the model has been published."""
+    type(model).objects.select_for_update().get(pk=model.pk)
+    properties: dict = {FAIR_PINNED_PROPERTY: data["is_pinned"]}
+    if model.stac_item_id and (data.get("preview_imagery") or data.get("preview_location")):
+        properties[FAIR_PREVIEW_PROPERTY] = _updated_preview(collection, model.stac_item_id, data)
     model.is_pinned = data["is_pinned"]
     model.save(update_fields=["is_pinned", "last_modified"])
     if not model.stac_item_id:
         return
-    properties: dict = {FAIR_PINNED_PROPERTY: model.is_pinned}
-    if data.get("source_imagery"):
-        properties[FAIR_SOURCE_IMAGERY_PROPERTY] = data["source_imagery"]
-    if location := data.get("pinned_location"):
-        properties[FAIR_PREVIEW_LOCATION_PROPERTY] = location
+    if data.get("preview_location"):
         properties.update(_derive_preview_props(collection, model.stac_item_id, properties))
     _merge_validate_write(collection, model.stac_item_id, properties)
 
 
-def _merge_validate_write(
-    collection: str, item_id: str, properties: dict, stac_extensions: Sequence[str] = ()
+def _validate_merge(
+    collection: str,
+    item_id: str,
+    properties: dict,
+    stac_extensions: Sequence[str] = (),
+    assets: dict[str, dict] | None = None,
 ) -> None:
-    """Shallow-merge `properties` onto the item, re-validate the merged item against
-    the fAIr schema, then write. The single read-validate-write path, so a metadata
-    edit or an arbitrary property patch can never leave the item invalid."""
+    """Shallow-merge `properties` and `assets` onto a copy of the item and validate it
+    against the fAIr schema, raising `ValidationError` without writing."""
     from fair.stac.validators import validate_item
 
     item = get_item(collection, item_id)
-    item.properties.update(properties)
-    add_stac_extensions(item, stac_extensions)
+    try:
+        apply_item_patch(item, properties, assets=assets, stac_extensions=stac_extensions)
+    except ValueError as exc:
+        raise ValidationError({"assets": [str(exc)]}) from exc
     if errors := validate_item(item):
         raise ValidationError({"stac": errors})
-    set_item_properties(collection, item_id, properties, stac_extensions=stac_extensions)
 
 
-def _apply_metadata(collection: str, item_id: str, data: dict) -> None:
-    """Write the supplied title/description/fair:preview fields onto the item."""
+def _merge_validate_write(
+    collection: str,
+    item_id: str,
+    properties: dict,
+    stac_extensions: Sequence[str] = (),
+    assets: dict[str, dict] | None = None,
+) -> None:
+    """The single read-validate-write path, so a metadata edit or an arbitrary patch can
+    never leave the item invalid."""
+    _validate_merge(collection, item_id, properties, stac_extensions, assets)
+    patch_item(collection, item_id, properties, assets=assets, stac_extensions=stac_extensions)
+
+
+def _metadata_properties(data: dict) -> dict:
     properties: dict = {}
     if data.get("title"):
         properties["title"] = data["title"]
     if data.get("description"):
         properties["description"] = data["description"]
     if data.get("fair_preview") is not None:
-        properties["fair:preview"] = data["fair_preview"]
-    _merge_validate_write(collection, item_id, properties)
+        properties[FAIR_PREVIEW_PROPERTY] = data["fair_preview"]
+    return properties
+
+
+def _apply_metadata(collection: str, item_id: str, data: dict) -> None:
+    """Write the supplied title/description/fair:preview fields onto the item."""
+    _merge_validate_write(collection, item_id, _metadata_properties(data))
+
+
+def _no_stac_version(verb: str) -> Response:
+    return Response(
+        {"detail": f"The model has no STAC item to {verb}."},
+        status=status.HTTP_409_CONFLICT,
+    )
+
+
+class PredictionRunView(APIView):
+    """Counts try-now runs, which go straight to the model service and leave no prediction row."""
+
+    permission_classes = [AllowAny]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "model_run"
+
+    @extend_schema(
+        request=PredictionRunSerializer,
+        responses={204: None, 404: OpenApiTypes.OBJECT},
+        description="Count one try-now run of the model with this STAC item id.",
+        examples=[OpenApiExample("Run", value={"stac_id": "dinov3s-buildings"}, request_only=True)],
+    )
+    def post(self, request) -> Response:
+        payload = PredictionRunSerializer(data=request.data)
+        payload.is_valid(raise_exception=True)
+        user = request.user
+        for model in (LocalModel, BaseModel):
+            rows = model.objects.filter(stac_item_id=payload.validated_data["stac_id"])
+            if not (user.is_authenticated and is_admin(user)):
+                visible = Q(visibility=Visibility.PUBLIC, status=model.Status.ACTIVE)
+                rows = rows.filter(visible | Q(user=user) if user.is_authenticated else visible)
+            if rows.update(prediction_runs=F("prediction_runs") + 1):
+                return Response(status=status.HTTP_204_NO_CONTENT)
+        raise NotFound("No model you can see has this STAC item id.")
 
 
 class ModelMetadataMixin:
-    """Adds two admin actions on a published model's STAC item: `metadata` (title,
-    description, fair:preview) and `stac` (a general property patch). Both re-validate
-    against the fAIr schema. Host viewset sets `stac_collection`."""
+    """Actions that edit a published model's STAC item, re-validated before writing."""
 
     stac_collection: str = ""
 
     @extend_schema(
         request=ModelMetadataSerializer,
-        responses={200: OpenApiTypes.OBJECT},
+        responses={200: OpenApiTypes.OBJECT, 409: OpenApiTypes.OBJECT},
         examples=[
             OpenApiExample(
                 "Edit title and preview",
@@ -149,7 +225,7 @@ class ModelMetadataMixin:
     def metadata(self, request, pk: int | None = None) -> Response:
         model = self.get_object()
         if not model.stac_item_id:
-            raise ValidationError("Model has no published STAC item to edit.")
+            return _no_stac_version("edit")
         serializer = ModelMetadataSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         _apply_metadata(self.stac_collection, model.stac_item_id, serializer.validated_data)
@@ -157,13 +233,12 @@ class ModelMetadataMixin:
 
     @extend_schema(
         request=StacPropertiesPatchSerializer,
-        responses={200: OpenApiTypes.OBJECT},
+        responses={200: OpenApiTypes.OBJECT, 409: OpenApiTypes.OBJECT},
         examples=[
             OpenApiExample(
-                "Sync imagery and description",
+                "Sync the description",
                 value={
                     "properties": {
-                        "fair:source_imagery": "https://tiles.example/{z}/{x}/{y}.png",
                         "description": "Synced from the updated model card.",
                     }
                 },
@@ -183,69 +258,44 @@ class ModelMetadataMixin:
                 },
                 request_only=True,
             ),
+            OpenApiExample(
+                "Point the model asset at its ONNX export",
+                value={
+                    "assets": {
+                        "model": {
+                            "href": "https://example.com/model.onnx",
+                            "type": "application/octet-stream; framework=onnx",
+                            "roles": ["mlm:model", "mlm:compiled"],
+                            "mlm:artifact_type": "onnx",
+                        },
+                        "checkpoint": {
+                            "href": "https://example.com/model.ckpt",
+                            "type": "application/octet-stream; framework=pytorch",
+                            "roles": ["mlm:model", "mlm:weights"],
+                            "mlm:artifact_type": "torch.save",
+                        },
+                    }
+                },
+                request_only=True,
+            ),
         ],
     )
     @action(detail=True, methods=["patch"], url_path="stac")
     def stac_properties(self, request, pk: int | None = None) -> Response:
-        """Admin patch of arbitrary STAC item properties (shallow merge, re-validated)."""
+        """Admin patch of STAC item properties and assets (shallow merge, re-validated)."""
         model = self.get_object()
         if not model.stac_item_id:
-            raise ValidationError("Model has no published STAC item to patch.")
+            return _no_stac_version("patch")
         serializer = StacPropertiesPatchSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         _merge_validate_write(
             self.stac_collection,
             model.stac_item_id,
-            serializer.validated_data["properties"],
-            serializer.validated_data["stac_extensions"],
+            serializer.validated_data.get("properties", {}),
+            stac_extensions=serializer.validated_data["stac_extensions"],
+            assets=serializer.validated_data.get("assets"),
         )
         return Response(self.get_serializer(model).data)
-
-
-def _wants_expand_stac(request) -> bool:
-    return request.query_params.get("expand") == "stac"
-
-
-class StacExpandMixin:
-    """`?expand=stac` inlines each row's STAC item under a `stac` field.
-
-    Subclasses set `stac_collection`. Default responses stay DB-only (`stac` is
-    null); expansion is opt-in and only fetches items with a `stac_item_id`.
-    """
-
-    stac_collection: str = ""
-
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context["stac_items_by_id"] = self._stac_items_for_request()
-        return context
-
-    def _stac_items_for_request(self) -> dict:
-        if not _wants_expand_stac(self.request):
-            return {}
-        collection = self.stac_collection
-        if self.action == "retrieve":
-            obj = self.get_object()
-            if not obj.stac_item_id:
-                return {}
-            return {(collection, obj.stac_item_id): get_cached_item(collection, obj.stac_item_id)}
-        if self.action == "list":
-            page = self.paginate_queryset(self.filter_queryset(self.get_queryset()))
-            if page is None:
-                page = list(self.filter_queryset(self.get_queryset()))
-            self._cached_page = page
-            pairs = [(collection, o.stac_item_id) for o in page if o.stac_item_id]
-            return bulk_get_cached_items(pairs)
-        return {}
-
-    def list(self, request, *args, **kwargs):
-        if _wants_expand_stac(request):
-            self.get_serializer_context()
-            page = getattr(self, "_cached_page", None)
-            if page is not None and self.paginator is not None:
-                serializer = self.get_serializer(page, many=True)
-                return self.get_paginated_response(serializer.data)
-        return super().list(request, *args, **kwargs)
 
 
 def _pipeline_error(stac_item: dict) -> str | None:
@@ -263,6 +313,41 @@ def _pipeline_error(stac_item: dict) -> str | None:
             "Release fair-py-ops with the model, then the backend."
         )
     return None
+
+
+def resolve_stac_item(data: dict) -> dict:
+    category = data.get("category") or Category.objects.get(slug="other")
+    stac_item = data.get("stac_item") or _fetch_stac_item(data["stac_item_url"])
+    if error := _pipeline_error(stac_item):
+        raise ValidationError({"stac_item": error})
+    name = stac_item.get("properties", {}).get("mlm:name")
+    if name and LocalModel.objects.filter(name__iexact=name).exists():
+        raise ValidationError(
+            {"stac_item": f"'{name}' is a local model name; choose another mlm:name."}
+        )
+    if inference_endpoint := data.get("inference_endpoint"):
+        stac_item.setdefault("assets", {})["mlm:inference-endpoint"] = {
+            "href": inference_endpoint,
+            "type": "application/json",
+            "roles": ["mlm:inference-endpoint"],
+        }
+    stac_item.setdefault("properties", {})[FAIR_CATEGORY_PROPERTY] = category.slug
+    return stac_item
+
+
+def start_registration(stac_item: dict, user) -> BaseModel:
+    category = Category.objects.get(slug=stac_item["properties"][FAIR_CATEGORY_PROPERTY])
+    base_model, created = BaseModel.objects.get_or_create(
+        name=stac_item["properties"]["mlm:name"],
+        defaults={"user": user, "category": category, "status": BaseModel.Status.REGISTERING},
+    )
+    if not created:
+        base_model.category = category
+        base_model.status = BaseModel.Status.REGISTERING
+        base_model.error = ""
+        base_model.save(update_fields=["category", "status", "error", "last_modified"])
+    register_base_model.enqueue(base_model_id=base_model.id, stac_item=stac_item)
+    return base_model
 
 
 def _fetch_stac_item(url: str) -> dict:
@@ -289,53 +374,66 @@ def _fetch_stac_item(url: str) -> dict:
 
 @extend_schema_view(
     list=extend_schema(
-        description="List local (finetuned) models. `?expand=stac` inlines each STAC item."
+        description="List local (finetuned) models. `?expand=stac` inlines each STAC item.",
+        parameters=[
+            OpenApiParameter(
+                "published",
+                str,
+                enum=["true", "false", "all"],
+                description="true (default): has a STAC version; false: own drafts; all: both.",
+            )
+        ],
     ),
     retrieve=extend_schema(
         description="Retrieve one local model by id. `?expand=stac` inlines the STAC item."
     ),
-    pin=extend_schema(
-        description=(
-            "Pin/unpin a model (admin only). Flips the DB `is_pinned` flag and, "
-            "for a published model, mirrors it to `fair:pinned` on the STAC item. "
-            "Optional `source_imagery` (TMS) and `pinned_location` (GeoJSON Point) "
-            "are written as `fair:source_imagery` / `fair:preview_location`."
-        ),
-    ),
-    runs=extend_schema(description="List ZenML pipeline runs that produced this model."),
 )
 class LocalModelViewSet(StacExpandMixin, ModelMetadataMixin, viewsets.ReadOnlyModelViewSet):
     stac_collection = LOCAL_MODELS_COLLECTION
     queryset = LocalModel.objects.all()
     serializer_class = LocalModelSerializer
-    authentication_classes = [OsmAuthentication]
     permission_classes = [PublishedReadOrAuthenticatedWrite]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ["status", "visibility", "category", "base_model", "is_pinned", "user"]
     search_fields = ["name"]
-    ordering_fields = ["created_at", "last_modified"]
+    ordering_fields = ["created_at", "last_modified", "star_count"]
 
     def get_queryset(self):
         qs = LocalModel.objects.select_related("base_model").all().annotate(run_count=Count("runs"))
         user = self.request.user
-        visible = Q(visibility=Visibility.PUBLIC, status=LocalModel.Status.ACTIVE)
+        public = Q(visibility=Visibility.PUBLIC, status=LocalModel.Status.ACTIVE)
+        visible = public & ~Q(stac_item_id="")
         if not (user and user.is_authenticated):
             qs = qs.filter(visible)
-        elif not _is_admin(user):
+        elif not is_admin(user):
             qs = qs.filter(visible | Q(user=user))
-        return annotate_stars(qs, self.request, key_field="name")
+        if self.action == "list":
+            qs = self._filter_published(qs)
+        return annotate_usage(annotate_stars(qs, self.request, key_field="name"))
+
+    def _filter_published(self, qs):
+        user = self.request.user
+        has_version = ~Q(stac_item_id="")
+        own_drafts = Q(stac_item_id="", user=user) if user.is_authenticated else Q(pk__in=[])
+        choices = {"true": has_version, "false": own_drafts, "all": has_version | own_drafts}
+        published = self.request.query_params.get("published", "true")
+        if published not in choices:
+            raise ValidationError({"published": ["Use true, false or all."]})
+        return qs.filter(choices[published])
 
     def get_permissions(self):
-        if self.action in {"pin", "stac_properties"}:
+        if self.action == "stac_properties":
             return [IsAuthenticated(), IsAdmin()]
         if self.action in {"publish", "unpublish", "metadata"}:
             return [IsAuthenticated(), IsOwnerOrAdmin()]
         return super().get_permissions()
 
-    @extend_schema(request=None, responses={200: LocalModelSerializer})
+    @extend_schema(request=None, responses={200: LocalModelSerializer, 409: OpenApiTypes.OBJECT})
     @action(detail=True, methods=["post"], url_path="publish")
     def publish(self, request, pk: int | None = None) -> Response:
         model = self.get_object()
+        if not model.stac_item_id:
+            return _no_stac_version("publish")
         model.visibility = Visibility.PUBLIC
         model.save(update_fields=["visibility", "last_modified"])
         return Response(self.get_serializer(model).data, status=status.HTTP_200_OK)
@@ -348,34 +446,6 @@ class LocalModelViewSet(StacExpandMixin, ModelMetadataMixin, viewsets.ReadOnlyMo
         model.save(update_fields=["visibility", "last_modified"])
         return Response(self.get_serializer(model).data, status=status.HTTP_200_OK)
 
-    @extend_schema(request=ModelPinSerializer, responses={200: LocalModelSerializer})
-    @action(detail=True, methods=["patch"], url_path="pin")
-    def pin(self, request, pk: int | None = None) -> Response:
-        model = self.get_object()
-        serializer = ModelPinSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        _apply_pin(model, LOCAL_MODELS_COLLECTION, serializer.validated_data)
-        return Response(self.get_serializer(model).data, status=status.HTTP_200_OK)
-
-    @action(detail=True, methods=["get"], url_path="runs")
-    def runs(self, request, pk: int | None = None) -> Response:
-        model = self.get_object()
-        limit = int(request.query_params.get("limit", 50))
-        summaries = list_runs_for_model(model.name, limit=limit)
-        data = [
-            {
-                "id": s.id,
-                "name": s.name,
-                "status": s.status,
-                "created_at": s.created_at,
-                "pipeline_name": s.pipeline_name,
-                "model_name": s.model_name,
-                "model_version": s.model_version,
-            }
-            for s in summaries
-        ]
-        return Response(TrainingRunSummarySerializer(data, many=True).data)
-
 
 @extend_schema_view(
     list=extend_schema(
@@ -385,6 +455,12 @@ class LocalModelViewSet(StacExpandMixin, ModelMetadataMixin, viewsets.ReadOnlyMo
     ),
     retrieve=extend_schema(
         description="Retrieve one base model by id. `?expand=stac` inlines the STAC item."
+    ),
+    destroy=extend_schema(
+        description=(
+            "Delete a base model with its STAC versions and inference service (admin only). "
+            "409 while it is registering or local models are built on it."
+        )
     ),
     create=extend_schema(
         description=(
@@ -440,17 +516,17 @@ class BaseModelViewSet(
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
+    mixins.DestroyModelMixin,
     viewsets.GenericViewSet,
 ):
     stac_collection = BASE_MODELS_COLLECTION
     queryset = BaseModel.objects.all()
     serializer_class = BaseModelSerializer
-    authentication_classes = [OsmAuthentication]
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ["status", "visibility", "category", "is_pinned", "user"]
     search_fields = ["name"]
-    ordering_fields = ["created_at", "last_modified"]
+    ordering_fields = ["created_at", "last_modified", "star_count"]
 
     def get_queryset(self):
         qs = BaseModel.objects.all()
@@ -458,12 +534,13 @@ class BaseModelViewSet(
         visible = Q(visibility=Visibility.PUBLIC, status=BaseModel.Status.ACTIVE)
         if not (user and user.is_authenticated):
             qs = qs.filter(visible)
-        elif not _is_admin(user):
+        elif not is_admin(user):
             qs = qs.filter(visible | Q(user=user))
-        return annotate_stars(qs, self.request, key_field="name")
+        qs = qs.annotate(local_model_count=Count("local_models", distinct=True))
+        return annotate_usage(annotate_stars(qs, self.request, key_field="name"))
 
     def get_permissions(self):
-        if self.action in {"create", "pin", "metadata", "stac_properties"}:
+        if self.action in {"create", "destroy", "pin", "metadata", "stac_properties"}:
             return [IsAuthenticated(), IsAdmin()]
         if self.action in {"list", "retrieve"}:
             return [AllowAny()]
@@ -481,92 +558,11 @@ class BaseModelViewSet(
     def create(self, request, *args, **kwargs) -> Response:
         serializer = BaseModelRegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        data = serializer.validated_data
-        category = data.get("category") or Category.objects.get(slug="other")
-        stac_item = data.get("stac_item") or _fetch_stac_item(data["stac_item_url"])
-        if error := _pipeline_error(stac_item):
-            raise ValidationError({"stac_item": error})
-        if inference_endpoint := data.get("inference_endpoint"):
-            stac_item.setdefault("assets", {})["mlm:inference-endpoint"] = {
-                "href": inference_endpoint,
-                "type": "application/json",
-                "roles": ["mlm:inference-endpoint"],
-            }
-        stac_item.setdefault("properties", {})[FAIR_CATEGORY_PROPERTY] = category.slug
-        name = stac_item["properties"]["mlm:name"]
-
-        base_model, created = BaseModel.objects.get_or_create(
-            name=name,
-            defaults={
-                "user": request.user,
-                "category": category,
-                "status": BaseModel.Status.REGISTERING,
-            },
-        )
-        if not created:
-            base_model.category = category
-            base_model.status = BaseModel.Status.REGISTERING
-            base_model.error = ""
-            base_model.save(update_fields=["category", "status", "error", "last_modified"])
-
-        register_base_model.enqueue(base_model_id=base_model.id, stac_item=stac_item)
+        base_model = start_registration(resolve_stac_item(serializer.validated_data), request.user)
         return Response(BaseModelSerializer(base_model).data, status=status.HTTP_202_ACCEPTED)
 
-    # TODO(E): on delete, deprovision the ksvc via fair.delete_knative_service.
-
-
-class PinnedModelsView(APIView):
-    """One feed of all pinned models (base + local) for a featured view.
-
-    Public read, visibility-filtered. `?expand=stac` inlines each STAC item so
-    the pin preview metadata (`fair:source_imagery` / `fair:preview_location`)
-    comes back in the same call.
-    """
-
-    authentication_classes = [OsmAuthentication]
-    permission_classes = [AllowAny]
-
-    @extend_schema(
-        description=(
-            "List all pinned models (base + local) in one response, each tagged "
-            "with `model_type`. `?expand=stac` inlines the full STAC item."
-        ),
-        responses=OpenApiResponse(OpenApiTypes.OBJECT, description="`{count, results[]}`"),
-    )
-    def get(self, request) -> Response:
-        user = request.user
-        base_qs = BaseModel.objects.filter(is_pinned=True)
-        local_qs = (
-            LocalModel.objects.filter(is_pinned=True)
-            .select_related("base_model")
-            .annotate(run_count=Count("runs"))
-        )
-        base_visible = Q(visibility=Visibility.PUBLIC, status=BaseModel.Status.ACTIVE)
-        local_visible = Q(visibility=Visibility.PUBLIC, status=LocalModel.Status.ACTIVE)
-        if not (user and user.is_authenticated):
-            base_qs = base_qs.filter(base_visible)
-            local_qs = local_qs.filter(local_visible)
-        elif not _is_admin(user):
-            base_qs = base_qs.filter(base_visible | Q(user=user))
-            local_qs = local_qs.filter(local_visible | Q(user=user))
-        base = list(annotate_stars(base_qs, request, key_field="name"))
-        local = list(annotate_stars(local_qs, request, key_field="name"))
-
-        context = {"request": request, "stac_items_by_id": {}}
-        if _wants_expand_stac(request):
-            pairs = [(BASE_MODELS_COLLECTION, m.stac_item_id) for m in base if m.stac_item_id]
-            pairs += [(LOCAL_MODELS_COLLECTION, m.stac_item_id) for m in local if m.stac_item_id]
-            context["stac_items_by_id"] = bulk_get_cached_items(pairs)
-
-        results = [
-            {"model_type": "base", **row}
-            for row in BaseModelSerializer(base, many=True, context=context).data
-        ]
-        results += [
-            {"model_type": "local", **row}
-            for row in LocalModelSerializer(local, many=True, context=context).data
-        ]
-        return Response({"count": len(results), "results": results})
+    def perform_destroy(self, instance: BaseModel) -> None:
+        delete_base_model(instance)
 
 
 class StacAssetDownloadView(APIView):
@@ -598,9 +594,7 @@ class StacAssetDownloadView(APIView):
 
 
 class ArtifactPresignView(APIView):
-    """HEAD 200 (checked via the IAM role) so fair's public asset-URL check passes; GET 302 to a
-    presigned URL. Scoped to the artifact-store model/dataset prefixes; objects stay private.
-    """
+    """Artifacts stay private; HEAD answers fair's public asset-URL check, GET presigns them."""
 
     authentication_classes: list = []
     permission_classes = [AllowAny]
@@ -615,6 +609,7 @@ class ArtifactPresignView(APIView):
             raise NotFound("Unknown artifact.")
         return key
 
+    @extend_schema(responses={200: None, 404: None})
     def head(self, request, bucket: str, key: str) -> HttpResponse:
         from botocore.exceptions import ClientError
 
@@ -627,6 +622,10 @@ class ArtifactPresignView(APIView):
             raise
         return HttpResponse(status=200)
 
+    @extend_schema(
+        description="Redirect to a presigned download of a model or dataset artifact.",
+        responses={302: None, 404: None},
+    )
     def get(self, request, bucket: str, key: str) -> HttpResponseRedirect:
         from shared.storage import presigned_get_url
 
@@ -644,7 +643,6 @@ class ArtifactPresignView(APIView):
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    authentication_classes = [OsmAuthentication]
     lookup_field = "slug"
 
     def get_permissions(self):

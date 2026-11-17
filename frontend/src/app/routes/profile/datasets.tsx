@@ -9,7 +9,7 @@ export const UserProfileDatasetsPage = () => (
     <ProfileSectionHeader
       title={USER_PROFILE_PAGE_CONTENT.datasets.sectionTitle}
     />
-    <div className="w-full flex flex-col justify-center items-center min-h-[360px] py-12">
+    <div className="flex w-full flex-1 flex-col items-center justify-center py-12">
       <PageEmptyState
         heading="Coming soon"
         subHeading="Creating and managing your own datasets is coming soon."

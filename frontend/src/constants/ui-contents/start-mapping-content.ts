@@ -45,8 +45,8 @@ export const START_MAPPING_PAGE_CONTENT: TStartMappingPageContent = {
       options: {
         allFeatures: (prefix: string) => `${prefix} features as GeoJSON`,
         acceptedFeatures: (prefix: string) => `${prefix} features as GeoJSON`,
-        openAllFeaturesInJOSM: "Open all features in JOSM",
-        openAcceptedFeaturesInJOSM: "Open accepted features in JOSM",
+        openAllFeaturesInJOSM: "Review all features in JOSM",
+        openAcceptedFeaturesInJOSM: "Review accepted features in JOSM",
       },
     },
     predictionInProgress: "Generating...",

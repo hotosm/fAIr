@@ -1,10 +1,10 @@
 import { DropDown } from "@/components/ui/dropdown";
 import { DropdownMenuItem } from "@/components/ui/dropdown/dropdown";
 import { ElipsisIcon } from "@/components/ui/icons";
-import { BASE_API_URL } from "@/config";
+// import { BASE_API_URL } from "@/config";
 import { DropdownPlacement, PredictionRequestStatus } from "@/enums";
 import useCopyToClipboard from "@/hooks/use-clipboard";
-import { API_ENDPOINTS } from "@/services";
+// import { API_ENDPOINTS } from "@/services";
 import { TOfflinePrediction } from "@/types";
 import { downloadFileAs, showSuccessToast } from "@/utils";
 
@@ -26,8 +26,8 @@ export const MapRequestsActionsMenu = ({
   const { copyToClipboard } = useCopyToClipboard();
 
   const resultReady = hasResults(prediction);
-  const resultLink =
-    BASE_API_URL + API_ENDPOINTS.DOWNLOAD_PREDICTION_LABELS_FILE(prediction.id);
+  // const resultLink =
+  //   BASE_API_URL + API_ENDPOINTS.DOWNLOAD_PREDICTION_LABELS_FILE(prediction.id);
 
   const menuItems: DropdownMenuItem[] = [
     {
@@ -41,15 +41,15 @@ export const MapRequestsActionsMenu = ({
           `prediction-${prediction.id}.geojson`,
         ),
     },
-    {
-      label: "Copy result link",
-      value: "copy-result-link",
-      disabled: !resultReady,
-      onClick: async () => {
-        await copyToClipboard(resultLink);
-        showSuccessToast("Copied result link to clipboard.");
-      },
-    },
+    // {
+    //   label: "Copy result link",
+    //   value: "copy-result-link",
+    //   disabled: !resultReady,
+    //   onClick: async () => {
+    //     await copyToClipboard(resultLink);
+    //     showSuccessToast("Copied result link to clipboard.");
+    //   },
+    // },
     ...(onCreateMapswipe
       ? [
           {

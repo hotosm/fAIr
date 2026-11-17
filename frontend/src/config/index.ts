@@ -97,7 +97,7 @@ export const OAM_TITILER_ENDPOINT: string = parseStringEnv(
  */
 export const OAM_S3_BUCKET_URL: string = parseStringEnv(
   ENVS.OAM_S3_BUCKET_URL,
-  "https://oin-hotosm-temp.s3.us-east-1.amazonaws.com/",
+  "https://oin-hotosm-prod.s3.us-east-1.amazonaws.com/",
 );
 
 /**
@@ -649,7 +649,7 @@ export const FAIR_PROD_URL: string = parseStringEnv(
  */
 export const HOT_IMAGERY_DENSITY_PMTILES_URL: string = parseStringEnv(
   ENVS.HOT_IMAGERY_DENSITY_PMTILES_URL,
-  "https://s3.amazonaws.com/oin-hotosm-temp/global-coverage.pmtiles",
+  "https://s3.amazonaws.com/oin-hotosm-prod/global-coverage.pmtiles",
 );
 
 /**
@@ -675,7 +675,7 @@ export const HOT_IMAGERY_STAC_API_URL: string = parseStringEnv(
  */
 export const HOT_IMAGERY_RASTER_API_URL: string = parseStringEnv(
   ENVS.HOT_IMAGERY_RASTER_API_URL,
-  "https://api.imagery.hotosm.org/raster",
+  "https://tiles.imagery.hotosm.org/raster",
 );
 
 /**
@@ -692,4 +692,15 @@ export const HOT_IMAGERY_COLLECTION_ID: string = parseStringEnv(
 export const NOMINATIM_API_URL: string = parseStringEnv(
   ENVS.NOMINATIM_API_URL,
   "https://nominatim.openstreetmap.org",
+);
+
+/** Maximum successful predictions retained in each mapping project. */
+export const PREDICTION_HISTORY_LIMIT = Math.max(
+  1,
+  parseIntEnv(ENVS.PREDICTION_HISTORY_LIMIT, 5),
+);
+
+/** Largest saved result in JSON characters: a full history stays under the backend's default 2 MiB USER_STATE_MAX_BYTES. */
+export const SAVED_PREDICTION_MAX_LENGTH = Math.floor(
+  (2 * 1024 * 1024 * 0.9) / PREDICTION_HISTORY_LIMIT,
 );

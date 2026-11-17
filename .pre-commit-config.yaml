@@ -62,7 +62,7 @@ repos:
 
       - id: commitizen
         name: commitizen check
-        entry: cz --config backend/pyproject.toml check --commit-msg-file
+        entry: cz check --commit-msg-file
         language: python
         additional_dependencies: ["commitizen==4.13.10"]
         stages: [commit-msg]

@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.urls import path
 
-from config.settings import AuthProvider
+from config.env import AuthProvider
 
 # now import the views.py file into this code
 from . import views

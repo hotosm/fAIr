@@ -269,8 +269,11 @@ export const useTileServiceLayer = ({
       }
     };
 
-    const clearOnError = (event: { sourceId?: string }) => {
-      if (event.sourceId === TMS_SOURCE_ID) setLoading(false);
+    // MapLibre adds the failing source's id to errors it forwards from a source.
+    const clearOnError = (event: object) => {
+      if ("sourceId" in event && event.sourceId === TMS_SOURCE_ID) {
+        setLoading(false);
+      }
     };
 
     map.on("sourcedata", clearWhenLoaded);

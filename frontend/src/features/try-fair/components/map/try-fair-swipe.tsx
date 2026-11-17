@@ -1,4 +1,4 @@
-import maplibregl, { Map } from "maplibre-gl";
+import { Map } from "maplibre-gl";
 import {
   KeyboardEvent,
   PointerEvent,
@@ -14,9 +14,8 @@ import { PredictionClassStyle } from "@/features/try-fair/utils/prediction-class
 const MIN_DIVIDER_PERCENT = 5;
 const MAX_DIVIDER_PERCENT = 95;
 const KEYBOARD_STEP_PERCENT = 5;
-// Sits in the map corners above the sidebar and controls; hidden once the divider covers its side.
-const CORNER_LABEL =
-  "absolute top-0.5 z-[4] rounded bg-black/60 px-1.5 py-0.5 text-[9px] leading-none font-semibold uppercase tracking-wide text-white pointer-events-none";
+const SIDE_LABEL =
+  "absolute top-1/2 -translate-y-1/2 rounded bg-black/60 px-1.5 py-0.5 text-[9px] leading-none font-semibold uppercase tracking-wide text-white pointer-events-none";
 const LABEL_HIDE_PERCENT = 8;
 
 type TryFairSwipeProps = {
@@ -52,7 +51,7 @@ export const TryFairSwipe = ({
 
   useEffect(() => {
     if (!map || !preImageryUrl || !containerRef.current) return;
-    const createdMap = new maplibregl.Map({
+    const createdMap = new Map({
       container: containerRef.current,
       style: {
         version: 8,
@@ -132,33 +131,37 @@ export const TryFairSwipe = ({
         outputType={outputType}
         classStyle={classStyle}
       />
-      <span
-        className={`${CORNER_LABEL} left-0.5`}
-        style={{ opacity: dividerPercent > LABEL_HIDE_PERCENT ? 1 : 0 }}
-      >
-        Pre
-      </span>
-      <span
-        className={`${CORNER_LABEL} right-0.5`}
-        style={{
-          opacity: dividerPercent < 100 - LABEL_HIDE_PERCENT ? 1 : 0,
-        }}
-      >
-        Post
-      </span>
       <div
         className="absolute top-0 bottom-0 z-[4]"
         style={{ left: `${dividerPercent}%`, transform: "translateX(-50%)" }}
       >
         <div className="mx-auto h-full w-0.5 bg-white/90 shadow" />
+        <span
+          className={`${SIDE_LABEL} right-full mr-5`}
+          style={{ opacity: dividerPercent > LABEL_HIDE_PERCENT ? 1 : 0 }}
+        >
+          Pre
+        </span>
+        <span
+          className={`${SIDE_LABEL} left-full ml-5`}
+          style={{
+            opacity: dividerPercent < 100 - LABEL_HIDE_PERCENT ? 1 : 0,
+          }}
+        >
+          Post
+        </span>
         <button
           type="button"
+          role="slider"
           aria-label="Drag to compare pre and post imagery"
+          aria-valuemin={MIN_DIVIDER_PERCENT}
+          aria-valuemax={MAX_DIVIDER_PERCENT}
+          aria-valuenow={Math.round(dividerPercent)}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onKeyDown={handleKeyDown}
           style={{ touchAction: "none" }}
-          className="absolute top-1/2 left-1/2 flex size-8 -translate-x-1/2 -translate-y-1/2 cursor-ew-resize items-center justify-center rounded-full border border-gray-border bg-white text-dark shadow-lg"
+          className="absolute top-1/2 left-1/2 flex size-8 -translate-x-1/2 -translate-y-1/2 cursor-ew-resize items-center justify-center rounded-full border border-gray-border bg-white text-dark shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         >
           <span className="text-xs">&#8660;</span>
         </button>

@@ -36,33 +36,15 @@ export const USER_PROFILE_PAGE_CONTENT: TUserProfilePageContent = {
       submissionInProgress: "Submitting...",
       emailVerifiedTooltip: "Email verified",
       emailNotVerifiedMessage:
-        "Please verify your email address to receive notifications.",
+        "Please verify your email address to subscribe to the newsletter.",
       verifyEmailButtonText: "Verify Email",
     },
     notifications: {
       sectionTitle: "Notifications",
-      notificationKeys: {
-        monthlyNewsletter: "monthlyNewsletter",
-        emailTrainingNotification: "emailTrainingNotification",
-        webTrainingNotification: "webTrainingNotification",
+      newsletter: {
+        label: "Monthly Newsletter",
+        description: "Subscribe to our monthly newsletter.",
       },
-      notificationTypes: [
-        {
-          label: "Monthly Newsletter",
-          key: "monthlyNewsletter",
-          description: "Subscribe to our monthly newsletter.",
-        },
-        {
-          label: "Email Training Notification",
-          key: "emailTrainingNotification",
-          description: "Receive model training notifications via email.",
-        },
-        {
-          label: "Web Training Notification",
-          key: "webTrainingNotification",
-          description: "Receive model training notifications via fAIr web.",
-        },
-      ],
     },
     account: {
       sectionTitle: "Account",

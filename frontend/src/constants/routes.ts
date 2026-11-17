@@ -63,6 +63,7 @@ export const APPLICATION_ROUTES = {
   PROFILE_MODELS: "/profile/models",
   PROFILE_DATASETS: "/profile/datasets",
   PROFILE_OFFLINE_PREDICTIONS: "/profile/map-requests",
+  PROFILE_MAPPING_HISTORY: "/profile/mapping-history",
 
   MAP_REQUEST_BASE: "/map-requests",
 
@@ -75,6 +76,7 @@ export const APPLICATION_ROUTES = {
 };
 
 export const HOT_PRIVACY_POLICY_URL: string = "https://www.hotosm.org/privacy";
+export const FAIR_DOCS_URL: string = "https://hotosm.github.io/fAIr/";
 /**
  * The navigation tabs used in the profile layout.
  */

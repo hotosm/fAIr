@@ -2,6 +2,10 @@ import { useEffect, useState } from "react";
 import { BaseModelStacItem } from "@/features/try-fair/api/stac";
 import { useImageryCountry } from "@/features/try-fair/hooks/use-imagery-country";
 import { Button } from "@/components/ui/button";
+import {
+  SwitchSampleDialog,
+  shouldShowSwitchWarning,
+} from "@/features/try-fair/components/model-picker/switch-sample-dialog";
 import { GlobeSearchIcon } from "@/components/ui/icons/globe-search-icon";
 import { ModelType } from "@/enums";
 import { useStartMappingStore } from "@/features/try-fair/utils/start-mapping-store";
@@ -14,7 +18,11 @@ import { ChooseImageryIcon } from "@/components/ui/icons/choose-imagery-icon";
 import { DoubleArrowIcon } from "@/components/ui/icons/double-arrow-icon";
 import { ChevronDownIcon } from "@/components/ui/icons";
 import { LocationSearchIcon } from "@/components/ui/icons/location-search-icon";
-import { FeatureListItem } from "@/features/try-fair/components/model-picker/feature-to-map-list";
+import {
+  FeatureDropdown,
+  FeatureListItem,
+} from "@/features/try-fair/components/model-picker/feature-to-map-list";
+import useScreenSize from "@/hooks/use-screen-size";
 import {
   RadioDot,
   FeatureBadge,
@@ -24,7 +32,7 @@ import {
 import { ImageryPreviewCard } from "@/features/try-fair/components/model-picker/imagery-preview-card";
 import { RecentImageriesList } from "@/features/try-fair/components/model-picker/recent-imageries-list";
 import type { RecentImageryEntry } from "@/features/try-fair/hooks/use-recent-imageries";
-import { cleanFeatureLabel } from "@/features/try-fair/utils/common";
+import { featureDisplayName } from "@/features/try-fair/utils/common";
 
 // ─── ModelPicker trigger ──────────────────────────────────────────────────────
 
@@ -34,7 +42,8 @@ type ModelPickerProps = {
   models: BaseModelStacItem[];
   loading?: boolean;
   disabled?: boolean;
-  isSmallViewport: boolean;
+  /** No sample models exist, so there's nothing to select. */
+  noSamples?: boolean;
   /** Opens the page-level modal dialog (desktop + mobile). */
   openMobileDialog?: () => void;
 };
@@ -43,7 +52,7 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
   selectedModel,
   loading = false,
   disabled = false,
-  isSmallViewport,
+  noSamples = false,
   openMobileDialog,
 }) => {
   // const place = selectedModel?.properties["fair:preview"]?.place;
@@ -61,27 +70,33 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
       : "Custom Imagery";
   const triggerContent = (
     <div className="flex items-center justify-between gap-2 w-full">
-      <LocationSearchIcon className="size-5 shrink-0 hidden md:inline-block" />
+      <LocationSearchIcon className="size-5 shrink-0" />
       <div className="w-full text-left flex-1 min-w-0">
         {isImagerySelected ? (
           <>
-            <p className="font-semibold text-dark text-xs leading-tight capitalize truncate">
+            <p
+              className="font-semibold text-dark text-xs leading-tight capitalize truncate"
+              title={selectedImageryName}
+            >
               {selectedImageryName}
             </p>
-            <p className="text-grey capitalize font-semibold text-[10px] leading-tight truncate">
-              {cleanFeatureLabel(feature)}
+            <p className="text-grey font-semibold text-[10px] leading-tight truncate">
+              {featureDisplayName(feature)}
             </p>
           </>
         ) : loading ? (
           <p className="text-grey text-xs animate-pulse">Loading models…</p>
         ) : selectedModel ? (
           <>
-            <p className="font-semibold text-dark text-xs leading-tight capitalize truncate">
+            <p
+              className="font-semibold text-dark text-xs leading-tight truncate"
+              title={selectedModel.properties.title}
+            >
               {selectedModel.properties.title}
             </p>
             <div className="flex flex-wrap items-center gap-1">
-              <p className="text-grey capitalize font-semibold text-[10px] leading-tight truncate">
-                {cleanFeatureLabel(
+              <p className="text-grey font-semibold text-[10px] leading-tight truncate">
+                {featureDisplayName(
                   selectedModel.properties["fair:category"] ?? "Building",
                 )}
               </p>
@@ -91,7 +106,9 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
             </div>
           </>
         ) : (
-          <p className="text-grey text-xs">Select a model</p>
+          <p className="text-grey text-xs">
+            {noSamples ? "No samples available" : "Select a model"}
+          </p>
         )}
       </div>
       <ChevronDownIcon className="size-3 shrink-0" />
@@ -104,10 +121,7 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
       type="button"
       disabled={disabled}
       onClick={openMobileDialog}
-      className={cn(
-        "w-full h-full flex items-center text-left cursor-pointer",
-        isSmallViewport ? "rounded-xl border px-3 py-2 bg-white" : "",
-      )}
+      className="w-full h-full flex items-center text-left cursor-pointer"
     >
       {triggerContent}
     </button>
@@ -117,10 +131,6 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
 // ─── Sentinel key for imagery selection ──────────────────────────────────────
 
 const IMAGERY_KEY = "imagery";
-
-type StagedChoice =
-  | { type: "model"; model: BaseModelStacItem }
-  | { type: "imagery"; entry?: RecentImageryEntry };
 
 // ─── Tab constants ────────────────────────────────────────────────────────────
 
@@ -155,15 +165,16 @@ export const ModelPickerContent = ({
   onClearRecentImageries: () => void;
 }) => {
   const { setChooseLocation, mode } = useTryFairParams();
-  const { setCurrentModelType, currentModelType, selectedImagery } =
-    useStartMappingStore();
+  const { currentModelType, selectedImagery } = useStartMappingStore();
+  const { isSmallViewport } = useScreenSize();
 
   const isImageryModeActive =
     currentModelType === ModelType.IMAGERY || mode === ModelType.IMAGERY;
 
-  const tabs = isImageryModeActive
-    ? [TAB_CHOOSE, TAB_SAMPLES]
-    : [TAB_SAMPLES, TAB_CHOOSE];
+  // Keep the navigation stable; only the initially selected tab reflects the
+  // current selection. Samples use demo imagery, while a user-selected
+  // imagery source opens the custom-setup tab.
+  const tabs = [TAB_SAMPLES, TAB_CHOOSE];
 
   // Active tab: defaults to whichever mode is currently active
   const [activeTab, setActiveTab] = useState<string>(() =>
@@ -176,7 +187,11 @@ export const ModelPickerContent = ({
   >("preview");
 
   // Choice staged in the picker but not yet applied (committed only on Apply).
-  const [stagedChoice, setStagedChoice] = useState<StagedChoice | null>(null);
+  const [stagedRecentImagery, setStagedRecentImagery] =
+    useState<RecentImageryEntry | null>(null);
+  const [pendingSwitch, setPendingSwitch] = useState<
+    BaseModelStacItem | "custom" | null
+  >(null);
 
   // Feature staged in the picker but not yet applied (committed only on Apply).
   const [stagedFeatureSlug, setStagedFeatureSlug] = useState<string | null>(
@@ -185,7 +200,7 @@ export const ModelPickerContent = ({
 
   // Drop staged choice and sync tab when committed selection changes.
   useEffect(() => {
-    setStagedChoice(null);
+    setStagedRecentImagery(null);
     setStagedFeatureSlug(null);
     setActiveTab(
       currentModelType === ModelType.IMAGERY || mode === ModelType.IMAGERY
@@ -197,16 +212,14 @@ export const ModelPickerContent = ({
   // A new browser selection supersedes any unapplied recent-list choice.
   useEffect(() => {
     if (!stagedImagery) return;
-    setStagedChoice(null);
+    setStagedRecentImagery(null);
     setImageryPanelView("preview");
     setActiveTab(TAB_CHOOSE);
   }, [stagedImagery]);
 
   // Imagery currently shown (staged selection, else the applied imagery).
   const activeImagerySelection =
-    stagedChoice?.type === "imagery" && stagedChoice.entry
-      ? stagedChoice.entry.selection
-      : (stagedImagery ?? selectedImagery);
+    stagedRecentImagery?.selection ?? stagedImagery ?? selectedImagery;
 
   // Imagery metadata
   const imageryCountry = useImageryCountry(
@@ -214,11 +227,12 @@ export const ModelPickerContent = ({
   );
   const isOpenAerialMapImagery =
     activeImagerySelection?.source === ImagerySource.OPEN_AERIAL_MAP;
-  const activeImageryTitle = activeImagerySelection
-    ? isOpenAerialMapImagery
-      ? activeImagerySelection.item.title
-      : (imageryCountry?.place ?? "Custom Imagery")
-    : "";
+  let activeImageryTitle = "";
+  if (isOpenAerialMapImagery) {
+    activeImageryTitle = activeImagerySelection.item.title;
+  } else if (activeImagerySelection) {
+    activeImageryTitle = imageryCountry?.place ?? "Custom Imagery";
+  }
   const activeImagerySourceLabel = isOpenAerialMapImagery
     ? "OpenAerialMap"
     : "Custom";
@@ -236,44 +250,29 @@ export const ModelPickerContent = ({
     featureOptions[0] ??
     null;
 
-  // A stable key identifying a model/imagery selection, used to detect changes.
-  const getChoiceKey = (choice: StagedChoice): string =>
-    choice.type === "imagery"
-      ? (choice.entry?.tileUrl ?? IMAGERY_KEY)
-      : choice.model.id;
-
   const appliedSelectionKey =
     currentModelType === ModelType.IMAGERY
       ? (selectedImagery?.tileUrl ?? IMAGERY_KEY)
       : (selectedModel?.id ?? null);
-  const stagedChoiceKey = stagedChoice ? getChoiceKey(stagedChoice) : null;
-  const stagedImageryKey = stagedImagery?.tileUrl ?? null;
+  const stagedImageryKey =
+    stagedRecentImagery?.tileUrl ?? stagedImagery?.tileUrl ?? null;
   const hasStagedFeatureChange =
     stagedFeatureSlug !== null && stagedFeatureSlug !== feature;
   const hasUnappliedChanges =
-    ((stagedChoiceKey ?? stagedImageryKey) !== null &&
-      (stagedChoiceKey ?? stagedImageryKey) !== appliedSelectionKey) ||
+    (stagedImageryKey !== null && stagedImageryKey !== appliedSelectionKey) ||
     hasStagedFeatureChange;
 
-  const handleApply = () => {
-    if (!stagedChoice && !stagedImagery && !hasStagedFeatureChange) return;
-    if (stagedChoice) {
-      if (stagedChoice.type === "model") {
-        onSelect(stagedChoice.model);
-      } else {
-        if (stagedChoice.entry) {
-          onApplyRecentImagery?.(stagedChoice.entry);
-        } else {
-          setCurrentModelType(ModelType.IMAGERY);
-        }
-      }
+  const applyCustomSetup = () => {
+    setPendingSwitch(null);
+    if (stagedRecentImagery) {
+      onApplyRecentImagery?.(stagedRecentImagery);
     } else if (stagedImagery) {
       onApplyStagedImagery?.(stagedImagery);
     }
     if (hasStagedFeatureChange && stagedFeatureSlug) {
       onFeatureChange?.(stagedFeatureSlug);
     }
-    setStagedChoice(null);
+    setStagedRecentImagery(null);
     setStagedFeatureSlug(null);
     onClose?.();
   };
@@ -287,10 +286,55 @@ export const ModelPickerContent = ({
     onClose?.();
   };
 
+  const applySample = (model: BaseModelStacItem) => {
+    setPendingSwitch(null);
+    setStagedRecentImagery(null);
+    setStagedFeatureSlug(null);
+    onSelect(model);
+    onClose?.();
+  };
+
+  const handleApply = () => {
+    if (!hasUnappliedChanges) return;
+    if (
+      (selectedModel !== null || isImageryModeActive) &&
+      shouldShowSwitchWarning()
+    ) {
+      setPendingSwitch("custom");
+    } else {
+      applyCustomSetup();
+    }
+  };
+
+  const handleSelectSample = (model: BaseModelStacItem) => {
+    if (!isImageryModeActive && selectedModel?.id === model.id) return;
+    if (
+      (selectedModel !== null || isImageryModeActive) &&
+      shouldShowSwitchWarning()
+    ) {
+      setPendingSwitch(model);
+    } else {
+      applySample(model);
+    }
+  };
+
   return (
     <div className="flex  flex-col">
+      {pendingSwitch && (
+        <SwitchSampleDialog
+          selectionType={pendingSwitch === "custom" ? "imagery" : "sample"}
+          onCancel={() => setPendingSwitch(null)}
+          onConfirm={() => {
+            if (pendingSwitch === "custom") {
+              applyCustomSetup();
+            } else {
+              applySample(pendingSwitch);
+            }
+          }}
+        />
+      )}
       {/* ── Tabs header + Apply ── */}
-      <div className="flex items-center border-b border-gray-border mb-4">
+      <div className="flex h-14 shrink-0 items-end border-b border-gray-border mb-4">
         <div className="flex flex-1">
           {tabs.map((tab) => (
             <button
@@ -298,7 +342,7 @@ export const ModelPickerContent = ({
               type="button"
               onClick={() => setActiveTab(tab)}
               className={cn(
-                "px-4 pb-3 text-sm font-medium transition-colors border-b-2 -mb-px",
+                "flex-1 px-4 pb-3 text-sm font-medium transition-colors border-b-2 -mb-px sm:flex-none",
                 activeTab === tab
                   ? "border-primary text-dark"
                   : "border-transparent text-grey hover:text-dark",
@@ -308,19 +352,21 @@ export const ModelPickerContent = ({
             </button>
           ))}
         </div>
-        <div className="pb-3">
-          <Button
-            type="button"
-            size="medium"
-            className="!w-fit"
-            rounded
-            fontSize="12px"
-            disabled={!hasUnappliedChanges}
-            onClick={handleApply}
-          >
-            Apply
-          </Button>
-        </div>
+        {activeTab === TAB_CHOOSE && !isSmallViewport && (
+          <div className="pb-3">
+            <Button
+              type="button"
+              size="medium"
+              className="!w-fit"
+              rounded
+              fontSize="12px"
+              disabled={!hasUnappliedChanges}
+              onClick={handleApply}
+            >
+              Apply
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* ── Samples tab ── */}
@@ -351,14 +397,14 @@ export const ModelPickerContent = ({
                   <button
                     key={model.id}
                     type="button"
-                    onClick={() => onSelect(model)}
+                    onClick={() => handleSelectSample(model)}
                     className={cn(
                       "text-left p-3 bg-frosted-blue rounded-lg transition-colors",
                       isApplied ? "border-primary border-2" : "",
                     )}
                   >
                     <div className="flex items-start justify-between gap-2 mb-1">
-                      <p className="text-dark capitalize text-sm font-bold leading-tight flex-1 min-w-0 break-words">
+                      <p className="text-dark text-sm font-bold leading-tight flex-1 min-w-0 break-words">
                         {model?.properties?.title ?? ""}
                       </p>
                       {isApplied ? (
@@ -385,13 +431,15 @@ export const ModelPickerContent = ({
                 );
               })
             ) : (
-              <div className="col-span-2 flex flex-col items-center justify-center py-10 px-4 text-center">
-                <p className="text-dark font-semibold text-sm mb-1">
-                  No models available
-                </p>
-                <p className="text-grey text-xs max-w-xs">
-                  There are currently no models available for use.
-                </p>
+              <div className="col-span-2 flex flex-col items-center justify-center gap-3 py-10 px-4 text-center">
+                <div>
+                  <p className="text-dark font-semibold text-sm mb-1">
+                    No samples available
+                  </p>
+                  <p className="text-grey text-xs max-w-xs">
+                    There are no sample models to map with right now.
+                  </p>
+                </div>
               </div>
             )}
           </div>
@@ -400,25 +448,37 @@ export const ModelPickerContent = ({
 
       {/* ── Custom setup tab ── */}
       {activeTab === TAB_CHOOSE && (
-        <div className="flex gap-4 h-[520px]">
-          {/* Left: Feature list */}
-          <div className="w-[180px] shrink-0  overflow-hidden flex flex-col">
+        // Phones: feature dropdown above the imagery, Apply at the bottom.
+        // Wider screens: feature list beside the imagery.
+        <div className="flex flex-col gap-4 sm:h-[520px] sm:flex-row">
+          <div className="flex shrink-0 flex-col overflow-hidden sm:w-[180px]">
             <p className="text-xs pb-2">Feature to map</p>
-            <div className="flex flex-col bg-frosted-blue border  rounded-lg flex-1 px-1  overflow-y-auto">
-              {featureOptions.map((featureOption) => (
-                <FeatureListItem
-                  key={featureOption.slug}
-                  feature={featureOption}
-                  isSelected={activeFeatureSlug === featureOption.slug}
-                  disabled={false}
-                  onSelect={(slug) => setStagedFeatureSlug(slug)}
-                />
-              ))}
-            </div>
+            {isSmallViewport ? (
+              <FeatureDropdown
+                features={featureOptions}
+                selectedSlug={activeFeature?.slug ?? activeFeatureSlug ?? ""}
+                selectedLabel={activeFeature?.label ?? "Select a feature"}
+                onSelect={setStagedFeatureSlug}
+              />
+            ) : (
+              <div className="flex flex-col bg-frosted-blue border  rounded-lg flex-1 px-1  overflow-y-auto">
+                {featureOptions.map((featureOption) => (
+                  <FeatureListItem
+                    key={featureOption.slug}
+                    feature={featureOption}
+                    isSelected={activeFeatureSlug === featureOption.slug}
+                    disabled={false}
+                    onSelect={setStagedFeatureSlug}
+                  />
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Right: Imagery panel */}
-          <div className="flex-1 overflow-hidden flex flex-col">
+          {/* Phones: a fixed-height block (flex-1 would collapse it to 0 in
+              this content-sized column). Wider screens: fill the row. */}
+          <div className="flex h-[420px] flex-none flex-col overflow-hidden sm:h-auto sm:flex-1">
             {activeImagerySelection ? (
               imageryPanelView === "recent" ? (
                 /* Recent imageries list sub-view */
@@ -426,8 +486,10 @@ export const ModelPickerContent = ({
                   recentImageries={recentImageries}
                   currentTileUrl={activeImagerySelection.tileUrl}
                   onSelectRecent={(entry) => {
-                    setStagedChoice({ type: "imagery", entry });
-                    setImageryPanelView("preview");
+                    setStagedRecentImagery(entry);
+                    // Phones stay on the list (the check shows the choice)
+                    // and confirm with Apply below it.
+                    if (!isSmallViewport) setImageryPanelView("preview");
                   }}
                   onBack={() => setImageryPanelView("preview")}
                   onClear={onClearRecentImageries}
@@ -483,6 +545,17 @@ export const ModelPickerContent = ({
               </div>
             )}
           </div>
+
+          {isSmallViewport && (
+            <button
+              type="button"
+              disabled={!hasUnappliedChanges}
+              onClick={handleApply}
+              className="w-full rounded-lg bg-primary py-3 text-sm text-white disabled:cursor-not-allowed disabled:bg-[#E3E5E8]"
+            >
+              Apply
+            </button>
+          )}
         </div>
       )}
     </div>

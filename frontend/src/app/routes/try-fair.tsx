@@ -3,13 +3,13 @@ import { TRY_FAIR_PAGE_CONTENT } from "@/constants/ui-contents/try-fair-contents
 import {
   ImagerySource,
   ModelType,
+  SHOELACE_SIZES,
   TryFairMapOutputType,
   TryFairResolution,
 } from "@/enums";
 import { TryFairMap } from "@/features/try-fair/components/map/try-fair-map";
 import { TryFairSidebar } from "@/features/try-fair/components/try-fair-sidebar";
 import { ModelPickerContent } from "@/features/try-fair/components/model-picker-modal";
-import { getSelectedModel } from "@/features/try-fair/utils/models";
 import { useMapInstance } from "@/hooks/use-map-instance";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTryFairParams } from "@/features/try-fair/hooks/use-try-fair-params";
@@ -20,6 +20,7 @@ import {
 import { BBOX } from "@/types";
 import { MapLargeAreaModal } from "@/features/try-fair/components/start-mapping/map-large-area-modal";
 import { useFairPredict } from "@/features/try-fair/hooks/use-fair-predict";
+import { countPredictionRun } from "@/features/try-fair/api/prediction-runs";
 import { useTryFairImagery } from "@/features/try-fair/hooks/use-try-fair-imagery";
 import { useTryFairTour } from "@/features/try-fair/hooks/use-try-fair-tour";
 import {
@@ -28,8 +29,15 @@ import {
 } from "@/features/try-fair/api/stac";
 import { useImageryMappingModel } from "@/features/try-fair/hooks/use-imagery-mapping-model";
 import useScreenSize from "@/hooks/use-screen-size";
-import { MobileDrawer } from "@/components/ui/drawer";
-import { getModelOutputType } from "@/features/try-fair/utils/common";
+import { MapBottomSheet } from "@/components/ui/drawer/map-bottom-sheet";
+import type { MapUnavailableReason } from "@/features/try-fair/components/map-unavailable-notice";
+import { cleanFeatureLabel } from "@/features/try-fair/utils/common";
+import { MobileMapToolbar } from "@/features/try-fair/components/mobile/mobile-map-toolbar";
+import {
+  getModelDefaultResolution,
+  getModelOutputType,
+  predictErrorMessage,
+} from "@/features/try-fair/utils/common";
 import { Dialog } from "@/components/ui/dialog";
 import { useDialog } from "@/hooks/use-dialog";
 import { AdvancedModelPickerContent } from "@/features/try-fair/components/model-picker/advanced-model-picker-dialog";
@@ -39,7 +47,7 @@ import { SignInPromptDialog } from "@/features/try-fair/components/modals/sign-i
 import type { ImagerySelection } from "@/features/try-fair/types/imagery-types";
 import { MapLargeAreaRequestSuccess } from "@/features/try-fair/components/start-mapping/map-large-area-request-success-dialog";
 import { useShallow } from "zustand/react/shallow";
-import { showErrorToast } from "@/utils";
+import { showErrorToast, showWarningToast } from "@/utils";
 import { reverseGeocodeCountry } from "@/features/try-fair/api/hot-imagery";
 import { useRecentImageries } from "@/features/try-fair/hooks/use-recent-imageries";
 import type { RecentImageryEntry } from "@/features/try-fair/hooks/use-recent-imageries";
@@ -47,13 +55,64 @@ import { getPredictionClassStyle } from "@/features/try-fair/utils/prediction-cl
 import { useAuth } from "@/app/providers/auth-provider";
 import { useParams } from "react-router-dom";
 import { MappingProjectAutosave } from "@/features/try-fair/components/mapping-project-autosave";
-import type { SavedUserState } from "@/features/try-fair/api/user-state";
+import {
+  PREDICTION_HISTORY_LIMIT,
+  SAVED_PREDICTION_MAX_LENGTH,
+} from "@/config";
+import {
+  appendPrediction,
+  getHistoryUrlParams,
+  getSavedPrediction,
+  restorePredictionHistory,
+  savableHistory,
+} from "@/features/try-fair/utils/prediction-history";
+import { PredictionHistoryPanel } from "@/features/try-fair/components/prediction-history-panel";
+import {
+  FeatureFeedbackLayer,
+  FeedbackSentModal,
+  ProvideFeedbackModal,
+  MobileResultsPanel,
+  ResultsSummary,
+  useFeatureFeedback,
+  type FeatureFeedbackContext,
+  useFeedbackFlow,
+} from "@/features/feedback";
+import { getDownloadData } from "@/features/try-fair/components/start-mapping/export-map-results";
+import { geoJSONDowloader } from "@/utils/geo/geo-utils";
+import type {
+  MappingSnapshot,
+  PredictionHistoryEntry,
+  SavedUserState,
+} from "@/features/try-fair/api/user-state";
 
 export const TryFairPage = ({
   initialProject,
 }: {
   initialProject?: SavedUserState;
 }) => {
+  const [predictionHistory, setPredictionHistory] = useState(() =>
+    restorePredictionHistory(initialProject, PREDICTION_HISTORY_LIMIT),
+  );
+  const [activePredictionId, setActivePredictionId] = useState<string | null>(
+    () =>
+      initialProject?.state.active_prediction_id ??
+      (initialProject?.state.prediction_result
+        ? (predictionHistory[predictionHistory.length - 1]?.id ?? null)
+        : null),
+  );
+  const [restoredSnapshot, setRestoredSnapshot] =
+    useState<MappingSnapshot | null>(null);
+  const showPredictionHistory = useStartMappingStore(
+    (state) => state.showPredictionHistory,
+  );
+  const setShowPredictionHistory = useStartMappingStore(
+    (state) => state.setShowPredictionHistory,
+  );
+  useEffect(
+    () => () => setShowPredictionHistory(false),
+    [setShowPredictionHistory],
+  );
+
   const { map, mapContainerRef } = useMapInstance(
     false,
     false,
@@ -94,7 +153,9 @@ export const TryFairPage = ({
 
   const {
     urlState,
+    restoreParams,
     modelId,
+    selectedModel,
     selectedModelId,
     outputType,
     resolution,
@@ -104,6 +165,9 @@ export const TryFairPage = ({
     setOutputType,
     setResolution,
     setConfidence,
+    parameterOverrides,
+    setParameterOverride,
+    resetParameterOverrides,
     feature,
     setFeature,
     mode,
@@ -122,10 +186,6 @@ export const TryFairPage = ({
 
   const isChooseLocationOpen = Boolean(chooseLocation);
 
-  useEffect(() => {
-    if (mode === ModelType.DEMO) setHasSuccessfulPrediction(false);
-  }, [mode]);
-
   const { recentImageries, addRecentImagery, clearRecentImageries } =
     useRecentImageries();
 
@@ -138,10 +198,6 @@ export const TryFairPage = ({
     [allModels, localModels],
   );
 
-  const selectedModel = useMemo(
-    () => getSelectedModel(models, modelId),
-    [models, modelId],
-  );
   const {
     selectedImagery,
     imageryBounds,
@@ -174,16 +230,16 @@ export const TryFairPage = ({
     confidence,
     selectedModel,
     selectedModelId,
+    allowUnpinned: mappingMode === "advanced",
   });
   const predictionClassStyle = useMemo(
     () => getPredictionClassStyle(modelForMapping),
     [modelForMapping],
   );
 
+  const modelPreview = modelForMapping?.properties["fair:preview"];
   const preImageryUrl =
-    mode === ModelType.DEMO
-      ? (modelForMapping?.properties["fair:preview"]?.pre_imagery?.url ?? null)
-      : null;
+    mode === ModelType.DEMO ? (modelPreview?.pre_imagery?.url ?? null) : null;
 
   useEffect(() => {
     if (modelForMapping?.id && modelForMapping.id !== modelId) {
@@ -204,15 +260,6 @@ export const TryFairPage = ({
   const [latestGridZoom, setLatestGridZoom] = useState<number | null>(
     initialProject?.state.zoom ?? null,
   );
-  const [parameterOverrides, setParameterOverrides] = useState<
-    Record<string, number | string | boolean>
-  >(() =>
-    Object.fromEntries(
-      Object.entries(initialProject?.state.params ?? {}).filter(
-        ([key]) => key !== "confidence_threshold",
-      ),
-    ),
-  );
   const paramValues = useMemo(
     () => ({ ...defaultParamValues, ...parameterOverrides }),
     [defaultParamValues, parameterOverrides],
@@ -227,28 +274,29 @@ export const TryFairPage = ({
       previousMappingModel.current &&
       previousMappingModel.current !== mappingModelId
     ) {
-      setParameterOverrides({});
+      resetParameterOverrides();
     }
     previousMappingModel.current = mappingModelId;
-  }, [mappingModelId]);
+  }, [mappingModelId, resetParameterOverrides]);
 
   // Keep the saved AOI centered while imagery metadata loads. A new imagery
   // selection releases this override and uses that imagery's normal center.
   const restoredCenter = useMemo<[number, number] | undefined>(() => {
-    const saved = initialProject?.state;
+    const saved = restoredSnapshot ?? initialProject?.state;
     if (!saved?.bbox) return undefined;
     const original = saved.url_params;
     const sameImagery = original
       ? mode === original.mode &&
+        (mode !== ModelType.DEMO || modelId === original.model) &&
         imageryUrl === original.imagery &&
         oamItemId === original.oamItem
       : mode === ModelType.IMAGERY && imageryUrl === saved.imagery.url;
     if (!sameImagery) return undefined;
     const [w, s, e, n] = saved.bbox;
     return [(w + e) / 2, (s + n) / 2];
-  }, [initialProject, mode, imageryUrl, oamItemId]);
+  }, [initialProject, restoredSnapshot, mode, modelId, imageryUrl, oamItemId]);
   // Snapshot of the current prediction inputs vs what was last submitted,
-  const restoredPrediction = initialProject?.state.prediction_result;
+  const restoredPrediction = getSavedPrediction(initialProject);
   const lastPredictedInputsRef = useRef<string | null>(
     restoredPrediction
       ? JSON.stringify({
@@ -348,13 +396,15 @@ export const TryFairPage = ({
   const {
     predict,
     isPredicting,
+    stage: predictionStage,
+    result: predictResult,
     predictions,
     predictionBBox,
     predictionGridZoom,
     clearPredictions,
+    restoreResult,
     cancelPrediction,
-    result: predictionResult,
-  } = useFairPredict(initialProject?.state.prediction_result ?? null);
+  } = useFairPredict(restoredPrediction);
 
   const handleCancelPrediction = useCallback(() => {
     cancelPrediction();
@@ -363,6 +413,12 @@ export const TryFairPage = ({
 
   const handleSelectModel = (model: BaseModelStacItem) => {
     setModelId(model.id);
+    setResolution(getModelDefaultResolution(model));
+    // Keep the feature in step with the chosen model. Otherwise e.g. the
+    // Freetown Trees sample leaves feature=buildings, and the advanced picker
+    // then "corrects" the model back to the buildings default.
+    const category = model.properties["fair:category"];
+    if (category && category !== feature) setFeature(category);
 
     // Only reset imagery & mode when the user was on a sample/demo location.
     // If they have their own imagery selected (advanced picker usage), keep it.
@@ -370,7 +426,6 @@ export const TryFairPage = ({
       setCurrentModelType(ModelType.DEMO);
       setMode(ModelType.DEMO);
       setImagery({ url: null, tileServiceType: null, oamItemId: null });
-      setResolution(TryFairResolution.LOW);
     }
 
     // Reset confidence threshold to model's spec default if available
@@ -385,6 +440,8 @@ export const TryFairPage = ({
     // Invalidate so the Map button re-enables for the new model
     lastPredictedInputsRef.current = null;
     clearPredictions();
+    setActivePredictionId(null);
+    setRestoredSnapshot(null);
   };
 
   /**
@@ -398,6 +455,7 @@ export const TryFairPage = ({
     setCurrentModelType(ModelType.DEMO);
     setMode(ModelType.DEMO);
     setImagery({ url: null, tileServiceType: null, oamItemId: null });
+    setSelectedModelId(null);
     handleSelectModel(model);
   };
 
@@ -411,24 +469,58 @@ export const TryFairPage = ({
         setConfidence(value as number);
         return;
       }
-      setParameterOverrides((current) => ({ ...current, [key]: value }));
+      setParameterOverride(key, value);
     },
-    [setConfidence],
+    [setConfidence, setParameterOverride],
   );
 
   const handleResetAllParameters = useCallback(() => {
     resetParameters();
-    setParameterOverrides({});
-  }, [resetParameters]);
+    resetParameterOverrides();
+  }, [resetParameterOverrides, resetParameters]);
 
   const handleBBoxChange = useCallback((bbox: BBOX, tileZoom: number) => {
     setLatestBBox(bbox);
     setLatestGridZoom(tileZoom);
   }, []);
+  let imageryName = "Custom Imagery";
+  let locationName: string | undefined;
+  if (mode === ModelType.DEMO) {
+    imageryName = modelPreview?.imagery.name ?? "Demo Imagery";
+    locationName = modelPreview?.imagery.name ?? modelPreview?.place?.name;
+  } else if (selectedImagery?.source === ImagerySource.OPEN_AERIAL_MAP) {
+    imageryName = selectedImagery.item.title;
+    locationName = imageryName;
+  }
+
+  const currentSnapshot: MappingSnapshot | null = modelForMapping
+    ? {
+        type: "mapping",
+        category:
+          mode === ModelType.IMAGERY
+            ? feature
+            : modelForMapping.properties["fair:category"],
+        name: locationName ?? modelForMapping.properties.title,
+        model: {
+          id: modelForMapping.id,
+          title: modelForMapping.properties.title,
+        },
+        imagery: {
+          name: imageryName,
+          url: tileserverURL,
+        },
+        zoom: latestGridZoom,
+        bbox: latestBBox,
+        url_params: urlState,
+        params: paramValues,
+      }
+    : null;
+
   const handleMap = useCallback(() => {
     if (
       hasNoModelsForFeature ||
       !modelForMapping ||
+      !currentSnapshot ||
       !mappingModelId ||
       !modelUri ||
       !latestBBox
@@ -460,17 +552,50 @@ export const TryFairPage = ({
         params: apiParams,
       },
       {
-        onSuccess: () => {
-          if (mode === ModelType.IMAGERY) setHasSuccessfulPrediction(true);
+        onSuccess: (result) => {
+          countPredictionRun(result.modelId).catch((error: unknown) => {
+            // The count is a usage figure; a failed report never interrupts the user's run.
+            console.warn("Couldn't count the prediction run", error);
+          });
+          const entry: PredictionHistoryEntry = {
+            id: crypto.randomUUID(),
+            created_at: new Date().toISOString(),
+            snapshot: {
+              ...currentSnapshot,
+              bbox: result.bbox,
+              zoom: result.gridZoom,
+              params: result.params,
+              url_params: getHistoryUrlParams(
+                currentSnapshot.url_params,
+                result.params,
+              ),
+              prediction_result: result,
+            },
+          };
+          setPredictionHistory((history) =>
+            appendPrediction(history, entry, PREDICTION_HISTORY_LIMIT),
+          );
+          if (
+            isAuthenticated &&
+            savableHistory([entry], SAVED_PREDICTION_MAX_LENGTH).length === 0
+          ) {
+            showWarningToast(
+              "Too large to save. This result stays on the map until you leave the page.",
+              8000,
+            );
+          }
+          setActivePredictionId(entry.id);
+          setHasSuccessfulPrediction(true);
         },
         onError: (error) => {
           if ((error as { code?: string }).code === "ERR_CANCELED") return;
-          showErrorToast(error ?? "An Error Occured.");
+          showErrorToast(error, predictErrorMessage(error));
           lastPredictedInputsRef.current = null;
         },
       },
     );
   }, [
+    currentSnapshot,
     modelForMapping,
     mappingModelId,
     modelUri,
@@ -484,8 +609,20 @@ export const TryFairPage = ({
     closeGuidedTour,
     recordMapRun,
     hasNoModelsForFeature,
-    mode,
+    isAuthenticated,
   ]);
+
+  // Map is off when there's no model to map with; the sidebar says why.
+  const mapUnavailableReason: MapUnavailableReason | null =
+    hasNoModelsForFeature
+      ? "no-model-for-feature"
+      : mode === ModelType.DEMO &&
+          !modelsLoading &&
+          !localModelLoading &&
+          !modelForMapping &&
+          models.length === 0
+        ? "no-samples"
+        : null;
 
   const isMapButtonDisabled =
     hasNoModelsForFeature ||
@@ -525,6 +662,8 @@ export const TryFairPage = ({
       // predictions clear when the imagery changes.
       lastPredictedInputsRef.current = null;
       clearPredictions();
+      setActivePredictionId(null);
+      setRestoredSnapshot(null);
       setChooseLocation(false);
 
       // Add to recent imageries list.
@@ -578,6 +717,115 @@ export const TryFairPage = ({
     [handleApplyImagery],
   );
 
+  const handleRestorePrediction = (entry: PredictionHistoryEntry) => {
+    if (isPredicting) return;
+    const snapshot = entry.snapshot;
+    const result = snapshot.prediction_result;
+    previousMappingModel.current = result.modelId;
+    setStagedImagery(null);
+    if (
+      snapshot.url_params.mode !== mode ||
+      snapshot.url_params.imagery !== imageryUrl ||
+      snapshot.url_params.oamItem !== oamItemId ||
+      snapshot.url_params.imageryType !== imageryTileServiceType
+    ) {
+      setSeletedImagery(null);
+    }
+    setCurrentModelType(snapshot.url_params.mode);
+    restoreParams(getHistoryUrlParams(snapshot.url_params, result.params));
+    setRestoredSnapshot(snapshot);
+    map?.fitBounds(result.bbox, { padding: 40, duration: 0 });
+    setLatestBBox(result.bbox);
+    setLatestGridZoom(result.gridZoom);
+    restoreResult(result);
+    setActivePredictionId(entry.id);
+    lastPredictedInputsRef.current = JSON.stringify({
+      mappingModelId: result.modelId,
+      bbox: result.bbox,
+      gridZoom: result.gridZoom,
+      resolution: result.resolution,
+      paramValues: result.params,
+    });
+  };
+
+  // Feedback (Results card, per-feature marking, feedback modals) is an
+  // advanced-mode feature, which also means the user is signed in.
+  const isFeedbackEnabled = isAuthenticated && mappingMode === "advanced";
+  const savedHistory = savableHistory(
+    predictionHistory,
+    SAVED_PREDICTION_MAX_LENGTH,
+  );
+  const savedActivePredictionId = savedHistory.some(
+    (entry) => entry.id === activePredictionId,
+  )
+    ? activePredictionId
+    : null;
+
+  const feedbackContext = useMemo<FeatureFeedbackContext | null>(
+    () =>
+      isFeedbackEnabled && predictResult && user
+        ? {
+            stacId: predictResult.modelId,
+            bbox: predictResult.bbox,
+            userId: user.osm_id,
+            config: {
+              ...predictResult.params,
+              zoom: predictResult.gridZoom,
+              resolution: predictResult.resolution,
+              image_uri: predictResult.imageUri,
+            },
+          }
+        : null,
+    [isFeedbackEnabled, predictResult, user?.osm_id],
+  );
+
+  const feedbackFlow = useFeedbackFlow();
+  const featureFeedback = useFeatureFeedback(predictions, feedbackContext);
+  const mapWrapperRef = useRef<HTMLDivElement>(null);
+  const { validFeatures, invalidFeatures } = featureFeedback;
+
+  const handleDownloadDetected = useCallback(() => {
+    if (!predictions) return;
+    geoJSONDowloader(
+      getDownloadData(
+        predictions,
+        outputType,
+        predictionBBox,
+        predictionGridZoom,
+      ),
+      `fair-predictions-${outputType.toLowerCase()}`,
+    );
+  }, [predictions, outputType, predictionBBox, predictionGridZoom]);
+
+  const handleDownloadValid = useCallback(
+    () => geoJSONDowloader(validFeatures, "fair-predictions-valid"),
+    [validFeatures],
+  );
+  const handleDownloadInvalid = useCallback(
+    () => geoJSONDowloader(invalidFeatures, "fair-predictions-invalid"),
+    [invalidFeatures],
+  );
+
+  // Shared by the desktop Results card and the mobile Results panel.
+  const resultsProps =
+    isFeedbackEnabled && predictions
+      ? {
+          detectedCount: predictions.features.length,
+          validCount: validFeatures.features.length,
+          invalidCount: invalidFeatures.features.length,
+          onProvideFeedback: feedbackFlow.openFeedback,
+          onDownloadDetected: handleDownloadDetected,
+          // Downloads hold this session's marks, so they need at least one.
+          onDownloadValid: validFeatures.features.length
+            ? handleDownloadValid
+            : undefined,
+          onDownloadInvalid: invalidFeatures.features.length
+            ? handleDownloadInvalid
+            : undefined,
+          disabled: isPredicting,
+        }
+      : null;
+
   // Sync prediction state into the global store so the navbar Export button can access it.
   useEffect(() => {
     setPredictionsInStore(predictions);
@@ -592,50 +840,23 @@ export const TryFairPage = ({
         <MappingProjectAutosave
           key={`${user.osm_id}:${projectId ?? "new"}`}
           enabled={
-            mode === ModelType.IMAGERY &&
             hasSuccessfulPrediction &&
             modelsReady &&
-            Boolean(selectedImagery) &&
-            tileServiceTypeValidity.valid &&
+            (mode === ModelType.DEMO ||
+              (Boolean(selectedImagery) && tileServiceTypeValidity.valid)) &&
             !isPredicting &&
             !tileLoading
           }
           initialPid={projectId ? Number(projectId) : undefined}
           skipInitialSave={Boolean(initialProject)}
           payload={
-            modelForMapping
+            currentSnapshot
               ? {
                   state: {
-                    type: "mapping",
-                    category:
-                      mode === ModelType.IMAGERY
-                        ? feature
-                        : modelForMapping.properties["fair:category"],
-                    name:
-                      selectedImagery?.source === ImagerySource.OPEN_AERIAL_MAP
-                        ? selectedImagery.item.title
-                        : (modelForMapping.properties.title ??
-                          "Mapping project"),
-                    model: {
-                      id: modelForMapping.id,
-                      title:
-                        modelForMapping.properties.title ?? modelForMapping.id,
-                    },
-                    imagery: {
-                      name:
-                        selectedImagery?.source ===
-                        ImagerySource.OPEN_AERIAL_MAP
-                          ? selectedImagery.item.title
-                          : mode === ModelType.IMAGERY
-                            ? "Custom Imagery"
-                            : "Demo Imagery",
-                      url: tileserverURL,
-                    },
-                    zoom: latestGridZoom,
-                    bbox: latestBBox,
-                    url_params: urlState,
-                    params: paramValues,
-                    prediction_result: predictionResult,
+                    ...currentSnapshot,
+                    prediction_result: undefined,
+                    prediction_history: savedHistory,
+                    active_prediction_id: savedActivePredictionId,
                   },
                 }
               : null
@@ -643,8 +864,21 @@ export const TryFairPage = ({
         />
       )}
 
-      {/* Model picker dialog – rendered at page level so it's not trapped inside MobileDrawer */}
+      {/* Feedback dialogs – page level so they're not trapped inside the mobile sheet */}
+      <ProvideFeedbackModal
+        isOpen={isFeedbackEnabled && feedbackFlow.isFormOpen}
+        onClose={feedbackFlow.closeForm}
+        onSubmit={feedbackFlow.handleSubmit}
+        isSubmitting={feedbackFlow.isSubmitting}
+      />
+      <FeedbackSentModal
+        isOpen={isFeedbackEnabled && feedbackFlow.isSentOpen}
+        onClose={feedbackFlow.closeSent}
+      />
+
+      {/* Model picker dialog – rendered at page level so it's not trapped inside the mobile sheet */}
       <Dialog
+        borderRadius="rounded"
         label="What do you want to map?"
         isOpened={isModelPickerDialogOpened}
         closeDialog={closeModelPickerDialog}
@@ -677,18 +911,21 @@ export const TryFairPage = ({
 
       {/* Advanced Model picker dialog */}
       <Dialog
-        // size={SHOELACE_SIZES.LARGE}
+        size={SHOELACE_SIZES.LARGE}
+        borderRadius="rounded"
         label="Which model do you want to use?"
         isOpened={isAdvancedModelPickerDialogOpened}
         preventClose
         closeDialog={closeAdvancedModelPickerDialog}
       >
-        <AdvancedModelPickerContent
-          feature={feature}
-          onSelect={handleSelectModel}
-          onClose={closeAdvancedModelPickerDialog}
-          onFeatureChange={setFeature}
-        />
+        {mappingMode === "advanced" && isAdvancedModelPickerDialogOpened && (
+          <AdvancedModelPickerContent
+            feature={feature}
+            onSelect={handleSelectModel}
+            onFeatureChange={setFeature}
+            onClose={closeAdvancedModelPickerDialog}
+          />
+        )}
       </Dialog>
 
       {/* Imagery/location dialog – rendered at page level */}
@@ -735,34 +972,59 @@ export const TryFairPage = ({
         onClose={() => setIsLargeAreaSuccessDialogOpen(false)}
       />
 
-      <div className="flex h-screen md:h-[92vh] flex-col fullscreen">
+      {/* Phones: the screen minus the 63px navbar, so the page never
+          scrolls the navbar away (dvh follows the browser's toolbars). */}
+      <div className="flex h-[calc(100dvh-63px)] md:h-[92vh] flex-col fullscreen">
         <div className="flex-grow relative">
-          <TryFairMap
-            map={map}
-            mapContainerRef={mapContainerRef}
-            outputType={outputType}
-            tileServerURL={tileserverURL}
-            tileLoading={tileLoading}
-            tileServiceValid={tileServiceTypeValidity.valid}
-            onBBoxChange={handleBBoxChange}
-            predictions={predictions}
-            predictionBBox={predictionBBox}
-            predictionGridZoom={predictionGridZoom}
-            hasNoResults={
-              !isPredicting &&
-              Boolean(predictions && !predictions.features.length)
-            }
-            imageryCenter={restoredCenter ?? imageryCenter}
-            resolution={resolution}
-            isPredicting={isPredicting}
-            preImageryUrl={preImageryUrl}
-            predictionClassStyle={predictionClassStyle}
-            canFitToBounds={true}
-            onHelp={openGuidedTour}
+          <PredictionHistoryPanel
+            open={showPredictionHistory}
+            entries={predictionHistory}
+            activeId={activePredictionId}
+            disabled={isPredicting}
+            onSelect={handleRestorePrediction}
+            onClose={() => setShowPredictionHistory(false)}
           />
+          <div ref={mapWrapperRef} className="absolute inset-0">
+            <TryFairMap
+              map={map}
+              mapContainerRef={mapContainerRef}
+              outputType={outputType}
+              tileServerURL={tileserverURL}
+              tileLoading={tileLoading}
+              tileServiceValid={tileServiceTypeValidity.valid}
+              onBBoxChange={handleBBoxChange}
+              predictions={predictions}
+              predictionBBox={predictionBBox}
+              predictionGridZoom={predictionGridZoom}
+              hasNoResults={
+                !isPredicting &&
+                Boolean(predictions && !predictions.features.length)
+              }
+              imageryCenter={restoredCenter ?? imageryCenter}
+              resolution={resolution}
+              isPredicting={isPredicting}
+              preImageryUrl={preImageryUrl}
+              predictionClassStyle={predictionClassStyle}
+              isFeedbackOpen={featureFeedback.selectedId !== null}
+              canFitToBounds={true}
+              showLegendOnPhones={!isFeedbackEnabled}
+              onHelp={openGuidedTour}
+            />
+            <FeatureFeedbackLayer
+              map={map}
+              containerRef={mapWrapperRef}
+              predictions={predictions}
+              feedback={featureFeedback}
+              enabled={
+                isFeedbackEnabled &&
+                outputType === TryFairMapOutputType.POLYGON &&
+                !isPredicting
+              }
+            />
+          </div>
 
           {!isSmallViewport && (
-            <div className="absolute top-4 left-4 z-10">
+            <div className="absolute top-4 left-4 z-10 flex flex-col gap-3 w-[300px]">
               <TryFairSidebar
                 selectedModel={modelForMapping}
                 models={models}
@@ -780,46 +1042,72 @@ export const TryFairPage = ({
                 onMap={handleMap}
                 onCancelPrediction={handleCancelPrediction}
                 isPredicting={isPredicting}
+                predictionStage={predictionStage}
                 isMapButtonDisabled={isMapButtonDisabled}
+                mapUnavailableReason={mapUnavailableReason}
+                featureLabel={cleanFeatureLabel(feature)}
                 openMobileModelPickerDialog={openModelPickerDialog}
                 openAdvancedModelPickerDialog={openAdvancedModelPickerDialog}
+              />
+              {resultsProps && (
+                <div className="shadow-lg rounded-lg">
+                  <ResultsSummary
+                    {...resultsProps}
+                    className="bg-white rounded-lg p-3"
+                  />
+                </div>
+              )}
+            </div>
+          )}
+
+          {isSmallViewport && <MobileMapToolbar />}
+
+          {isSmallViewport && resultsProps && (
+            // Floats just above the collapsed settings sheet (20% of the
+            // screen); the expanded sheet slides over it.
+            <div className="fixed inset-x-3 bottom-[calc(20dvh+12px)] z-[5]">
+              <MobileResultsPanel
+                {...resultsProps}
+                // Selecting a feature collapses Results so the 👍/👎 popup
+                // stays visible.
+                forceCollapsed={featureFeedback.selectedId !== null}
               />
             </div>
           )}
 
           {isSmallViewport && (
             <div className="relative">
-              <MobileDrawer
-                open={isSmallViewport}
-                dialogTitle="Try Fair Settings"
-                snapPoints={[0.2, 0.7]}
-                modal={false}
-                showOverlay={false}
-                handleOnly
-              >
-                <TryFairSidebar
-                  selectedModel={modelForMapping}
-                  models={models}
-                  modelsLoading={modelsLoading || localModelLoading}
-                  onSelectModel={handleSelectModel}
-                  outputType={outputType}
-                  onOutputTypeChange={handleOutputTypeChange}
-                  resolution={resolution}
-                  onResolutionChange={handleResolutionChange}
-                  inferenceParams={inferenceParams}
-                  paramValues={paramValues}
-                  onParamChange={handleParamChange}
-                  onResetParameters={handleResetAllParameters}
-                  isParametersDefault={isParametersDefault}
-                  onMap={handleMap}
-                  onCancelPrediction={handleCancelPrediction}
-                  isPredicting={isPredicting}
-                  isMapButtonDisabled={isMapButtonDisabled}
-                  className="w-full shadow-none"
-                  openMobileModelPickerDialog={openModelPickerDialog}
-                  openAdvancedModelPickerDialog={openAdvancedModelPickerDialog}
-                />
-              </MobileDrawer>
+              <MapBottomSheet label="Map settings">
+                <div className="flex flex-col gap-3">
+                  <TryFairSidebar
+                    selectedModel={modelForMapping}
+                    models={models}
+                    modelsLoading={modelsLoading || localModelLoading}
+                    onSelectModel={handleSelectModel}
+                    outputType={outputType}
+                    onOutputTypeChange={handleOutputTypeChange}
+                    resolution={resolution}
+                    onResolutionChange={handleResolutionChange}
+                    inferenceParams={inferenceParams}
+                    paramValues={paramValues}
+                    onParamChange={handleParamChange}
+                    onResetParameters={handleResetAllParameters}
+                    isParametersDefault={isParametersDefault}
+                    onMap={handleMap}
+                    onCancelPrediction={handleCancelPrediction}
+                    isPredicting={isPredicting}
+                    predictionStage={predictionStage}
+                    isMapButtonDisabled={isMapButtonDisabled}
+                    mapUnavailableReason={mapUnavailableReason}
+                    featureLabel={cleanFeatureLabel(feature)}
+                    className="w-full shadow-none"
+                    openMobileModelPickerDialog={openModelPickerDialog}
+                    openAdvancedModelPickerDialog={
+                      openAdvancedModelPickerDialog
+                    }
+                  />
+                </div>
+              </MapBottomSheet>
             </div>
           )}
         </div>

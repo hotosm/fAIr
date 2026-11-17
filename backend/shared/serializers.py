@@ -1,4 +1,15 @@
+import json
+from collections.abc import Callable
+from typing import Any
+
+from fair.stac.inputs import IMAGE_INPUT, INPUT_NAME_PATTERN
 from rest_framework import serializers
+from rest_framework.fields import empty
+from rest_framework.utils import html
+
+from accounts.permissions import is_admin
+from shared.imagery import INPUT_NAME_MAX_LENGTH
+from shared.public_urls import NonPublicURLError, require_public_url
 
 # Placeholders a TMS tile URL template must contain
 TMS_PLACEHOLDERS = ("{x}", "{y}", "{z}")
@@ -7,6 +18,71 @@ TMS_PLACEHOLDERS = ("{x}", "{y}", "{z}")
 # (not the config-driven PMTiles generation range).
 MIN_ZOOM = 14
 MAX_ZOOM = 22
+
+
+def validate_public_url(value: str, schemes: tuple[str, ...]) -> str:
+    try:
+        require_public_url(value, schemes)
+    except NonPublicURLError as exc:
+        raise serializers.ValidationError(str(exc)) from exc
+    return value
+
+
+def validate_input_imagery(
+    imagery: dict[str, str], validate_url: Callable[[str], str]
+) -> dict[str, str]:
+    """Imagery keyed by model input name; names become storage paths, so they are slugs."""
+    for input_name, url in imagery.items():
+        if len(input_name) > INPUT_NAME_MAX_LENGTH:
+            raise serializers.ValidationError(
+                f"input name {input_name!r} is longer than {INPUT_NAME_MAX_LENGTH} characters"
+            )
+        if not INPUT_NAME_PATTERN.fullmatch(input_name):
+            raise serializers.ValidationError(
+                f"input name {input_name!r} must start with a lowercase letter or digit and "
+                "contain only lowercase letters, digits, '_' or '-'"
+            )
+        validate_url(url)
+    return imagery
+
+
+def imagery_from_shorthand(attrs: dict[str, Any], shorthand: str) -> dict[str, Any]:
+    """Requires exactly one of `imagery` and the single-image `shorthand` field, read as `image`."""
+    url = attrs.pop(shorthand, None)
+    if (url is None) == ("imagery" not in attrs):
+        raise serializers.ValidationError({"imagery": f"Give either imagery or {shorthand}."})
+    if url is not None:
+        attrs["imagery"] = {IMAGE_INPUT: url}
+    return attrs
+
+
+class JSONFormFieldMixin:
+    """Reads the field as a JSON string from a multipart form, and as is from a JSON body."""
+
+    field_name: str
+
+    def get_value(self, dictionary: Any) -> Any:
+        if not html.is_html_input(dictionary):
+            return super().get_value(dictionary)  # type: ignore[misc]
+        if self.field_name not in dictionary:
+            return empty
+        raw = dictionary.get(self.field_name)
+        if not isinstance(raw, str):
+            # A file part; None gives one "may not be null" error instead of one per line.
+            return None
+        try:
+            return json.loads(raw)
+        except (json.JSONDecodeError, RecursionError):
+            # The field's own validation then reports the wrong type.
+            return raw
+
+
+class JSONFormDictField(JSONFormFieldMixin, serializers.DictField):
+    pass
+
+
+class JSONFormListField(JSONFormFieldMixin, serializers.ListField):
+    pass
 
 
 class StacAssetSerializer(serializers.Serializer):
@@ -47,3 +123,17 @@ class LogEntrySerializer(serializers.Serializer):
     level = serializers.CharField()
     message = serializers.CharField()
     timestamp = serializers.CharField(allow_null=True)
+
+
+class OwnerOnlyErrorMixin(serializers.Serializer):
+    """Show a row's `error` only to its owner and admins; exception text can name internal hosts."""
+
+    def to_representation(self, instance: Any) -> dict:
+        data = super().to_representation(instance)
+        request = self.context.get("request")
+        user = request.user if request else None
+        if not (
+            is_admin(user) or (user and user.is_authenticated and instance.user_id == user.osm_id)
+        ):
+            data["error"] = ""
+        return data

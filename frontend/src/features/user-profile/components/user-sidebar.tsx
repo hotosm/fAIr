@@ -2,7 +2,6 @@ import {
   ChevronDownIcon,
   DatabaseIcon,
   SettingsIcon,
-  TimerIcon,
 } from "@/components/ui/icons";
 import { Link } from "@/components/ui/link";
 import { APPLICATION_ROUTES } from "@/constants";
@@ -12,14 +11,40 @@ import { useLocation } from "react-router-dom";
 import { cn } from "@/utils";
 import { OverviewIcon } from "@/components/ui/icons/overview-icon";
 import { AIModelIcon } from "@/components/ui/icons/ai-model-icon";
+import { RequestsIcon } from "@/components/ui/icons/timer-icon";
 
-const UserSidebar = () => {
+/**
+ * Dashboard navigation. `stacked` is the mobile menu layout: one column of
+ * larger items with Settings in the list, and the Join the Community card.
+ */
+const UserSidebar = ({
+  stacked = false,
+  onNavigate,
+}: {
+  stacked?: boolean;
+  /** Called when a link is chosen, e.g. to close the mobile menu. */
+  onNavigate?: () => void;
+}) => {
   const { pathname } = useLocation();
+  // On mobile, Settings is an item in the list like the others.
+  const links = stacked ? [...SIDEBAR_LINKS, SETTINGS_LINK] : SIDEBAR_LINKS;
 
   return (
-    <aside className="w-full min-w-0 rounded-xl bg-frosted-blue p-2 shadow-sm flex flex-col gap-4 lg:py-4 lg:gap-6">
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-1">
-        {SIDEBAR_LINKS.map((link) => {
+    <aside
+      className={cn(
+        "flex w-full min-w-0 flex-col",
+        stacked
+          ? "gap-6"
+          : "gap-4 rounded-xl bg-frosted-blue p-2 shadow-sm lg:min-h-[calc(100dvh-8.75rem)] lg:gap-6 lg:py-4",
+      )}
+    >
+      <div
+        className={cn(
+          "grid gap-2",
+          stacked ? "grid-cols-1" : "grid-cols-2 sm:grid-cols-4 lg:grid-cols-1",
+        )}
+      >
+        {links.map((link) => {
           const isActive = pathname === link.href;
           return (
             <Link
@@ -29,10 +54,14 @@ const UserSidebar = () => {
               href={link.href}
               nativeAnchor={false}
               disableLinkStyle
+              onClick={onNavigate}
             >
               <div
                 className={cn(
-                  "flex gap-2 py-3 px-2 lg:px-3 rounded-xl items-center text-sm transition-colors duration-300 ",
+                  "flex rounded-xl items-center transition-colors duration-300",
+                  stacked
+                    ? "gap-4 px-5 py-3.5 text-base"
+                    : "gap-2 py-3 px-2 lg:px-3 text-sm",
                   isActive
                     ? "bg-primary text-white shadow-sm font-medium"
                     : "text-lighter-ink hover:bg-[#FFEDED]/50 hover:text-primary",
@@ -51,60 +80,75 @@ const UserSidebar = () => {
         })}
       </div>
 
-      <Link
-        href="https://slack.hotosm.org/"
-        title="Join the Community"
-        blank
-        disableLinkStyle
-        className="hidden p-3 bg-white justify-between rounded-xl lg:flex lg:flex-col"
-      >
-        <div className="flex justify-between wave-bg items-center py-8 px-3">
-          <h4 className="font-semibold text-lg text-gray">
-            Join the <br />
-            Community
-          </h4>
-          <div className="p-4 rounded-full bg-white">
-            <ChevronDownIcon className="size-4 -rotate-90 text-primary" />
-          </div>
-        </div>
-        <div className={`w-full h-[150px] rounded-xl overflow-hidden `}>
-          <Image
-            src={HOTTeamTwo}
-            alt={"Join community"}
-            className={`h-full w-full object-cover`}
-          />
-        </div>
-      </Link>
-
-      <div className="px-2 py-2 lg:p-3">
+      <div className="lg:mt-auto lg:flex lg:flex-col lg:gap-3">
         <Link
-          nativeAnchor={false}
-          href={APPLICATION_ROUTES.PROFILE_SETTINGS}
-          title={"Settings"}
+          href="https://slack.hotosm.org/"
+          title="Join the Community"
+          blank
           disableLinkStyle
           className={cn(
-            "flex items-center gap-4 transition-all duration-300 ",
-            pathname === APPLICATION_ROUTES.PROFILE_SETTINGS
-              ? "text-primary font-medium"
-              : "text-lighter-ink hover:text-primary",
+            "rounded-xl bg-white p-3 flex-col justify-between",
+            stacked ? "flex" : "hidden lg:flex",
           )}
         >
-          <SettingsIcon
-            className={cn(
-              "size-5 transition-all duration-300",
-              pathname === APPLICATION_ROUTES.PROFILE_SETTINGS
-                ? "text-primary"
-                : "text-lighter-ink",
-            )}
-          />
-          Settings
+          <div className="wave-bg flex items-center justify-between px-3 py-8">
+            <h4 className="text-lg font-semibold text-gray">
+              Join the <br />
+              Community
+            </h4>
+            <div className="rounded-full bg-white p-4">
+              <ChevronDownIcon className="size-4 -rotate-90 text-primary" />
+            </div>
+          </div>
+          <div className="h-[150px] w-full overflow-hidden rounded-xl">
+            <Image
+              src={HOTTeamTwo}
+              alt="Join community"
+              className="h-full w-full object-cover"
+            />
+          </div>
         </Link>
+
+        {/* Wider screens: Settings sits below the community card. */}
+        {!stacked && (
+          <div className="px-2 py-2 lg:p-3">
+            <Link
+              nativeAnchor={false}
+              href={APPLICATION_ROUTES.PROFILE_SETTINGS}
+              title="Settings"
+              disableLinkStyle
+              className={cn(
+                "flex items-center gap-4 transition-all duration-300",
+                pathname === APPLICATION_ROUTES.PROFILE_SETTINGS
+                  ? "font-medium text-primary"
+                  : "text-lighter-ink hover:text-primary",
+              )}
+            >
+              <SettingsIcon
+                className={cn(
+                  "size-5 transition-all duration-300",
+                  pathname === APPLICATION_ROUTES.PROFILE_SETTINGS
+                    ? "text-primary"
+                    : "text-lighter-ink",
+                )}
+              />
+              Settings
+            </Link>
+          </div>
+        )}
       </div>
     </aside>
   );
 };
 
 export default UserSidebar;
+
+const SETTINGS_LINK = {
+  id: 6,
+  title: "Settings",
+  href: APPLICATION_ROUTES.PROFILE_SETTINGS,
+  Icon: SettingsIcon,
+};
 
 const SIDEBAR_LINKS = [
   {
@@ -130,6 +174,6 @@ const SIDEBAR_LINKS = [
     id: 5,
     title: "Map Requests",
     href: APPLICATION_ROUTES.PROFILE_OFFLINE_PREDICTIONS,
-    Icon: TimerIcon,
+    Icon: RequestsIcon,
   },
 ];

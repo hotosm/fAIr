@@ -1,64 +1,26 @@
-"""End-to-end API contract test.
-
-One file that hits every URL in the public API surface, demonstrating the
-expected request payload and the response body for each endpoint. External
-integrations (ZenML, fair-py-ops, S3) are mocked at the seam, so no test
-reaches a live service.
-
-Run with `just test` (pytest tests/test_api.py).
-"""
-
-from datetime import datetime
+import tomllib
+from datetime import UTC, datetime, timedelta
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
+import pystac
 import pytest
 from django.contrib.gis.geos import Polygon
-from django.test import override_settings
+from django.core.management import call_command
 from rest_framework.test import APIClient
 
 from accounts.models import OsmUser
 from datasets.models import AOI, Dataset
 from feedback.models import Feedback
 from modelregistry.models import BaseModel, LocalModel
-from notifications.models import Banner, UserNotification
+from notifications.models import Banner
 from predictions.models import Prediction
 from predictions.post_run import PredictionOutputError
-from shared.storage import BackendLocalModelPaths
+from predictions.tasks import sync_prediction_status
+from shared.enums import FeedbackAction
+from stars.models import Star
 from trainings.models import TrainingRunRef
-
-
-@pytest.fixture
-def user(db) -> OsmUser:
-    return OsmUser.objects.create(osm_id=1001, username="alice")
-
-
-@pytest.fixture
-def admin_user(db) -> OsmUser:
-    return OsmUser.objects.create(osm_id=1002, username="root", is_staff=True)
-
-
-@pytest.fixture
-def other_user(db) -> OsmUser:
-    return OsmUser.objects.create(osm_id=1003, username="eve")
-
-
-@pytest.fixture
-def client(user: OsmUser) -> APIClient:
-    api = APIClient()
-    api.force_authenticate(user=user)
-    return api
-
-
-@pytest.fixture
-def admin_client(admin_user: OsmUser) -> APIClient:
-    api = APIClient()
-    api.force_authenticate(user=admin_user)
-    return api
-
-
-@pytest.fixture
-def anon_client() -> APIClient:
-    return APIClient()
+from trainings.tasks import sync_training_status
 
 
 @pytest.fixture
@@ -71,13 +33,40 @@ def aoi(db, user: OsmUser) -> AOI:
 
 
 @pytest.fixture
-def registered_base_model(db, user: OsmUser) -> BaseModel:
-    return BaseModel.objects.create(
-        name="unet-segmentation",
-        stac_item_id="unet-segmentation",
-        category_id="buildings",
-        user=user,
+def registered_base_model(db, user: OsmUser):
+    """A base model row, with its STAC lookup patched to an item that has a training runtime."""
+    classes = [
+        {"name": "background", "value": 0},
+        {"name": "building", "value": 1, "fair:osm_tags": {"building": ["*"]}},
+    ]
+    item = pystac.Item(
+        "unet-segmentation",
+        None,
+        None,
+        datetime.now(UTC),
+        {"mlm:output": [{"name": "mask", "classification:classes": classes}]},
     )
+    item.add_asset("mlm:training", pystac.Asset("ghcr.io/hotosm/fair-models/unet:latest"))
+    dataset_item = pystac.Item(
+        "dataset",
+        None,
+        None,
+        datetime.now(UTC),
+        {
+            "label:properties": ["building"],
+            "label:classes": [{"name": "building", "classes": ["yes"]}],
+        },
+    )
+    with (
+        patch("trainings.views.get_base_model", return_value=item),
+        patch("trainings.views.get_dataset", return_value=dataset_item),
+    ):
+        yield BaseModel.objects.create(
+            name="unet-segmentation",
+            stac_item_id="unet-segmentation",
+            category_id="buildings",
+            user=user,
+        )
 
 
 @pytest.fixture
@@ -85,6 +74,7 @@ def local_model(db, user: OsmUser, registered_base_model: BaseModel) -> LocalMod
     return LocalModel.objects.create(
         name="my-finetuned",
         base_model=registered_base_model,
+        stac_item_id="my-finetuned-v1",
         status=LocalModel.Status.ACTIVE,
         user=user,
     )
@@ -95,7 +85,8 @@ def published_dataset(db, user: OsmUser) -> Dataset:
     return Dataset.objects.create(
         stac_id="ds-banepa",
         title="Banepa buildings",
-        source_imagery="https://tiles.example/{z}/{x}/{y}.png",
+        imagery={"image": "https://tiles.example/{z}/{x}/{y}.png"},
+        primary_input="image",
         status=Dataset.Status.BUILT,
         user=user,
     )
@@ -121,7 +112,8 @@ def prediction(db, user: OsmUser) -> Prediction:
     return Prediction.objects.create(
         zenml_run_id="pred-run-1",
         local_model_stac_id="3a0374bf-d73c-4b4d-b165-081ffa2a18ad",
-        image_uri="https://tiles.example/{z}/{x}/{y}.png",
+        imagery={"image": "https://tiles.example/{z}/{x}/{y}.png"},
+        primary_input="image",
         geometry={
             "type": "Polygon",
             "coordinates": [
@@ -143,33 +135,44 @@ def test_root_home_describes_api(anon_client):
     body = response.json()
     assert body["name"] == "fAIr API"
     assert body["api_version"] == "v1"
-    assert body["app_version"]  # sourced from pyproject.toml
+    release = tomllib.loads((Path(__file__).resolve().parents[2] / ".cz.toml").read_text())
+    assert body["app_version"] == release["tool"]["commitizen"]["version"]
     assert body["schema"] == "/api/schema/"
     assert body["docs"] == "/api/docs/"
 
 
+@pytest.mark.django_db
 def test_openapi_schema_is_served(anon_client):
     response = anon_client.get("/api/schema/")
     assert response.status_code == 200
     assert b"openapi" in response.content
 
 
-def test_kpi_stats_returns_counts(anon_client, db):
+def test_kpi_stats_returns_counts(anon_client, local_model, user):
+    LocalModel.objects.create(
+        name="archived", base_model=local_model.base_model, status=LocalModel.Status.ARCHIVED, user=user
+    )
+    geom = Polygon(((0, 0), (0, 1), (1, 1), (1, 0), (0, 0)), srid=4326)
+    Feedback.objects.create(stac_id="s1", action=FeedbackAction.ACCEPT, geom=geom, user=user)
+    Feedback.objects.create(stac_id="s2", action=FeedbackAction.REJECT, geom=geom, user=user)
+
     response = anon_client.get("/api/v1/kpi/stats/")
-    assert response.status_code == 200
-    assert set(response.data) == {
-        "total_models_published",
-        "total_registered_users",
-        "total_feedback_labels",
-        "total_accepted_predictions",
+
+    assert response.data == {
+        "total_models_published": 1,
+        "total_registered_users": 1,
+        "total_feedback_labels": 2,
+        "total_accepted_predictions": 1,
     }
 
 
+@pytest.mark.django_db
 def test_swagger_ui_renders(anon_client):
     response = anon_client.get("/api/docs/")
     assert response.status_code == 200
 
 
+@pytest.mark.django_db
 def test_redoc_ui_renders(anon_client):
     response = anon_client.get("/api/redoc/")
     assert response.status_code == 200
@@ -178,9 +181,22 @@ def test_redoc_ui_renders(anon_client):
 def test_health_reports_dependency_status(anon_client, db):
     response = anon_client.get("/api/v1/health/")
     assert response.status_code == 200
-    body = response.json()
-    assert isinstance(body["postgresql"], bool)
-    assert body["postgresql"] is True
+    assert response.json()["postgresql"] is True
+
+
+def test_health_reports_unreachable_stac_per_collection(anon_client, db, settings):
+    settings.FAIR_STAC_API_URL = "http://127.0.0.1:9"
+    settings.FAIR_ZENML_STORE_URL = "http://127.0.0.1:9"
+
+    body = anon_client.get("/api/v1/health/").json()
+
+    assert body["stac_api"] is False
+    assert body["zenml"] is False
+    assert body["stac_collections"] == {
+        "base_models": False,
+        "datasets": False,
+        "local_models": False,
+    }
 
 
 def test_auth_status_returns_provider_and_authenticated_flag(anon_client, db):
@@ -189,68 +205,6 @@ def test_auth_status_returns_provider_and_authenticated_flag(anon_client, db):
     body = response.json()
     assert body["auth_provider"] in ("dev", "hanko")
     assert body["authenticated"] is False
-
-
-def test_auth_me_get_returns_user_profile(client, user):
-    response = client.get("/api/v1/auth/me/")
-    assert response.status_code == 201
-    body = response.json()
-    assert body["osm_id"] == user.osm_id
-    assert body["username"] == "alice"
-    assert body["email_verified"] is False
-    assert body["date_joined"] is not None
-    for key in (
-        "models_count",
-        "datasets_count",
-        "feedbacks_count",
-        "approved_predictions_count",
-        "unread_notifications_count",
-    ):
-        assert body[key] == 0
-    # Base 25%; no img_url, email, or verification on this fixture user.
-    assert body["profile_completion_percentage"] == 25
-
-
-def test_auth_me_profile_stats_reflect_owned_records(client, user):
-    from datasets.models import Dataset
-    from feedback.models import Feedback
-    from modelregistry.models import BaseModel, LocalModel
-    from notifications.models import UserNotification
-    from shared.enums import FeedbackAction
-
-    geom = Polygon(((0, 0), (0, 1), (1, 1), (1, 0), (0, 0)), srid=4326)
-    base = BaseModel.objects.create(name="b", stac_item_id="b", user=user)
-    LocalModel.objects.create(name="m1", base_model=base, user=user)
-    Dataset.objects.create(
-        stac_id="d1", title="D1", source_imagery="https://x/{z}/{x}/{y}", user=user
-    )
-    Feedback.objects.create(stac_id="s1", action=FeedbackAction.ACCEPT, geom=geom, user=user)
-    Feedback.objects.create(stac_id="s2", action=FeedbackAction.REJECT, geom=geom, user=user)
-    UserNotification.objects.create(user=user, message="hi", is_read=False)
-
-    body = client.get("/api/v1/auth/me/").json()
-    assert body["models_count"] == 1
-    assert body["datasets_count"] == 1
-    assert body["approved_predictions_count"] == 1
-    assert body["feedbacks_count"] == 1
-    assert body["unread_notifications_count"] == 1
-
-
-def test_auth_me_patch_updates_email(client):
-    response = client.patch("/api/v1/auth/me/", data={"email": "alice@example.com"}, format="json")
-    assert response.status_code == 200
-    assert response.json()["email"] == "alice@example.com"
-
-
-def test_auth_me_request_email_verification_400s_without_email(client):
-    response = client.post("/api/v1/auth/me/request-email-verification/")
-    assert response.status_code == 400
-    assert response.json()["message"] == "Email address not found"
-
-
-def test_auth_me_requires_authentication(anon_client):
-    response = anon_client.get("/api/v1/auth/me/")
-    assert response.status_code in (401, 403)
 
 
 def test_aoi_create_returns_geojson_feature(client):
@@ -304,7 +258,7 @@ def test_dataset_build_creates_record_and_enqueues(mock_task, client, aoi):
         "zoom": 19,
         "aoi_ids": [aoi.id],
         "label_tasks": ["semantic-segmentation"],
-        "label_classes": [{"name": "building", "classes": ["yes"]}],
+        "osm_tags": {"building": ["yes"]},
         "keywords": ["buildings"],
         "geometry_type": "polygon",
     }
@@ -320,58 +274,11 @@ def test_dataset_build_creates_record_and_enqueues(mock_task, client, aoi):
     assert body["star_count"] == 0
     assert body["is_starred"] is False
     assert body["user"]["username"] == "alice"
+    assert Dataset.objects.get(title="Buildings Banepa").category_id == "buildings"
     mock_task.enqueue.assert_called_once()
     enqueue_kwargs = mock_task.enqueue.call_args.kwargs
     assert enqueue_kwargs["geometry_type"] == "polygon"
     assert "feature_type" not in enqueue_kwargs
-
-
-def test_build_osm_filters_simple():
-    from datasets.tasks import _build_osm_filters
-
-    filters = _build_osm_filters([{"name": "building", "classes": ["yes"]}], "polygon")
-    assert filters == {"tags": {"polygon": {"join_or": {"building": ["yes"]}}}}
-
-
-def test_build_osm_filters_wildcard_translates_to_empty_list():
-    from datasets.tasks import _build_osm_filters
-
-    filters = _build_osm_filters([{"name": "building", "classes": ["*"]}], "polygon")
-    assert filters["tags"]["polygon"]["join_or"]["building"] == []
-
-
-def test_build_osm_filters_multi_class():
-    from datasets.tasks import _build_osm_filters
-
-    filters = _build_osm_filters(
-        [
-            {"name": "building", "classes": ["*"]},
-            {"name": "amenity", "classes": ["hospital", "school"]},
-        ],
-        "polygon",
-    )
-    assert filters == {
-        "tags": {"polygon": {"join_or": {"building": [], "amenity": ["hospital", "school"]}}}
-    }
-
-
-def test_stamp_class_label_assigns_index_for_first_match():
-    from datasets.tasks import _stamp_class_label
-
-    label_classes = [
-        {"name": "building", "classes": ["*"]},
-        {"name": "amenity", "classes": ["hospital"]},
-    ]
-    feat_b = {"properties": {"tags": {"building": "yes"}}}
-    feat_h = {"properties": {"tags": {"amenity": "hospital"}}}
-    feat_none = {"properties": {"tags": {"highway": "primary"}}}
-
-    assert _stamp_class_label(feat_b, label_classes) == 1
-    assert feat_b["properties"]["label"] == 1
-    assert _stamp_class_label(feat_h, label_classes) == 2
-    assert feat_h["properties"]["label"] == 2
-    assert _stamp_class_label(feat_none, label_classes) is None
-    assert "label" not in feat_none["properties"]
 
 
 def test_dataset_list_paginates(client, published_dataset):
@@ -424,16 +331,15 @@ def test_dataset_pin_writes_fair_pinned_to_stac(mock_set, admin_client, publishe
     assert args[1] == published_dataset.stac_id
     assert args[2] == "fair:pinned"
     assert args[3] is True
-    assert response.json()["stac"]["properties"]["fair:pinned"] is True
 
 
-def test_local_model_list_paginates(client, local_model):
+def test_local_model_list_counts_training_runs(client, training_ref):
     response = client.get("/api/v1/local-models/")
     assert response.status_code == 200
     body = response.json()
     assert body["count"] == 1
     assert body["results"][0]["name"] == "my-finetuned"
-    assert body["results"][0]["run_count"] == 0
+    assert body["results"][0]["run_count"] == 1
 
 
 def test_local_model_retrieve_returns_record(client, local_model):
@@ -444,81 +350,33 @@ def test_local_model_retrieve_returns_record(client, local_model):
     assert body["status"] == "active"
     assert body["visibility"] == "private"
     assert body["star_count"] == 0
-    assert body["run_count"] == 0
     assert body["stac"] is None
-
-
-@patch("modelregistry.views.list_runs_for_model")
-def test_local_model_runs_returns_zenml_summaries(mock_list, client, local_model):
-    summary = MagicMock(
-        id="r1",
-        status="completed",
-        created_at="2026-05-01T00:00:00Z",
-        pipeline_name="training_pipeline",
-        model_name="my-finetuned",
-        model_version=1,
-    )
-    summary.name = "run-1"
-    mock_list.return_value = [summary]
-    response = client.get(f"/api/v1/local-models/{local_model.id}/runs/")
-    assert response.status_code == 200
-    body = response.json()
-    assert len(body) == 1
-    assert body[0] == {
-        "id": "r1",
-        "name": "run-1",
-        "status": "completed",
-        "created_at": "2026-05-01T00:00:00Z",
-        "pipeline_name": "training_pipeline",
-        "model_name": "my-finetuned",
-        "model_version": 1,
-    }
-    mock_list.assert_called_once_with("my-finetuned", limit=50)
-
-
-def test_local_model_pin_blocks_non_admin(client, local_model):
-    response = client.patch(
-        f"/api/v1/local-models/{local_model.id}/pin/",
-        data={"is_pinned": True},
-        format="json",
-    )
-    assert response.status_code == 403
-
-
-def test_local_model_pin_sets_db_flag(admin_client, local_model):
-    assert local_model.is_pinned is False
-    response = admin_client.patch(
-        f"/api/v1/local-models/{local_model.id}/pin/",
-        data={"is_pinned": True},
-        format="json",
-    )
-    assert response.status_code == 200
-    assert response.json()["is_pinned"] is True
-    local_model.refresh_from_db()
-    assert local_model.is_pinned is True
-
-
-def test_local_model_unpin_clears_db_flag(admin_client, local_model):
-    local_model.is_pinned = True
-    local_model.save(update_fields=["is_pinned"])
-    response = admin_client.patch(
-        f"/api/v1/local-models/{local_model.id}/pin/",
-        data={"is_pinned": False},
-        format="json",
-    )
-    assert response.status_code == 200
-    assert response.json()["is_pinned"] is False
-    local_model.refresh_from_db()
-    assert local_model.is_pinned is False
 
 
 def test_local_models_filter_by_is_pinned(admin_client, local_model, admin_user):
     base = local_model.base_model
-    LocalModel.objects.create(name="pinned-one", base_model=base, user=admin_user, is_pinned=True)
+    LocalModel.objects.create(
+        name="pinned-one", base_model=base, stac_item_id="pinned-one", user=admin_user, is_pinned=True
+    )
     response = admin_client.get("/api/v1/local-models/?is_pinned=true")
     assert response.status_code == 200
     names = {row["name"] for row in response.json()["results"]}
     assert names == {"pinned-one"}
+
+
+def test_try_fair_local_model_list_inlines_published_pinned_models_only(client, user, local_model):
+    base = local_model.base_model
+    pinned_public = dict(base_model=base, status=LocalModel.Status.ACTIVE, visibility="public", is_pinned=True)
+    LocalModel.objects.create(name="trees", stac_item_id="trees-v1", category_id="trees", user=user, **pinned_public)
+    LocalModel.objects.create(name="roofs", stac_item_id="roofs-v1", category_id="buildings", user=user, **pinned_public)
+    LocalModel.objects.create(name="draft", category_id="trees", user=user, **pinned_public)
+    item = {"id": "trees-v1", "properties": {"title": "Trees"}}
+
+    with patch("shared.stac_expand.bulk_get_cached_items", return_value={("local-models", "trees-v1"): item}) as fetch:
+        body = client.get("/api/v1/local-models/?category=trees&is_pinned=true&expand=stac").json()
+
+    assert [(row["name"], row["stac"]) for row in body["results"]] == [("trees", item)]
+    fetch.assert_called_once_with([("local-models", "trees-v1")])
 
 
 @patch("trainings.views.item_exists", return_value=True)
@@ -536,7 +394,7 @@ def test_training_submit_creates_run_and_enqueues(
     response = client.post("/api/v1/trainings/submit/", data=payload, format="json")
     assert response.status_code == 202, response.content
     body = response.json()
-    assert body["status"] == "initializing"
+    assert body["status"] == "submitted"
     assert body["zenml_run_id"] is None
     assert body["overrides"] == {"epochs": 3, "learning_rate": 0.001}
     assert body["description"] == "First attempt"
@@ -566,26 +424,6 @@ def test_training_submit_persists_title_on_run_ref(
     run = TrainingRunRef.objects.get(local_model__name="tuned-v2")
     assert run.title == "March retrain, buildings"
     assert response.json()["title"] == "March retrain, buildings"
-
-
-@patch("trainings.views.item_exists", return_value=True)
-@patch("trainings.views.submit_training")
-def test_training_submit_persists_keywords_on_run_ref(
-    mock_task, mock_item_exists, client, published_dataset, registered_base_model
-):
-    response = client.post(
-        "/api/v1/trainings/submit/",
-        data={
-            "base_model_stac_id": "unet-segmentation",
-            "dataset_stac_id": published_dataset.stac_id,
-            "model_name": "tuned-v3",
-            "keywords": ["high-resolution", "march-batch"],
-        },
-        format="json",
-    )
-    assert response.status_code == 202, response.content
-    run = TrainingRunRef.objects.get(local_model__name="tuned-v3")
-    assert run.keywords == ["high-resolution", "march-batch"]
 
 
 @patch("trainings.views.item_exists", return_value=True)
@@ -658,6 +496,29 @@ def test_training_submit_rejects_unslugifiable_model_name(
 
 @patch("trainings.views.item_exists", return_value=True)
 @patch("trainings.views.submit_training")
+def test_training_submit_rejects_a_base_model_name_in_any_case(
+    mock_task, mock_item_exists, client, published_dataset, registered_base_model
+):
+    BaseModel.objects.filter(pk=registered_base_model.pk).update(name="UNet-Segmentation")
+
+    response = client.post(
+        "/api/v1/trainings/submit/",
+        data={
+            "base_model_stac_id": "unet-segmentation",
+            "dataset_stac_id": published_dataset.stac_id,
+            "model_name": "UNet Segmentation",
+        },
+        format="json",
+    )
+
+    assert response.status_code == 400
+    assert "is a base model name" in str(response.data)
+    assert not LocalModel.objects.filter(name="unet-segmentation").exists()
+    mock_task.enqueue.assert_not_called()
+
+
+@patch("trainings.views.item_exists", return_value=True)
+@patch("trainings.views.submit_training")
 def test_training_submit_403s_when_model_owned_by_other_user(
     mock_task, mock_item_exists, client, published_dataset, registered_base_model, db
 ):
@@ -692,7 +553,7 @@ def test_training_retrieve_returns_record(client, training_ref):
     body = response.json()
     assert body["zenml_run_id"] == "run-abc"
     assert body["overrides"] == {"epochs": 3}
-    assert body["status"] == "initializing"
+    assert body["status"] == "submitted"
 
 
 @patch("trainings.views.get_run_status")
@@ -738,12 +599,25 @@ def test_training_step_logs_routes_to_step_when_param_present(mock_fetch, client
 
 @patch("zenml.utils.run_utils.stop_run")
 @patch("zenml.client.Client")
-def test_training_run_cancel_stops_zenml_run(mock_client_cls, mock_stop, client, training_ref):
-    mock_client_cls.return_value.get_pipeline_run.return_value = MagicMock()
-    response = client.post("/api/v1/trainings/runs/run-abc/cancel/")
+def test_training_run_cancel_stops_zenml_run_hard(mock_client_cls, mock_stop, client, training_ref):
+    response = client.post("/api/v1/trainings/runs/run-abc/cancel/?graceful=true")
     assert response.status_code == 200
-    assert response.json() == {"run_id": "run-abc", "status": "stopping", "graceful": False}
-    mock_stop.assert_called_once()
+    assert response.json() == {"run_id": "run-abc", "status": "cancelled"}
+    mock_stop.assert_called_once_with(
+        mock_client_cls.return_value.get_pipeline_run.return_value, graceful=False
+    )
+
+
+@patch("zenml.utils.run_utils.stop_run")
+@patch("zenml.client.Client")
+def test_training_run_cancel_marks_it_cancelled(mock_client_cls, mock_stop, client, training_ref):
+    mock_client_cls.return_value.get_pipeline_run.return_value = MagicMock()
+    TrainingRunRef.objects.filter(pk=training_ref.pk).update(status="running")
+
+    client.post("/api/v1/trainings/runs/run-abc/cancel/")
+
+    training_ref.refresh_from_db()
+    assert training_ref.status == "cancelled"
 
 
 def test_training_run_status_403s_for_non_owner(other_user, training_ref):
@@ -756,6 +630,11 @@ def test_training_run_status_403s_for_non_owner(other_user, training_ref):
 def test_training_run_status_404s_for_unknown_run(client):
     response = client.get("/api/v1/trainings/runs/no-such-run/status/")
     assert response.status_code == 404
+
+
+def test_stac_producer_names_the_user_and_falls_back_to_the_osm_id():
+    assert OsmUser(osm_id=5, username="mapper").stac_producer() == {"name": "mapper", "roles": ["producer"]}
+    assert OsmUser(osm_id=5, username="").stac_producer() == {"name": "5", "roles": ["producer"]}
 
 
 @patch("trainings.views.for_user")
@@ -781,8 +660,27 @@ def test_training_publish_publishes_local_model(mock_for_user, client, training_
         title=None,
         keywords=None,
         pipeline_run_id="run-abc",
-        paths=BackendLocalModelPaths,
+        providers=[{"name": training_ref.user.username, "roles": ["producer"]}],
     )
+
+
+@patch("trainings.views.for_user")
+def test_publishing_a_new_version_evicts_the_previous_version_from_the_stac_cache(
+    mock_for_user, client, training_ref
+):
+    from django.core.cache import cache
+
+    training_ref.status = "completed"
+    training_ref.save(update_fields=["status"])
+    training_ref.local_model.stac_item_id = "lm-previous"
+    training_ref.local_model.save(update_fields=["stac_item_id"])
+    cache.set("stac:local-models:lm-previous", {"properties": {"title": "old"}})
+    mock_for_user.return_value.promote.return_value = "lm-new"
+
+    response = client.post(f"/api/v1/trainings/{training_ref.id}/publish/", data={}, format="json")
+
+    assert response.status_code == 201
+    assert cache.get("stac:local-models:lm-previous") is None
 
 
 @patch("trainings.views.for_user")
@@ -845,16 +743,29 @@ def test_training_publish_409s_when_run_not_completed(mock_for_user, client, tra
     mock_for_user.assert_not_called()
 
 
+def _model_declaring_confidence_threshold() -> pystac.Item:
+    item = pystac.Item("model", None, None, datetime.now(UTC), {})
+    item.properties["mlm:input"] = [{"name": "image"}]
+    item.properties["mlm:hyperparameters"] = {"inference.confidence_threshold": 0.5}
+    item.properties["fair:hyperparameters_spec"] = [
+        {"key": "confidence_threshold", "type": "float", "default": 0.5, "description": "score"}
+    ]
+    item.add_asset("mlm:training", pystac.Asset("ghcr.io/hotosm/fair-models/model:latest"))
+    return item
+
+
+@patch("predictions.views.get_item", return_value=_model_declaring_confidence_threshold())
 @patch("predictions.views.item_exists", return_value=True)
 @patch("predictions.views.submit_prediction")
-def test_prediction_submit_creates_record_and_enqueues(mock_task, mock_item_exists, client):
+def test_prediction_submit_creates_record_and_enqueues(
+    mock_task, mock_item_exists, mock_get_item, client
+):
     payload = {
         "model_stac_id": "3a0374bf-d73c-4b4d-b165-081ffa2a18ad",
         "image_uri": "https://tiles.example/{z}/{x}/{y}.png",
         "bbox": [85.5, 27.6, 85.51, 27.61],
         "zoom": 19,
         "params": {"confidence_threshold": 0.5},
-        "remove_osm": True,
         "description": "Banepa demo",
     }
     response = client.post("/api/v1/predictions/submit/", data=payload, format="json")
@@ -863,8 +774,7 @@ def test_prediction_submit_creates_record_and_enqueues(mock_task, mock_item_exis
     assert body["local_model_stac_id"] == payload["model_stac_id"]
     assert body["geometry"]["type"] == "Polygon"
     assert body["zoom"] == 19
-    assert body["remove_osm"] is True
-    assert body["status"] == "initializing"
+    assert body["status"] == "submitted"
     assert body["visibility"] == "private"
     # Pre-completion: assets are None (no files in S3 yet).
     assert body["assets"] is None
@@ -879,7 +789,7 @@ def test_prediction_assets_populated_when_completed(client, prediction):
     assets = response.json()["assets"]
     assert assets is not None
     assert "predictions.geojson" in assets["geojson"]
-    assert "predictions.fgb" in assets["fgb"]
+    assert "predictions.parquet" in assets["geoparquet"]
     assert "predictions.pmtiles" in assets["pmtiles"]
 
 
@@ -899,38 +809,22 @@ def test_dataset_assets_populated_when_published(client, published_dataset):
     assert response.status_code == 200
     assets = response.json()["assets"]
     assert assets is not None
-    assert "datasets/ds-banepa/chips" in assets["chips"]
+    assert "datasets/ds-banepa/chips" in assets["chips"]["image"]
     assert "datasets/ds-banepa/labels/labels.geojson" in assets["labels"]
 
 
 def test_dataset_assets_are_none_when_not_published(client, aoi, db):
-    from datasets.models import Dataset
-
     draft = Dataset.objects.create(
         stac_id="ds-draft",
         title="Drafty",
-        source_imagery="https://tiles.example/{z}/{x}/{y}.png",
+        imagery={"image": "https://tiles.example/{z}/{x}/{y}.png"},
+        primary_input="image",
         status=Dataset.Status.BUILDING,
         user=aoi.user,
     )
     response = client.get(f"/api/v1/datasets/{draft.id}/")
     assert response.status_code == 200
     assert response.json()["assets"] is None
-
-
-@patch("predictions.views.item_exists", return_value=False)
-def test_prediction_submit_404s_when_model_missing_in_stac(mock_item_exists, client):
-    response = client.post(
-        "/api/v1/predictions/submit/",
-        data={
-            "model_stac_id": "ghost-model",
-            "image_uri": "https://tiles.example/{z}/{x}/{y}.png",
-            "bbox": [85.5, 27.6, 85.51, 27.61],
-            "zoom": 19,
-        },
-        format="json",
-    )
-    assert response.status_code == 404
 
 
 def test_prediction_submit_rejects_inverted_bbox(client):
@@ -947,14 +841,6 @@ def test_prediction_submit_rejects_inverted_bbox(client):
     assert response.status_code == 400
 
 
-def test_prediction_list_paginates(client, prediction):
-    response = client.get("/api/v1/predictions/")
-    assert response.status_code == 200
-    body = response.json()
-    assert body["count"] == 1
-    assert body["results"][0]["zenml_run_id"] == "pred-run-1"
-
-
 def test_prediction_retrieve_returns_record(client, prediction):
     response = client.get(f"/api/v1/predictions/{prediction.id}/")
     assert response.status_code == 200
@@ -964,61 +850,82 @@ def test_prediction_retrieve_returns_record(client, prediction):
     assert body["geometry"]["type"] == "Polygon"
 
 
-@patch("predictions.views.get_run_status")
-def test_prediction_run_status_polls_zenml(mock_status, client, prediction):
-    mock_status.return_value = "completed"
-    response = client.get("/api/v1/predictions/runs/pred-run-1/status/")
-    assert response.status_code == 200
-    assert response.json() == {
-        "run_id": "pred-run-1",
-        "status": "completed",
-        "is_terminal": True,
-    }
+def test_prediction_list_is_newest_first_and_filters_by_owner(client, user, other_user):
+    older = _completed_prediction(user, "rid-a")
+    others = _completed_prediction(other_user, "rid-b")
+    Prediction.objects.filter(pk=others.pk).update(visibility="public")
+    newer = _completed_prediction(user, "rid-c")
+
+    everything = client.get("/api/v1/predictions/").json()
+    mine = client.get(f"/api/v1/predictions/?user={user.osm_id}&limit=1").json()
+
+    assert [row["id"] for row in everything["results"]] == [newer.id, others.id, older.id]
+    assert (mine["count"], mine["results"][0]["id"], mine["next"] is not None) == (2, newer.id, True)
 
 
-@patch("shared.run_endpoints.fetch_run_logs")
-def test_prediction_run_logs_default_returns_run_level(mock_fetch, client, prediction):
-    mock_fetch.return_value = []
-    response = client.get("/api/v1/predictions/runs/pred-run-1/logs/")
-    assert response.status_code == 200
-    assert response.json() == []
-    mock_fetch.assert_called_once_with("pred-run-1", tail=1000, since=None)
+@patch("predictions.views.submit_prediction")
+def test_anonymous_prediction_submit_is_refused(mock_task, anon_client, db):
+    payload = {"model_stac_id": "m", "image_uri": "https://tiles.example/{z}/{x}/{y}.png", "bbox": [0, 0, 1, 1], "zoom": 19}
+
+    response = anon_client.post("/api/v1/predictions/submit/", payload, format="json")
+
+    assert response.status_code == 401
+    assert not Prediction.objects.exists()
+    mock_task.enqueue.assert_not_called()
 
 
 @patch("zenml.utils.run_utils.stop_run")
 @patch("zenml.client.Client")
 def test_prediction_run_cancel_stops_zenml_run(mock_client_cls, mock_stop, client, prediction):
     mock_client_cls.return_value.get_pipeline_run.return_value = MagicMock()
+    Prediction.objects.filter(pk=prediction.pk).update(status="running", results_ready=False)
     response = client.post("/api/v1/predictions/runs/pred-run-1/cancel/")
     assert response.status_code == 200
-    assert response.json()["status"] == "stopping"
+    assert response.json()["status"] == "cancelled"
     mock_stop.assert_called_once()
 
 
-def test_prediction_run_status_403s_for_non_owner(other_user, prediction):
-    other = APIClient()
-    other.force_authenticate(user=other_user)
-    response = other.get(f"/api/v1/predictions/runs/{prediction.zenml_run_id}/status/")
-    assert response.status_code == 403
+@pytest.mark.django_db(transaction=True, serialized_rollback=True)
+@patch("predictions.tasks.remove_dir")
+@patch("zenml.utils.run_utils.stop_run")
+@patch("zenml.client.Client")
+def test_prediction_run_cancel_marks_it_cancelled_and_removes_its_input_tiles(
+    mock_client_cls, mock_stop, mock_remove, client, prediction
+):
+    mock_client_cls.return_value.get_pipeline_run.return_value = MagicMock()
+    Prediction.objects.filter(pk=prediction.pk).update(status="running", results_ready=False)
+
+    client.post("/api/v1/predictions/runs/pred-run-1/cancel/")
+    call_command("db_worker", batch=True, no_startup_delay=True, interval=0)
+
+    prediction.refresh_from_db()
+    assert prediction.status == "cancelled"
+    mock_remove.assert_called_once()
 
 
-def test_prediction_run_status_404s_for_unknown_run(client):
-    response = client.get("/api/v1/predictions/runs/no-such-run/status/")
-    assert response.status_code == 404
+@patch("zenml.utils.run_utils.stop_run")
+@patch("zenml.client.Client")
+def test_prediction_run_cancel_leaves_a_run_that_already_failed_as_failed(
+    mock_client_cls, mock_stop, client, prediction
+):
+    mock_client_cls.return_value.get_pipeline_run.return_value = MagicMock()
+    Prediction.objects.filter(pk=prediction.pk).update(status="failed", results_ready=False)
+
+    with patch("predictions.views.delete_prediction_input_tiles") as delete_tiles:
+        response = client.post("/api/v1/predictions/runs/pred-run-1/cancel/")
+
+    prediction.refresh_from_db()
+    assert prediction.status == "failed"
+    assert response.json()["status"] == "failed"
+    delete_tiles.enqueue.assert_not_called()
 
 
-def test_prediction_publish_makes_record_public(client, prediction):
-    response = client.post(f"/api/v1/predictions/{prediction.id}/publish/")
-    assert response.status_code == 200
-    assert response.json()["visibility"] == "public"
+def test_prediction_publish_toggle_round_trip(client, prediction):
+    published = client.post(f"/api/v1/predictions/{prediction.id}/publish/")
+    unpublished = client.post(f"/api/v1/predictions/{prediction.id}/unpublish/")
 
-
-def test_prediction_unpublish_makes_record_private(client, prediction):
-    prediction.visibility = "public"
-    prediction.save(update_fields=["visibility"])
-    response = client.post(f"/api/v1/predictions/{prediction.id}/unpublish/")
-    assert response.status_code == 200
-    assert response.json()["visibility"] == "private"
+    assert published.json()["visibility"] == "public"
+    assert unpublished.json()["visibility"] == "private"
 
 
 def test_prediction_publish_hidden_from_non_owner(other_user, prediction):
@@ -1041,150 +948,60 @@ def test_anon_404s_on_private_prediction(anon_client, prediction):
     assert response.status_code == 404
 
 
-@override_settings(ENABLE_MAPSWIPE=False)
-def test_prediction_mapswipe_returns_503_when_feature_disabled(client, prediction):
-    response = client.post(
-        f"/api/v1/predictions/{prediction.id}/mapswipe/",
-        data={
-            "topic": "Buildings Banepa",
-            "region": "Banepa",
-            "description": "Validate predicted buildings",
-            "instruction": "Tap each building you see",
-            "look_for": "buildings",
-            "project_number": 1,
-        },
-        format="json",
-    )
-    assert response.status_code == 503
-    assert "disabled" in response.json()["detail"].lower()
-
-
-def test_feedback_create_returns_geojson_feature(client):
-    payload = {
-        "type": "Feature",
-        "geometry": {
-            "type": "Polygon",
-            "coordinates": [[[0, 0], [0, 0.01], [0.01, 0.01], [0.01, 0], [0, 0]]],
-        },
-        "properties": {
-            "stac_id": "model-xyz",
-            "action": "accept",
-            "comments": "looks good",
-            "config": {},
-        },
-    }
-    response = client.post("/api/v1/feedback/", data=payload, format="json")
-    assert response.status_code == 201, response.content
-    body = response.json()
-    assert body["type"] == "Feature"
-    assert body["properties"]["stac_id"] == "model-xyz"
-    assert body["properties"]["action"] == "accept"
-    assert body["properties"]["user"]["username"] == "alice"
-    assert Feedback.objects.count() == 1
-
-
-def test_feedback_list_paginates(client, user):
-    Feedback.objects.create(
-        stac_id="model-xyz",
-        geom=Polygon(((0, 0), (0, 1), (1, 1), (1, 0), (0, 0)), srid=4326),
-        action="accept",
-        user=user,
-    )
-    response = client.get("/api/v1/feedback/")
-    assert response.status_code == 200
-    body = response.json()
-    assert body["count"] == 1
-    assert body["results"]["type"] == "FeatureCollection"
-    assert body["results"]["features"][0]["properties"]["stac_id"] == "model-xyz"
-
-
-def test_banner_create_returns_record(client):
-    response = client.post(
+@pytest.mark.parametrize(
+    ("api_client", "expected_status"),
+    [("anon_client", 401), ("client", 405), ("admin_client", 405)],
+)
+def test_banner_create_is_refused_through_the_api(request, db, api_client, expected_status):
+    response = request.getfixturevalue(api_client).post(
         "/api/v1/banners/",
         data={"message": "hello mappers", "start_date": "2026-01-01T00:00:00Z"},
         format="json",
     )
-    assert response.status_code == 201, response.content
-    body = response.json()
-    assert body["message"] == "hello mappers"
-    assert body["is_displayable"] is True
+    assert response.status_code == expected_status
+    assert not Banner.objects.exists()
 
 
-def test_banner_list_returns_active_banners(client, db):
-    Banner.objects.create(message="hello mappers")
-    response = client.get("/api/v1/banners/")
-    assert response.status_code == 200
-    body = response.json()
-    assert body["count"] == 1
-    assert body["results"][0]["message"] == "hello mappers"
+def test_banner_list_returns_only_running_banners(anon_client, db):
+    now = datetime.now(UTC)
+    Banner.objects.create(message="running")
+    Banner.objects.create(message="ended", start_date=now - timedelta(days=2), end_date=now - timedelta(days=1))
+    Banner.objects.create(message="upcoming", start_date=now + timedelta(days=1))
+
+    body = anon_client.get("/api/v1/banners/").json()
+
+    assert [banner["message"] for banner in body["results"]] == ["running"]
 
 
-def test_banner_retrieve_returns_record(client, db):
-    banner = Banner.objects.create(message="hello mappers")
-    response = client.get(f"/api/v1/banners/{banner.id}/")
-    assert response.status_code == 200
-    assert response.json()["message"] == "hello mappers"
+@pytest.mark.parametrize(
+    ("method", "path"),
+    [
+        ("get", "/api/v1/workspace/?prefix="),
+        ("get", "/api/v1/workspace/url/?key=x"),
+        ("get", "/api/v1/notifications/me/"),
+        ("get", "/api/v1/public-predictions/"),
+        ("get", "/api/v1/pinned-models/"),
+    ],
+)
+def test_removed_routes_are_gone(client, method, path):
+    assert getattr(client, method)(path).status_code == 404
 
 
-def test_notifications_list_returns_user_notifications(client, user):
-    UserNotification.objects.create(user=user, message="dataset built")
-    UserNotification.objects.create(user=user, message="training done")
-    response = client.get("/api/v1/notifications/me/")
-    assert response.status_code == 200
-    body = response.json()
-    assert body["count"] == 2
-    assert body["results"][0]["is_read"] is False
-
-
-def test_notifications_mark_read_flips_flag(client, user):
-    notification = UserNotification.objects.create(user=user, message="dataset built")
-    response = client.post(f"/api/v1/notifications/me/{notification.id}/mark-read/")
-    assert response.status_code == 200
-    assert response.json()["is_read"] is True
-
-
-def test_notifications_mark_all_read_clears_unread(client, user):
-    UserNotification.objects.create(user=user, message="one")
-    UserNotification.objects.create(user=user, message="two")
-    response = client.post("/api/v1/notifications/me/mark-all-read/")
-    assert response.status_code == 200
-    assert response.json() == {"detail": "ok"}
-    assert UserNotification.objects.filter(user=user, is_read=False).count() == 0
-
-
-@patch("django.conf.settings.S3_CLIENT")
-def test_workspace_listing_returns_folders_and_files(mock_s3, client):
-    mock_s3.list_objects_v2.return_value = {
-        "CommonPrefixes": [{"Prefix": "predict/1/"}],
-        "Contents": [
-            {
-                "Key": "predict/1/output/predictions.geojson",
-                "Size": 1024,
-                "LastModified": datetime(2026, 5, 3),
-            }
-        ],
-    }
-    response = client.get("/api/v1/workspace/?prefix=predict/")
-    assert response.status_code == 200
-    body = response.json()
-    assert body["folders"] == [{"name": "1", "prefix": "predict/1/"}]
-    assert body["files"][0]["key"] == "predict/1/output/predictions.geojson"
-    assert body["files"][0]["size"] == 1024
-
-
-@patch("django.conf.settings.S3_CLIENT")
-def test_workspace_presigned_url_signs_object(mock_s3, client):
-    mock_s3.generate_presigned_url.return_value = "https://signed.example/object"
-    response = client.get("/api/v1/workspace/url/?key=predict/1/output/predictions.geojson")
-    assert response.status_code == 200
-    body = response.json()
-    assert body["url"] == "https://signed.example/object"
-    assert body["expires_in"] == 900
-
-
-def test_workspace_presigned_url_400s_without_key(client):
-    response = client.get("/api/v1/workspace/url/")
-    assert response.status_code == 400
+@pytest.mark.parametrize(
+    ("method", "path"),
+    [
+        ("post", "/api/v1/predictions/{prediction_id}/mapswipe/"),
+        ("get", "/api/v1/predictions/runs/{run_id}/status/"),
+        ("get", "/api/v1/predictions/runs/{run_id}/logs/"),
+        ("get", "/api/v1/local-models/{local_model_id}/runs/"),
+        ("patch", "/api/v1/local-models/{local_model_id}/pin/"),
+    ],
+)
+def test_removed_detail_actions_are_gone(admin_client, prediction, local_model, method, path):
+    url = path.format(
+        prediction_id=prediction.id, run_id=prediction.zenml_run_id, local_model_id=local_model.id
+    )
+    assert getattr(admin_client, method)(url).status_code == 404
 
 
 def test_stars_get_for_unstarred_item(client):
@@ -1217,11 +1034,16 @@ def test_stars_delete_removes_star(client):
     assert response.status_code == 204
 
 
-def test_stars_anonymous_can_star(anon_client, db):
-    create_response = anon_client.post("/api/v1/stars/?target_id=model-anon")
-    assert create_response.status_code == 201
-    state_response = anon_client.get("/api/v1/stars/?target_id=model-anon")
-    assert state_response.json()["starred"] is True
+def test_stars_anonymous_cannot_star(anon_client, db):
+    response = anon_client.post("/api/v1/stars/?target_id=model-anon")
+    assert response.status_code == 401
+    assert not Star.objects.exists()
+
+
+def test_stars_anonymous_sees_count_but_not_starred(client, anon_client):
+    client.post("/api/v1/stars/?target_id=model-abc")
+    response = anon_client.get("/api/v1/stars/?target_id=model-abc")
+    assert response.json() == {"target_id": "model-abc", "count": 1, "starred": False}
 
 
 def test_stars_400s_without_target_id(client):
@@ -1237,10 +1059,11 @@ def test_stars_400s_without_target_id(client):
 # ---------------------------------------------------------------------------
 
 
+@patch("predictions.tasks.remove_dir")
 @patch("predictions.tasks.post_process_prediction")
 @patch("predictions.tasks.get_run_status")
 def test_sync_prediction_runs_post_process_when_status_jumps_to_completed(
-    mock_get_status, mock_post_run, db, user
+    mock_get_status, mock_post_run, mock_remove, db, user
 ):
     from predictions.tasks import sync_prediction_status
 
@@ -1251,7 +1074,8 @@ def test_sync_prediction_runs_post_process_when_status_jumps_to_completed(
     p = Prediction.objects.create(
         zenml_run_id="rid-1",
         local_model_stac_id="m-uuid",
-        image_uri="https://t/{z}/{x}/{y}.png",
+        imagery={"image": "https://t/{z}/{x}/{y}.png"},
+        primary_input="image",
         geometry={"type": "Polygon", "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]]},
         zoom=19,
         status="completed",
@@ -1259,12 +1083,14 @@ def test_sync_prediction_runs_post_process_when_status_jumps_to_completed(
         user=user,
     )
     mock_get_status.return_value = "completed"
+    mock_post_run.return_value = 2
 
     sync_prediction_status.func(prediction_id=p.id)
 
     mock_post_run.assert_called_once()
     p.refresh_from_db()
     assert p.results_ready is True
+    assert p.feature_count == 2
 
 
 @patch("predictions.tasks.post_process_prediction")
@@ -1277,7 +1103,8 @@ def test_sync_prediction_skips_post_process_when_already_ready(
     p = Prediction.objects.create(
         zenml_run_id="rid-2",
         local_model_stac_id="m-uuid",
-        image_uri="https://t/{z}/{x}/{y}.png",
+        imagery={"image": "https://t/{z}/{x}/{y}.png"},
+        primary_input="image",
         geometry={"type": "Polygon", "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]]},
         zoom=19,
         status="completed",
@@ -1295,7 +1122,8 @@ def _completed_prediction(user, run_id: str) -> Prediction:
     return Prediction.objects.create(
         zenml_run_id=run_id,
         local_model_stac_id="m-uuid",
-        image_uri="https://t/{z}/{x}/{y}.png",
+        imagery={"image": "https://t/{z}/{x}/{y}.png"},
+        primary_input="image",
         geometry={"type": "Polygon", "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]]},
         zoom=19,
         status="completed",
@@ -1316,7 +1144,7 @@ def _completed_prediction(user, run_id: str) -> Prediction:
     return_value=["features[0].properties missing declared variable 'class'"],
 )
 def test_post_process_rejects_predictions_not_matching_model_item(
-    mock_validate, mock_load, mock_get_item, mock_upath, found_in, expected_collection, db, user
+    mock_validate, mock_load, mock_get_item, mock_remove, found_in, expected_collection, db, user
 ):
     from predictions.post_run import post_process_prediction
 
@@ -1327,7 +1155,7 @@ def test_post_process_rejects_predictions_not_matching_model_item(
         post_process_prediction(_completed_prediction(user, "rid-3"))
 
     mock_get_item.assert_called_once_with(expected_collection, "m-uuid")
-    mock_upath.assert_not_called()
+    mock_remove.assert_not_called()
 
 
 @patch("predictions.post_run._load_geojson", return_value={"type": "FeatureCollection"})
@@ -1339,10 +1167,11 @@ def test_post_process_rejects_model_missing_from_stac(mock_exists, mock_load, db
         post_process_prediction(_completed_prediction(user, "rid-5"))
 
 
+@patch("predictions.tasks.remove_dir")
 @patch("predictions.tasks.post_process_prediction", side_effect=PredictionOutputError("mismatch"))
 @patch("predictions.tasks.get_run_status", return_value="completed")
 def test_sync_prediction_fails_prediction_on_rejected_outputs(
-    mock_get_status, mock_post_run, db, user
+    mock_get_status, mock_post_run, mock_remove, db, user
 ):
     from predictions.tasks import sync_prediction_status
 
@@ -1355,6 +1184,47 @@ def test_sync_prediction_fails_prediction_on_rejected_outputs(
     assert prediction.status == "failed"
     assert prediction.results_ready is False
     assert mock_get_status.call_count == 1
+    assert mock_remove.call_count == 1
+
+
+@patch("predictions.tasks.remove_dir")
+@patch("predictions.tasks.post_process_prediction", side_effect=RuntimeError("bucket timeout"))
+@patch("predictions.tasks.get_run_status", return_value="completed")
+def test_sync_prediction_keeps_input_tiles_when_post_processing_is_retried(
+    mock_get_status, mock_post_run, mock_remove, db, user
+):
+    from predictions.tasks import sync_prediction_status
+
+    with pytest.raises(RuntimeError):
+        sync_prediction_status.func(prediction_id=_completed_prediction(user, "rid-7").id)
+
+    mock_remove.assert_not_called()
+
+
+@pytest.mark.parametrize(
+    ("status", "flag", "deleted"),
+    [("completed", True, True), ("failed", True, True), ("running", True, False), ("completed", False, False)],
+)
+@patch("predictions.tasks.run_failure_reason", return_value="boom")
+@patch("predictions.tasks.remove_dir")
+@patch("predictions.tasks.post_process_prediction", return_value=1)
+def test_sync_prediction_deletes_input_tiles_once_the_run_is_over(
+    mock_post_run, mock_remove, _reason, settings, user, status, flag, deleted
+):
+    from predictions.tasks import sync_prediction_status
+    from shared.storage import StoragePaths
+
+    settings.DELETE_PREDICTION_INPUT_TILES = flag
+    prediction = _completed_prediction(user, "rid-6")
+    prediction.imagery = {"post": "https://t/{z}/{x}/{y}.png", "pre": "https://t/{z}/{x}/{y}.png"}
+    prediction.status = "running"
+    prediction.save()
+
+    with patch("predictions.tasks.get_run_status", return_value=status):
+        sync_prediction_status.func(prediction_id=prediction.id)
+
+    expected = [StoragePaths.prediction_input_dir_uri(prediction.id, name) for name in ("post", "pre")]
+    assert sorted(c.args[0] for c in mock_remove.call_args_list) == (expected if deleted else [])
 
 
 # --- Visibility / anonymous-read matrix ---------------------------------
@@ -1463,3 +1333,88 @@ def test_admin_sees_all_datasets(admin_client, published_dataset):
     response = admin_client.get("/api/v1/datasets/")
     assert response.status_code == 200
     assert len(response.json()["results"]) == 1
+
+
+def _roof_dataset() -> pystac.Item:
+    properties = {"label:properties": ["roof"], "label:classes": [{"name": "roof", "classes": ["iron"]}]}
+    return pystac.Item("roofs", None, None, datetime.now(UTC), properties)
+
+
+def _submit(client, dataset: Dataset, **extra) -> object:
+    payload = {
+        "base_model_stac_id": "unet-segmentation",
+        "dataset_stac_id": dataset.stac_id,
+        "model_name": "roofs-v1",
+        **extra,
+    }
+    return client.post("/api/v1/trainings/submit/", data=payload, format="json")
+
+
+@patch("trainings.views.item_exists", return_value=True)
+@patch("trainings.views.submit_training")
+def test_training_submit_keeps_a_class_map_that_resolves_the_dataset(
+    mock_task, mock_item_exists, client, published_dataset, registered_base_model
+):
+    with patch("trainings.views.get_dataset", return_value=_roof_dataset()):
+        response = _submit(client, published_dataset, class_map={"roof=iron": "building"})
+
+    assert response.status_code == 202, response.content
+    assert response.json()["class_map"] == {"roof=iron": "building"}
+    assert TrainingRunRef.objects.get(local_model__name="roofs-v1").class_map == {"roof=iron": "building"}
+    mock_task.enqueue.assert_called_once()
+
+
+@pytest.mark.parametrize(
+    ("class_map", "message"),
+    [
+        ({}, "dataset classes ['roof=iron'] match no model class ['background', 'building']"),
+        ({"roof=iron": "metal"}, "'metal' is not a model class"),
+        ({"roof=tin": "building"}, "'roof=tin' is not a dataset class"),
+    ],
+    ids=["unmatched", "unknown-model-class", "unknown-dataset-class"],
+)
+@patch("trainings.views.item_exists", return_value=True)
+@patch("trainings.views.submit_training")
+def test_training_submit_rejects_classes_that_do_not_map(
+    mock_task, mock_item_exists, client, published_dataset, registered_base_model, class_map, message
+):
+    with patch("trainings.views.get_dataset", return_value=_roof_dataset()):
+        response = _submit(client, published_dataset, class_map=class_map)
+
+    assert response.status_code == 400
+    assert message in response.json()["error"]["details"]["class_map"][0]
+    assert not TrainingRunRef.objects.filter(local_model__name="roofs-v1").exists()
+    mock_task.enqueue.assert_not_called()
+
+
+@pytest.mark.parametrize(("feature_count", "has_pmtiles"), [(0, False), (3, True), (None, True)])
+def test_prediction_outputs_list_pmtiles_only_when_the_result_may_have_features(
+    client, prediction, feature_count, has_pmtiles
+):
+    Prediction.objects.filter(pk=prediction.pk).update(feature_count=feature_count)
+
+    detail = client.get(f"/api/v1/predictions/{prediction.id}/").json()
+    result = client.get(f"/api/v1/predictions/{prediction.id}/result/").json()
+
+    assert detail["feature_count"] == feature_count
+    assert ("pmtiles" in detail["assets"]) is has_pmtiles
+    assert ("pmtiles" in result) is has_pmtiles
+    assert {"geojson", "geoparquet"} <= detail["assets"].keys() & result.keys()
+
+
+@patch("predictions.post_run._generate_pmtiles")
+@patch("predictions.post_run.generate_geoparquet")
+@patch("predictions.post_run.UPath")
+@patch("predictions.post_run.get_item")
+@patch("predictions.post_run.item_exists", return_value=True)
+@patch("fair.stac.validators.validate_predictions_geojson", return_value=[])
+@patch(
+    "predictions.post_run._load_geojson",
+    return_value={"type": "FeatureCollection", "features": [{"type": "Feature"}] * 3},
+)
+def test_post_process_returns_the_number_of_features_it_wrote(
+    _load, _validate, _exists, _item, _upath, _geoparquet, _pmtiles, db, user
+):
+    from predictions.post_run import post_process_prediction
+
+    assert post_process_prediction(_completed_prediction(user, "rid-count")) == 3

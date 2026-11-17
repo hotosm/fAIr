@@ -5,17 +5,13 @@ description: Run the full fAIr stack locally, or the backend on its own for fast
 
 # Developer setup
 
-This page covers running fAIr for development. For a guided Docker install, see [Run locally](run-locally.md).
+This page covers backend-only iteration and tooling. To run the full stack, and for the list of services, ports and dev credentials, see [Run locally](run-locally.md).
 
 ## Prerequisites
 
 - Docker and Docker Compose for the full stack.
 - For host-based backend work: [uv](https://docs.astral.sh/uv/), [just](https://github.com/casey/just), and Python 3.12 or newer.
-- For host-based frontend work: [pnpm](https://pnpm.io/).
-
-## Full stack
-
-Build and run the whole stack from source with [Run locally](run-locally.md). The rest of this page covers backend-only iteration and tooling.
+- For host-based frontend work: [pnpm](https://pnpm.io/) and Node.js 20.19 or newer (22.12 or newer for Oxfmt).
 
 ## Backend only
 
@@ -32,9 +28,13 @@ just worker    # separate shell, runs async jobs
 
 The worker is required for any async flow (dataset build, training, prediction), since those run as background jobs.
 
-## Ports
+To build datasets, train or predict from a host backend, start the other services too:
 
-The API is on `8000` and Postgres on `5434`. The full list of services, ports, URLs, and dev credentials is in [Run locally](run-locally.md#services).
+```bash
+docker compose up -d postgres minio stac mlflow zenml
+```
+
+Point `backend/.env` at those services, see [Configuration](run-locally.md#configuration).
 
 ## Backend tooling
 
@@ -51,6 +51,8 @@ just migrate   # apply migrations
 
 Async jobs use `django_tasks`: define a `@task()` in `<app>/tasks.py` and enqueue it; the worker is `manage.py db_worker`.
 
+Backend tests mock `shared.integrations.zenml`, so they never reach a live ZenML server.
+
 ## Frontend
 
 The frontend uses pnpm and Vite:
@@ -59,8 +61,33 @@ The frontend uses pnpm and Vite:
 cd frontend
 pnpm install
 pnpm dev       # vite dev server
-pnpm build     # type-check and build
+pnpm build     # type-check and build into dist/
+pnpm preview   # serve the build
 pnpm test      # vitest
+pnpm coverage  # vitest with a coverage report
+pnpm format    # oxfmt
+pnpm format:check  # oxfmt, check only
+```
+
+`pnpm dev` serves the app at <http://127.0.0.1:3500> and reads `frontend/.env`; copy it from `.env.sample`. `Dockerfile.dev` runs the dev server in a container:
+
+```bash
+docker build -f Dockerfile.dev -t fair-frontend-dev .
+docker run -p 3500:3500 -v $(pwd):/app fair-frontend-dev
+```
+
+Code conventions:
+
+- File names are `kebab-case`.
+- Imports use the `@/` alias (`@/components`, `@/hooks`) in place of relative paths.
+- Oxfmt formats the source with `.oxfmtrc.json`. Its editor extension for VS Code is `oxc.oxc-vscode`.
+
+## Git hooks
+
+`just setup` in `backend/` installs the pre-commit hooks, which cover the backend and the frontend. If `git config --local --get core.hooksPath` prints `frontend/.husky/_`, clear it first:
+
+```bash
+git config --local --unset core.hooksPath
 ```
 
 ## Hot reload

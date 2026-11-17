@@ -68,6 +68,7 @@ export enum DrawerPlacements {
   BOTTOM = "bottom",
   TOP = "top",
   END = "end",
+  START = "start",
 }
 
 export enum DropdownPlacement {
@@ -75,6 +76,7 @@ export enum DropdownPlacement {
   BOTTOM_END = "bottom-end",
   TOP_END = "top-end",
   RIGHT_START = "right-start",
+  RIGHT_END = "right-end",
 }
 
 export enum ModelTrainingStatus {
@@ -104,15 +106,9 @@ export enum ImagerySource {
 }
 
 export enum PredictionRequestStatus {
-  INITIALIZING = "initializing",
   SUBMITTED = "submitted",
-  PROVISIONING = "provisioning",
   RUNNING = "running",
   COMPLETED = "completed",
   FAILED = "failed",
-  CACHED = "cached",
-  RETRYING = "retrying",
-  RETRIED = "retried",
-  STOPPING = "stopping",
-  STOPPED = "stopped",
+  CANCELLED = "cancelled",
 }

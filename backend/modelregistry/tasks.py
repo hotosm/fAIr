@@ -4,12 +4,15 @@ import tempfile
 from pathlib import Path
 
 from django.conf import settings
+from django.db import transaction
 from django_tasks import task
 
 from shared.integrations.stac import (
     BASE_MODELS_COLLECTION,
+    FAIR_PINNED_PROPERTY,
     invalidate_stac_cache,
     mirror_and_relink_assets,
+    set_item_property,
 )
 from shared.integrations.zenml import for_user
 
@@ -66,16 +69,24 @@ def register_base_model(*, base_model_id: int, stac_item: dict) -> None:
     try:
         if not stac_item:
             raise ValueError("no stac_item supplied to register")
+        stac_item["properties"][FAIR_PINNED_PROPERTY] = base_model.is_pinned
         with open(handle, "w") as fh:
             json.dump(stac_item, fh)
         published_id = for_user(str(base_model.user.osm_id)).register_base_model(
             item_path, knative_template=settings.KNATIVE_SERVICE_TEMPLATE
         )
+        # A pin made while registration ran reached only the row or the old item.
+        with transaction.atomic():
+            is_pinned = BaseModel.objects.select_for_update().get(id=base_model_id).is_pinned
+            if is_pinned != stac_item["properties"][FAIR_PINNED_PROPERTY]:
+                set_item_property(
+                    BASE_MODELS_COLLECTION, published_id, FAIR_PINNED_PROPERTY, is_pinned
+                )
         base_model.stac_item_id = published_id
         base_model.status = BaseModel.Status.ACTIVE
         base_model.error = ""
         base_model.save(update_fields=["stac_item_id", "status", "error", "last_modified"])
-        invalidate_stac_cache(BASE_MODELS_COLLECTION, base_model.name)
+        invalidate_stac_cache(BASE_MODELS_COLLECTION, published_id)
         mirror_stac_assets_task.enqueue(collection_id=BASE_MODELS_COLLECTION, item_id=published_id)
     except Exception as exc:
         if _is_infra_error(exc):

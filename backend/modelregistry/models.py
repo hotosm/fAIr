@@ -60,6 +60,8 @@ class LocalModel(Pinnable):
     # Active version's STAC item id (in the local-models collection). Set at
     # promote; the canonical id for STAC lookups and prediction submits.
     stac_item_id = models.CharField(max_length=64, blank=True, default="", db_index=True)
+    # Try-now runs reported by the frontend; map requests are counted from predictions.
+    prediction_runs = models.PositiveIntegerField(default=0, editable=False)
     status = models.CharField(
         max_length=20, choices=LocalModelStatus.choices, default=LocalModelStatus.ACTIVE
     )
@@ -78,7 +80,6 @@ class LocalModel(Pinnable):
     class Meta:
         indexes = [
             models.Index(fields=["status"]),
-            models.Index(fields=["user"]),
         ]
         constraints = [
             models.CheckConstraint(
@@ -116,6 +117,8 @@ class BaseModel(Pinnable):
         max_length=20, choices=Visibility.choices, default=Visibility.PUBLIC, db_index=True
     )
     stac_item_id = models.CharField(max_length=64, blank=True, default="", db_index=True)
+    # Try-now runs reported by the frontend; map requests are counted from predictions.
+    prediction_runs = models.PositiveIntegerField(default=0, editable=False)
     error = models.TextField(blank=True, default="")
     user = models.ForeignKey(
         OsmUser,
@@ -129,7 +132,6 @@ class BaseModel(Pinnable):
     class Meta:
         indexes = [
             models.Index(fields=["status"]),
-            models.Index(fields=["user"]),
         ]
         constraints = [
             models.CheckConstraint(

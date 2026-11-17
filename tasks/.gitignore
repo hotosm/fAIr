@@ -1,2 +1,3 @@
 # Justfiles imported from https://github.com/hotosm/justfiles
 *.just
+!test.just
