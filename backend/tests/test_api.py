@@ -1205,10 +1205,11 @@ def test_sync_prediction_keeps_input_tiles_when_post_processing_is_retried(
     ("status", "flag", "deleted"),
     [("completed", True, True), ("failed", True, True), ("running", True, False), ("completed", False, False)],
 )
+@patch("predictions.tasks.run_failure_reason", return_value="boom")
 @patch("predictions.tasks.remove_dir")
 @patch("predictions.tasks.post_process_prediction", return_value=1)
 def test_sync_prediction_deletes_input_tiles_once_the_run_is_over(
-    mock_post_run, mock_remove, settings, user, status, flag, deleted
+    mock_post_run, mock_remove, _reason, settings, user, status, flag, deleted
 ):
     from predictions.tasks import sync_prediction_status
     from shared.storage import StoragePaths
