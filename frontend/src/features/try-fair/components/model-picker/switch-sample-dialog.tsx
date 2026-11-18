@@ -14,12 +14,10 @@ export function shouldShowSwitchWarning(): boolean {
 
 export function SwitchSampleDialog({
   selectionType = "sample",
-  message,
   onCancel,
   onConfirm,
 }: {
   selectionType?: "sample" | "imagery";
-  message?: string;
   onCancel: () => void;
   onConfirm: () => void;
 }) {
@@ -44,8 +42,7 @@ export function SwitchSampleDialog({
           <WarningIcon />
         </div>
         <p className="text-xs">
-          {message ??
-            `Switching ${selectionType === "sample" ? "samples" : "your custom setup"} will clear your current progress. You can restore it from History.`}
+          {`Switching ${selectionType === "sample" ? "samples" : "your custom setup"} will clear your current progress. You can restore it from History.`}
         </p>
         <label className="flex items-center gap-1.5 text-xs cursor-pointer">
           <input

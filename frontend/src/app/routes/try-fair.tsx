@@ -35,6 +35,7 @@ import { cleanFeatureLabel } from "@/features/try-fair/utils/common";
 import { MobileMapToolbar } from "@/features/try-fair/components/mobile/mobile-map-toolbar";
 import {
   getModelDefaultResolution,
+  imageryKeptOnModelSwitch,
   getModelOutputType,
   predictErrorMessage,
 } from "@/features/try-fair/utils/common";
@@ -253,6 +254,16 @@ export const TryFairPage = ({
     }
   }, [imageryModelId, selectedModelId, setSelectedModelId]);
 
+  // applyModelSettings clears restoredSnapshot, so this holds the grid centre across a Models pick.
+  const [keptView, setKeptView] = useState<{
+    imageryKey: string;
+    center: [number, number];
+  } | null>(null);
+  const keptCenter =
+    keptView && keptView.imageryKey === (oamItemId ?? imageryUrl)
+      ? keptView.center
+      : undefined;
+
   const [latestBBox, setLatestBBox] = useState<BBOX | null>(
     initialProject?.state.bbox ?? null,
   );
@@ -396,7 +407,6 @@ export const TryFairPage = ({
   const {
     predict,
     isPredicting,
-    stage: predictionStage,
     result: predictResult,
     predictions,
     predictionBBox,
@@ -411,7 +421,7 @@ export const TryFairPage = ({
     lastPredictedInputsRef.current = null;
   }, [cancelPrediction]);
 
-  const handleSelectModel = (model: BaseModelStacItem) => {
+  const applyModelSettings = (model: BaseModelStacItem) => {
     setModelId(model.id);
     setResolution(getModelDefaultResolution(model));
     // Keep the feature in step with the chosen model. Otherwise e.g. the
@@ -419,14 +429,6 @@ export const TryFairPage = ({
     // then "corrects" the model back to the buildings default.
     const category = model.properties["fair:category"];
     if (category && category !== feature) setFeature(category);
-
-    // Only reset imagery & mode when the user was on a sample/demo location.
-    // If they have their own imagery selected (advanced picker usage), keep it.
-    if (mode !== ModelType.IMAGERY) {
-      setCurrentModelType(ModelType.DEMO);
-      setMode(ModelType.DEMO);
-      setImagery({ url: null, tileServiceType: null, oamItemId: null });
-    }
 
     // Reset confidence threshold to model's spec default if available
     const infParams = getInferenceParams(model);
@@ -444,19 +446,49 @@ export const TryFairPage = ({
     setRestoredSnapshot(null);
   };
 
+  const handleSelectModel = (model: BaseModelStacItem) => {
+    const keptImagery = imageryKeptOnModelSwitch(
+      mode,
+      modelPreview?.imagery.url,
+    );
+    const imageryKey = keptImagery
+      ? (keptImagery.oamItemId ?? keptImagery.url)
+      : (oamItemId ?? imageryUrl);
+    const center: [number, number] | undefined = latestBBox
+      ? [
+          (latestBBox[0] + latestBBox[2]) / 2,
+          (latestBBox[1] + latestBBox[3]) / 2,
+        ]
+      : imageryCenter;
+    setKeptView(
+      imageryKey && center && imageryCenter ? { imageryKey, center } : null,
+    );
+    if (keptImagery) {
+      setSeletedImagery(null);
+      setCurrentModelType(ModelType.IMAGERY);
+      setImageryMode(keptImagery);
+    } else if (mode !== ModelType.IMAGERY) {
+      setCurrentModelType(ModelType.DEMO);
+      setMode(ModelType.DEMO);
+      setImagery({ url: null, tileServiceType: null, oamItemId: null });
+    }
+    applyModelSettings(model);
+  };
+
   /**
    * Called when the user picks a model from the Samples tab.
    * Always switches to DEMO mode and clears any active imagery,
    * regardless of the current mode.
    */
   const handleSelectSampleModel = (model: BaseModelStacItem) => {
+    setKeptView(null);
     setStagedImagery(null);
     setSeletedImagery(null);
     setCurrentModelType(ModelType.DEMO);
     setMode(ModelType.DEMO);
     setImagery({ url: null, tileServiceType: null, oamItemId: null });
     setSelectedModelId(null);
-    handleSelectModel(model);
+    applyModelSettings(model);
   };
 
   const handleResolutionChange = (res: TryFairResolution) => {
@@ -640,6 +672,7 @@ export const TryFairPage = ({
   };
   const handleApplyImagery = useCallback(
     (selection: ImagerySelection) => {
+      setKeptView(null);
       setSeletedImagery(selection);
       setCurrentModelType(ModelType.IMAGERY);
       // Use the atomic setter so mode + imagery URL land in a single nuqs
@@ -719,6 +752,7 @@ export const TryFairPage = ({
 
   const handleRestorePrediction = (entry: PredictionHistoryEntry) => {
     if (isPredicting) return;
+    setKeptView(null);
     const snapshot = entry.snapshot;
     const result = snapshot.prediction_result;
     previousMappingModel.current = result.modelId;
@@ -1000,7 +1034,7 @@ export const TryFairPage = ({
                 !isPredicting &&
                 Boolean(predictions && !predictions.features.length)
               }
-              imageryCenter={restoredCenter ?? imageryCenter}
+              imageryCenter={keptCenter ?? restoredCenter ?? imageryCenter}
               resolution={resolution}
               isPredicting={isPredicting}
               preImageryUrl={preImageryUrl}
@@ -1042,7 +1076,6 @@ export const TryFairPage = ({
                 onMap={handleMap}
                 onCancelPrediction={handleCancelPrediction}
                 isPredicting={isPredicting}
-                predictionStage={predictionStage}
                 isMapButtonDisabled={isMapButtonDisabled}
                 mapUnavailableReason={mapUnavailableReason}
                 featureLabel={cleanFeatureLabel(feature)}
@@ -1096,7 +1129,6 @@ export const TryFairPage = ({
                     onMap={handleMap}
                     onCancelPrediction={handleCancelPrediction}
                     isPredicting={isPredicting}
-                    predictionStage={predictionStage}
                     isMapButtonDisabled={isMapButtonDisabled}
                     mapUnavailableReason={mapUnavailableReason}
                     featureLabel={cleanFeatureLabel(feature)}

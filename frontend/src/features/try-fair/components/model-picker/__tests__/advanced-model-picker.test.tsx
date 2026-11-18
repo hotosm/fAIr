@@ -9,10 +9,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { ComponentProps } from "react";
 import { Dialog } from "@/components/ui/dialog";
 import { AdvancedModelPickerContent } from "@/features/try-fair/components/model-picker/advanced-model-picker-dialog";
-import { ModelType } from "@/enums";
 
 const params = vi.hoisted(() => ({
-  mode: "demo",
   selectedModelId: "buildings-1" as string | null,
   modelId: "buildings-1",
   setSelectedModelId: vi.fn(),
@@ -66,7 +64,6 @@ vi.mock("@/features/try-fair/api/features-to-map", () => ({
 }));
 
 beforeEach(() => {
-  params.mode = ModelType.DEMO;
   params.selectedModelId = "buildings-1";
   trees[0].is_pinned = true;
   params.setSelectedModelId.mockClear();
@@ -168,7 +165,6 @@ describe("advanced model picker", () => {
   });
 
   it("shows pinned and unpinned models with a badge only on pinned cards", () => {
-    params.mode = ModelType.IMAGERY;
     setup();
     const pinnedCard = card("buildings-1");
     const unpinnedCard = card("buildings-2");
@@ -184,72 +180,24 @@ describe("advanced model picker", () => {
   it.each([
     ["a model", false],
     ["a feature and model", true],
-  ])(
-    "in Samples mode, confirms then applies %s and closes",
-    (_, changeFeature) => {
-      const { onSelect, onFeatureChange, onClose } = setup();
-      if (changeFeature) {
-        fireEvent.click(screen.getByRole("button", { name: "Trees" }));
-      }
-      const expected = changeFeature ? trees[0] : buildings[1];
-      fireEvent.click(card(expected.id));
-      expect(screen.getByRole("dialog")).toHaveTextContent(
-        "moves the map to its sample imagery",
-      );
-      expect(onSelect).not.toHaveBeenCalled();
-
-      fireEvent.click(screen.getByRole("button", { name: "Continue" }));
-      expect(onSelect).toHaveBeenCalledExactlyOnceWith(expected.stac);
-      expect(params.setSelectedModelId).toHaveBeenCalledWith(
-        expected.stac_item_id,
-      );
-      if (changeFeature) expect(onFeatureChange).toHaveBeenCalledWith("trees");
-      else expect(onFeatureChange).not.toHaveBeenCalled();
-      expect(onClose).toHaveBeenCalledOnce();
-    },
-  );
-
-  it("keeps the previous model when the Samples warning is cancelled", () => {
+  ])("applies %s straight away and closes", (_, changeFeature) => {
     const { onSelect, onFeatureChange, onClose } = setup();
-    fireEvent.click(screen.getByRole("button", { name: "Trees" }));
-    fireEvent.click(card("trees-1"));
-    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    if (changeFeature) {
+      fireEvent.click(screen.getByRole("button", { name: "Trees" }));
+    }
+    const expected = changeFeature ? trees[0] : buildings[1];
+    fireEvent.click(card(expected.id));
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-    expect(onSelect).not.toHaveBeenCalled();
-    expect(onFeatureChange).not.toHaveBeenCalled();
-    expect(onClose).not.toHaveBeenCalled();
-    expect(params.setSelectedModelId).not.toHaveBeenCalled();
-  });
-
-  it("applies straight away in custom imagery mode", () => {
-    params.mode = ModelType.IMAGERY;
-    const { onSelect, onFeatureChange, onClose } = setup();
-    fireEvent.click(screen.getByRole("button", { name: "Trees" }));
-    fireEvent.click(card("trees-1"));
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-    expect(onSelect).toHaveBeenCalledExactlyOnceWith(trees[0].stac);
-    expect(onFeatureChange).toHaveBeenCalledWith("trees");
+    expect(onSelect).toHaveBeenCalledExactlyOnceWith(expected.stac);
+    expect(params.setSelectedModelId).toHaveBeenCalledWith(
+      expected.stac_item_id,
+    );
+    if (changeFeature) expect(onFeatureChange).toHaveBeenCalledWith("trees");
+    else expect(onFeatureChange).not.toHaveBeenCalled();
     expect(onClose).toHaveBeenCalledOnce();
   });
 
-  it("remembers the warning opt-out for later changes", () => {
-    setup();
-    fireEvent.click(card("buildings-2"));
-    fireEvent.click(screen.getByRole("checkbox"));
-    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
-    expect(localStorage.getItem("fair:skip-sample-switch-warning")).toBe(
-      "true",
-    );
-    cleanup();
-    const { onSelect } = setup();
-    fireEvent.click(screen.getByRole("button", { name: "Trees" }));
-    fireEvent.click(card("trees-1"));
-    expect(onSelect).toHaveBeenCalledWith(trees[0].stac);
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-  });
-
   it("opens a model's details and can use the model from there", () => {
-    params.mode = ModelType.IMAGERY;
     Object.assign(buildings[1].stac.properties, {
       providers: [
         { name: "Facebook Research", roles: ["licensor"] },
@@ -285,7 +233,6 @@ describe("advanced model picker", () => {
   });
 
   it("marks the model already in use instead of offering it again", () => {
-    params.mode = ModelType.IMAGERY;
     setup();
     fireEvent.click(
       screen.getByRole("button", { name: "View details of buildings-1" }),

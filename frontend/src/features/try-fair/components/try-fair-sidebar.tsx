@@ -41,8 +41,6 @@ import {
 import { AdvancedSettingsPanel } from "@/features/try-fair/components/advanced-settings-panel";
 import { DropDown } from "@/components/ui/dropdown";
 import type { SlDropdownType } from "@/types";
-import { PredictionStatus } from "@/features/try-fair/components/prediction-status";
-import type { PredictionStage } from "@/features/try-fair/hooks/use-fair-predict";
 import { useAuth } from "@/app/providers/auth-provider";
 
 type TryFairSidebarProps = {
@@ -62,8 +60,6 @@ type TryFairSidebarProps = {
   onMap: () => void;
   onCancelPrediction: () => void;
   isPredicting: boolean;
-  /** The running prediction's stage, shown under the Map button. */
-  predictionStage?: PredictionStage | null;
   isMapButtonDisabled: boolean;
   /** Set when Map is off because there's no model to map with. */
   mapUnavailableReason?: MapUnavailableReason | null;
@@ -91,7 +87,6 @@ export const TryFairSidebar = ({
   onMap,
   onCancelPrediction,
   isPredicting,
-  predictionStage = null,
   isMapButtonDisabled,
   mapUnavailableReason = null,
   featureLabel = "",
@@ -194,8 +189,6 @@ export const TryFairSidebar = ({
           )}
         </div>
       </div>
-
-      <PredictionStatus stage={predictionStage} />
 
       {mapUnavailableReason === "no-model-for-feature" && (
         <MapUnavailableNotice

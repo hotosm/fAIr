@@ -1,3 +1,11 @@
+## v3.1.3 (2026-11-18)
+
+### Fix
+
+- **static**: fix the static files in admin
+- **restore**: restore the previous mapping and remove debug map running in prod
+- **test**: fix test cases backend
+
 ## v3.1.2 (2026-11-17)
 
 ### Fix
