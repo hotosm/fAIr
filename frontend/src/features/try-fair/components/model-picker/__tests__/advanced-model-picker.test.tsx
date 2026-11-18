@@ -30,7 +30,8 @@ vi.mock("@/components/ui/dialog", () => ({
     </div>
   ),
 }));
-const model = (id: string, isPinned = false) => ({
+const model = (id: string, isPinned = false, visibility = "public") => ({
+  visibility,
   is_pinned: isPinned,
   id,
   name: id,
@@ -38,7 +39,10 @@ const model = (id: string, isPinned = false) => ({
   star_count: 0,
   stac: { id, properties: { title: id, "fair:category": "buildings" } },
 });
-const buildings = [model("buildings-1", true), model("buildings-2")];
+const buildings = [
+  model("buildings-1", true),
+  model("buildings-2", false, "private"),
+];
 const trees = [model("trees-1", true)];
 vi.mock("@/features/try-fair/api/features-to-map", () => ({
   useGetAPIBaseModels: () => ({ data: { results: [] }, isPending: false }),
@@ -175,6 +179,19 @@ describe("advanced model picker", () => {
       ),
     ).toBeInTheDocument();
     expect(within(unpinnedCard).queryByText("Pinned")).not.toBeInTheDocument();
+  });
+
+  it("marks only private models as private, saying who can see them", () => {
+    setup();
+    const privateCard = card("buildings-2");
+    expect(within(privateCard).getByText("Private")).toBeInTheDocument();
+    expect(within(privateCard).getByText("Private")).toHaveAttribute(
+      "title",
+      "Only its owner and fAIr admins can see this model.",
+    );
+    expect(
+      within(card("buildings-1")).queryByText("Private"),
+    ).not.toBeInTheDocument();
   });
 
   it.each([

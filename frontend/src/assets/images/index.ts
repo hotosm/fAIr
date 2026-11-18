@@ -16,3 +16,5 @@ export { default as AdvancedCourseImage } from "@/assets/images/advanced_course.
 export { default as UpdateCoverImage } from "@/assets/images/cover.png";
 export { default as fAIrSwipeIllustration } from "@/assets/images/fairswipe_illustration.png";
 export { default as fAIrWorkflowIllustration } from "@/assets/images/fair_workflow.png";
+export { default as PJMFLogo } from "@/assets/images/funders/pjmf.png";
+export { default as RauchFoundationLogo } from "@/assets/images/funders/rauch.svg";

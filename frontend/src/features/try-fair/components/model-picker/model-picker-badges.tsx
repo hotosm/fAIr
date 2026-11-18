@@ -51,6 +51,28 @@ export const ExperimentalModelBadge = ({
   );
 };
 
+export const PrivateModelBadge = ({
+  visibility,
+  className,
+}: {
+  visibility: string | undefined;
+  className?: string;
+}) => {
+  if (visibility !== "private") return null;
+
+  return (
+    <span
+      title="Only its owner and fAIr admins can see this model."
+      className={cn(
+        "inline-flex shrink-0 items-center rounded border border-grey px-2 py-0.5 font-semibold leading-tight text-grey",
+        className,
+      )}
+    >
+      Private
+    </span>
+  );
+};
+
 export const SelectedModelBadge = ({ selected }: { selected: boolean }) => {
   if (!selected) return null;
 

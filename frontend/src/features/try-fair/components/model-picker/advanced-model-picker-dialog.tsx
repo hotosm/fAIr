@@ -8,6 +8,7 @@ import {
 import {
   RadioDot,
   ExperimentalModelBadge,
+  PrivateModelBadge,
 } from "@/features/try-fair/components/model-picker/model-picker-badges";
 import useScreenSize from "@/hooks/use-screen-size";
 import { SearchIcon } from "@/components/ui/icons/search-icon";
@@ -389,6 +390,10 @@ export const AdvancedModelPickerContent = ({
                             </span>
                           </ToolTip>
                         )}
+                        <PrivateModelBadge
+                          visibility={model.visibility}
+                          className="text-[10px]"
+                        />
                       </div>
                     </button>
                     <button

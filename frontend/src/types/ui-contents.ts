@@ -340,6 +340,7 @@ export type TSharedContent = {
     socials: {
       ctaText: string;
     };
+    supportedBy: string;
     madeWithLove: {
       firstSegment: string;
       secondSegment: string;
