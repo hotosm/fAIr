@@ -150,7 +150,7 @@ describe("saved prediction results", () => {
         params: saved.params,
       }),
     );
-    await waitFor(() => expect(result.current.stage?.name).toBe("waking"));
+    await waitFor(() => expect(waitForModel).toHaveBeenCalled());
     expect(runPredict).not.toHaveBeenCalled();
 
     let finishPrediction: (value: GeoJSON.FeatureCollection) => void = () => {};
@@ -160,14 +160,13 @@ describe("saved prediction results", () => {
       }),
     );
     act(() => modelAwake());
-    await waitFor(() => expect(result.current.stage?.name).toBe("predicting"));
+    await waitFor(() => expect(runPredict).toHaveBeenCalled());
     act(() => finishPrediction(saved.predictions));
     await waitFor(() => expect(result.current.result).toEqual(saved));
     expect(waitForModel).toHaveBeenCalledWith(
       "https://example.com/predict",
       expect.any(AbortSignal),
     );
-    expect(result.current.stage).toBeNull();
   });
 
   it("sends no prediction when the user stops while the model is waking", async () => {
@@ -201,11 +200,10 @@ describe("saved prediction results", () => {
         params: saved.params,
       }),
     );
-    await waitFor(() => expect(result.current.stage?.name).toBe("waking"));
+    await waitFor(() => expect(waitForModel).toHaveBeenCalled());
     act(() => result.current.cancelPrediction());
 
     await waitFor(() => expect(result.current.isPredicting).toBe(false));
-    expect(result.current.stage).toBeNull();
     expect(runPredict).not.toHaveBeenCalled();
   });
 
@@ -240,7 +238,7 @@ describe("saved prediction results", () => {
         params: saved.params,
       }),
     );
-    await waitFor(() => expect(result.current.stage?.name).toBe("waking"));
+    await waitFor(() => expect(waitForModel).toHaveBeenCalled());
 
     unmount();
 

@@ -1,8 +1,4 @@
 import { createPortal } from "react-dom";
-import {
-  SwitchSampleDialog,
-  shouldShowSwitchWarning,
-} from "@/features/try-fair/components/model-picker/switch-sample-dialog";
 import { useState, useMemo, useEffect, useRef } from "react";
 import {
   useGetAllAPIBaseModels,
@@ -18,7 +14,7 @@ import { SearchIcon } from "@/components/ui/icons/search-icon";
 import { ChevronDownIcon } from "@/components/ui/icons";
 import { DropDown } from "@/components/ui/dropdown";
 import { ToolTip } from "@/components/ui/tooltip";
-import { DropdownPlacement, ModelType, ToolTipPlacement } from "@/enums";
+import { DropdownPlacement, ToolTipPlacement } from "@/enums";
 import { useDropdownMenu } from "@/hooks/use-dropdown-menu";
 import type { BaseModelStacItem } from "@/features/try-fair/api/stac";
 import { StarredIcon } from "@/components/ui/icons/starred-icon";
@@ -91,9 +87,9 @@ type AdvancedModelPickerContentProps = {
  * Changing the feature is held here as temporary state and never picks a
  * model: the new feature's list starts unselected and nothing on the page
  * changes until the user clicks a model. Clicking a model applies it (with
- * the feature, after the Samples warning) and closes the picker. Closing
- * without clicking one keeps the model selected before the picker opened;
- * the picker is unmounted when closed, so every opening starts fresh.
+ * the feature) and closes the picker. Closing without clicking one keeps the
+ * model selected before the picker opened; the picker is unmounted when
+ * closed, so every opening starts fresh.
  */
 export const AdvancedModelPickerContent = ({
   feature,
@@ -106,15 +102,10 @@ export const AdvancedModelPickerContent = ({
   const [page, setPage] = useState(0);
   const { onDropdownHide, dropdownRef } = useDropdownMenu();
   const { isSmallViewport } = useScreenSize();
-  const { selectedModelId, modelId, setSelectedModelId, mode } =
-    useTryFairParams();
+  const { selectedModelId, modelId, setSelectedModelId } = useTryFairParams();
   const activeModelId = selectedModelId ?? modelId;
   // Model whose details dialog is open.
   const [detailsModel, setDetailsModel] = useState<APIBaseModelItem | null>(
-    null,
-  );
-  // Model waiting on the Samples-mode warning before it is applied.
-  const [pendingModel, setPendingModel] = useState<APIBaseModelItem | null>(
     null,
   );
 
@@ -200,11 +191,9 @@ export const AdvancedModelPickerContent = ({
 
   // The committed model is highlighted only while browsing its feature; a
   // newly chosen feature starts with no model selected.
-  const highlightedModelId =
-    pendingModel?.stac_item_id ?? (isFeatureChanged ? null : activeModelId);
+  const highlightedModelId = isFeatureChanged ? null : activeModelId;
 
   const applyModel = (item: APIBaseModelItem) => {
-    setPendingModel(null);
     if (!item.stac) return;
     onSelect(item.stac);
     setSelectedModelId(item.stac_item_id);
@@ -214,11 +203,7 @@ export const AdvancedModelPickerContent = ({
 
   const handleSelectModel = (item: APIBaseModelItem) => {
     if (item.stac_item_id === activeModelId && !isFeatureChanged) return;
-    if (mode === ModelType.DEMO && shouldShowSwitchWarning()) {
-      setPendingModel(item);
-    } else {
-      applyModel(item);
-    }
+    applyModel(item);
   };
 
   const handleFeatureSelect = (slug: string) => {
@@ -260,13 +245,6 @@ export const AdvancedModelPickerContent = ({
           />,
           document.body,
         )}
-      {pendingModel && (
-        <SwitchSampleDialog
-          message="You’re mapping on sample imagery. Choosing this model moves the map to its sample imagery and location and clears your current progress. You can restore saved predictions from History."
-          onCancel={() => setPendingModel(null)}
-          onConfirm={() => applyModel(pendingModel)}
-        />
-      )}
       {/* Phones: feature dropdown above a one-column model list. Wider
           screens: feature list beside a model grid. */}
       <div className="flex flex-1 flex-col gap-4 sm:flex-row">

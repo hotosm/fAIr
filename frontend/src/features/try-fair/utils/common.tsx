@@ -7,7 +7,8 @@ import { ClusterIcon } from "@/components/ui/icons/cluster-icon";
 import { PolygonIcon } from "@/components/ui/icons/polygon-icon";
 import React from "react";
 import { TRY_FAIR_GRID_SIZE } from "@/config";
-import { ImagerySource } from "@/enums";
+import { ImagerySource, ModelType, TileServiceType } from "@/enums";
+import { getTileServerTypeFromURL } from "@/utils/regex-utils";
 import {
   DatePreset,
   ResolutionPreset,
@@ -87,6 +88,30 @@ export const getModelDefaultResolution = (
       TRY_FAIR_RESOLUTION_ZOOM[resolution] ===
       model?.properties["fair:recommended_zoom"],
   ) ?? TryFairResolution.LOW;
+
+const HOT_OAM_ITEM_TILE_URL =
+  /^https:\/\/(?:api|tiles)\.imagery\.hotosm\.org\/raster\/collections\/openaerialmap\/items\/([^/?#]+)\/tiles\/WebMercatorQuad\/\{z\}\/\{x\}\/\{y\}/;
+
+type KeptImagery = {
+  url: string | null;
+  tileServiceType: TileServiceType | null;
+  oamItemId: string | null;
+};
+
+/** The sample imagery a Models switch keeps as selected imagery, so the new model runs on the same view. */
+export const imageryKeptOnModelSwitch = (
+  mode: ModelType,
+  sampleImageryUrl: string | undefined,
+): KeptImagery | undefined => {
+  if (mode === ModelType.IMAGERY || !sampleImageryUrl) return;
+  const oamItemId = sampleImageryUrl.match(HOT_OAM_ITEM_TILE_URL)?.[1];
+  if (oamItemId) return { url: null, tileServiceType: null, oamItemId };
+  return {
+    url: sampleImageryUrl,
+    tileServiceType: getTileServerTypeFromURL(sampleImageryUrl),
+    oamItemId: null,
+  };
+};
 
 /**
  * The map output mode that matches a model's output geometry. The geometry is
