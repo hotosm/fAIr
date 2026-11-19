@@ -50,8 +50,11 @@ type TryFairMapProps = {
   canFitToBounds: boolean;
   /** Opens the guided "how it works" tour. */
   onHelp?: () => void;
-  /** Phones hide the legend unless this is set (Basic mode, with results). */
-  showLegendOnPhones?: boolean;
+  /**
+   * Off when the Results card shows the counts instead. The cluster legend
+   * (its colour buckets) always shows.
+   */
+  showLegend?: boolean;
 };
 
 const mapActionButtonClassName =
@@ -76,7 +79,7 @@ export const TryFairMap = ({
   isFeedbackOpen = false,
   canFitToBounds,
   onHelp,
-  showLegendOnPhones = false,
+  showLegend = true,
 }: TryFairMapProps) => {
   const { isSmallViewport } = useScreenSize();
   const [choroplethBuckets, setChoroplethBuckets] = useState<
@@ -298,13 +301,19 @@ export const TryFairMap = ({
         </div>
       )}
 
-      {/* Phones show the legend only when asked (Basic mode with results):
-          in Advanced the Results card takes that space. */}
-      {legend && !isSmallViewport && legend}
-      {legend && isSmallViewport && showLegendOnPhones && hasPredictions && (
-        // Under the Mode/Menu chips, clear of the settings sheet.
-        <div className="absolute left-3 top-14 z-10">{legend}</div>
-      )}
+      {/* No legend when the Results card shows the counts instead, except
+          the cluster legend, whose colour buckets aren't explained elsewhere. */}
+      {legend &&
+        (showLegend || outputType === TryFairMapOutputType.CLUSTER) &&
+        !isSmallViewport &&
+        legend}
+      {legend &&
+        (showLegend || outputType === TryFairMapOutputType.CLUSTER) &&
+        isSmallViewport &&
+        hasPredictions && (
+          // Under the Mode/Menu chips, clear of the settings sheet.
+          <div className="absolute left-3 top-14 z-10">{legend}</div>
+        )}
     </div>
   );
 };

@@ -4,6 +4,8 @@ import {
 } from "@/features/feedback/components/thumb-icons";
 import { FeatureVerdict } from "@/features/feedback/types";
 import { cn } from "@/utils";
+import { ToolTip } from "@/components/ui/tooltip";
+import { ToolTipPlacement } from "@/enums";
 
 type FeatureFeedbackPopupProps = {
   /** Screen position (px, relative to the map container) the popup hangs from. */
@@ -27,6 +29,11 @@ export const FeatureFeedbackPopup = ({
   isPending = false,
 }: FeatureFeedbackPopupProps) => {
   const isValid = verdict === FeatureVerdict.VALID;
+  const withTooltip = (label: string, button: React.ReactNode) => (
+    <ToolTip content={label} placement={ToolTipPlacement.BOTTOM}>
+      {button}
+    </ToolTip>
+  );
   const isInvalid = verdict === FeatureVerdict.INVALID;
 
   return (
@@ -48,36 +55,42 @@ export const FeatureFeedbackPopup = ({
         aria-busy={isPending}
         className="relative flex items-center gap-1.5 rounded-lg bg-white p-1.5 shadow-lg"
       >
-        <button
-          type="button"
-          aria-label="Mark as valid"
-          aria-pressed={isValid}
-          disabled={isPending}
-          onClick={() => onVerdict(FeatureVerdict.VALID)}
-          className={cn(
-            buttonClassName,
-            isValid ? "bg-[#23C16B] text-white " : "bg-off-white text-dark ",
-          )}
-        >
-          <ThumbUpIcon
-            className={`size-4 ${isValid ? "text-white" : "text-dark"}`}
-          />
-        </button>
-        <button
-          type="button"
-          aria-label="Mark as invalid"
-          aria-pressed={isInvalid}
-          disabled={isPending}
-          onClick={() => onVerdict(FeatureVerdict.INVALID)}
-          className={cn(
-            buttonClassName,
-            isInvalid ? "bg-primary text-white " : "bg-off-white text-dark ",
-          )}
-        >
-          <ThumbDownIcon
-            className={`size-4 ${isInvalid ? "text-white" : "text-dark"}`}
-          />
-        </button>
+        {withTooltip(
+          "Mark as valid",
+          <button
+            type="button"
+            aria-label="Mark as valid"
+            aria-pressed={isValid}
+            disabled={isPending}
+            onClick={() => onVerdict(FeatureVerdict.VALID)}
+            className={cn(
+              buttonClassName,
+              isValid ? "bg-[#23C16B] text-white " : "bg-off-white text-dark ",
+            )}
+          >
+            <ThumbUpIcon
+              className={`size-4 ${isValid ? "text-white" : "text-dark"}`}
+            />
+          </button>,
+        )}
+        {withTooltip(
+          "Mark as invalid",
+          <button
+            type="button"
+            aria-label="Mark as invalid"
+            aria-pressed={isInvalid}
+            disabled={isPending}
+            onClick={() => onVerdict(FeatureVerdict.INVALID)}
+            className={cn(
+              buttonClassName,
+              isInvalid ? "bg-primary text-white " : "bg-off-white text-dark ",
+            )}
+          >
+            <ThumbDownIcon
+              className={`size-4 ${isInvalid ? "text-white" : "text-dark"}`}
+            />
+          </button>,
+        )}
       </div>
     </div>
   );

@@ -34,12 +34,17 @@ export const getFeatureIcon = (
   fallback: React.FC<IconProps> = BuildingIcon,
 ): React.FC<IconProps> => FEATURE_ICONS[normalizeFeatureSlug(slug)] ?? fallback;
 
+/** Experimental models (building damage for now) get a badge, keep the map
+ * legend and have no feedback (Results card, marking). */
+export const isExperimentalCategory = (category: string | undefined) =>
+  category === "building-damage";
+
 export const ExperimentalModelBadge = ({
   category,
 }: {
   category: string | undefined;
 }) => {
-  if (category !== "building-damage") return null;
+  if (!isExperimentalCategory(category)) return null;
 
   return (
     <span className="inline-flex shrink-0 items-center rounded border border-amber-300 bg-amber-50 px-2 py-0.5 text-[10px] font-semibold leading-tight text-amber-900">
