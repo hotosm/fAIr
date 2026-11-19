@@ -187,7 +187,7 @@ describe("advanced model picker", () => {
     expect(within(privateCard).getByText("Private")).toBeInTheDocument();
     expect(within(privateCard).getByText("Private")).toHaveAttribute(
       "title",
-      "Only its owner and fAIr admins can see this model.",
+      "Only you can see this model.",
     );
     expect(
       within(card("buildings-1")).queryByText("Private"),

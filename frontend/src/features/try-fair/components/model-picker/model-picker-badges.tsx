@@ -67,7 +67,7 @@ export const PrivateModelBadge = ({
 
   return (
     <span
-      title="Only its owner and fAIr admins can see this model."
+      title="Only you can see this model."
       className={cn(
         "inline-flex shrink-0 items-center rounded border border-grey px-2 py-0.5 font-semibold leading-tight text-grey",
         className,
