@@ -7,13 +7,9 @@ export const FEEDBACK_CONTENT = {
     detected: (count: number) =>
       `${count} ${count === 1 ? "feature" : "features"} detected`,
     valid: (count: number) =>
-      count > 0
-        ? `${count} ${count === 1 ? "feature" : "features"} marked as Valid`
-        : "No feature marked as Valid",
+      `${count} ${count === 1 ? "feature" : "features"} marked as valid`,
     invalid: (count: number) =>
-      count > 0
-        ? `${count} ${count === 1 ? "feature" : "features"} marked as Invalid`
-        : "No feature marked as Invalid",
+      `${count} ${count === 1 ? "feature" : "features"} marked as invalid`,
     downloadLabel: (label: string) => `Download ${label.toLowerCase()}`,
   },
   modal: {

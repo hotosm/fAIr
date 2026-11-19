@@ -116,18 +116,23 @@ export const ResultsSummary = ({
           onDownload={onDownloadDetected}
           disabled={disabled || detectedCount === 0}
         />
-        <ResultRow
-          label={results.valid(validCount)}
-          swatchClassName="bg-[#23C16B33] border-[#23C16B]"
-          onDownload={onDownloadValid}
-          disabled={disabled || validCount === 0}
-        />
-        <ResultRow
-          label={results.invalid(invalidCount)}
-          swatchClassName="bg-[#D63F4033] border-[#D63F40]"
-          onDownload={onDownloadInvalid}
-          disabled={disabled || invalidCount === 0}
-        />
+        {/* Valid / invalid rows only once something is marked that way. */}
+        {validCount > 0 && (
+          <ResultRow
+            label={results.valid(validCount)}
+            swatchClassName="bg-[#23C16B33] border-[#23C16B]"
+            onDownload={onDownloadValid}
+            disabled={disabled}
+          />
+        )}
+        {invalidCount > 0 && (
+          <ResultRow
+            label={results.invalid(invalidCount)}
+            swatchClassName="bg-[#D63F4033] border-[#D63F40]"
+            onDownload={onDownloadInvalid}
+            disabled={disabled}
+          />
+        )}
       </ul>
       {/* {onCollapse && provideFeedbackLink} */}
     </section>

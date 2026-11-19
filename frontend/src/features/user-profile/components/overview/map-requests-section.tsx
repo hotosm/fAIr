@@ -29,10 +29,14 @@ export const MapRequestsSection = ({
           href={APPLICATION_ROUTES.PROFILE_OFFLINE_PREDICTIONS}
           nativeAnchor={false}
           title="View all prediction requests"
-          className="flex items-center gap-x-2 text-xs text-grey hover:text-dark"
+          // Phones: same as Mapping History's View All.
+          className="flex items-center gap-x-2 text-sm text-dark sm:text-xs sm:text-grey sm:hover:text-dark"
         >
           <span>View All</span>
-          <ChevronDownIcon className=" size-3 -rotate-90  text-dark" />
+          <ChevronDownIcon
+            className="size-3 -rotate-90 text-dark"
+            aria-hidden="true"
+          />
         </Link>
       </div>
 

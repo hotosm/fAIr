@@ -1,3 +1,14 @@
+## v3.1.5 (2026-11-19)
+
+### Feat
+
+- **feedback**: implement saved history and active prediction validation
+- **feedback**: enhance feedback features and UI components
+
+### Fix
+
+- **faq**: fixes faq question answers
+
 ## v3.1.4 (2026-11-19)
 
 ### Fix

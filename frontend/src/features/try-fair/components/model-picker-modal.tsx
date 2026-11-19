@@ -477,8 +477,11 @@ export const ModelPickerContent = ({
 
           {/* Right: Imagery panel */}
           {/* Phones: a fixed-height block (flex-1 would collapse it to 0 in
-              this content-sized column). Wider screens: fill the row. */}
-          <div className="flex h-[420px] flex-none flex-col overflow-hidden sm:h-auto sm:flex-1">
+              this content-sized column), sized to the screen so Apply below
+              shows without scrolling (the sheet is at most 92dvh; ~370px goes
+              to its header, tabs, feature dropdown and Apply). Wider screens:
+              fill the row. */}
+          <div className="flex h-[clamp(200px,calc(92dvh-370px),420px)] flex-none flex-col overflow-hidden sm:h-auto sm:flex-1">
             {activeImagerySelection ? (
               imageryPanelView === "recent" ? (
                 /* Recent imageries list sub-view */
@@ -520,10 +523,10 @@ export const ModelPickerContent = ({
               )
             ) : (
               /* Empty state — centered */
-              <div>
+              <div className="flex h-full flex-col">
                 <p className="text-sm pb-2 text-dark">Imagery</p>
 
-                <div className="flex-1 h-full min-h-[360px] flex border border-gray-border rounded-lg flex-col items-center justify-center p-6 text-center gap-4">
+                <div className="flex-1 min-h-0 sm:min-h-[360px] flex border border-gray-border rounded-lg flex-col items-center justify-center p-4 text-center gap-3 sm:p-6 sm:gap-4">
                   <div>
                     <ChooseImageryIcon />
                   </div>

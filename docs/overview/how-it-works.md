@@ -45,6 +45,6 @@ Predictions are reviewed before they are used. A mapper can check them on fAIr's
 
 ### 4. Use and share
 
-Predictions can be downloaded as points, lines, or polygons. HOT publishes validated outputs as open data layers on the [Humanitarian Data Exchange](https://data.humdata.org/) and [Hugging Face](https://huggingface.co/hotosm). See [Datasets](../datasets/index.md) for the published outputs.
+Predictions can be downloaded as GeoJSON. HOT publishes validated outputs as open data layers on the [Humanitarian Data Exchange](https://data.humdata.org/) and [Hugging Face](https://huggingface.co/hotosm). See [Datasets](../datasets/index.md) for the published outputs.
 
 Bringing AI-generated features into OpenStreetMap is outside fAIr's aim; see [fAIr and OpenStreetMap](what-is-fair.md#fair-and-openstreetmap).
