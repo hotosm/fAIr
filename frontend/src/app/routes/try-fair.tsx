@@ -790,6 +790,18 @@ export const TryFairPage = ({
   );
   const isFeedbackEnabled = isAuthenticated && !isExperimentalModel;
 
+  // Saved projects keep only the runs small enough to store, and an active
+  // run only if it's one of those.
+  const savedHistory = savableHistory(
+    predictionHistory,
+    SAVED_PREDICTION_MAX_LENGTH,
+  );
+  const savedActivePredictionId = savedHistory.some(
+    (entry) => entry.id === activePredictionId,
+  )
+    ? activePredictionId
+    : null;
+
   const feedbackContext = useMemo<FeatureFeedbackContext | null>(
     () =>
       isFeedbackEnabled && predictResult && user
