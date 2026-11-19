@@ -116,45 +116,32 @@ export const SHARED_CONTENT: TSharedContent = {
       cta: "See more",
       content: [
         {
-          question: "Where can I find the fAIr documentation?",
-          answer: `The [fAIr documentation](${FAIR_DOCS_URL}) explains how fAIr works, its models and datasets, and how to contribute.`,
-        },
-        {
           question: "Who is fAIr for?",
-          answer: `People meet fAIr at different levels:
-- Mappers pick a model, run it over their area and check the results.
-- Advanced users fine-tune a model for their area and publish the local model.
-- Model developers add new models for everyone to use.`,
-        },
-        {
-          question: "What does the workflow look like?",
-          answer:
-            "[Read how fAIr works](https://hotosm.github.io/fAIr/overview/how-it-works/)",
+          answer: `Anyone who maps, from someone trying a model for the first time to a developer adding a new one. [Who uses it](${FAIR_DOCS_URL}overview/who-uses-it/)`,
         },
         {
           question: "Do I need high-res imagery? Will Sentinel work?",
-          answer:
-            "fAIr needs openly licensed, very high-resolution RGB imagery, ideally hosted on OpenAerialMap or a public TMS server. The buildings model expects about 30 to 50 cm per pixel, so 10 m Sentinel-2 imagery is too coarse.",
+          answer: `For now, you need high-resolution imagery. The models available today need sharp imagery, around 30 to 50 cm per pixel for buildings, so Sentinel imagery is too coarse for them. Whether coarser imagery could work depends on the feature you want to map, and models built for Sentinel imagery are very welcome as contributions. [Contributing a model](${FAIR_DOCS_URL}overview/models/#contributing-a-model)`,
         },
         {
           question: "How do I validate its output? I don't trust AI.",
-          answer:
-            "You get the results as GeoJSON, so you can also verify them on the ground with FieldTM or fix them by hand in QGIS.",
+          answer: `You stay in charge. Every result is a suggestion: you can accept or reject results in fAIr, have volunteers check them at scale on MapSwipe, or verify them on the ground with FieldTM. [Validation](${FAIR_DOCS_URL}overview/validation/)`,
         },
         {
           question: "Can I add my own model?",
-          answer:
-            "Yes. Developers contribute model code through a pull request to fAIr-models; once it is reviewed and registered, anyone can run it.",
+          answer: `Yes. If you have built a model, you can contribute it to fAIr-models through a pull request. Once it is reviewed and registered, anyone can pick it and run it. [Contributing a model](${FAIR_DOCS_URL}overview/models/#contributing-a-model)`,
         },
         {
           question: "How is fAIr used responsibly?",
-          answer:
-            "Each model card reports its evaluation metrics, each model states its license, and model outputs are validated by people before they are used. See [Responsible use](https://hotosm.github.io/fAIr/overview/what-is-fair/#responsible-use).",
+          answer: `Every model comes with a model card that shows how it was evaluated, and states its license. Model outputs are validated by people before they are used. [Responsible use](${FAIR_DOCS_URL}overview/what-is-fair/#responsible-use)`,
         },
         {
           question: "Does fAIr add its data to OpenStreetMap?",
-          answer:
-            "No. HOT publishes validated outputs as open data layers. See [fAIr and OpenStreetMap](https://hotosm.github.io/fAIr/overview/what-is-fair/#fair-and-openstreetmap).",
+          answer: `No, fAIr does not add anything to OpenStreetMap. HOT publishes validated results as open data layers, for example on the Humanitarian Data Exchange. [fAIr and OpenStreetMap](${FAIR_DOCS_URL}overview/what-is-fair/#fair-and-openstreetmap)`,
+        },
+        {
+          question: "How can I get in touch or get involved?",
+          answer: `We would love to hear from you. Email [fair@hotosm.org](mailto:fair@hotosm.org) or say hello in #fair-coord on the [HOT Slack](https://slack.hotosm.org), where the community talks about fAIr. [Contributing](${FAIR_DOCS_URL}community/contributing/)`,
         },
       ],
     },

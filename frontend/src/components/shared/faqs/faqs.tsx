@@ -26,7 +26,7 @@ export const FAQs = ({
               content={
                 <MarkdownRenderer
                   content={faq.answer}
-                  className="markdown-prose text-body-2base text-dark font-semibold"
+                  className="markdown-prose text-body-2base text-dark [&_p]:text-dark"
                 />
               }
               key={`faq-item-${id}`}

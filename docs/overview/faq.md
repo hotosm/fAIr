@@ -11,11 +11,11 @@ fAIr is a shared collection of open geo-AI models. A model runs over aerial or d
 
 ### Is it AI on its own?
 
-No. fAIr brings existing geo-AI models to mappers. You pick a model, run it, adapt it, and validate the results.
+No. fAIr brings existing geo-AI models to mappers. You pick a model, run it, adapt it, and validate the results. See [How it works](how-it-works.md).
 
 ### Do I need high-resolution imagery? Will Sentinel work?
 
-fAIr needs openly licensed, very high-resolution RGB imagery, ideally hosted on [OpenAerialMap](https://openaerialmap.org/) or a public TMS server. The buildings model expects about 30 to 50 cm per pixel, so 10 m Sentinel-2 imagery is too coarse. Support for street-level imagery is being explored.
+For now, you need high-resolution imagery. The models available today need sharp, openly licensed RGB imagery, ideally hosted on [OpenAerialMap](https://openaerialmap.org/) or a public TMS server; the buildings model expects around 30 to 50 cm per pixel, so Sentinel imagery is too coarse for it. Whether coarser imagery could work depends on the feature you want to map, and models built for Sentinel imagery are very welcome as contributions; see [Contributing a model](models.md#contributing-a-model).
 
 ### How do I validate the output? I do not trust AI.
 
@@ -23,7 +23,7 @@ You get the predictions as GeoJSON, and you choose how to check them: confirm th
 
 ### Do I have to be advanced to start?
 
-No. Begin as a mapper using a model someone already made. When you want it tuned to your area, you can grow into adapting and publishing your own.
+No. Begin as a mapper using a model someone already made. When you want it tuned to your area, you can grow into adapting and publishing your own. See [Who uses it](who-uses-it.md).
 
 ### Can I add my own model?
 
@@ -31,7 +31,7 @@ Yes. Developers contribute model code through a pull request to fAIr-models; aft
 
 ### Where does the finished data go?
 
-You can download the outputs as points, lines, or polygons. HOT publishes validated outputs as open data layers on the [Humanitarian Data Exchange](https://data.humdata.org/) and [Hugging Face](https://huggingface.co/hotosm); see [Datasets](../datasets/index.md).
+You can download the results as GeoJSON. HOT publishes validated outputs as open data layers on the [Humanitarian Data Exchange](https://data.humdata.org/) and [Hugging Face](https://huggingface.co/hotosm); see [Datasets](../datasets/index.md).
 
 ### How is fAIr used responsibly?
 
@@ -40,3 +40,7 @@ People check results before they are used, each model card reports its evaluatio
 ### Does fAIr add its data to OpenStreetMap?
 
 No. See [fAIr and OpenStreetMap](what-is-fair.md#fair-and-openstreetmap).
+
+### How can I get in touch or get involved?
+
+Email [fair@hotosm.org](mailto:fair@hotosm.org) or say hello in #fair-coord on the [HOT Slack](https://slack.hotosm.org). See [Contributing](../community/contributing.md).
