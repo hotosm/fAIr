@@ -16,3 +16,6 @@ export { default as AdvancedCourseImage } from "@/assets/images/advanced_course.
 export { default as UpdateCoverImage } from "@/assets/images/cover.png";
 export { default as fAIrSwipeIllustration } from "@/assets/images/fairswipe_illustration.png";
 export { default as fAIrWorkflowIllustration } from "@/assets/images/fair_workflow.png";
+export { default as PJMFLogo } from "@/assets/images/funders/pjmf.png";
+export { default as PoweredByAWSLogo } from "@/assets/images/powered-by-aws-white.png";
+export { default as fAIrUserBasesIllustration } from "@/assets/images/fair_user_bases.png";

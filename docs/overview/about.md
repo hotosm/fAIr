@@ -5,17 +5,17 @@ description: What the fAIr name means, who builds it, and the partners behind th
 
 # About fAIr
 
-fAIr is HOT's open, AI-assisted mapping service. For what it is and how it works, see [What is fAIr](what-is-fair.md); for the timeline, see the [Roadmap](../roadmap/index.md). This page covers the name and the people behind the work.
+fAIr is a shared collection of open geo-AI models, started by the Humanitarian OpenStreetMap Team (HOT) and built with community. For what it is and how it works, see [What is fAIr](what-is-fair.md); for the timeline, see the [Roadmap](../roadmap/index.md). This page covers the name and the people behind the work.
 
 ## The name
 
 - **f** for free and open-source software.
-- **AI** for the computer-vision models that detect features such as buildings, roads, and trees.
+- **AI** for the computer-vision models that detect features such as buildings, trees, and building damage.
 - **r** for resilience, and the responsibility to the communities that humanitarian mapping serves.
 
 ## Who builds it
 
-fAIr is developed by the Humanitarian OpenStreetMap Team with contributions from the wider OpenStreetMap and geo-AI community. Models, training datasets, and outputs are published openly.
+fAIr is built with the wider OpenStreetMap and geo-AI community. Models, training datasets, and outputs are published openly.
 
 ## Funders and collaborators
 
@@ -25,7 +25,6 @@ fAIr's development and models are supported by funders and built with a range of
 
 <div class="logo-grid" markdown>
 ![Patrick J. McGovern Foundation](../assets/logos/pjmf.png)
-![Rauch Foundation](../assets/logos/rauch.svg)
 </div>
 
 ### Infrastructure support

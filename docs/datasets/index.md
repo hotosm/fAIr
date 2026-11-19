@@ -11,7 +11,7 @@ Most datasets combine imagery under CC-BY-4.0 with labels derived from OpenStree
 
 ## How training data is created
 
-Training labels come from mapping in the [Tasking Manager](https://tasks.hotosm.org/) and from [MapSwipe](https://mapswipe.org/), and community mappers in the Open Mapping Gurus program create datasets that are released openly. Their deployments are listed [below](#open-mapping-gurus), and fAIrSwipe projects are on the [Field projects](../progress/field-projects.md) page.
+Training labels come from mapping in the [Tasking Manager](https://tasks.hotosm.org/) and from results validated in [MapSwipe](https://mapswipe.org/), and community mappers in the Open Mapping Gurus program create datasets that are released openly. Their deployments are listed [below](#open-mapping-gurus), and fAIrSwipe projects are on the [Field projects](../progress/field-projects.md) page.
 
 ## Open Mapping Gurus
 
@@ -34,7 +34,7 @@ Community mappers in the Open Mapping Gurus program, facilitated by HOT regional
 
 ## Training datasets
 
-Datasets used to train and evaluate geo-AI models, hosted on Hugging Face. Download totals are on [Milestones](../progress/milestones.md#platform-and-data).
+Datasets used to train and evaluate geo-AI models, hosted on Hugging Face. Download totals are on [Milestones](../progress/milestones.md#usage-and-data).
 
 | Dataset                                                                                                 | Feature              | Task                                     | License         |
 | ------------------------------------------------------------------------------------------------------- | -------------------- | ---------------------------------------- | --------------- |

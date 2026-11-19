@@ -1,6 +1,11 @@
 import styles from "./fair-process.module.css";
 import { AnimatedBeam } from "@/components/ui/animated-beam";
-import { BotIcon, FeedbackIcon, PredictionsIcon } from "@/components/ui/icons";
+import {
+  BotIcon,
+  FeedbackIcon,
+  LoopIcon,
+  PredictionsIcon,
+} from "@/components/ui/icons";
 import { DesktopFlowIcon } from "@/components/ui/icons";
 import { IconProps } from "@/types";
 import { SHARED_CONTENT } from "@/constants";
@@ -43,6 +48,11 @@ const steps: TSteps[] = [
   {
     title: SHARED_CONTENT.homepage.fairProcess.stepFour.title,
     paragraph: SHARED_CONTENT.homepage.fairProcess.stepFour.description,
+    icon: LoopIcon,
+  },
+  {
+    title: SHARED_CONTENT.homepage.fairProcess.stepFive.title,
+    paragraph: SHARED_CONTENT.homepage.fairProcess.stepFive.description,
     icon: DesktopFlowIcon,
   },
 ];
@@ -109,7 +119,7 @@ export const TheFAIRProcess = ({
         {steps.map((step, id) => (
           <li
             key={`fair-process-${id}`}
-            className="cursor-pointer flex flex-row md:flex-col"
+            className="cursor-pointer flex flex-row md:flex-col md:flex-1 md:min-w-0"
             onClick={() => handleClick(id)}
           >
             <div className="flex flex-col md:flex-row items-center">

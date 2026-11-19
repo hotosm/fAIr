@@ -3,7 +3,7 @@ import { TSharedContent } from "@/types";
 
 export const SHARED_CONTENT: TSharedContent = {
   navbar: {
-    logoAlt: "HOT fAIr Logo",
+    logoAlt: "fAIr logo",
     loginButton: "Start Mapping",
     /** The sign-in button in the mobile menu. */
     mobileLoginButton: "Login",
@@ -30,15 +30,18 @@ export const SHARED_CONTENT: TSharedContent = {
       "We pursue Just tech to amplify connections between human[itarian] needs and open map data.",
     copyright: {
       firstSegment:
-        "Images are screenshots of fAIr may be shared under a Creatives Commons Attribution-ShareAlike 4.0 International License.",
+        "Screenshots of fAIr may be shared under a Creative Commons Attribution-ShareAlike 4.0 International License.",
       secondSegment:
-        "Free and Open Source Software brought to you by the Humanitarian OpenStreetMap Team.",
+        "Free and open-source software, started by the Humanitarian OpenStreetMap Team and built with community.",
     },
     socials: {
       ctaText: "Learn more about OpenStreetMap.",
     },
+    supportedBy: "Supported by",
     madeWithLove: {
-      firstSegment: "Made with ❤️ by",
+      firstSegment: "Made with",
+      heartLabel: "love",
+      connector: "by",
       secondSegment: "HOT",
       thirdSegment: "&",
       fourthSegment: "friends",
@@ -46,63 +49,66 @@ export const SHARED_CONTENT: TSharedContent = {
   },
   homepage: {
     jumbotronTitle: "Your AI Mapping Partner",
-    jumbotronHeadline: "Map smarter and faster using AI assisted workflows.",
+    jumbotronHeadline:
+      "Find and trace objects in aerial imagery with open geo-AI models.",
     ctaPrimaryButton: "Try fAIr",
     ctaSecondaryButton: "Start Mapping",
     jumbotronImageAlt: "A user engaging in a mapping activity",
     kpi: {
-      publishedAIModels: "Published AI Models",
-      totalUsers: "Total Registered Users",
-      humanFeedback: "Human Feedbacks",
-      acceptedPrediction: "Accepted Prediction",
+      baseModels: "Base models",
+      localModels: "Local models",
+      trainingDatasets: "Training datasets",
+      areasPredicted: "Areas predicted",
+      registeredUsers: "Registered users",
     },
     aboutTitle: "WHAT IS fAIr?",
-    aboutContent: `fAIr is HOT’s open GeoAI platform that connects mappers with GeoAI models they can use and adapt in their own areas for mapping for social good. Mappers can pick a model, run it. Adapt it to their locality and improve it.`,
+    aboutContent: `fAIr is a shared collection of open geo-AI models that find features such as buildings and trees in aerial imagery. It was started by the Humanitarian OpenStreetMap Team and is built with community. Models, training data and validated results are published openly.`,
     fairProcess: {
       title: "fAIr process",
       stepOne: {
-        title: "Create Model",
-        description:
-          "Create a customized and localized AI models using open source (or your) imagery and your customized labels with support by OSM open data",
+        title: "Pick a model",
+        description: "Choose one from the shared collection.",
       },
       stepTwo: {
-        title: "Run Prediction",
-        description:
-          "Run prediction/inference in a live environment or define your area of interest to run your local model and get the data.",
+        title: "Run it",
+        description: "Run it on your area, on the map or as a map request.",
       },
       stepThree: {
-        title: "Feedback",
+        title: "Validate",
         description:
-          "Get live human feedback about the quality of your localized model to support your decision to enhance the model accuracy.",
+          "Check each result in fAIr, at scale in MapSwipe, or on the ground.",
       },
       stepFour: {
-        title: "Use Data",
-        description:
-          "Make the produced data open and available for humanitarian actors to take actions for impact",
+        title: "Adapt",
+        description: "Fine-tune it with checked results and local data.",
+      },
+      stepFive: {
+        title: "Use the data",
+        description: "Download the results, or use HOT's open data layers.",
       },
     },
     coreFeatures: {
-      featureOne: "Time Efficient",
+      featureOne: "Open",
       featureTwo: "Transparent",
-      featureThree: "Reusable",
+      featureThree: "Local",
+      featureFour: "Reusable",
     },
     coreValues: {
       sectionTitle: {
-        firstSegment: `It's`,
-        secondSegment: "your map data,",
-        thirdSegment: "fAIr",
-        fourthSegment: "just makes it",
-        fifthSegment: "faster",
+        firstSegment: "Open models and",
+        secondSegment: "map data,",
+        thirdSegment: "validated",
+        fourthSegment: "by",
+        fifthSegment: "people",
       },
       community: {
         title: "Community Driven",
         description:
-          "fAIr follows a community driven approach to decide on the features that will be implemented. We are continuously engaging with local communities to shape the direction and the future of AI-assisted humanitarian mapping",
+          "Community mappers create training data through the Open Mapping Gurus program and fAIrSwipe.",
       },
       humansNotReplaced: {
         title: "Humans in the loop",
-        description:
-          "As part of the community approach, humans are involved in the whole fAIr process, from creating models till reaching high quality data and gather feedback",
+        description: "Predictions are suggestions for a mapper to review.",
       },
     },
     faqs: {
@@ -110,71 +116,60 @@ export const SHARED_CONTENT: TSharedContent = {
       cta: "See more",
       content: [
         {
-          question: "So what is fAIr?",
-          answer:
-            "A platform connecting mappers and AI models. It lets mappers find geo-AI models and use or adapt them in their own area. It is not a single AI doing the mapping.",
-        },
-        {
           question: "Where can I find the fAIr documentation?",
           answer: `The [fAIr documentation](${FAIR_DOCS_URL}) explains how fAIr works, its models and datasets, and how to contribute.`,
         },
         {
-          question: "For whom is fAIr?",
+          question: "Who is fAIr for?",
           answer: `People meet fAIr at different levels:
-- Model developers: can share and publish their models on fAIr
-- Advanced Users: can finetune and republish localised models on fAIr
-- Mapper: can pick a model and start mapping with AI`,
+- Mappers pick a model, run it over their area and check the results.
+- Advanced users fine-tune a model for their area and publish the local model.
+- Model developers add new models for everyone to use.`,
         },
         {
           question: "What does the workflow look like?",
           answer:
-            "[View the workflow explainer](https://drive.google.com/file/d/14yGyEY_IxH5Na5XeK50TG3616PsWWUBB/view?usp=drive_lin)",
+            "[Read how fAIr works](https://hotosm.github.io/fAIr/overview/how-it-works/)",
         },
         {
           question: "Do I need high-res imagery? Will Sentinel work?",
           answer:
-            "fAIr only works with RGB high-res imagery (CC BY 4.0) at the moment. Imagery is crucial and should ideally be hosted on OpenAerialMap or a public-domain TMS server. In the future, we might support Street Level Imagery.",
+            "fAIr needs openly licensed, very high-resolution RGB imagery, ideally hosted on OpenAerialMap or a public TMS server. The buildings model expects about 30 to 50 cm per pixel, so 10 m Sentinel-2 imagery is too coarse.",
         },
         {
           question: "How do I validate its output? I don't trust AI.",
           answer:
-            "You will get the GeoJSON as output, and you have flexibility on what to use for validation. You can: confirm features in MapSwipe, verify on the ground with field mapping tools like Chatmap or FieldTM or trace and fix manually in the mapping editors.",
-        },
-        {
-          question: "Do I have to be an advanced user to start?",
-          answer:
-            "No. Begin as a mapper using a model someone already made. When you want it tuned to your area, you grow into adapting and publishing your own.",
+            "You get the results as GeoJSON, so you can also verify them on the ground with FieldTM or fix them by hand in QGIS.",
         },
         {
           question: "Can I add my own model?",
           answer:
-            "Yes. Developers write model code and publish it to fAIr, where it becomes available to every kind of user.",
+            "Yes. Developers contribute model code through a pull request to fAIr-models; once it is reviewed and registered, anyone can run it.",
         },
         {
-          question: "Where does the finished data go?",
+          question: "How is fAIr used responsibly?",
           answer:
-            "You can download the outputs as points, lines or polygons. HOT publishes validated outputs as open data layers on the Humanitarian Data Exchange and Hugging Face.",
+            "Each model card reports its evaluation metrics, each model states its license, and model outputs are validated by people before they are used. See [Responsible use](https://hotosm.github.io/fAIr/overview/what-is-fair/#responsible-use).",
         },
         {
           question: "Does fAIr add its data to OpenStreetMap?",
           answer:
-            "No. Bringing AI-generated features into OpenStreetMap is outside fAIr's aim, given the sensitivity around AI-generated data. The outputs are open data, so a mapper may choose to review them by hand in JOSM; that choice, and respecting the license of the outputs and the imagery, rests with the mapper.",
+            "No. HOT publishes validated outputs as open data layers. See [fAIr and OpenStreetMap](https://hotosm.github.io/fAIr/overview/what-is-fair/#fair-and-openstreetmap).",
         },
       ],
     },
     tagline: {
       firstSegment: "Built",
-      secondSegment: "for and",
-      thirdSegment: "loved",
-      fourthSegment: "by",
-      fifthSegment: "Mappers",
+      secondSegment: "with",
+      thirdSegment: "mappers,",
+      fourthSegment: "for",
+      fifthSegment: "mappers",
     },
     callToAction: {
-      title: `We can't do it without you`,
+      title: "Join the fAIr community",
       ctaButton: "Join The Community",
       ctaLink: "https://slack.hotosm.org",
-      paragraph:
-        "fAIr is a collaborative project. We welcome all types of experience to join our community on HOTOSM Slack. There is always a room for AI/ML for earth observation expertise, community engagement enthusiastic, academic researcher or student looking for an academic challenge around social impact.",
+      paragraph: "Anyone can join the conversation on the HOT Slack.",
     },
   },
   pageNotFound: {

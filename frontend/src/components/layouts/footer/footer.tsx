@@ -1,4 +1,8 @@
-import { CreativeCommonsBadge } from "@/assets/images";
+import {
+  CreativeCommonsBadge,
+  PJMFLogo,
+  PoweredByAWSLogo,
+} from "@/assets/images";
 import { Image } from "@/components/ui/image";
 import { Link } from "@/components/ui/link";
 import { SHARED_CONTENT } from "@/constants";
@@ -11,6 +15,7 @@ import {
 } from "@/assets/svgs";
 import { MadeWithLove } from "@/components/shared";
 import { footerLinks } from "@/constants/general";
+import { TFooterLinks } from "@/types";
 
 const socials = [
   {
@@ -25,7 +30,7 @@ const socials = [
   },
   {
     name: "GitHub",
-    url: "https://github.com/hotosm/fair",
+    url: "https://github.com/hotosm/fAIr",
     logo: GitHubIcon,
   },
   {
@@ -39,49 +44,46 @@ const socials = [
     logo: InstagramIcon,
   },
 ];
+const funders = [
+  {
+    name: "Patrick J. McGovern Foundation",
+    url: "https://www.mcgovern.org/",
+    logo: PJMFLogo,
+    logoClassName: "h-16",
+  },
+];
+
+const FooterLinkList = ({ links }: { links: TFooterLinks }) => (
+  <ul className="space-y-4">
+    {links
+      .filter((link) => link.active)
+      .map((route) => (
+        <li key={route.title}>
+          <Link
+            href={route.route}
+            title={route.title}
+            className="!text-white"
+            nativeAnchor={Boolean(route.isExternalLink)}
+            blank={route.route.startsWith("http")}
+          >
+            {route.title}
+          </Link>
+        </li>
+      ))}
+  </ul>
+);
+
 export const Footer = () => {
   return (
     <footer>
-      <div className="grid grid-cols-12 grid-rows-2 gap-y-[67px] app-padding bg-dark text-white py-[77px]">
+      <div className="grid grid-cols-12 gap-y-12 app-padding bg-dark text-white py-12">
         <div className="col-span-12 grid grid-cols-8 lg:grid-cols-12  gap-x-[40px] gap-y-[40px]">
           <div className="col-span-8 lg:col-span-4">
             <p className="text-body-1">{SHARED_CONTENT.footer.title}</p>
           </div>
           <div className="col-span-8 text-body-2 flex  lg:col-start-7 lg:col-span-4  w-full justify-between">
-            <ul className="space-y-4">
-              {footerLinks.groupOne
-                .filter((link) => link.active)
-                .map((route, id) => (
-                  <li key={`footer-link-${id}`}>
-                    <Link
-                      href={route.route}
-                      title={route.title}
-                      className="!text-white capitalize"
-                      nativeAnchor={false}
-                    >
-                      {route.title}
-                    </Link>
-                  </li>
-                ))}
-            </ul>
-
-            <ul className="space-y-4">
-              {footerLinks.groupTwo
-                .filter((link) => link.active)
-                .map((route, id) => (
-                  <li key={`footer-links2-${id}`}>
-                    <Link
-                      href={route.route}
-                      title={route.title}
-                      className="!text-white capitalize"
-                      nativeAnchor={route.isExternalLink}
-                      blank={route.isExternalLink}
-                    >
-                      {route.title}
-                    </Link>
-                  </li>
-                ))}
-            </ul>
+            <FooterLinkList links={footerLinks.groupOne} />
+            <FooterLinkList links={footerLinks.groupTwo} />
           </div>
         </div>
         <div className="col-span-12 grid grid-cols-8 lg:grid-cols-12 lg:grid-rows-1 gap-x-[40px] gap-y-[40px] lg:gap-y-0">
@@ -98,7 +100,40 @@ export const Footer = () => {
               <p>{SHARED_CONTENT.footer.copyright.secondSegment}</p>
             </div>
           </div>
-          <div className="col-span-8 flex flex-col lg:col-start-10 lg:col-span-4 w-full justify-start items-start lg:justify-end lg:items-end space-y-4">
+          <div className="col-span-8 flex flex-col lg:col-start-7 lg:col-span-6 w-full justify-start items-start lg:justify-end lg:items-end space-y-4">
+            <div className="flex flex-col gap-y-2 items-start lg:items-end">
+              <p className="text-body-3">{SHARED_CONTENT.footer.supportedBy}</p>
+              <ul className="flex flex-wrap gap-2 lg:justify-end">
+                {funders.map((funder) => (
+                  <li key={funder.name}>
+                    <Link
+                      href={funder.url}
+                      title={funder.name}
+                      blank
+                      className="flex h-20 min-w-[112px] items-center justify-center rounded-md bg-white px-2"
+                    >
+                      <Image
+                        src={funder.logo}
+                        alt={funder.name}
+                        className={`${funder.logoClassName} w-auto`}
+                      />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <Link
+              href="https://aws.amazon.com/what-is-cloud-computing"
+              title="Powered by AWS Cloud Computing"
+              blank
+              className="!mt-8"
+            >
+              <Image
+                src={PoweredByAWSLogo}
+                alt="Powered by AWS Cloud Computing"
+                className="h-12 w-auto"
+              />
+            </Link>
             <ul className="flex space-x-[11px]">
               {socials.map((media, id) => (
                 <li

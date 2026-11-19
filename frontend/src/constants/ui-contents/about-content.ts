@@ -4,14 +4,16 @@ export const ABOUT_PAGE_CONTENT: TAboutPageContent = {
   pageTitle: "About",
   pageHeader: "About",
   heroHeading: {
-    firstSegment: "fAIr is an open",
-    secondSegment: "AI-assisted mapping platform",
-    thirdSegment: "developed by the Humanitarian OpenStreetMap Team (HOT)",
+    firstSegment: "fAIr is a shared collection of",
+    secondSegment: "open geo‑AI models",
+    thirdSegment: "that people run, check and adapt to their own area",
   },
-  imageAlt: "HOT Team",
+  imageAlt: "Participants at a HOT Summit",
   bodyContent: {
-    firstParagraph: `fAIr puts control of the AI models and training directly at the hands of the mappers that use them for better and faster data creation`,
-    secondParagraph: `HOT sees that mappers can, on average, map between 1000-1500 buildings per working day without AI assistance. During an AI-assisted mapping pilot (2019-2020) supported by Microsoft, 18 million building footprints were extracted from satellite imagery for all of Tanzania and Uganda. HOT discovered during this pilot that this average mapping nearly doubled to 2500-3000 buildings being added to OSM per day with the assistance of high-quality AI open-source datasets. `,
+    firstParagraph:
+      "Local first: a model can be fine-tuned for the place where it is used, on examples mapped by community mappers in that area. Open and shared: models, training datasets and validated results are published openly, so the next community can start from them. Accessible: anyone can run a model in the browser and check each result.",
+    secondParagraph:
+      "Mappers run a model on their area and check the results in fAIr, at scale in MapSwipe, or on the ground. Advanced users fine-tune a model for their area and publish it back, and developers add new models. Each model states its license; labels are shared under the ODbL and imagery tiles under CC BY 4.0. fAIr was started by the Humanitarian OpenStreetMap Team and is built with community.",
   },
   documentationLink: "Read the fAIr documentation",
 };

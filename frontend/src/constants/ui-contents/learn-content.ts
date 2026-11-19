@@ -12,17 +12,17 @@ export const LEARN_PAGE_CONTENT: TLearnPageContent = {
   pageHeader: "Learn",
   comingSoonText: "Coming Soon",
   heroHeading: {
-    firstSegment: "fAIr is built to make mapping",
-    secondSegment: "easier",
-    thirdSegment: "and",
-    fourthSegment: "faster",
-    fifthSegment: "while you maintain",
-    sixthSegment: "100% control",
-    seventhSegment: "of the map.",
+    firstSegment: "fAIr helps you map with",
+    secondSegment: "open",
+    thirdSegment: "geo-AI",
+    fourthSegment: "models,",
+    fifthSegment: "and you",
+    sixthSegment: "check",
+    seventhSegment: "every result.",
   },
 
   heroDescription:
-    "Everybody can create a model that work for their mapping area and can as well use already existing models that is similar to their area of interest. Which ever path you choose fAIr is there to make your mapping experience a lot less daunting.",
+    "Start with a model someone already made. When you need it to work better in your area, fine-tune it through the API and publish your local version for others to use.",
   sectionHeaders: {
     guides: "Guides",
     videos: "Videos",
@@ -58,8 +58,7 @@ export const LEARN_PAGE_CONTENT: TLearnPageContent = {
   guides: [
     {
       title: "Onscreen Tutorial",
-      description:
-        "Learn step by step directly on your screen with our interactive tutorials, guiding you through every feature to make using fAIr effortless.",
+      description: "Step-by-step tutorials inside fAIr.",
       icon: DesktopCursorIcon,
       isVideo: true,
       onClick: () => null,
@@ -68,13 +67,12 @@ export const LEARN_PAGE_CONTENT: TLearnPageContent = {
     },
     {
       title: "Quick Guide",
-      description:
-        "Get started fast with our concise guide. Find essential tips, shortcuts, and instructions to navigate and use fAIr efficiently.",
+      description: "A short guide to running a model on your area.",
       icon: BookTemplateIcon,
-      href: "https://learnmore.com",
+      href: "https://hotosm.github.io/fAIr/guides/using-fair/",
       isLink: true,
       buttonText: "Open",
-      comingSoon: true,
+      comingSoon: false,
     },
   ],
   videos: [

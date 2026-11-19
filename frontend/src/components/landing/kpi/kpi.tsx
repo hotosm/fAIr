@@ -5,9 +5,10 @@ import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect, FC } from "react";
 import {
   BotIcon,
-  FeedbackIcon,
+  DatabaseIcon,
+  LayerStackIcon,
+  MapIcon,
   PeopleIcon,
-  ProductionCheckmarkIcon,
 } from "@/components/ui/icons";
 import { IconProps } from "@/types";
 
@@ -18,9 +19,10 @@ type TKPIS = {
 }[];
 
 type TKPIResponse = {
-  total_accepted_predictions: number;
-  total_feedback_labels: number;
+  total_base_models: number;
   total_models_published: number;
+  total_training_datasets: number;
+  total_model_runs: number;
   total_registered_users: number;
 };
 
@@ -51,34 +53,40 @@ export const Kpi = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  const { kpi: labels } = SHARED_CONTENT.homepage;
   const KPIs: TKPIS = [
     {
+      figure: data?.total_base_models ?? 0,
+      label: labels.baseModels,
+      icon: DatabaseIcon,
+    },
+    {
       figure: data?.total_models_published ?? 0,
-      label: SHARED_CONTENT.homepage.kpi.publishedAIModels,
+      label: labels.localModels,
       icon: BotIcon,
     },
     {
+      figure: data?.total_training_datasets ?? 0,
+      label: labels.trainingDatasets,
+      icon: LayerStackIcon,
+    },
+    {
       figure: data?.total_registered_users ?? 0,
-      label: SHARED_CONTENT.homepage.kpi.totalUsers,
+      label: labels.registeredUsers,
       icon: PeopleIcon,
     },
     {
-      figure: data?.total_feedback_labels ?? 0,
-      label: SHARED_CONTENT.homepage.kpi.humanFeedback,
-      icon: FeedbackIcon,
-    },
-    {
-      figure: data?.total_accepted_predictions ?? 0,
-      label: SHARED_CONTENT.homepage.kpi.acceptedPrediction,
-      icon: ProductionCheckmarkIcon,
+      figure: data?.total_model_runs ?? 0,
+      label: labels.areasPredicted,
+      icon: MapIcon,
     },
   ];
 
   return (
-    <section className="p-4 grid grid-cols-1 gap-y-4 sm:grid-cols-2 min-h-40 place-items-center lg:grid-cols-4 justify-items-center bg-off-white">
+    <section className="p-4 grid grid-cols-1 gap-y-4 sm:grid-cols-2 min-h-40 place-items-center lg:grid-cols-5 justify-items-center bg-off-white">
       {KPIs.map((kpi, id) => (
         <div
-          className={`flex gap-x-3 items-center h-24 w-48`}
+          className={`flex gap-x-3 items-center h-24 min-w-48`}
           key={`kpi-${id}`}
         >
           <div className="bg-primary rounded-full flex items-center justify-center p-2">

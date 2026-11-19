@@ -33,10 +33,6 @@ apiClient.interceptors.response.use(
     return response;
   },
   (error) => {
-    // if unauthorized request, simply clear the local storage to log them out.
-    if (!error.response) {
-      showErrorToast(undefined, "Network error");
-    }
     if (error.response?.status === 401) {
       showErrorToast(undefined, "Unauthorized, logging out...");
       localStorage.removeItem(HOT_FAIR_LOCAL_STORAGE_ACCESS_TOKEN_KEY);

@@ -1,6 +1,7 @@
 {
-  "name": "HOT fAIr",
-  "short_name": "HOT fAIr",
+  "name": "fAIr",
+  "short_name": "fAIr",
+  "description": "fAIr is a shared collection of open geo-AI models that people run over their own area, check, and adapt. Free and open source, started by the Humanitarian OpenStreetMap Team.",
   "icons": [
     {
       "src": "/android-chrome-192x192.png",

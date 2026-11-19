@@ -233,8 +233,7 @@ const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
       successToast && showSuccessToast(successToast);
       resetState();
     } catch (error: any) {
-      const errorMessage = error.message || "An error occurred during upload.";
-      showErrorToast(undefined, errorMessage);
+      showErrorToast(error);
     } finally {
       setUploadInProgress(false);
     }

@@ -5,33 +5,42 @@ description: What fAIr is, why it exists, how it works as a collection of models
 
 # What is fAIr
 
-fAIr connects mappers with geo-AI models they can run and adapt in their own area. It is a shared collection of models: you choose one, run it over your area, validate what it finds, and improve it.
+fAIr is a shared collection of open geo-AI models. A mapper chooses one, runs it over their area and checks what it finds; an advanced user can fine-tune it for local conditions.
 
-fAIr is developed by the Humanitarian OpenStreetMap Team (HOT) and the friends who contribute to it. The software is free and open source.
+fAIr was started by the Humanitarian OpenStreetMap Team (HOT) and is built with community. The software is free and open source.
 
-## Why it exists
+## Purpose
 
 In humanitarian and development work, the places that are hardest to reach are often the least mapped. AI can speed up mapping, but AI-generated map data is only as good as the data it was trained on and the people who validate it.
 
-fAIr is built so that the communities who will use a model are the ones who train and validate it, so the models get better where they are used.
+Local models are fine-tuned on examples mapped in the area where they are used, to fit local conditions.
 
 ## Key characteristics
 
-- **People validate the results.** Predictions are reviewed by people, in fAIr and through [MapSwipe](validation.md). Feedback on model results is [planned](../roadmap/index.md#now-and-later).
+- **People validate the results.** Mappers accept or reject each result in fAIr, and volunteers check results at scale in [MapSwipe](validation.md).
 - **An open collection of models.** Developers can add models that follow the [fAIr-models](https://github.com/hotosm/fAIr-models) format. A mapper chooses a model, runs it over their area of interest, and assesses the results on the map.
 - **Local adaptation.** Advanced users fine-tune a model to their own area, producing a local model that reflects local conditions.
-- **Built with communities.** Models are trained and validated by the communities that use them, close to the area being mapped.
+- **Built with communities.** Community mappers create training data through the Open Mapping Gurus program and fAIrSwipe, and validate results in MapSwipe.
 - **Open source and discoverable.** Models, training datasets, and outputs are published openly (for example on [Hugging Face](https://huggingface.co/hotosm) and the [Humanitarian Data Exchange](https://data.humdata.org/)) and cataloged in STAC, so they can be found and reused.
 
 ## fAIr and OpenStreetMap
 
-fAIr offers its outputs as open data layers: HOT publishes validated outputs on the [Humanitarian Data Exchange](https://data.humdata.org/) and [Hugging Face](https://huggingface.co/hotosm) (see [Datasets](../datasets/index.md)). Bringing AI-generated features into OpenStreetMap (OSM) is outside fAIr's aim, given the sensitivity around AI-generated data. The outputs are open data, so a mapper may choose to review them by hand in JOSM; that choice, and respecting the license of the outputs and the imagery, rests with the mapper.
+fAIr offers its outputs as open data layers: HOT publishes validated outputs on the [Humanitarian Data Exchange](https://data.humdata.org/) and [Hugging Face](https://huggingface.co/hotosm) (see [Datasets](../datasets/index.md)). Bringing AI-generated features into OpenStreetMap (OSM) is outside fAIr's aim, given the sensitivity around AI-generated data.
 
 HOT values the human-generated data that makes OSM useful, and would weigh that value critically in any future decision to bring AI-generated features into OSM.
 
+## Responsible use
+
+fAIr's models make mistakes. Their results are handled as follows:
+
+- **People check the results.** A prediction is a suggestion to review, in fAIr, in [MapSwipe](validation.md) or on the ground, before it is used.
+- **Accuracy is reported.** Each model card lists the metrics used to evaluate the model; see [Model evaluation](evaluation.md).
+- **Outputs stay separate from OpenStreetMap.** Validated results are published as open data layers, as described in [fAIr and OpenStreetMap](#fair-and-openstreetmap).
+- **Licenses are stated.** Each model has its own license, labels are shared under the ODbL and imagery tiles under CC BY 4.0. Some model licenses limit their use, for example the DINOv3 License excludes military use; see [Data and licensing](data-licensing.md).
+
 ## Where it fits
 
-fAIr sits within HOT's open mapping tools. Imagery comes from [OpenAerialMap](https://openaerialmap.org/) or an open TMS source. Training labels come from mapping in the [Tasking Manager](https://tasks.hotosm.org/) and from [MapSwipe](https://mapswipe.org/). Validation happens by hand, in the field, or at scale, as described in [How it works](how-it-works.md#3-validate).
+fAIr works alongside open mapping tools. Imagery comes from [OpenAerialMap](https://openaerialmap.org/) or an open TMS source. Training labels come from mapping in the [Tasking Manager](https://tasks.hotosm.org/) and from results validated in [MapSwipe](https://mapswipe.org/). Validation happens by hand, in the field, or at scale, as described in [How it works](how-it-works.md#3-validate).
 
 To see how these pieces connect, read [How it works](how-it-works.md). As of October 2026, the current version of fAIr (v3) runs at [dev.ai.hotosm.org](https://dev.ai.hotosm.org/) and is moving to [ai.hotosm.org](https://ai.hotosm.org/); the earlier version (v2) at [fair.hotosm.org](https://fair.hotosm.org/) is being retired.
 

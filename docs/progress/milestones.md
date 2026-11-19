@@ -67,7 +67,7 @@ Base models in the [base-models catalog](https://stac.dev.ai.hotosm.org/collecti
 
 Together that is **10,193** reviewer engagements across fAIr and MapSwipe, each person counted once per project, so these are not counts of unique people. Accept and reject labels record what reviewers chose to mark and are not an accuracy measure. The MapSwipe projects include validation runs for activations as well as the community projects; 23 of them are Venezuela earthquake projects, 13 of which also validated detections from Microsoft's AI for Good Lab.
 
-### Platform and data
+### Usage and data
 
 | Measure                                         | Count  |
 | ----------------------------------------------- | ------ |
@@ -76,4 +76,4 @@ Together that is **10,193** reviewer engagements across fAIr and MapSwipe, each 
 | Hugging Face downloads of the training datasets | 26,521 |
 | HDX downloads of datasets with fAIr outputs     | 2,027  |
 
-Platform figures come from the fAIr API; MapSwipe counts come from [MapSwipe's open data](https://mapswipe.org/en/data/). Download counts are cumulative, as reported by [Hugging Face](https://huggingface.co/hotosm) and the [Humanitarian Data Exchange](https://data.humdata.org/). Hugging Face counts the files one IP address downloads within five minutes as one download ([source](https://huggingface.co/docs/hub/en/datasets-download-stats)).
+Usage figures come from the fAIr API; MapSwipe counts come from [MapSwipe's open data](https://mapswipe.org/en/data/). Download counts are cumulative, as reported by [Hugging Face](https://huggingface.co/hotosm) and the [Humanitarian Data Exchange](https://data.humdata.org/). Hugging Face counts the files one IP address downloads within five minutes as one download ([source](https://huggingface.co/docs/hub/en/datasets-download-stats)).

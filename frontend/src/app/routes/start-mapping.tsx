@@ -29,7 +29,6 @@ import {
   constructModelCheckpointPath,
   featureIsWithinBounds,
   geoJSONDowloader,
-  openInJOSM,
   showSuccessToast,
   showWarningToast,
   uuid4,
@@ -619,39 +618,6 @@ export const StartMappingPage = () => {
     showSuccessToast(TOAST_NOTIFICATIONS.startMapping.fileDownloadSuccess);
   }, [acceptedFeatures, modelInfo]);
 
-  /**
-   * Handle the download of features to JOSM.
-   * It opens the features in JOSM with the provided dataset name and source imagery.
-   */
-  const handleFeaturesDownloadToJOSM = useCallback(
-    (features: Feature[]) => {
-      if (!map || !modelInfo?.dataset) return;
-      openInJOSM(
-        modelInfo.dataset.name,
-        modelInfo.dataset.source_imagery,
-        features,
-        true,
-      );
-    },
-    [map, modelInfo],
-  );
-
-  /**
-   * Handle the download of all features to JOSM.
-   * It calls the handleFeaturesDownloadToJOSM function with the model predictions.
-   */
-  const handleAllFeaturesDownloadToJOSM = useCallback(() => {
-    handleFeaturesDownloadToJOSM(modelPredictions);
-  }, [handleFeaturesDownloadToJOSM, modelPredictions]);
-
-  /**
-   * Handle the download of accepted features to JOSM.
-   * It calls the handleFeaturesDownloadToJOSM function with the accepted features.
-   */
-  const handleAcceptedFeaturesDownloadToJOSM = useCallback(() => {
-    handleFeaturesDownloadToJOSM(acceptedFeatures);
-  }, [handleFeaturesDownloadToJOSM, acceptedFeatures]);
-
   const downloadOptions: TDownloadOptions = [
     {
       name: START_MAPPING_PAGE_CONTENT.buttons.download.options.allFeatures(
@@ -673,24 +639,6 @@ export const StartMappingPage = () => {
         ),
       onClick: handleAcceptedFeaturesDownload,
       showOnMobile: true,
-    },
-    {
-      name: START_MAPPING_PAGE_CONTENT.buttons.download.options
-        .openAllFeaturesInJOSM,
-      value:
-        START_MAPPING_PAGE_CONTENT.buttons.download.options
-          .openAllFeaturesInJOSM,
-      onClick: handleAllFeaturesDownloadToJOSM,
-      showOnMobile: false,
-    },
-    {
-      name: START_MAPPING_PAGE_CONTENT.buttons.download.options
-        .openAcceptedFeaturesInJOSM,
-      value:
-        START_MAPPING_PAGE_CONTENT.buttons.download.options
-          .openAcceptedFeaturesInJOSM,
-      onClick: handleAcceptedFeaturesDownloadToJOSM,
-      showOnMobile: false,
     },
   ];
 

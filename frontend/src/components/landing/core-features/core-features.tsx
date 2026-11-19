@@ -1,24 +1,33 @@
 import styles from "./core-features.module.css";
-import { GuageIcon, LoopIcon, TimerIcon } from "@/components/ui/icons";
-import { IconProps } from "@/types";
+import {
+  Eye,
+  LockKeyholeOpen,
+  MapPin,
+  Repeat,
+  type LucideIcon,
+} from "lucide-react";
 import { SHARED_CONTENT } from "@/constants";
 
 type TCoreFeatures = {
   title: string;
-  icon: React.FC<IconProps>;
+  icon: LucideIcon;
 };
 const coreFeatures: TCoreFeatures[] = [
   {
     title: SHARED_CONTENT.homepage.coreFeatures.featureOne,
-    icon: GuageIcon,
+    icon: LockKeyholeOpen,
   },
   {
     title: SHARED_CONTENT.homepage.coreFeatures.featureTwo,
-    icon: TimerIcon,
+    icon: Eye,
   },
   {
     title: SHARED_CONTENT.homepage.coreFeatures.featureThree,
-    icon: LoopIcon,
+    icon: MapPin,
+  },
+  {
+    title: SHARED_CONTENT.homepage.coreFeatures.featureFour,
+    icon: Repeat,
   },
 ];
 

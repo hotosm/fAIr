@@ -84,8 +84,8 @@ The frontend bundles portions of this open source software:
 - [React Router (MIT)](https://github.com/remix-run/react-router).
 - [Terra Draw (MIT)](https://github.com/JamesLMilner/terra-draw).
 - [Vaul (MIT)](https://github.com/emilkowalski/vaul).
-- [XMLBuilder2 (MIT)](https://github.com/oozcitak/xmlbuilder2).
 - [Maplibre GL JS (BSD-3-Clause)](https://github.com/maplibre/maplibre-gl-js).
 - [PMTiles (BSD-3-Clause)](https://github.com/protomaps/PMTiles).
 - [React Medium Image Zoom (BSD-3-Clause)](https://github.com/rpearce/react-medium-image-zoom).
+- [Lucide React (ISC)](https://github.com/lucide-icons/lucide).
 - Map fonts from [Maplibre Demo Tiles](https://github.com/maplibre/demotiles).

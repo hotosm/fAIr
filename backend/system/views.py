@@ -2,6 +2,7 @@ import httpx
 from botocore.exceptions import BotoCoreError, ClientError, NoCredentialsError
 from django.conf import settings
 from django.db import connections
+from django.db.models import Sum
 from django.db.utils import OperationalError
 from drf_spectacular.utils import extend_schema
 from rest_framework import serializers
@@ -11,9 +12,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from accounts.models import OsmUser
+from datasets.models import Dataset
 from feedback.models import Feedback
-from modelregistry.models import LocalModel
-from shared.enums import FeedbackAction, LocalModelStatus
+from modelregistry.models import BaseModel, LocalModel
+from predictions.models import Prediction
+from shared.enums import BaseModelStatus, DatasetStatus, FeedbackAction, LocalModelStatus
 from shared.integrations.stac import (
     BASE_MODELS_COLLECTION,
     DATASETS_COLLECTION,
@@ -100,7 +103,10 @@ def health(request) -> Response:
 
 
 class KpiStatsSerializer(serializers.Serializer):
+    total_base_models = serializers.IntegerField()
     total_models_published = serializers.IntegerField()
+    total_training_datasets = serializers.IntegerField()
+    total_model_runs = serializers.IntegerField()
     total_registered_users = serializers.IntegerField()
     total_feedback_labels = serializers.IntegerField()
     total_accepted_predictions = serializers.IntegerField()
@@ -116,16 +122,28 @@ class KpiStatsView(APIView):
         responses=KpiStatsSerializer,
         auth=[],
         description=(
-            "Public homepage counters: published models, registered users, "
-            "feedback labels, accepted predictions."
+            "Public homepage counters: active base models, published local models, "
+            "built training datasets, model runs (try-now runs plus map requests, "
+            "as on model details), registered users, feedback labels, accepted predictions."
         ),
     )
     def get(self, request) -> Response:
+        try_now_runs = sum(
+            model.objects.aggregate(total=Sum("prediction_runs", default=0))["total"]
+            for model in (BaseModel, LocalModel)
+        )
         return Response(
             {
+                "total_base_models": BaseModel.objects.filter(
+                    status=BaseModelStatus.ACTIVE
+                ).count(),
                 "total_models_published": LocalModel.objects.filter(
                     status=LocalModelStatus.ACTIVE
                 ).count(),
+                "total_training_datasets": Dataset.objects.filter(
+                    status=DatasetStatus.BUILT
+                ).count(),
+                "total_model_runs": try_now_runs + Prediction.objects.count(),
                 "total_registered_users": OsmUser.objects.count(),
                 "total_feedback_labels": Feedback.objects.count(),
                 "total_accepted_predictions": Feedback.objects.filter(

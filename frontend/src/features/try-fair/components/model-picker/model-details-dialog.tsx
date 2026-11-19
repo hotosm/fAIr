@@ -7,6 +7,7 @@ import {
 } from "@/features/try-fair/api/stac";
 import {
   ExperimentalModelBadge,
+  PrivateModelBadge,
   getFeatureIcon,
 } from "@/features/try-fair/components/model-picker/model-picker-badges";
 import type { APIBaseModelItem } from "@/features/try-fair/types/data-types";
@@ -98,6 +99,10 @@ export const ModelDetailsDialog = ({
                   Pinned
                 </span>
               )}
+              <PrivateModelBadge
+                visibility={model.visibility}
+                className="text-[11px]"
+              />
               <ExperimentalModelBadge category={category} />
               <span className="flex items-center gap-1 text-xs text-grey">
                 <StarredIcon />({model.star_count})
