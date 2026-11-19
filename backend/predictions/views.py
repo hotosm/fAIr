@@ -32,16 +32,16 @@ from shared.integrations.stac import (
     item_exists,
 )
 from shared.public_urls import require_public_url
-from shared.run_endpoints import enqueue_status_sync_once, mark_stopping, stop_pipeline_run
-from shared.storage import StoragePaths, presigned_get_url
+from shared.run_endpoints import mark_cancelled, stop_pipeline_run
 
 from .models import Prediction
 from .serializers import (
     PredictionResultSerializer,
     PredictionSerializer,
     PredictionSubmitSerializer,
+    presigned_output_urls,
 )
-from .tasks import submit_prediction, sync_prediction_status
+from .tasks import delete_prediction_input_tiles, submit_prediction
 
 
 def _require_public_url_params(params: dict, model_item: pystac.Item) -> None:
@@ -62,7 +62,10 @@ def _require_public_url_params(params: dict, model_item: pystac.Item) -> None:
     run_cancel=extend_schema(description="Stop a running inference pipeline."),
     publish=extend_schema(description="Mark the prediction as public-readable (owner/admin)."),
     unpublish=extend_schema(description="Revoke public-read access (owner/admin)."),
-    result=extend_schema(description="Presigned URLs for the materialized geojson/fgb/pmtiles."),
+    result=extend_schema(
+        description="Presigned URLs for each output; PMTiles only when the result has features.",
+        responses=PredictionResultSerializer,
+    ),
 )
 class PredictionViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Prediction.objects.all()
@@ -235,19 +238,14 @@ class PredictionViewSet(viewsets.ReadOnlyModelViewSet):
 
     @action(detail=True, methods=["get"], url_path="result")
     def result(self, request, pk: int | None = None) -> Response:
-        """Return presigned URLs for each materialized output (geojson/fgb/pmtiles).
-
-        FGB is the streaming-friendly format: clients (FlatGeobuf.js) can range-
-        query by bbox without proxying through this service. PMTiles is for
-        vector-tile rendering. GeoJSON is the canonical form.
-        """
+        """Return presigned URLs for each output; PMTiles only when the result has features."""
         prediction = self.get_object()
         if not prediction.results_ready:
             return Response(
                 {"detail": "Result not ready; wait for post-run to finish."},
                 status=status.HTTP_409_CONFLICT,
             )
-        return Response(PredictionResultSerializer(_presigned_result_urls(prediction)).data)
+        return Response(PredictionResultSerializer(presigned_output_urls(prediction)).data)
 
     @action(detail=True, methods=["post"], url_path="publish")
     def publish(self, request, pk: int | None = None) -> Response:
@@ -274,23 +272,14 @@ class PredictionViewSet(viewsets.ReadOnlyModelViewSet):
             fields={
                 "run_id": serializers.CharField(),
                 "status": serializers.CharField(),
-                "graceful": serializers.BooleanField(),
             },
         ),
     )
     @action(detail=False, methods=["post"], url_path=r"runs/(?P<run_id>[^/]+)/cancel")
     def run_cancel(self, request, run_id: str) -> Response:
         prediction = self._run_for_caller(run_id)
-        graceful = request.query_params.get("graceful", "false").lower() == "true"
-        stop_pipeline_run(run_id, graceful=graceful)
-        mark_stopping(Prediction, prediction.pk)
-        enqueue_status_sync_once(sync_prediction_status, prediction_id=prediction.pk)
-        return Response({"run_id": run_id, "status": "stopping", "graceful": graceful})
-
-
-def _presigned_result_urls(prediction: Prediction) -> dict[str, str]:
-    return {
-        "geojson": presigned_get_url(StoragePaths.prediction_geojson_key(prediction.id)),
-        "fgb": presigned_get_url(StoragePaths.prediction_fgb_key(prediction.id)),
-        "pmtiles": presigned_get_url(StoragePaths.prediction_pmtiles_key(prediction.id)),
-    }
+        stop_pipeline_run(run_id)
+        if mark_cancelled(Prediction, prediction.pk):
+            delete_prediction_input_tiles.enqueue(prediction_id=prediction.pk)
+        prediction.refresh_from_db(fields=["status"])
+        return Response({"run_id": run_id, "status": prediction.status})

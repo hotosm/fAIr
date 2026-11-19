@@ -77,7 +77,7 @@ def test_cancel_of_another_users_run_is_forbidden(mock_stop, prediction: Predict
     assert response.status_code == 403
     mock_stop.assert_not_called()
     prediction.refresh_from_db()
-    assert prediction.status != "stopping"
+    assert prediction.status != "cancelled"
 
 
 def test_cancel_of_an_unknown_run_is_not_found(client: APIClient) -> None:
@@ -95,4 +95,4 @@ def test_cancel_of_a_finished_run_is_a_conflict(
 
     assert response.status_code == 409
     prediction.refresh_from_db()
-    assert prediction.status != "stopping"
+    assert prediction.status != "cancelled"

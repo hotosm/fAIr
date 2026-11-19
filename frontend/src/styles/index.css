@@ -81,7 +81,7 @@ body {
 .sl-toast-stack {
   left: 0;
   right: auto;
-  top: 0;
+  top: 3rem;
   bottom: auto;
   z-index: 1000000000000;
 }

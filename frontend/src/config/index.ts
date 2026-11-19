@@ -699,3 +699,8 @@ export const PREDICTION_HISTORY_LIMIT = Math.max(
   1,
   parseIntEnv(ENVS.PREDICTION_HISTORY_LIMIT, 5),
 );
+
+/** Largest saved result in JSON characters: a full history stays under the backend's default 2 MiB USER_STATE_MAX_BYTES. */
+export const SAVED_PREDICTION_MAX_LENGTH = Math.floor(
+  (2 * 1024 * 1024 * 0.9) / PREDICTION_HISTORY_LIMIT,
+);

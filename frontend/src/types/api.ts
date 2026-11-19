@@ -380,8 +380,9 @@ export type TPredictionRequestParams = {
 /** Downloadable output assets attached to a completed prediction request. */
 export type TPredictionRequestAssets = {
   geojson: string;
-  fgb: string;
-  pmtiles: string;
+  geoparquet: string;
+  /** Absent when the result has no features. */
+  pmtiles?: string;
 } | null;
 
 /**
@@ -404,6 +405,8 @@ export type TNewOfflinePrediction = {
   description: string;
   status: PredictionRequestStatus;
   results_ready: boolean;
+  /** Features in the result; null until it is counted. */
+  feature_count: number | null;
   assets: TPredictionRequestAssets;
   mapswipe_project_id: string;
   user: {
@@ -449,6 +452,8 @@ export type TOfflinePrediction = {
   description: string;
   status: PredictionRequestStatus;
   results_ready: boolean;
+  /** Features in the result; null until it is counted. */
+  feature_count: number | null;
   assets: TPredictionRequestAssets;
   mapswipe_project_id: string;
   user: {

@@ -34,10 +34,10 @@ describe("MobileMapToolbar", () => {
   });
 
   it.each([
-    ["Map Large Area", "mapLargeArea"],
-    ["Change Imagery", "changeImagery"],
+    ["Map an area", "mapLargeArea"],
+    ["Change imagery", "changeImagery"],
     ["Share", "share"],
-    ["Prediction History", "togglePredictionHistory"],
+    ["Prediction history", "togglePredictionHistory"],
   ] as const)("runs %s from the menu", (label, action) => {
     render(<MobileMapToolbar />);
     fireEvent.click(screen.getByRole("button", { name: label }));
@@ -47,12 +47,12 @@ describe("MobileMapToolbar", () => {
   it("only allows downloading once there are results", () => {
     const { rerender } = render(<MobileMapToolbar />);
     expect(
-      screen.getByRole("button", { name: "Download Result" }),
+      screen.getByRole("button", { name: "Download result" }),
     ).toBeDisabled();
 
     actions.hasPredictions = true;
     rerender(<MobileMapToolbar />);
-    fireEvent.click(screen.getByRole("button", { name: "Download Result" }));
+    fireEvent.click(screen.getByRole("button", { name: "Download result" }));
     expect(actions.downloadResults).toHaveBeenCalledOnce();
   });
 });

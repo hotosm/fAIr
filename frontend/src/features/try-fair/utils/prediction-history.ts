@@ -13,6 +13,18 @@ export function appendPrediction(
   return [...history, entry].slice(-limit);
 }
 
+/** Entries whose result fits `maxResultLength` characters of JSON, so the saved project stays under the server limit. */
+export function savableHistory(
+  history: PredictionHistoryEntry[],
+  maxResultLength: number,
+): PredictionHistoryEntry[] {
+  return history.filter(
+    (entry) =>
+      JSON.stringify(entry.snapshot.prediction_result ?? null).length <=
+      maxResultLength,
+  );
+}
+
 export function getSavedPrediction(project: SavedUserState | undefined) {
   const state = project?.state;
   if (state?.active_prediction_id !== undefined) {

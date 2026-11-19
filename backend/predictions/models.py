@@ -6,6 +6,7 @@ from accounts.models import OsmUser
 from modelregistry.models import BaseModel, LocalModel
 from shared.enums import PipelineRunStatus, Visibility
 from shared.imagery import InputImagery
+from shared.run_status import is_terminal
 
 
 def _model_field(model: type[BaseModel] | type[LocalModel], field: str) -> Subquery:
@@ -40,12 +41,16 @@ class Prediction(InputImagery):
     status = models.CharField(
         max_length=20,
         choices=PipelineRunStatus.choices,
-        default=PipelineRunStatus.INITIALIZING,
+        default=PipelineRunStatus.SUBMITTED,
     )
     error = models.TextField(
         blank=True, help_text="Why the run failed; empty unless status is failed."
     )
     results_ready = models.BooleanField(default=False)
+    post_run_attempts = models.PositiveSmallIntegerField(default=0)
+    feature_count = models.PositiveIntegerField(
+        null=True, blank=True, help_text="Features in the result; null until it is counted."
+    )
     user = models.ForeignKey(
         OsmUser,
         to_field="osm_id",
@@ -56,6 +61,12 @@ class Prediction(InputImagery):
     last_polled_at = models.DateTimeField(null=True, blank=True)
 
     objects = PredictionQuerySet.as_manager()
+
+    @property
+    def is_finished(self) -> bool:
+        """The run is over and, if it completed, its outputs are written."""
+        completed = self.status == PipelineRunStatus.COMPLETED
+        return is_terminal(self.status) and (self.results_ready or not completed)
 
     class Meta:
         indexes = [

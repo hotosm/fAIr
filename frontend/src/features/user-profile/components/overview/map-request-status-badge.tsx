@@ -8,35 +8,17 @@ const STATUS_PRESENTATION: Record<
   string,
   { label: string; variant: TBadgeVariants }
 > = {
-  [PredictionRequestStatus.COMPLETED]: { label: "Completed", variant: "green" },
-  [PredictionRequestStatus.CACHED]: { label: "Completed", variant: "green" },
-  [PredictionRequestStatus.INITIALIZING]: {
-    label: "Initializing",
-    variant: "yellow",
-  },
   [PredictionRequestStatus.SUBMITTED]: {
-    label: "In Progress",
-    variant: "yellow",
-  },
-  [PredictionRequestStatus.PROVISIONING]: {
-    label: "In Progress",
+    label: "Submitted",
     variant: "yellow",
   },
   [PredictionRequestStatus.RUNNING]: {
     label: "In Progress",
     variant: "yellow",
   },
-  [PredictionRequestStatus.RETRYING]: {
-    label: "In Progress",
-    variant: "yellow",
-  },
-  [PredictionRequestStatus.RETRIED]: {
-    label: "In Progress",
-    variant: "yellow",
-  },
-  [PredictionRequestStatus.STOPPING]: { label: "Stopping", variant: "yellow" },
+  [PredictionRequestStatus.COMPLETED]: { label: "Completed", variant: "green" },
   [PredictionRequestStatus.FAILED]: { label: "Failed", variant: "red" },
-  [PredictionRequestStatus.STOPPED]: { label: "Stopped", variant: "red" },
+  [PredictionRequestStatus.CANCELLED]: { label: "Cancelled", variant: "red" },
 };
 
 const toTitleCase = (value: string) =>

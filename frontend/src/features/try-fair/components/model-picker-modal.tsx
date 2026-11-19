@@ -32,7 +32,7 @@ import {
 import { ImageryPreviewCard } from "@/features/try-fair/components/model-picker/imagery-preview-card";
 import { RecentImageriesList } from "@/features/try-fair/components/model-picker/recent-imageries-list";
 import type { RecentImageryEntry } from "@/features/try-fair/hooks/use-recent-imageries";
-import { cleanFeatureLabel } from "@/features/try-fair/utils/common";
+import { featureDisplayName } from "@/features/try-fair/utils/common";
 
 // ─── ModelPicker trigger ──────────────────────────────────────────────────────
 
@@ -74,23 +74,29 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
       <div className="w-full text-left flex-1 min-w-0">
         {isImagerySelected ? (
           <>
-            <p className="font-semibold text-dark text-xs leading-tight capitalize truncate">
+            <p
+              className="font-semibold text-dark text-xs leading-tight capitalize truncate"
+              title={selectedImageryName}
+            >
               {selectedImageryName}
             </p>
-            <p className="text-grey capitalize font-semibold text-[10px] leading-tight truncate">
-              {cleanFeatureLabel(feature)}
+            <p className="text-grey font-semibold text-[10px] leading-tight truncate">
+              {featureDisplayName(feature)}
             </p>
           </>
         ) : loading ? (
           <p className="text-grey text-xs animate-pulse">Loading models…</p>
         ) : selectedModel ? (
           <>
-            <p className="font-semibold text-dark text-xs leading-tight capitalize truncate">
+            <p
+              className="font-semibold text-dark text-xs leading-tight truncate"
+              title={selectedModel.properties.title}
+            >
               {selectedModel.properties.title}
             </p>
             <div className="flex flex-wrap items-center gap-1">
-              <p className="text-grey capitalize font-semibold text-[10px] leading-tight truncate">
-                {cleanFeatureLabel(
+              <p className="text-grey font-semibold text-[10px] leading-tight truncate">
+                {featureDisplayName(
                   selectedModel.properties["fair:category"] ?? "Building",
                 )}
               </p>
@@ -398,7 +404,7 @@ export const ModelPickerContent = ({
                     )}
                   >
                     <div className="flex items-start justify-between gap-2 mb-1">
-                      <p className="text-dark capitalize text-sm font-bold leading-tight flex-1 min-w-0 break-words">
+                      <p className="text-dark text-sm font-bold leading-tight flex-1 min-w-0 break-words">
                         {model?.properties?.title ?? ""}
                       </p>
                       {isApplied ? (

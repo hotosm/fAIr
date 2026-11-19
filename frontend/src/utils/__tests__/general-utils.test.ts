@@ -37,4 +37,22 @@ describe("showErrorToast", () => {
     });
     expect(toast).toHaveBeenCalledWith("Model not found.", "danger");
   });
+
+  it("shows the generic message instead of an HTML error page", () => {
+    showErrorToast({
+      response: {
+        status: 500,
+        data: "<html><head><title>500 Internal Server Error</title></head></html>",
+      },
+    });
+    expect(toast).toHaveBeenCalledWith(
+      "An unexpected error occurred",
+      "danger",
+    );
+  });
+
+  it("shows a plain-text error body as it is", () => {
+    showErrorToast({ response: { data: "Bad gateway: model offline." } });
+    expect(toast).toHaveBeenCalledWith("Bad gateway: model offline.", "danger");
+  });
 });

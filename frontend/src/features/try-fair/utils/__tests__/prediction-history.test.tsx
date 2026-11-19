@@ -8,6 +8,7 @@ import {
   getHistoryUrlParams,
   limitProjectHistory,
   restorePredictionHistory,
+  savableHistory,
 } from "@/features/try-fair/utils/prediction-history";
 import { PredictionHistoryPanel } from "@/features/try-fair/components/prediction-history-panel";
 import type {
@@ -189,6 +190,49 @@ describe("project prediction history", () => {
       project.state.prediction_result,
     );
     expect(restorePredictionHistory(undefined, 5)).toEqual([]);
+  });
+});
+
+const withFeatures = (
+  entry: PredictionHistoryEntry,
+  count: number,
+): PredictionHistoryEntry => {
+  const result = entry.snapshot.prediction_result!;
+  const feature: GeoJSON.Feature = {
+    type: "Feature",
+    geometry: { type: "Point", coordinates: [0, 0] },
+    properties: { class: 1, confidence: 0.9 },
+  };
+  return {
+    ...entry,
+    snapshot: {
+      ...entry.snapshot,
+      prediction_result: {
+        ...result,
+        predictions: {
+          type: "FeatureCollection",
+          features: Array(count).fill(feature),
+        },
+      },
+    },
+  };
+};
+
+describe("saved prediction history", () => {
+  it("keeps results within the size limit and leaves larger ones out", () => {
+    const small = withFeatures(historyEntry("1"), 10);
+    const large = withFeatures(historyEntry("2"), 5_000);
+    const limit = JSON.stringify(small.snapshot.prediction_result).length;
+
+    expect(savableHistory([small, large], limit)).toEqual([small]);
+  });
+
+  it("keeps a result exactly at the size limit", () => {
+    const entry = withFeatures(historyEntry("1"), 10);
+    const limit = JSON.stringify(entry.snapshot.prediction_result).length;
+
+    expect(savableHistory([entry], limit)).toEqual([entry]);
+    expect(savableHistory([entry], limit - 1)).toEqual([]);
   });
 });
 

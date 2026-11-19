@@ -7,7 +7,6 @@ import pystac
 import pytest
 from django.contrib.gis.geos import Polygon
 from django.core.management import call_command
-from django_tasks_db.models import DBTaskResult
 from rest_framework.test import APIClient
 
 from accounts.models import OsmUser
@@ -395,7 +394,7 @@ def test_training_submit_creates_run_and_enqueues(
     response = client.post("/api/v1/trainings/submit/", data=payload, format="json")
     assert response.status_code == 202, response.content
     body = response.json()
-    assert body["status"] == "initializing"
+    assert body["status"] == "submitted"
     assert body["zenml_run_id"] is None
     assert body["overrides"] == {"epochs": 3, "learning_rate": 0.001}
     assert body["description"] == "First attempt"
@@ -554,7 +553,7 @@ def test_training_retrieve_returns_record(client, training_ref):
     body = response.json()
     assert body["zenml_run_id"] == "run-abc"
     assert body["overrides"] == {"epochs": 3}
-    assert body["status"] == "initializing"
+    assert body["status"] == "submitted"
 
 
 @patch("trainings.views.get_run_status")
@@ -600,50 +599,25 @@ def test_training_step_logs_routes_to_step_when_param_present(mock_fetch, client
 
 @patch("zenml.utils.run_utils.stop_run")
 @patch("zenml.client.Client")
-def test_training_run_cancel_stops_zenml_run(mock_client_cls, mock_stop, client, training_ref):
-    mock_client_cls.return_value.get_pipeline_run.return_value = MagicMock()
-    response = client.post("/api/v1/trainings/runs/run-abc/cancel/")
+def test_training_run_cancel_stops_zenml_run_hard(mock_client_cls, mock_stop, client, training_ref):
+    response = client.post("/api/v1/trainings/runs/run-abc/cancel/?graceful=true")
     assert response.status_code == 200
-    assert response.json() == {"run_id": "run-abc", "status": "stopping", "graceful": False}
-    mock_stop.assert_called_once()
+    assert response.json() == {"run_id": "run-abc", "status": "cancelled"}
+    mock_stop.assert_called_once_with(
+        mock_client_cls.return_value.get_pipeline_run.return_value, graceful=False
+    )
 
 
-@pytest.mark.django_db(transaction=True, serialized_rollback=True)
-@patch("trainings.tasks.get_run_status", return_value="stopped")
 @patch("zenml.utils.run_utils.stop_run")
 @patch("zenml.client.Client")
-def test_training_run_cancel_reaches_stopped_without_a_running_poller(
-    mock_client_cls, mock_stop, mock_status, client, training_ref
-):
+def test_training_run_cancel_marks_it_cancelled(mock_client_cls, mock_stop, client, training_ref):
     mock_client_cls.return_value.get_pipeline_run.return_value = MagicMock()
     TrainingRunRef.objects.filter(pk=training_ref.pk).update(status="running")
 
     client.post("/api/v1/trainings/runs/run-abc/cancel/")
-    call_command("db_worker", batch=True, no_startup_delay=True, interval=0)
 
     training_ref.refresh_from_db()
-    assert training_ref.status == "stopped"
-
-
-def _queued_syncs(task, **kwargs) -> int:
-    return DBTaskResult.objects.filter(
-        task_path=task.module_path, status="READY", args_kwargs__kwargs=kwargs
-    ).count()
-
-
-@patch("zenml.utils.run_utils.stop_run")
-@patch("zenml.client.Client")
-def test_training_run_cancel_keeps_one_status_sync_while_one_is_queued(
-    mock_client_cls, mock_stop, client, training_ref
-):
-    mock_client_cls.return_value.get_pipeline_run.return_value = MagicMock()
-    TrainingRunRef.objects.filter(pk=training_ref.pk).update(status="running")
-    sync_training_status.enqueue(training_run_ref_id=training_ref.pk)
-
-    client.post("/api/v1/trainings/runs/run-abc/cancel/")
-    client.post("/api/v1/trainings/runs/run-abc/cancel/")
-
-    assert _queued_syncs(sync_training_status, training_run_ref_id=training_ref.pk) == 1
+    assert training_ref.status == "cancelled"
 
 
 def test_training_run_status_403s_for_non_owner(other_user, training_ref):
@@ -800,7 +774,7 @@ def test_prediction_submit_creates_record_and_enqueues(
     assert body["local_model_stac_id"] == payload["model_stac_id"]
     assert body["geometry"]["type"] == "Polygon"
     assert body["zoom"] == 19
-    assert body["status"] == "initializing"
+    assert body["status"] == "submitted"
     assert body["visibility"] == "private"
     # Pre-completion: assets are None (no files in S3 yet).
     assert body["assets"] is None
@@ -815,7 +789,7 @@ def test_prediction_assets_populated_when_completed(client, prediction):
     assets = response.json()["assets"]
     assert assets is not None
     assert "predictions.geojson" in assets["geojson"]
-    assert "predictions.fgb" in assets["fgb"]
+    assert "predictions.parquet" in assets["geoparquet"]
     assert "predictions.pmtiles" in assets["pmtiles"]
 
 
@@ -904,19 +878,19 @@ def test_anonymous_prediction_submit_is_refused(mock_task, anon_client, db):
 @patch("zenml.client.Client")
 def test_prediction_run_cancel_stops_zenml_run(mock_client_cls, mock_stop, client, prediction):
     mock_client_cls.return_value.get_pipeline_run.return_value = MagicMock()
+    Prediction.objects.filter(pk=prediction.pk).update(status="running", results_ready=False)
     response = client.post("/api/v1/predictions/runs/pred-run-1/cancel/")
     assert response.status_code == 200
-    assert response.json()["status"] == "stopping"
+    assert response.json()["status"] == "cancelled"
     mock_stop.assert_called_once()
 
 
 @pytest.mark.django_db(transaction=True, serialized_rollback=True)
 @patch("predictions.tasks.remove_dir")
-@patch("predictions.tasks.get_run_status", return_value="stopped")
 @patch("zenml.utils.run_utils.stop_run")
 @patch("zenml.client.Client")
-def test_prediction_run_cancel_reaches_stopped_without_a_running_poller(
-    mock_client_cls, mock_stop, mock_status, mock_remove, client, prediction
+def test_prediction_run_cancel_marks_it_cancelled_and_removes_its_input_tiles(
+    mock_client_cls, mock_stop, mock_remove, client, prediction
 ):
     mock_client_cls.return_value.get_pipeline_run.return_value = MagicMock()
     Prediction.objects.filter(pk=prediction.pk).update(status="running", results_ready=False)
@@ -925,66 +899,25 @@ def test_prediction_run_cancel_reaches_stopped_without_a_running_poller(
     call_command("db_worker", batch=True, no_startup_delay=True, interval=0)
 
     prediction.refresh_from_db()
-    assert prediction.status == "stopped"
+    assert prediction.status == "cancelled"
+    mock_remove.assert_called_once()
 
 
 @patch("zenml.utils.run_utils.stop_run")
 @patch("zenml.client.Client")
-def test_prediction_run_cancel_keeps_one_status_sync_while_one_is_queued(
+def test_prediction_run_cancel_leaves_a_run_that_already_failed_as_failed(
     mock_client_cls, mock_stop, client, prediction
 ):
     mock_client_cls.return_value.get_pipeline_run.return_value = MagicMock()
-    Prediction.objects.filter(pk=prediction.pk).update(status="running", results_ready=False)
-    sync_prediction_status.enqueue(prediction_id=prediction.pk)
+    Prediction.objects.filter(pk=prediction.pk).update(status="failed", results_ready=False)
 
-    client.post("/api/v1/predictions/runs/pred-run-1/cancel/")
-    client.post("/api/v1/predictions/runs/pred-run-1/cancel/")
-
-    assert _queued_syncs(sync_prediction_status, prediction_id=prediction.pk) == 1
-
-
-@patch("zenml.utils.run_utils.stop_run")
-@patch("zenml.client.Client")
-def test_prediction_run_cancel_queues_a_sync_past_a_poll_left_running_by_a_killed_worker(
-    mock_client_cls, mock_stop, client, prediction
-):
-    mock_client_cls.return_value.get_pipeline_run.return_value = MagicMock()
-    Prediction.objects.filter(pk=prediction.pk).update(status="running", results_ready=False)
-    sync_prediction_status.enqueue(prediction_id=prediction.pk)
-    DBTaskResult.objects.update(status="RUNNING")
-
-    client.post("/api/v1/predictions/runs/pred-run-1/cancel/")
-
-    assert _queued_syncs(sync_prediction_status, prediction_id=prediction.pk) == 1
-
-
-@patch("zenml.utils.run_utils.stop_run")
-@patch("zenml.client.Client")
-def test_prediction_run_cancel_is_not_blocked_by_another_runs_queued_sync(
-    mock_client_cls, mock_stop, client, prediction
-):
-    mock_client_cls.return_value.get_pipeline_run.return_value = MagicMock()
-    Prediction.objects.filter(pk=prediction.pk).update(status="running", results_ready=False)
-    sync_prediction_status.enqueue(prediction_id=prediction.pk + 1000)
-    sync_training_status.enqueue(training_run_ref_id=prediction.pk)
-
-    client.post("/api/v1/predictions/runs/pred-run-1/cancel/")
-
-    assert _queued_syncs(sync_prediction_status, prediction_id=prediction.pk) == 1
-
-
-@patch("zenml.utils.run_utils.stop_run")
-@patch("zenml.client.Client")
-def test_prediction_run_cancel_leaves_a_run_that_already_stopped_as_stopped(
-    mock_client_cls, mock_stop, client, prediction
-):
-    mock_client_cls.return_value.get_pipeline_run.return_value = MagicMock()
-    Prediction.objects.filter(pk=prediction.pk).update(status="stopped", results_ready=False)
-
-    client.post("/api/v1/predictions/runs/pred-run-1/cancel/")
+    with patch("predictions.views.delete_prediction_input_tiles") as delete_tiles:
+        response = client.post("/api/v1/predictions/runs/pred-run-1/cancel/")
 
     prediction.refresh_from_db()
-    assert prediction.status == "stopped"
+    assert prediction.status == "failed"
+    assert response.json()["status"] == "failed"
+    delete_tiles.enqueue.assert_not_called()
 
 
 def test_prediction_publish_toggle_round_trip(client, prediction):
@@ -1150,12 +1083,14 @@ def test_sync_prediction_runs_post_process_when_status_jumps_to_completed(
         user=user,
     )
     mock_get_status.return_value = "completed"
+    mock_post_run.return_value = 2
 
     sync_prediction_status.func(prediction_id=p.id)
 
     mock_post_run.assert_called_once()
     p.refresh_from_db()
     assert p.results_ready is True
+    assert p.feature_count == 2
 
 
 @patch("predictions.tasks.post_process_prediction")
@@ -1270,10 +1205,11 @@ def test_sync_prediction_keeps_input_tiles_when_post_processing_is_retried(
     ("status", "flag", "deleted"),
     [("completed", True, True), ("failed", True, True), ("running", True, False), ("completed", False, False)],
 )
+@patch("predictions.tasks.run_failure_reason", return_value="boom")
 @patch("predictions.tasks.remove_dir")
-@patch("predictions.tasks.post_process_prediction")
+@patch("predictions.tasks.post_process_prediction", return_value=1)
 def test_sync_prediction_deletes_input_tiles_once_the_run_is_over(
-    mock_post_run, mock_remove, settings, user, status, flag, deleted
+    mock_post_run, mock_remove, _reason, settings, user, status, flag, deleted
 ):
     from predictions.tasks import sync_prediction_status
     from shared.storage import StoragePaths
@@ -1449,3 +1385,36 @@ def test_training_submit_rejects_classes_that_do_not_map(
     assert message in response.json()["error"]["details"]["class_map"][0]
     assert not TrainingRunRef.objects.filter(local_model__name="roofs-v1").exists()
     mock_task.enqueue.assert_not_called()
+
+
+@pytest.mark.parametrize(("feature_count", "has_pmtiles"), [(0, False), (3, True), (None, True)])
+def test_prediction_outputs_list_pmtiles_only_when_the_result_may_have_features(
+    client, prediction, feature_count, has_pmtiles
+):
+    Prediction.objects.filter(pk=prediction.pk).update(feature_count=feature_count)
+
+    detail = client.get(f"/api/v1/predictions/{prediction.id}/").json()
+    result = client.get(f"/api/v1/predictions/{prediction.id}/result/").json()
+
+    assert detail["feature_count"] == feature_count
+    assert ("pmtiles" in detail["assets"]) is has_pmtiles
+    assert ("pmtiles" in result) is has_pmtiles
+    assert {"geojson", "geoparquet"} <= detail["assets"].keys() & result.keys()
+
+
+@patch("predictions.post_run._generate_pmtiles")
+@patch("predictions.post_run.generate_geoparquet")
+@patch("predictions.post_run.UPath")
+@patch("predictions.post_run.get_item")
+@patch("predictions.post_run.item_exists", return_value=True)
+@patch("fair.stac.validators.validate_predictions_geojson", return_value=[])
+@patch(
+    "predictions.post_run._load_geojson",
+    return_value={"type": "FeatureCollection", "features": [{"type": "Feature"}] * 3},
+)
+def test_post_process_returns_the_number_of_features_it_wrote(
+    _load, _validate, _exists, _item, _upath, _geoparquet, _pmtiles, db, user
+):
+    from predictions.post_run import post_process_prediction
+
+    assert post_process_prediction(_completed_prediction(user, "rid-count")) == 3

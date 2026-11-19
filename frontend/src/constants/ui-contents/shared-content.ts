@@ -37,6 +37,7 @@ export const SHARED_CONTENT: TSharedContent = {
     socials: {
       ctaText: "Learn more about OpenStreetMap.",
     },
+    supportedBy: "Supported by",
     madeWithLove: {
       firstSegment: "Made with ❤️ by",
       secondSegment: "HOT",

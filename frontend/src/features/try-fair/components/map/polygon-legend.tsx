@@ -14,18 +14,19 @@ type Props = {
 const FILL_OPACITY = 0.3;
 
 export const TryFairPolygonLegend = ({ predictions, classStyle }: Props) => {
-  const totalCount = predictions?.features.length ?? 0;
-  if (!predictions || totalCount === 0) return null;
+  if (!predictions) return null;
+  const totalCount = predictions.features.length;
 
-  const items: LegendItem[] = classStyle?.colored
-    ? buildClassLegendItems(classStyle, predictions, "square", FILL_OPACITY)
-    : [
-        {
-          label: `${totalCount.toLocaleString()} feature${totalCount === 1 ? "" : "s"} detected`,
-          fillColor: DEFAULT_PREDICTION_COLOR,
-          fillOpacity: FILL_OPACITY,
-        },
-      ];
+  const items: LegendItem[] =
+    classStyle?.colored && totalCount > 0
+      ? buildClassLegendItems(classStyle, predictions, "square", FILL_OPACITY)
+      : [
+          {
+            label: `${totalCount.toLocaleString()} feature${totalCount === 1 ? "" : "s"} detected`,
+            fillColor: DEFAULT_PREDICTION_COLOR,
+            fillOpacity: FILL_OPACITY,
+          },
+        ];
 
   if (!items.length) return null;
 

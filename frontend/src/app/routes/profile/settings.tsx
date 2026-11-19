@@ -13,6 +13,7 @@ import {
 
 import { showErrorToast, showSuccessToast } from "@/utils";
 import { useState } from "react";
+import { ProfilePageTitle } from "@/features/user-profile/components/profile-page-title";
 
 export const UserProfileSettingsPage = () => {
   const { user, setUser } = useAuth();
@@ -90,7 +91,8 @@ export const UserProfileSettingsPage = () => {
     <>
       <Head title={USER_PROFILE_PAGE_CONTENT.settings.pageTitle} />
 
-      <div className="flex justify-center items-center">
+      <ProfilePageTitle title="Settings" />
+      <div className="mt-6 flex">
         <div className="w-full md:max-w-[400px] flex flex-col gap-y-10">
           {showForm && (
             <div className="flex flex-col gap-y-6">
@@ -169,7 +171,7 @@ export const UserProfileSettingsPage = () => {
               className={`mt-2 flex justify-between items-center transition-opacity duration-200 ${user.email.length === 0 ? "opacity-50" : ""}`}
             >
               <div className="flex flex-col gap-y-1">
-                <h3 className="text-body-3 md:text-body-2">
+                <h3 className="text-sm">
                   {
                     USER_PROFILE_PAGE_CONTENT.settings.notifications.newsletter
                       .label
@@ -211,9 +213,7 @@ export const UserProfileSettingsPage = () => {
 const SectionHeader = ({ sectionTitle }: { sectionTitle: string }) => {
   return (
     <div>
-      <h2 className="text-body-1 md:text-title-4 font-semibold">
-        {sectionTitle}
-      </h2>
+      <h2 className="text-sm font-semibold text-dark">{sectionTitle}</h2>
     </div>
   );
 };

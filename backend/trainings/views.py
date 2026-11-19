@@ -8,7 +8,6 @@ from drf_spectacular.utils import (
 )
 from fair.stac.label_classes import LabelClassError, resolve_classes
 from fair.stac.validators import is_trainable
-from fair.zenml.runs import get_run_status, is_terminal
 from rest_framework import filters, serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound, PermissionDenied, ValidationError
@@ -31,11 +30,11 @@ from shared.integrations.stac import (
 )
 from shared.integrations.zenml import for_user
 from shared.run_endpoints import (
-    enqueue_status_sync_once,
-    mark_stopping,
+    mark_cancelled,
     read_run_logs,
     stop_pipeline_run,
 )
+from shared.run_status import TERMINAL_STATUSES, get_run_status, is_terminal
 from shared.serializers import LogEntrySerializer, RunLogsQuerySerializer, RunStatusSerializer
 
 from .models import TrainingRunRef
@@ -44,7 +43,7 @@ from .serializers import (
     TrainingRunRefSerializer,
     TrainingSubmitSerializer,
 )
-from .tasks import submit_training, sync_training_status
+from .tasks import submit_training
 
 
 def _previous_version_description(model_name: str) -> str:
@@ -70,7 +69,7 @@ def _previous_version_description(model_name: str) -> str:
         description="Tail run logs (run-level by default, step-level with ?step=)."
     ),
     run_cancel=extend_schema(
-        description="Stop a running ZenML pipeline (graceful via ?graceful=true)."
+        description="Stop a running ZenML pipeline and mark the training cancelled."
     ),
     publish=extend_schema(
         description=(
@@ -213,10 +212,13 @@ class TrainingViewSet(viewsets.ReadOnlyModelViewSet):
     def run_status(self, request, run_id: str) -> Response:
         run = self._run_for_caller(run_id)
         run_status = get_run_status(run_id)
-        TrainingRunRef.objects.filter(pk=run.pk).update(status=run_status)
+        TrainingRunRef.objects.filter(pk=run.pk).exclude(status__in=TERMINAL_STATUSES).update(
+            status=run_status
+        )
+        run.refresh_from_db(fields=["status"])
         return Response(
             RunStatusSerializer(
-                {"run_id": run_id, "status": run_status, "is_terminal": is_terminal(run_status)}
+                {"run_id": run_id, "status": run.status, "is_terminal": is_terminal(run.status)}
             ).data
         )
 
@@ -239,18 +241,16 @@ class TrainingViewSet(viewsets.ReadOnlyModelViewSet):
             fields={
                 "run_id": serializers.CharField(),
                 "status": serializers.CharField(),
-                "graceful": serializers.BooleanField(),
             },
         ),
     )
     @action(detail=False, methods=["post"], url_path=r"runs/(?P<run_id>[^/]+)/cancel")
     def run_cancel(self, request, run_id: str) -> Response:
         run_ref = self._run_for_caller(run_id)
-        graceful = request.query_params.get("graceful", "false").lower() == "true"
-        stop_pipeline_run(run_id, graceful=graceful)
-        mark_stopping(TrainingRunRef, run_ref.pk)
-        enqueue_status_sync_once(sync_training_status, training_run_ref_id=run_ref.pk)
-        return Response({"run_id": run_id, "status": "stopping", "graceful": graceful})
+        stop_pipeline_run(run_id)
+        mark_cancelled(TrainingRunRef, run_ref.pk)
+        run_ref.refresh_from_db(fields=["status"])
+        return Response({"run_id": run_id, "status": run_ref.status})
 
     @extend_schema(
         request=TrainingPublishSerializer,

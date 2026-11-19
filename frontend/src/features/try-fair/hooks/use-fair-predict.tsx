@@ -1,12 +1,16 @@
 import { useMutation } from "@tanstack/react-query";
-import { BaseModelStacItem, runPredict } from "@/features/try-fair/api/stac";
+import {
+  BaseModelStacItem,
+  runPredict,
+  waitForModel,
+} from "@/features/try-fair/api/stac";
 import { TryFairResolution } from "@/enums/try-fair";
 import { BBOX } from "@/types";
 import {
   getModelImagery,
   TRY_FAIR_RESOLUTION_ZOOM,
 } from "@/features/try-fair/utils/common";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 export type PredictResult = {
   predictions: GeoJSON.FeatureCollection;
   bbox: BBOX;
@@ -32,6 +36,8 @@ type PredictArgs = {
 export const useFairPredict = (initialResult: PredictResult | null = null) => {
   const abortControllerRef = useRef<AbortController | null>(null);
   const [result, setResult] = useState(initialResult);
+
+  useEffect(() => () => abortControllerRef.current?.abort(), []);
   const { mutate, isPending, error, reset } = useMutation<
     PredictResult,
     Error,
@@ -54,6 +60,7 @@ export const useFairPredict = (initialResult: PredictResult | null = null) => {
       const controller = new AbortController();
       abortControllerRef.current = controller;
       try {
+        await waitForModel(inferenceEndpoint, controller.signal);
         const predictions = await runPredict(
           inferenceEndpoint,
           {

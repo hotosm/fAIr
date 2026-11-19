@@ -1,4 +1,10 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  within,
+} from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { ReactNode } from "react";
@@ -16,7 +22,18 @@ vi.mock("@/hooks/use-dropdown-menu", () => ({
 }));
 // Render the menu inline so its options can be clicked.
 vi.mock("@/components/ui/dropdown", () => ({
-  DropDown: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+  DropDown: ({
+    children,
+    triggerComponent,
+  }: {
+    children: ReactNode;
+    triggerComponent: ReactNode;
+  }) => (
+    <div>
+      <div data-testid="trigger">{triggerComponent}</div>
+      {children}
+    </div>
+  ),
 }));
 
 const CurrentPath = () => <p data-testid="path">{useLocation().pathname}</p>;
@@ -41,6 +58,19 @@ const renderAt = (path: string) =>
 afterEach(() => {
   cleanup();
   setMappingMode.mockClear();
+});
+
+describe("MappingMode trigger", () => {
+  it("is a button the keyboard can focus", () => {
+    renderAt("/profile");
+    const trigger = within(screen.getByTestId("trigger")).getByRole("button", {
+      name: "Advanced",
+    });
+
+    trigger.focus();
+
+    expect(trigger).toHaveFocus();
+  });
 });
 
 describe("MappingMode switching to Basic", () => {

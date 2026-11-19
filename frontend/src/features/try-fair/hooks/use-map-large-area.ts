@@ -576,7 +576,6 @@ export const useMapLargeArea = ({
 
     submitMapLargeArea(payload, {
       onSuccess: () => {
-        showSuccessToast("Map large area request submitted successfully.");
         onSubmit();
         closeDialog();
       },

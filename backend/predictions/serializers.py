@@ -116,18 +116,26 @@ class PredictionSubmitSerializer(serializers.Serializer):
         return attrs
 
 
+def presigned_output_urls(prediction: Prediction) -> dict[str, str]:
+    from shared.storage import StoragePaths, presigned_get_url
+
+    urls = {
+        "geojson": presigned_get_url(StoragePaths.prediction_geojson_key(prediction.id)),
+        "geoparquet": presigned_get_url(StoragePaths.prediction_geoparquet_key(prediction.id)),
+    }
+    if prediction.feature_count != 0:
+        urls["pmtiles"] = presigned_get_url(StoragePaths.prediction_pmtiles_key(prediction.id))
+    return urls
+
+
 class PredictionResultSerializer(serializers.Serializer):
     """Presigned URLs for each materialized output format."""
 
     geojson = serializers.URLField()
-    fgb = serializers.URLField()
-    pmtiles = serializers.URLField()
-
-
-class PredictionAssetsSerializer(serializers.Serializer):
-    geojson = serializers.URLField()
-    fgb = serializers.URLField()
-    pmtiles = serializers.URLField()
+    geoparquet = serializers.URLField()
+    pmtiles = serializers.URLField(
+        required=False, help_text="Absent when the result has no features."
+    )
 
 
 class PredictionSerializer(OwnerOnlyErrorMixin, serializers.ModelSerializer):
@@ -148,18 +156,11 @@ class PredictionSerializer(OwnerOnlyErrorMixin, serializers.ModelSerializer):
     def get_image_uri(self, obj: Prediction) -> str:
         return obj.primary_imagery
 
-    @extend_schema_field(PredictionAssetsSerializer(allow_null=True))
+    @extend_schema_field(PredictionResultSerializer(allow_null=True))
     def get_assets(self, obj: Prediction) -> dict[str, str] | None:
         if not obj.results_ready:
             return None
-        from shared.storage import StoragePaths, presigned_get_url
-
-        out: dict[str, str] = {
-            "geojson": presigned_get_url(StoragePaths.prediction_geojson_key(obj.id)),
-            "fgb": presigned_get_url(StoragePaths.prediction_fgb_key(obj.id)),
-            "pmtiles": presigned_get_url(StoragePaths.prediction_pmtiles_key(obj.id)),
-        }
-        return out
+        return presigned_output_urls(obj)
 
     class Meta:
         model = Prediction
@@ -180,6 +181,7 @@ class PredictionSerializer(OwnerOnlyErrorMixin, serializers.ModelSerializer):
             "status",
             "error",
             "results_ready",
+            "feature_count",
             "assets",
             "user",
             "submitted_at",
@@ -194,6 +196,7 @@ class PredictionSerializer(OwnerOnlyErrorMixin, serializers.ModelSerializer):
             "status",
             "error",
             "results_ready",
+            "feature_count",
             "assets",
             "visibility",
             "user",

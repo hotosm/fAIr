@@ -35,7 +35,9 @@ import { cleanFeatureLabel } from "@/features/try-fair/utils/common";
 import { MobileMapToolbar } from "@/features/try-fair/components/mobile/mobile-map-toolbar";
 import {
   getModelDefaultResolution,
+  imageryKeptOnModelSwitch,
   getModelOutputType,
+  predictErrorMessage,
 } from "@/features/try-fair/utils/common";
 import { Dialog } from "@/components/ui/dialog";
 import { useDialog } from "@/hooks/use-dialog";
@@ -46,7 +48,7 @@ import { SignInPromptDialog } from "@/features/try-fair/components/modals/sign-i
 import type { ImagerySelection } from "@/features/try-fair/types/imagery-types";
 import { MapLargeAreaRequestSuccess } from "@/features/try-fair/components/start-mapping/map-large-area-request-success-dialog";
 import { useShallow } from "zustand/react/shallow";
-import { showErrorToast } from "@/utils";
+import { showErrorToast, showWarningToast } from "@/utils";
 import { reverseGeocodeCountry } from "@/features/try-fair/api/hot-imagery";
 import { useRecentImageries } from "@/features/try-fair/hooks/use-recent-imageries";
 import type { RecentImageryEntry } from "@/features/try-fair/hooks/use-recent-imageries";
@@ -55,12 +57,16 @@ import { isExperimentalCategory } from "@/features/try-fair/components/model-pic
 import { useAuth } from "@/app/providers/auth-provider";
 import { useParams } from "react-router-dom";
 import { MappingProjectAutosave } from "@/features/try-fair/components/mapping-project-autosave";
-import { PREDICTION_HISTORY_LIMIT } from "@/config";
+import {
+  PREDICTION_HISTORY_LIMIT,
+  SAVED_PREDICTION_MAX_LENGTH,
+} from "@/config";
 import {
   appendPrediction,
   getHistoryUrlParams,
   getSavedPrediction,
   restorePredictionHistory,
+  savableHistory,
 } from "@/features/try-fair/utils/prediction-history";
 import { PredictionHistoryPanel } from "@/features/try-fair/components/prediction-history-panel";
 import {
@@ -249,6 +255,16 @@ export const TryFairPage = ({
     }
   }, [imageryModelId, selectedModelId, setSelectedModelId]);
 
+  // applyModelSettings clears restoredSnapshot, so this holds the grid centre across a Models pick.
+  const [keptView, setKeptView] = useState<{
+    imageryKey: string;
+    center: [number, number];
+  } | null>(null);
+  const keptCenter =
+    keptView && keptView.imageryKey === (oamItemId ?? imageryUrl)
+      ? keptView.center
+      : undefined;
+
   const [latestBBox, setLatestBBox] = useState<BBOX | null>(
     initialProject?.state.bbox ?? null,
   );
@@ -406,7 +422,7 @@ export const TryFairPage = ({
     lastPredictedInputsRef.current = null;
   }, [cancelPrediction]);
 
-  const handleSelectModel = (model: BaseModelStacItem) => {
+  const applyModelSettings = (model: BaseModelStacItem) => {
     setModelId(model.id);
     setResolution(getModelDefaultResolution(model));
     // Keep the feature in step with the chosen model. Otherwise e.g. the
@@ -414,14 +430,6 @@ export const TryFairPage = ({
     // then "corrects" the model back to the buildings default.
     const category = model.properties["fair:category"];
     if (category && category !== feature) setFeature(category);
-
-    // Only reset imagery & mode when the user was on a sample/demo location.
-    // If they have their own imagery selected (advanced picker usage), keep it.
-    if (mode !== ModelType.IMAGERY) {
-      setCurrentModelType(ModelType.DEMO);
-      setMode(ModelType.DEMO);
-      setImagery({ url: null, tileServiceType: null, oamItemId: null });
-    }
 
     // Reset confidence threshold to model's spec default if available
     const infParams = getInferenceParams(model);
@@ -439,19 +447,49 @@ export const TryFairPage = ({
     setRestoredSnapshot(null);
   };
 
+  const handleSelectModel = (model: BaseModelStacItem) => {
+    const keptImagery = imageryKeptOnModelSwitch(
+      mode,
+      modelPreview?.imagery.url,
+    );
+    const imageryKey = keptImagery
+      ? (keptImagery.oamItemId ?? keptImagery.url)
+      : (oamItemId ?? imageryUrl);
+    const center: [number, number] | undefined = latestBBox
+      ? [
+          (latestBBox[0] + latestBBox[2]) / 2,
+          (latestBBox[1] + latestBBox[3]) / 2,
+        ]
+      : imageryCenter;
+    setKeptView(
+      imageryKey && center && imageryCenter ? { imageryKey, center } : null,
+    );
+    if (keptImagery) {
+      setSeletedImagery(null);
+      setCurrentModelType(ModelType.IMAGERY);
+      setImageryMode(keptImagery);
+    } else if (mode !== ModelType.IMAGERY) {
+      setCurrentModelType(ModelType.DEMO);
+      setMode(ModelType.DEMO);
+      setImagery({ url: null, tileServiceType: null, oamItemId: null });
+    }
+    applyModelSettings(model);
+  };
+
   /**
    * Called when the user picks a model from the Samples tab.
    * Always switches to DEMO mode and clears any active imagery,
    * regardless of the current mode.
    */
   const handleSelectSampleModel = (model: BaseModelStacItem) => {
+    setKeptView(null);
     setStagedImagery(null);
     setSeletedImagery(null);
     setCurrentModelType(ModelType.DEMO);
     setMode(ModelType.DEMO);
     setImagery({ url: null, tileServiceType: null, oamItemId: null });
     setSelectedModelId(null);
-    handleSelectModel(model);
+    applyModelSettings(model);
   };
 
   const handleResolutionChange = (res: TryFairResolution) => {
@@ -570,12 +608,21 @@ export const TryFairPage = ({
           setPredictionHistory((history) =>
             appendPrediction(history, entry, PREDICTION_HISTORY_LIMIT),
           );
+          if (
+            isAuthenticated &&
+            savableHistory([entry], SAVED_PREDICTION_MAX_LENGTH).length === 0
+          ) {
+            showWarningToast(
+              "Too large to save. This result stays on the map until you leave the page.",
+              8000,
+            );
+          }
           setActivePredictionId(entry.id);
           setHasSuccessfulPrediction(true);
         },
         onError: (error) => {
           if ((error as { code?: string }).code === "ERR_CANCELED") return;
-          showErrorToast(error ?? "An Error Occured.");
+          showErrorToast(error, predictErrorMessage(error));
           lastPredictedInputsRef.current = null;
         },
       },
@@ -595,6 +642,7 @@ export const TryFairPage = ({
     closeGuidedTour,
     recordMapRun,
     hasNoModelsForFeature,
+    isAuthenticated,
   ]);
 
   // Map is off when there's no model to map with; the sidebar says why.
@@ -625,6 +673,7 @@ export const TryFairPage = ({
   };
   const handleApplyImagery = useCallback(
     (selection: ImagerySelection) => {
+      setKeptView(null);
       setSeletedImagery(selection);
       setCurrentModelType(ModelType.IMAGERY);
       // Use the atomic setter so mode + imagery URL land in a single nuqs
@@ -704,6 +753,7 @@ export const TryFairPage = ({
 
   const handleRestorePrediction = (entry: PredictionHistoryEntry) => {
     if (isPredicting) return;
+    setKeptView(null);
     const snapshot = entry.snapshot;
     const result = snapshot.prediction_result;
     previousMappingModel.current = result.modelId;
@@ -834,8 +884,8 @@ export const TryFairPage = ({
                   state: {
                     ...currentSnapshot,
                     prediction_result: undefined,
-                    prediction_history: predictionHistory,
-                    active_prediction_id: activePredictionId,
+                    prediction_history: savedHistory,
+                    active_prediction_id: savedActivePredictionId,
                   },
                 }
               : null
@@ -979,7 +1029,7 @@ export const TryFairPage = ({
                 !isPredicting &&
                 Boolean(predictions && !predictions.features.length)
               }
-              imageryCenter={restoredCenter ?? imageryCenter}
+              imageryCenter={keptCenter ?? restoredCenter ?? imageryCenter}
               resolution={resolution}
               isPredicting={isPredicting}
               preImageryUrl={preImageryUrl}

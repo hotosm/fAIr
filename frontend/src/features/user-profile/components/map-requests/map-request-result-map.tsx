@@ -1,7 +1,7 @@
 import { TryFairMapOutputType } from "@/enums";
 import { errorMessages } from "@/constants";
 import { MapComponent, ZoomControls } from "@/components/map";
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useMapInstance } from "@/hooks/use-map-instance";
 import { showErrorToast } from "@/utils";
 import { BBOX } from "@/types";
@@ -64,6 +64,13 @@ const bboxFromFeatureCollection = (
   return [west, south, east, north];
 };
 
+/** The result's features once loaded, else `fallback`; a request over a whole scene can find a small result. */
+export const resultFitBox = (
+  predictions: GeoJSON.FeatureCollection | null,
+  fallback: BBOX | null,
+): BBOX | null =>
+  (predictions && bboxFromFeatureCollection(predictions)) ?? fallback;
+
 export const MapRequestResultMap = ({
   geojsonUrl,
   imageryUrl,
@@ -120,20 +127,24 @@ export const MapRequestResultMap = ({
     return bboxFromFeatureCollection(predictions);
   }, [bounds, predictions]);
 
-  // Center on the result bounds instantly — no fly-in.
-  useEffect(() => {
-    if (!map || !effectiveBounds) return;
+  const fitBox = useMemo(
+    () => resultFitBox(predictions, effectiveBounds),
+    [predictions, effectiveBounds],
+  );
+
+  const fitToResult = useCallback(() => {
+    if (!map || !fitBox) return;
     map.resize();
-    map.fitBounds(
-      [
-        effectiveBounds[0],
-        effectiveBounds[1],
-        effectiveBounds[2],
-        effectiveBounds[3],
-      ],
-      { padding: 20, duration: 0, animate: false, essential: true },
-    );
-  }, [map, effectiveBounds]);
+    map.fitBounds([fitBox[0], fitBox[1], fitBox[2], fitBox[3]], {
+      padding: 20,
+      maxZoom: 18,
+      duration: 0,
+      animate: false,
+      essential: true,
+    });
+  }, [map, fitBox]);
+
+  useEffect(fitToResult, [fitToResult]);
 
   return (
     <div className="relative h-full w-full">
@@ -142,6 +153,7 @@ export const MapRequestResultMap = ({
         basemaps
         zoomControls={false}
         tileServiceURL={imageryUrl}
+        onTileServiceFitToBounds={fitToResult}
         mapContainerRef={mapContainerRef}
         map={map}
       >

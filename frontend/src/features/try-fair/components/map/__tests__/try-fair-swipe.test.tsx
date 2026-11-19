@@ -21,18 +21,16 @@ const createdMaps: FakeMap[] = [];
 const layerMapProps: unknown[] = [];
 
 vi.mock("maplibre-gl", () => ({
-  default: {
-    Map: vi.fn().mockImplementation(function (this: FakeMap, options) {
-      this.options = options;
-      this.handlers = {};
-      this.once = vi.fn((event: string, handler: () => void) => {
-        this.handlers[event] = handler;
-      });
-      this.jumpTo = vi.fn();
-      this.remove = vi.fn();
-      createdMaps.push(this);
-    }),
-  },
+  Map: vi.fn().mockImplementation(function (this: FakeMap, options) {
+    this.options = options;
+    this.handlers = {};
+    this.once = vi.fn((event: string, handler: () => void) => {
+      this.handlers[event] = handler;
+    });
+    this.jumpTo = vi.fn();
+    this.remove = vi.fn();
+    createdMaps.push(this);
+  }),
 }));
 
 vi.mock(
@@ -78,7 +76,7 @@ describe("TryFairSwipe", () => {
 
     expect(createdMaps).toHaveLength(0);
     expect(
-      screen.queryByRole("button", { name: /compare pre and post/i }),
+      screen.queryByRole("slider", { name: /compare pre and post/i }),
     ).toBeNull();
   });
 
@@ -119,7 +117,7 @@ describe("TryFairSwipe", () => {
 
   it("moves the divider with the arrow keys within its bounds", () => {
     const { container } = renderSwipe("https://pre.example/{z}/{x}/{y}");
-    const handle = screen.getByRole("button", {
+    const handle = screen.getByRole("slider", {
       name: /compare pre and post/i,
     });
     const clippedOverlay = () =>
@@ -127,6 +125,7 @@ describe("TryFairSwipe", () => {
 
     fireEvent.keyDown(handle, { key: "ArrowRight" });
     expect(clippedOverlay()).toBe("inset(0 45% 0 0)");
+    expect(handle.getAttribute("aria-valuenow")).toBe("55");
 
     for (let press = 0; press < 20; press++) {
       fireEvent.keyDown(handle, { key: "ArrowLeft" });

@@ -1,3 +1,4 @@
+import { isAxiosError } from "axios";
 import { TRY_FAIR_PAGE_CONTENT } from "@/constants/ui-contents/try-fair-contents";
 import { TryFairMapOutputType, TryFairResolution } from "@/enums/try-fair";
 import { BaseModelStacItem } from "@/features/try-fair/api/stac";
@@ -6,7 +7,8 @@ import { ClusterIcon } from "@/components/ui/icons/cluster-icon";
 import { PolygonIcon } from "@/components/ui/icons/polygon-icon";
 import React from "react";
 import { TRY_FAIR_GRID_SIZE } from "@/config";
-import { ImagerySource } from "@/enums";
+import { ImagerySource, ModelType, TileServiceType } from "@/enums";
+import { getTileServerTypeFromURL } from "@/utils/regex-utils";
 import {
   DatePreset,
   ResolutionPreset,
@@ -86,6 +88,30 @@ export const getModelDefaultResolution = (
       TRY_FAIR_RESOLUTION_ZOOM[resolution] ===
       model?.properties["fair:recommended_zoom"],
   ) ?? TryFairResolution.LOW;
+
+const HOT_OAM_ITEM_TILE_URL =
+  /^https:\/\/(?:api|tiles)\.imagery\.hotosm\.org\/raster\/collections\/openaerialmap\/items\/([^/?#]+)\/tiles\/WebMercatorQuad\/\{z\}\/\{x\}\/\{y\}/;
+
+type KeptImagery = {
+  url: string | null;
+  tileServiceType: TileServiceType | null;
+  oamItemId: string | null;
+};
+
+/** The sample imagery a Models switch keeps as selected imagery, so the new model runs on the same view. */
+export const imageryKeptOnModelSwitch = (
+  mode: ModelType,
+  sampleImageryUrl: string | undefined,
+): KeptImagery | undefined => {
+  if (mode === ModelType.IMAGERY || !sampleImageryUrl) return;
+  const oamItemId = sampleImageryUrl.match(HOT_OAM_ITEM_TILE_URL)?.[1];
+  if (oamItemId) return { url: null, tileServiceType: null, oamItemId };
+  return {
+    url: sampleImageryUrl,
+    tileServiceType: getTileServerTypeFromURL(sampleImageryUrl),
+    oamItemId: null,
+  };
+};
 
 /**
  * The map output mode that matches a model's output geometry. The geometry is
@@ -246,6 +272,12 @@ export const cleanFeatureLabel = (label: string) => {
   return (label ?? "").replace(/[-_]/g, " ");
 };
 
+/** A feature slug as shown to users, in sentence case: "solid-waste" reads "Solid waste". */
+export const featureDisplayName = (label: string) => {
+  const text = cleanFeatureLabel(label);
+  return text.charAt(0).toUpperCase() + text.slice(1);
+};
+
 export function elapsedTime(createdAt: string, now: number): string {
   const minutes = Math.max(
     0,
@@ -257,3 +289,17 @@ export function elapsedTime(createdAt: string, now: number): string {
   if (hours < 24) return `${hours} hr ago`;
   return new Date(createdAt).toLocaleDateString();
 }
+
+const MODEL_UNAVAILABLE_STATUSES = [502, 503, 504];
+
+/** A plain message when the model service is unreachable; undefined leaves the default error text. */
+export const predictErrorMessage = (error: unknown): string | undefined => {
+  if (!isAxiosError(error)) return undefined;
+  // A 503 from the serving gateway carries no CORS headers, so browsers report it as a network error.
+  const unreachable =
+    error.code === "ERR_NETWORK" ||
+    MODEL_UNAVAILABLE_STATUSES.includes(error.response?.status ?? 0);
+  return unreachable
+    ? "The model isn’t responding. It may still be starting; try again in a minute."
+    : undefined;
+};

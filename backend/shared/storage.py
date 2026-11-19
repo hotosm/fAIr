@@ -42,7 +42,7 @@ class StoragePaths:
 
     LABELS_GEOJSON_FILENAME = "labels.geojson"
     PREDICTION_GEOJSON_FILENAME = "predictions.geojson"
-    PREDICTION_FGB_FILENAME = "predictions.fgb"
+    PREDICTION_GEOPARQUET_FILENAME = "predictions.parquet"
     PREDICTION_PMTILES_FILENAME = "predictions.pmtiles"
 
     @staticmethod
@@ -122,12 +122,14 @@ class StoragePaths:
         return cls._uri(cls.prediction_geojson_key(prediction_id))
 
     @classmethod
-    def prediction_fgb_key(cls, prediction_id: int) -> str:
-        return f"{cls.prediction_output_dir_key(prediction_id)}/{cls.PREDICTION_FGB_FILENAME}"
+    def prediction_geoparquet_key(cls, prediction_id: int) -> str:
+        return (
+            f"{cls.prediction_output_dir_key(prediction_id)}/{cls.PREDICTION_GEOPARQUET_FILENAME}"
+        )
 
     @classmethod
-    def prediction_fgb_uri(cls, prediction_id: int) -> str:
-        return cls._uri(cls.prediction_fgb_key(prediction_id))
+    def prediction_geoparquet_uri(cls, prediction_id: int) -> str:
+        return cls._uri(cls.prediction_geoparquet_key(prediction_id))
 
     @classmethod
     def prediction_pmtiles_key(cls, prediction_id: int) -> str:

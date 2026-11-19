@@ -1,11 +1,10 @@
 from django.contrib import admin
-from fair.zenml.runs import is_terminal
 
-from shared.run_endpoints import enqueue_status_sync_once, stop_runs
+from shared.run_endpoints import stop_runs
 
 from .deletion import delete_prediction
 from .models import Prediction
-from .tasks import sync_prediction_status
+from .tasks import delete_prediction_input_tiles
 
 
 @admin.register(Prediction)
@@ -27,14 +26,14 @@ class PredictionAdmin(admin.ModelAdmin):
 
     actions = [stop_runs]
 
-    def enqueue_status_sync(self, pk: int) -> None:
-        enqueue_status_sync_once(sync_prediction_status, prediction_id=pk)
+    def after_cancel(self, pk: int) -> None:
+        delete_prediction_input_tiles.enqueue(prediction_id=pk)
 
     def has_add_permission(self, request) -> bool:
         return False
 
     def has_delete_permission(self, request, obj=None) -> bool:
-        running = obj is not None and not is_terminal(obj.status)
+        running = obj is not None and not obj.is_finished
         return super().has_delete_permission(request, obj) and not running
 
     def delete_model(self, request, obj: Prediction) -> None:

@@ -43,7 +43,7 @@ describe("MapRequestCardList", () => {
       <MapRequestCardList requests={[ready]} onViewResult={onViewResult} />,
     );
     expect(screen.getByText("Request 1")).toBeInTheDocument();
-    expect(screen.getByText("buildings")).toBeInTheDocument();
+    expect(screen.getByText("Buildings")).toBeInTheDocument();
     expect(screen.getByText("YOLO_V8_V2")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "View result" }));
@@ -124,5 +124,31 @@ describe("MapRequestCardList", () => {
     );
     expect(screen.getByText("10 mins ago")).toBeInTheDocument();
     expect(screen.getByRole("listitem")).toHaveClass("bg-gray-white");
+  });
+
+  it("shows the date for a request that failed minutes ago", () => {
+    const tenMinutesAgo = new Date(Date.now() - 10 * 60_000);
+    render(
+      <MapRequestCardList
+        requests={[
+          request(4, {
+            status: PredictionRequestStatus.FAILED,
+            results_ready: false,
+            submitted_at: tenMinutesAgo.toISOString(),
+          }),
+        ]}
+        onViewResult={vi.fn()}
+      />,
+    );
+    expect(screen.queryByText("10 mins ago")).toBeNull();
+    expect(
+      screen.getByText(
+        tenMinutesAgo.toLocaleDateString("en-GB", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        }),
+      ),
+    ).toBeInTheDocument();
   });
 });

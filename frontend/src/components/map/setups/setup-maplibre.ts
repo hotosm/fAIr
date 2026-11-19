@@ -1,4 +1,9 @@
-import maplibregl, { Map } from "maplibre-gl";
+import {
+  addProtocol,
+  getRTLTextPluginStatus,
+  Map,
+  setRTLTextPlugin,
+} from "maplibre-gl";
 import { BASEMAPS } from "@/enums";
 import { MAP_STYLES, MAX_ZOOM_LEVEL } from "@/config";
 import { Protocol } from "pmtiles";
@@ -11,8 +16,8 @@ export const setupMaplibreMap = (
   initialBounds?: BBOX | null,
 ): Map => {
   // Check if RTL plugin is needed and set it
-  if (maplibregl.getRTLTextPluginStatus() === "unavailable") {
-    maplibregl.setRTLTextPlugin(
+  if (getRTLTextPluginStatus() === "unavailable") {
+    setRTLTextPlugin(
       "https://unpkg.com/@mapbox/mapbox-gl-rtl-text@0.2.3/mapbox-gl-rtl-text.min.js",
       true,
     );
@@ -20,10 +25,10 @@ export const setupMaplibreMap = (
 
   if (pmtiles) {
     let protocol = new Protocol();
-    maplibregl.addProtocol("pmtiles", protocol.tile);
+    addProtocol("pmtiles", protocol.tile);
   }
 
-  const map = new maplibregl.Map({
+  const map = new Map({
     container: containerRef.current!,
     style: MAP_STYLES[BASEMAPS.OSM],
     center: [0, 0],

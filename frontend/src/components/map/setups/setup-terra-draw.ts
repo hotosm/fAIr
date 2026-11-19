@@ -1,4 +1,4 @@
-import maplibregl from "maplibre-gl";
+import type { Map } from "maplibre-gl";
 import {
   TerraDraw,
   ValidateNotSelfIntersecting,
@@ -47,7 +47,7 @@ const allCoordsWithinBounds = (coords: number[][], bounds: BBOX): boolean => {
 };
 
 export const setupTerraDraw = (
-  map: maplibregl.Map,
+  map: Map,
   styleVariant: TerraDrawStyleVariant = "red",
   /** Optional imagery bounding box – when provided, polygon vertices outside
    *  this box are rejected live as the user draws. */

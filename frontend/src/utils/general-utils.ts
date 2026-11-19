@@ -44,7 +44,10 @@ export const showErrorToast = (
     error?.response?.data &&
     typeof error?.response?.data !== "object"
   ) {
-    message = error?.response?.data;
+    // A gateway or proxy error page is markup, not a message for the user.
+    if (!String(error.response.data).trimStart().startsWith("<")) {
+      message = error.response.data;
+    }
   } else if (
     error?.response?.data?.error?.details &&
     Array.isArray(error.response.data.error.details) &&
@@ -90,9 +93,9 @@ export const showSuccessToast = (message: string = "") => {
  *
  * @param {string} message - Optional. The message that will be displayed as the toast notification.
  */
-export const showWarningToast = (message: string = "") => {
+export const showWarningToast = (message: string = "", duration?: number) => {
   const toast = useToastNotification();
-  toast(message, "warning");
+  toast(message, "warning", duration);
 };
 
 /**

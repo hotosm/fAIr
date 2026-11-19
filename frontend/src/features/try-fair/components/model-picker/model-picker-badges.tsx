@@ -4,7 +4,10 @@ import { RoadsIcon } from "@/components/ui/icons/roads-icon";
 import { SolarPanelIcon } from "@/components/ui/icons/solar-panel-icon";
 import { SwimmingPoolIcon } from "@/components/ui/icons/swimming-pool-icon";
 import { TreesIcon } from "@/components/ui/icons/trees-icon";
-import { flagEmoji } from "@/features/try-fair/utils/common";
+import {
+  featureDisplayName,
+  flagEmoji,
+} from "@/features/try-fair/utils/common";
 import { IconProps } from "@/types";
 
 import { cn } from "@/utils";
@@ -53,6 +56,28 @@ export const ExperimentalModelBadge = ({
   );
 };
 
+export const PrivateModelBadge = ({
+  visibility,
+  className,
+}: {
+  visibility: string | undefined;
+  className?: string;
+}) => {
+  if (visibility !== "private") return null;
+
+  return (
+    <span
+      title="Only its owner and fAIr admins can see this model."
+      className={cn(
+        "inline-flex shrink-0 items-center rounded border border-grey px-2 py-0.5 font-semibold leading-tight text-grey",
+        className,
+      )}
+    >
+      Private
+    </span>
+  );
+};
+
 export const SelectedModelBadge = ({ selected }: { selected: boolean }) => {
   if (!selected) return null;
 
@@ -87,11 +112,10 @@ export const RadioDot = ({
 
 export const FeatureBadge = ({ label }: { label: string | undefined }) => {
   const Icon = getFeatureIcon(label ?? "");
-  const featureLabel = (label ?? "").replace(/[-_]/g, " ");
   return (
-    <span className="inline-flex gap-2 items-center px-2 py-0.5 capitalize rounded bg-grey text-white text-xs font-medium">
+    <span className="inline-flex gap-2 items-center px-2 py-0.5 rounded bg-grey text-white text-xs font-medium">
       <Icon />
-      {featureLabel}
+      {featureDisplayName(label ?? "")}
     </span>
   );
 };
