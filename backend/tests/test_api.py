@@ -17,7 +17,7 @@ from notifications.models import Banner
 from predictions.models import Prediction
 from predictions.post_run import PredictionOutputError
 from predictions.tasks import sync_prediction_status
-from shared.enums import FeedbackAction
+from shared.enums import FeedbackAction, PipelineRunStatus
 from stars.models import Star
 from trainings.models import TrainingRunRef
 from trainings.tasks import sync_training_status
@@ -148,18 +148,47 @@ def test_openapi_schema_is_served(anon_client):
     assert b"openapi" in response.content
 
 
-def test_kpi_stats_returns_counts(anon_client, local_model, user):
+def test_kpi_stats_returns_counts(anon_client, local_model, published_dataset, user):
     LocalModel.objects.create(
         name="archived", base_model=local_model.base_model, status=LocalModel.Status.ARCHIVED, user=user
     )
     geom = Polygon(((0, 0), (0, 1), (1, 1), (1, 0), (0, 0)), srid=4326)
     Feedback.objects.create(stac_id="s1", action=FeedbackAction.ACCEPT, geom=geom, user=user)
     Feedback.objects.create(stac_id="s2", action=FeedbackAction.REJECT, geom=geom, user=user)
+    BaseModel.objects.create(
+        name="active-buildings",
+        stac_item_id="active-buildings",
+        category_id="buildings",
+        user=user,
+        status=BaseModel.Status.ACTIVE,
+        prediction_runs=5,
+    )
+    LocalModel.objects.filter(pk=local_model.pk).update(prediction_runs=2)
+    Dataset.objects.create(
+        stac_id="ds-draft",
+        title="Draft",
+        imagery={"image": "https://tiles.example/{z}/{x}/{y}.png"},
+        primary_input="image",
+        user=user,
+    )
+    for status in (PipelineRunStatus.COMPLETED, PipelineRunStatus.FAILED):
+        Prediction.objects.create(
+            local_model_stac_id="my-finetuned-v1",
+            imagery={"image": "https://tile.example.com/{z}/{x}/{y}.png"},
+            primary_input="image",
+            geometry={},
+            zoom=19,
+            user=user,
+            status=status,
+        )
 
     response = anon_client.get("/api/v1/kpi/stats/")
 
     assert response.data == {
+        "total_base_models": 1,
         "total_models_published": 1,
+        "total_training_datasets": 1,
+        "total_model_runs": 9,
         "total_registered_users": 1,
         "total_feedback_labels": 2,
         "total_accepted_predictions": 1,

@@ -2,7 +2,7 @@ import { cleanup, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it } from "vitest";
 import { Footer } from "@/components/layouts/footer/footer";
-import { APPLICATION_ROUTES } from "@/constants";
+import { APPLICATION_ROUTES, SHARED_CONTENT } from "@/constants";
 
 const renderFooter = () =>
   render(
@@ -25,12 +25,25 @@ describe("Footer", () => {
     ["Documentation", "https://hotosm.github.io/fAIr/"],
     ["fAIr models", "https://github.com/hotosm/fAIr-models"],
     ["Patrick J. McGovern Foundation", "https://www.mcgovern.org/"],
-    ["Rauch Foundation", "https://rauchfoundation.org/"],
+    [
+      "Powered by AWS Cloud Computing",
+      "https://aws.amazon.com/what-is-cloud-computing",
+    ],
   ])("opens %s in a new tab", (name, href) => {
     renderFooter();
     const link = screen.getByRole("link", { name });
     expect(link).toHaveAttribute("href", href);
     expect(link).toHaveAttribute("target", "_blank");
+  });
+
+  it("shows the AWS badge apart from the funders", () => {
+    renderFooter();
+    const funders = screen.getByText(
+      SHARED_CONTENT.footer.supportedBy,
+    ).parentElement;
+    expect(funders).not.toContainElement(
+      screen.getByRole("link", { name: "Powered by AWS Cloud Computing" }),
+    );
   });
 
   it("keeps in-app pages inside the app", () => {

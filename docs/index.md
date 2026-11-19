@@ -1,11 +1,11 @@
 ---
 icon: lucide/house
-description: fAIr is an open, AI-assisted mapping service from the Humanitarian OpenStreetMap Team.
+description: fAIr is a shared collection of open geo-AI models, started by the Humanitarian OpenStreetMap Team and built with community.
 ---
 
 # fAIr
 
-fAIr is an open, AI-assisted mapping service for humanitarian and development work, from the Humanitarian OpenStreetMap Team (HOT). It is a shared collection of geo-AI models: a mapper picks a model, runs it over their own area to detect features such as buildings or trees, reviews the results, and can adapt the model to local conditions. A mapper stays in control at each step.
+fAIr is a shared collection of open geo-AI models for humanitarian and development work, started by the Humanitarian OpenStreetMap Team (HOT) and built with community. A mapper picks a model, runs it over their own area to detect features such as buildings or trees, and checks the results. An advanced user can fine-tune the model for local conditions.
 
 The software is free and open source. Predictions are suggestions for a mapper to review. fAIr offers its outputs as open data layers, and bringing AI-generated features into OpenStreetMap is outside its aim; see [fAIr and OpenStreetMap](overview/what-is-fair.md#fair-and-openstreetmap).
 
@@ -15,7 +15,7 @@ The software is free and open source. Predictions are suggestions for a mapper t
 
 ## Where fAIr is today
 
-fAIr is an open collection of models whose predictions are checked by people, in fAIr and through [MapSwipe](overview/validation.md). Current figures are on [Milestones](progress/milestones.md), and the direction ahead on [Vision](overview/where-fair-is-going.md).
+Current figures are on [Milestones](progress/milestones.md), and the direction ahead on [Vision](overview/where-fair-is-going.md).
 
 ## Who it is for
 

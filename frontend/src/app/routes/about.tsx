@@ -1,5 +1,5 @@
 import { ABOUT_PAGE_CONTENT, FAIR_DOCS_URL } from "@/constants";
-import { fAIrWorkflowIllustration } from "@/assets/images";
+import { fAIrUserBasesIllustration } from "@/assets/images";
 import { Head } from "@/components/seo";
 import { Header } from "@/components/shared";
 import { HOTTeamLandscape } from "@/assets/images";
@@ -35,7 +35,9 @@ export const AboutPage = () => {
           <p className="text-body-2base md:text-body-2 text-dark">
             {ABOUT_PAGE_CONTENT.bodyContent.firstParagraph}
           </p>
-          <p>{ABOUT_PAGE_CONTENT.bodyContent.secondParagraph}</p>
+          <p className="text-body-2base md:text-body-2 text-dark">
+            {ABOUT_PAGE_CONTENT.bodyContent.secondParagraph}
+          </p>
           <Link
             href={FAIR_DOCS_URL}
             title={ABOUT_PAGE_CONTENT.documentationLink}
@@ -46,12 +48,12 @@ export const AboutPage = () => {
             {ABOUT_PAGE_CONTENT.documentationLink}
           </Link>
         </div>
-        <div className="order-1 lg:order-2 w-full max-w-[640px] min-w-0 justify-self-center">
+        <div className="hidden md:block order-1 lg:order-2 w-full max-w-[640px] min-w-0 justify-self-center">
           <Image
-            src={fAIrWorkflowIllustration}
-            alt="fAIr Workflow Illustration"
-            width="1402"
-            height="1122"
+            src={fAIrUserBasesIllustration}
+            alt="Who uses fAIr: a developer publishes a model to the collection, a mapper picks one and runs it, and an advanced user adapts it to their area and republishes the local model."
+            width="993"
+            height="720"
             className="w-full h-auto"
           />
         </div>

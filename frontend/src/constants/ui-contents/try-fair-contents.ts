@@ -1,7 +1,7 @@
 import { TTryFairPageContent } from "@/types";
 
 export const TRY_FAIR_PAGE_CONTENT: TTryFairPageContent = {
-  pageTitle: "Try fAIr - Your AI Mapping Partner",
+  pageTitle: "Try fAIr",
   header: {
     logoAlt: "fAIr logo",
     startMappingButton: "Start Mapping",

@@ -1,7 +1,7 @@
 import {
   CreativeCommonsBadge,
   PJMFLogo,
-  RauchFoundationLogo,
+  PoweredByAWSLogo,
 } from "@/assets/images";
 import { Image } from "@/components/ui/image";
 import { Link } from "@/components/ui/link";
@@ -49,13 +49,7 @@ const funders = [
     name: "Patrick J. McGovern Foundation",
     url: "https://www.mcgovern.org/",
     logo: PJMFLogo,
-    logoClassName: "h-12",
-  },
-  {
-    name: "Rauch Foundation",
-    url: "https://rauchfoundation.org/",
-    logo: RauchFoundationLogo,
-    logoClassName: "h-9",
+    logoClassName: "h-16",
   },
 ];
 
@@ -82,7 +76,7 @@ const FooterLinkList = ({ links }: { links: TFooterLinks }) => (
 export const Footer = () => {
   return (
     <footer>
-      <div className="grid grid-cols-12 grid-rows-2 gap-y-[67px] app-padding bg-dark text-white py-[77px]">
+      <div className="grid grid-cols-12 gap-y-12 app-padding bg-dark text-white py-12">
         <div className="col-span-12 grid grid-cols-8 lg:grid-cols-12  gap-x-[40px] gap-y-[40px]">
           <div className="col-span-8 lg:col-span-4">
             <p className="text-body-1">{SHARED_CONTENT.footer.title}</p>
@@ -116,7 +110,7 @@ export const Footer = () => {
                       href={funder.url}
                       title={funder.name}
                       blank
-                      className="flex h-14 min-w-[112px] items-center justify-center rounded-md bg-white px-2"
+                      className="flex h-20 min-w-[112px] items-center justify-center rounded-md bg-white px-2"
                     >
                       <Image
                         src={funder.logo}
@@ -128,6 +122,18 @@ export const Footer = () => {
                 ))}
               </ul>
             </div>
+            <Link
+              href="https://aws.amazon.com/what-is-cloud-computing"
+              title="Powered by AWS Cloud Computing"
+              blank
+              className="!mt-8"
+            >
+              <Image
+                src={PoweredByAWSLogo}
+                alt="Powered by AWS Cloud Computing"
+                className="h-12 w-auto"
+              />
+            </Link>
             <ul className="flex space-x-[11px]">
               {socials.map((media, id) => (
                 <li

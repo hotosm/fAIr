@@ -25,7 +25,7 @@ A fAIr model outlined buildings in Freetown, Sierra Leone, on drone imagery from
 
 ![Three fAIr outlines from the Freetown project and the answers of the four volunteers who saw each. Accepted, all four said Yes: the outline traces a single roof. Rejected, all four said No: the outline joins two buildings into one shape. No clear majority, two Yes and two No: the outline traces a building without a roof.](../assets/mapswipe/validate-results-freetown.jpg)
 
-The rejected outlines show what the model still gets wrong, and the accepted ones can be used. To explore the results on a map, open the project in the [MapSwipe Results Analyzer](https://hotosm.github.io/mapswipe-results-analyzer/?p=01KRX0MG38NRVWM0C03E9H9X4A&t=50): choose the share of Yes answers an outline needs, and download the accepted outlines as GeoJSON. The project itself is on [MapSwipe](https://mapswipe.org/en/projects/01KRX0MG38NRVWM0C03E9H9X4A/).
+The rejected outlines show what the model still gets wrong, and the accepted ones can be used, including as open training data for the next model. To explore the results on a map, open the project in the [MapSwipe Results Analyzer](https://hotosm.github.io/mapswipe-results-analyzer/?p=01KRX0MG38NRVWM0C03E9H9X4A&t=50): choose the share of Yes answers an outline needs, and download the accepted outlines as GeoJSON. The project itself is on [MapSwipe](https://mapswipe.org/en/projects/01KRX0MG38NRVWM0C03E9H9X4A/).
 
 ## Example: damage labels after the Nepal floods
 

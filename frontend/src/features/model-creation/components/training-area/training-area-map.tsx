@@ -21,6 +21,7 @@ import {
   calculateGeoJSONArea,
   featureIsWithinBounds,
   formatAreaInAppropriateUnit,
+  showErrorToast,
   showSuccessToast,
   showWarningToast,
   snapGeoJSONPolygonToClosestTile,
@@ -159,6 +160,7 @@ const TrainingAreaMap = ({
           {
             onSuccess: () =>
               showSuccessToast("Training area created successfully"),
+            onError: (error) => showErrorToast(error),
           },
         );
         terraDraw.clear();

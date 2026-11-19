@@ -12,7 +12,7 @@ Where fAIr came from, what has shipped, and what is being worked on. For the big
 ```mermaid
 %%{init: {'theme':'base','themeVariables':{'cScale0':'#eceef2','cScale1':'#eceef2','cScale2':'#eceef2','cScale3':'#eceef2','cScaleLabel0':'#1f2733','cScaleLabel1':'#1f2733','cScaleLabel2':'#1f2733','cScaleLabel3':'#1f2733','lineColor':'#9aa0aa','fontFamily':'system-ui, sans-serif'}}}%%
 timeline
-    2023-2025 : Shipped the v2 platform, training and offline prediction
+    2023-2025 : Shipped fAIr v2, training and offline prediction
     2026 : fAIrSwipe : v3 with the STAC model catalog, mapper view and larger-area predictions : Model feedback and local versions
     2027 : Street-level imagery : In-browser predictions : Infrastructure scale-up
 ```

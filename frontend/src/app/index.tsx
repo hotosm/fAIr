@@ -1,6 +1,6 @@
 import { AppRouter } from "@/app/router";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { showErrorToast } from "@/utils";
+import { shouldToastBackgroundQueryError, showErrorToast } from "@/utils";
 import {
   QueryCache,
   QueryClient,
@@ -16,7 +16,9 @@ export const App = () => {
       onError: (error, query) => {
         // only show error toasts if we already have data in the cache
         // which indicates a failed background update
-        if (query.state.data !== undefined) {
+        if (
+          shouldToastBackgroundQueryError(error, query.state.data !== undefined)
+        ) {
           showErrorToast(error);
         }
       },

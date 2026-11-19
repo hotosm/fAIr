@@ -343,6 +343,8 @@ export type TSharedContent = {
     supportedBy: string;
     madeWithLove: {
       firstSegment: string;
+      heartLabel: string;
+      connector: string;
       secondSegment: string;
       thirdSegment: string;
       fourthSegment: string;
@@ -355,10 +357,11 @@ export type TSharedContent = {
     ctaSecondaryButton: string;
     jumbotronImageAlt: string;
     kpi: {
-      publishedAIModels: string;
-      totalUsers: string;
-      humanFeedback: string;
-      acceptedPrediction: string;
+      baseModels: string;
+      localModels: string;
+      trainingDatasets: string;
+      areasPredicted: string;
+      registeredUsers: string;
     };
     aboutTitle: string;
     aboutContent: string;
@@ -380,11 +383,16 @@ export type TSharedContent = {
         title: string;
         description: string;
       };
+      stepFive: {
+        title: string;
+        description: string;
+      };
     };
     coreFeatures: {
       featureOne: string;
       featureTwo: string;
       featureThree: string;
+      featureFour: string;
     };
     coreValues: {
       sectionTitle: {
@@ -498,8 +506,6 @@ export type TStartMappingPageContent = {
       options: {
         allFeatures: (prefix: string) => string;
         acceptedFeatures: (prefix: string) => string;
-        openAllFeaturesInJOSM: string;
-        openAcceptedFeaturesInJOSM: string;
       };
     };
     predictionInProgress: string;

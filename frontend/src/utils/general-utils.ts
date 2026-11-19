@@ -3,11 +3,23 @@ import {
   FAIR_MODELS_BASE_PATH,
   PREDICTION_API_FILE_EXTENSIONS,
 } from "@/config";
+import { isAxiosError, isCancel } from "axios";
 import { BASE_MODELS } from "@/enums";
 import { useToastNotification } from "@/hooks/use-toast-notification";
 import { TModelDetails } from "@/types";
 import { extractYouTubeVideoId } from "./regex-utils";
 import { UpdateCoverImage } from "@/assets/images";
+
+export const NETWORK_ERROR_MESSAGE =
+  "fAIr can't be reached right now. Check your connection and try again.";
+
+export const isNetworkError = (error: unknown): boolean =>
+  isAxiosError(error) && !error.response && !isCancel(error);
+
+export const shouldToastBackgroundQueryError = (
+  error: unknown,
+  hasCachedData: boolean,
+): boolean => hasCachedData && !isNetworkError(error);
 
 const firstFieldError = (details: unknown): string | undefined => {
   if (!details || typeof details !== "object" || Array.isArray(details))
@@ -40,6 +52,8 @@ export const showErrorToast = (
   const fieldError = firstFieldError(error?.response?.data?.error?.details);
   if (customMessage) {
     message = customMessage;
+  } else if (isNetworkError(error)) {
+    message = NETWORK_ERROR_MESSAGE;
   } else if (
     error?.response?.data &&
     typeof error?.response?.data !== "object"

@@ -8,7 +8,6 @@ import {
 } from "@/config";
 import { calculateGeoJSONArea } from "./geometry-utils";
 import { Feature, FeatureCollection } from "geojson";
-import { geojsonToOsmPolygons } from "./geojson-to-osm";
 import { showErrorToast, showSuccessToast } from "../general-utils";
 import { TOAST_NOTIFICATIONS } from "@/constants";
 import { API_ENDPOINTS } from "@/services";
@@ -103,7 +102,6 @@ export const openInJOSM = async (
   oamTileName: string,
   tmsURL: string,
   features?: Feature[],
-  toXML = false,
 ) => {
   try {
     const imgURL = new URL(`${JOSM_REMOTE_URL}imagery`);
@@ -133,23 +131,6 @@ export const openInJOSM = async (
       showSuccessToast(TOAST_NOTIFICATIONS.josmOpenSuccess);
     } catch (error) {
       showErrorToast(undefined, TOAST_NOTIFICATIONS.josmBBOXZoomFailed);
-    }
-    // XML Conversion
-    if (toXML) {
-      try {
-        const _data = geojsonToOsmPolygons(createFeatureCollection(features));
-        const loadData = new URL(`${JOSM_REMOTE_URL}load_data`);
-        loadData.searchParams.set("new_layer", "true");
-        loadData.searchParams.set("data", `${_data}`);
-        const response = await fetch(loadData);
-        // No need to show success toast since there'll be a success toast later on
-        // This is to avoid multiple toasts showing up at once.
-        if (!response.ok) {
-          showErrorToast(undefined, TOAST_NOTIFICATIONS.errorLoadingData);
-        }
-      } catch (error) {
-        showErrorToast(error);
-      }
     }
   } catch (error) {
     showErrorToast(undefined, TOAST_NOTIFICATIONS.josmOpenFailed);

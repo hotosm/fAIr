@@ -7,7 +7,7 @@ description: Common questions about fAIr, imagery, validation, models, and where
 
 ### So what is fAIr, really?
 
-fAIr runs AI models over aerial or drone imagery of your area and returns the features they find, such as buildings or trees, as a GeoJSON layer you can open in QGIS. You choose the model, and you stay in control at each step.
+fAIr is a shared collection of open geo-AI models. A model runs over aerial or drone imagery of your area and returns the features it finds, such as buildings or trees, as a GeoJSON layer you can open in QGIS.
 
 ### Is it AI on its own?
 
@@ -27,11 +27,15 @@ No. Begin as a mapper using a model someone already made. When you want it tuned
 
 ### Can I add my own model?
 
-Yes. Developers write model code and contribute it to fAIr, where it becomes available to every kind of user. See [Contributing a model](models.md#contributing-a-model).
+Yes. Developers contribute model code through a pull request to fAIr-models; after review, the model is available to every kind of user. See [Contributing a model](models.md#contributing-a-model).
 
 ### Where does the finished data go?
 
 You can download the outputs as points, lines, or polygons. HOT publishes validated outputs as open data layers on the [Humanitarian Data Exchange](https://data.humdata.org/) and [Hugging Face](https://huggingface.co/hotosm); see [Datasets](../datasets/index.md).
+
+### How is fAIr used responsibly?
+
+People check results before they are used, each model card reports its evaluation metrics, and each model states its license. See [Responsible use](what-is-fair.md#responsible-use).
 
 ### Does fAIr add its data to OpenStreetMap?
 

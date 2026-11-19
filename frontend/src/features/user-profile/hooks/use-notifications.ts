@@ -9,6 +9,7 @@ import {
 import { authService, MutationConfig } from "@/services";
 import { useAuth } from "@/app/providers/auth-provider";
 import { PaginatedNotifications } from "@/types";
+import { showErrorToast } from "@/utils";
 
 type UseNotificationsOptions = {
   enabled: boolean;
@@ -51,6 +52,7 @@ export const useUpdateNotification = ({
 
   return useMutation({
     mutationFn: (args: TUpdateNotificationArgs) => updateNotification(args),
+    onError: (error) => showErrorToast(error),
     onSuccess: async (...args) => {
       refetch();
       // Update user to reflect the new notification status
@@ -76,6 +78,7 @@ export const useUpdateNotifications = ({
   const { setUser } = useAuth();
   return useMutation({
     mutationFn: () => updateNotifications(),
+    onError: (error) => showErrorToast(error),
     onSuccess: async (...args) => {
       // Update user to reflect the new notification status
       setUser(await authService.getUser());

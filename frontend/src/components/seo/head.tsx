@@ -10,7 +10,7 @@ const Head = ({ title, description }: HeadProps = {}) => {
 
   useEffect(() => {
     const fullTitle = title
-      ? `${title} | fAIr - Humanitarian OpenStreetMap Team (HOT)`
+      ? `${title} | fAIr, Humanitarian OpenStreetMap Team`
       : defaultTitle.current;
     document.title = fullTitle;
 
