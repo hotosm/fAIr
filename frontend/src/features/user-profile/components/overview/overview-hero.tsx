@@ -6,6 +6,7 @@ import { useGetUserStates } from "@/features/user-profile/api/user-state";
 import { MapComponent } from "@/components/map/map";
 import { useMapInstance } from "@/hooks/use-map-instance";
 import { useEffect } from "react";
+import useScreenSize from "@/hooks/use-screen-size";
 import { RecentMappingCard } from "@/features/user-profile/components/overview/recent-mapping-card";
 
 const EmptyHeroMap = () => {
@@ -66,6 +67,7 @@ const RecentMappingSkeleton = () => (
 export const OverviewHero = () => {
   const { data, isPending } = useGetUserStates();
   const latestActivity = data?.results[0];
+  const { isSmallViewport } = useScreenSize();
 
   if (isPending) {
     return <RecentMappingSkeleton />;
@@ -76,9 +78,11 @@ export const OverviewHero = () => {
   }
 
   return (
-    // Phones: square corners and 20px padding (the section is full width).
-    <section className="grid min-w-0 grid-cols-1 sm:grid-cols-2 contour-bg gap-5 font-archivo rounded-none bg-dark px-5 py-6 text-white sm:gap-4 sm:rounded-md sm:p-4">
-      <div className="flex min-w-0 flex-col gap-y-4 sm:gap-y-6 sm:p-4">
+    // Same box and button as the Recent Mapping card, so the hero doesn't
+    // change size once there's a mapping. Phones: square corners, full width.
+    <section className="contour-bg grid min-w-0 grid-cols-1 gap-5 overflow-hidden rounded-none bg-dark px-5 py-6 font-archivo text-white sm:min-h-[410px] sm:grid-cols-2 sm:gap-4 sm:rounded-xl sm:p-4">
+      {/* Text centred top to bottom beside the map. */}
+      <div className="flex min-w-0 flex-col gap-y-4 sm:justify-center sm:gap-y-6 sm:p-4">
         <h1 className="font-semibold text-2xl">
           {SHARED_CONTENT.homepage.jumbotronTitle}
         </h1>
@@ -88,16 +92,22 @@ export const OverviewHero = () => {
         <Link
           href={APPLICATION_ROUTES.TRY_FAIR}
           nativeAnchor={false}
-          title=""
-          className="w-fit"
+          title="Start Mapping"
+          className="w-full sm:w-40"
         >
-          <Button fontSize={"14px"} className="w-fit">
+          <Button
+            rounded
+            capitalize={false}
+            size="medium"
+            fontSize={isSmallViewport ? "14px" : "12px"}
+            className="w-full"
+          >
             Start Mapping
           </Button>
         </Link>
       </div>
 
-      <div className="h-48 min-w-0 rounded-md w-full overflow-hidden bg-white/5 sm:h-auto sm:min-h-64">
+      <div className="h-48 min-w-0 w-full overflow-hidden rounded bg-white/5 sm:h-auto sm:min-h-0 sm:rounded-xl">
         <EmptyHeroMap />
       </div>
     </section>

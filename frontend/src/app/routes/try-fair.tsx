@@ -53,6 +53,7 @@ import { reverseGeocodeCountry } from "@/features/try-fair/api/hot-imagery";
 import { useRecentImageries } from "@/features/try-fair/hooks/use-recent-imageries";
 import type { RecentImageryEntry } from "@/features/try-fair/hooks/use-recent-imageries";
 import { getPredictionClassStyle } from "@/features/try-fair/utils/prediction-classes";
+import { isExperimentalCategory } from "@/features/try-fair/components/model-picker/model-picker-badges";
 import { useAuth } from "@/app/providers/auth-provider";
 import { useParams } from "react-router-dom";
 import { MappingProjectAutosave } from "@/features/try-fair/components/mapping-project-autosave";
@@ -782,9 +783,15 @@ export const TryFairPage = ({
     });
   };
 
-  // Feedback (Results card, per-feature marking, feedback modals) is an
-  // advanced-mode feature, which also means the user is signed in.
-  const isFeedbackEnabled = isAuthenticated && mappingMode === "advanced";
+  // Feedback (Results card, per-feature marking, feedback modals) is for
+  // signed-in users, except on experimental models, which keep the legend.
+  const isExperimentalModel = isExperimentalCategory(
+    modelForMapping?.properties["fair:category"],
+  );
+  const isFeedbackEnabled = isAuthenticated && !isExperimentalModel;
+
+  // Saved projects keep only the runs small enough to store, and an active
+  // run only if it's one of those.
   const savedHistory = savableHistory(
     predictionHistory,
     SAVED_PREDICTION_MAX_LENGTH,
@@ -1041,7 +1048,7 @@ export const TryFairPage = ({
               predictionClassStyle={predictionClassStyle}
               isFeedbackOpen={featureFeedback.selectedId !== null}
               canFitToBounds={true}
-              showLegendOnPhones={!isFeedbackEnabled}
+              showLegend={!isFeedbackEnabled}
               onHelp={openGuidedTour}
             />
             <FeatureFeedbackLayer

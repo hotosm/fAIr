@@ -64,4 +64,21 @@ describe("MobileResultsPanel", () => {
       screen.queryByRole("button", { name: /Provide Feedback/ }),
     ).not.toBeInTheDocument();
   });
+  it("hides the valid and invalid rows until something is marked", () => {
+    const { rerender } = render(
+      <ResultsSummary detectedCount={3} onProvideFeedback={vi.fn()} />,
+    );
+    expect(screen.getByText("3 features detected")).toBeInTheDocument();
+    expect(screen.queryByText(/marked as/)).not.toBeInTheDocument();
+
+    rerender(
+      <ResultsSummary
+        detectedCount={3}
+        validCount={1}
+        onProvideFeedback={vi.fn()}
+      />,
+    );
+    expect(screen.getByText("1 feature marked as valid")).toBeInTheDocument();
+    expect(screen.queryByText(/marked as invalid/)).not.toBeInTheDocument();
+  });
 });
