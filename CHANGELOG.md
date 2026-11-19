@@ -1,3 +1,11 @@
+## v3.1.4 (2026-11-19)
+
+### Fix
+
+- **funders**: add funder logo and public private
+- **logo**: migrate favicon to latest fAIr logo
+- **chart**: bumps the chart version to 3.1.3
+
 ## v3.1.3 (2026-11-18)
 
 ### Fix
