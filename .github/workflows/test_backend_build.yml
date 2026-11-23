@@ -41,10 +41,11 @@ jobs:
           enable-cache: true
           cache-dependency-glob: "backend/uv.lock"
 
-      - name: Install gdal
+      - name: Install system packages (gdal, tippecanoe)
         run: |
           sudo apt-get update
-          sudo apt-get -y install gdal-bin libgdal-dev python3-gdal
+          sudo apt-get -y install gdal-bin libgdal-dev python3-gdal tippecanoe
+          command -v tippecanoe
           sudo apt-get -y autoremove
           sudo apt-get clean
 

@@ -30,7 +30,7 @@ _SYNC_INTERVAL_S = settings.PREDICTION_SYNC_INTERVAL
 @task()
 def submit_prediction(*, prediction_id: int) -> None:
     prediction = Prediction.objects.get(id=prediction_id)
-    chips_by_input = _materialize_prediction_input(prediction)
+    chips_by_input = materialize_prediction_input(prediction)
 
     client = for_user(str(prediction.user.osm_id))
     zenml_run_id = client.submit_predict(
@@ -147,7 +147,7 @@ def delete_input_tiles(prediction: Prediction) -> None:
         remove_dir(StoragePaths.prediction_input_dir_uri(prediction.id, name))
 
 
-def _materialize_prediction_input(prediction: Prediction) -> dict[str, str]:
+def materialize_prediction_input(prediction: Prediction) -> dict[str, str]:
     """Download each input's tiles for `prediction` and stage the tiles every input has on S3;
     returns the chips prefix of each input."""
     from geomltoolkits.geometry.tiles import get_tiles

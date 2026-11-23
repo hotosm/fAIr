@@ -40,3 +40,27 @@ The running backend's OpenAPI schema covers every endpoint, including base model
 | POST   | `/predictions/runs/{run_id}/cancel/`               | Stop a running inference pipeline                                                                                                                                                                                                                                                                                                                                                                                                 |
 | POST   | `/predictions/{id}/{publish,unpublish}/`           | Toggle prediction `visibility` (anonymous read of result)                                                                                                                                                                                                                                                                                                                                                                         |
 | POST   | `/prediction-runs/`                                | Count one try-now run of the local or base model with that `stac_id`. Returns 204; 400 without `stac_id`; 404 when no model the caller can see has that id. Open to anonymous callers; throttled per user or IP by `MODEL_RUN_RATE_LIMIT`, in place of the user and anonymous limits. Local and base models return the count as `prediction_runs` (`run_count` on local models counts training runs) |
+
+## Validation endpoints
+
+Users answer yes or no for each tile of a built dataset or a prediction with `results_ready`, signed in or as a guest. Guests' reads are throttled per IP by `VALIDATION_READ_NETWORK_RATE_LIMIT`, in place of `ANON_RATE_LIMIT`; signed-in reads fall under `USER_RATE_LIMIT`.
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| GET | `/validation/projects/` | Published and finished projects, plus the caller's drafts (all drafts for admins). Filter by `type`, `status`, `source_id` |
+| GET | `/validation/projects/{id}/` | One project. Drafts are visible only to the owner and admins. A GET on a draft that has been `building` for longer than `VALIDATION_BUILD_TIMEOUT` seconds queues its build again |
+| POST | `/validation/projects/` | Create a draft. The source is a built dataset, or a prediction with `results_ready` and at least one feature, with one imagery input, owned by the caller (admins may use any source). Body: `source_id` (a dataset's STAC id, or a prediction's numeric `id`), `type` (`training` or `prediction`), `title`, `description`, `answers_needed` (1 to 9, default 1). Returns 202 and builds `tiles.bin`, `imagery.pmtiles` and `labels.pmtiles` in the background; `build_status` moves from `building` to `built`, or to `failed` with the reason in `build_error` |
+| PATCH | `/validation/projects/{id}/` | Owner or admin. Edit `title`, `description` or `answers_needed`, or move `status` from `draft` to `published` (400 until `build_status` is `built` and the dataset or prediction is public) or from `published` to `finished`; 400 once finished |
+| POST | `/validation/projects/{id}/build/` | Owner or admin. Build the files again. Returns 202 with `build_status` set to `building`; 400 unless the project is a draft |
+| POST | `/validation/projects/{id}/answers/` | `answers`, a list of 1 to 50 `{"tile_id", "valid"}` objects (`tile_id` is the PMTiles tile id), and `guest_id` (a UUID) when signed out; 400 without it. Returns 204; a respondent's new answer for a tile replaces their earlier one. 404 on a draft, 410 once finished. Answers for tiles outside `tiles.bin` are stored but left out of `done.bin` and `results.parquet`. Throttled per account by `VALIDATION_ANSWER_RATE_LIMIT` and for guests per IP by `VALIDATION_ANSWER_NETWORK_RATE_LIMIT`; `USER_RATE_LIMIT` and `ANON_RATE_LIMIT` do not apply |
+| GET | `/validation/projects/{id}/files/{name}/` | Redirect to a presigned URL for `tiles.bin`, `imagery.pmtiles`, `labels.pmtiles`, `done.bin` or `results.parquet`. 404 for any other name; for `done.bin` and `results.parquet` until the first refresh writes them; and for anyone but the owner and admins while the dataset or prediction is private. The other three files exist once `build_status` is `built` |
+
+| File | Content |
+| --- | --- |
+| `tiles.bin` | The project's PMTiles tile ids in ascending order, each an 8-byte little-endian unsigned integer |
+| `imagery.pmtiles` | WebP tiles at one zoom. Metadata holds `zoom` and the tile count `tiles` |
+| `labels.pmtiles` | Labels or predicted features as vector tiles at the imagery zoom, layer `labels` |
+| `done.bin` | Bit `i` (least significant bit first) is the `i`-th id in `tiles.bin`, set once that tile has at least `answers_needed` answers |
+| `results.parquet` | One row per answered tile: `tile_id`, `z`, `x`, `y`, `yes`, `no`, `valid` (the majority; null below `answers_needed` answers or on a tie) and `geometry`, the tile polygon in EPSG:4326 |
+
+A worker writes `done.bin` and `results.parquet` when a project is published, every `VALIDATION_REFRESH_INTERVAL` seconds while it stays published, and once more when it is finished.

@@ -95,6 +95,9 @@ DRF throttle scopes use `<count>/<period>`, e.g. `1000/h`. Use the Django pool o
 | `TRAINING_RATE_LIMIT`   | no       | `10/h`   | Training submission throttle.                          |
 | `PREDICTION_RATE_LIMIT` | no       | `50/h`   | Prediction submission throttle.                        |
 | `MODEL_RUN_RATE_LIMIT`  | no       | `600/h`  | Try-now run count throttle, per user or IP.            |
+| `VALIDATION_ANSWER_RATE_LIMIT` | no | `1200/h` | Validation answer throttle per signed-in user. |
+| `VALIDATION_ANSWER_NETWORK_RATE_LIMIT` | no | `12000/h` | Validation answer throttle per IP for guests. |
+| `VALIDATION_READ_NETWORK_RATE_LIMIT` | no | `6000/h` | Throttle per IP for guests reading validation projects and their files. |
 | `DB_POOL_MIN_SIZE`      | no       | `4`      | Django 5.1+ native PostgreSQL connection pool minimum. |
 | `DB_POOL_MAX_SIZE`      | no       | `20`     | Pool maximum.                                          |
 | `DB_POOL_TIMEOUT`       | no       | `30`     | Seconds to wait for a free connection.                 |
@@ -147,6 +150,8 @@ Only checked when `DEBUG=false`.
 | `STAC_BULK_FETCH_WORKERS`       | no       | `16`    | Thread pool size for parallel STAC item fetches when `?expand=stac` is used on list endpoints.                                                 |
 | `PMTILES_MIN_ZOOM`              | no       | `10`    | Min zoom passed to `tippecanoe` for PMTiles generation.                                                                                        |
 | `PMTILES_MAX_ZOOM`              | no       | `20`    | Max zoom passed to `tippecanoe` for PMTiles generation.                                                                                        |
+| `VALIDATION_REFRESH_INTERVAL` | no | `300` | Seconds between rewrites of a published validation project's `done.bin` and `results.parquet`. |
+| `VALIDATION_BUILD_TIMEOUT` | no | `3600` | Seconds a validation build may stay `building` before the next `GET /validation/projects/{id}/` queues it again. That discards the result of a build still running, so set it above the longest build. |
 
 ## Frontend
 

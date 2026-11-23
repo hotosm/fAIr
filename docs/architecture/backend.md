@@ -17,6 +17,7 @@ The backend is a Django REST Framework service organized into feature apps. It o
 | `trainings`     | `TrainingRunRef`, one row per finetune run, with the hyperparameter overrides and status. Submits ZenML pipelines and polls their state.                                                                                                                                 |
 | `predictions`   | `Prediction`, with the geometry, zoom, params, a `results_ready` flag and a `feature_count` (null until post-run counts the features). Post-run writes each prediction's results as GeoJSON, GeoParquet and, when it has features, PMTiles. Deleting a finished prediction in the Django admin also removes its stored files.                                                              |
 | `feedback`      | `Feedback`, accept and reject labels on predicted features. Posted at `/api/v1/feedback/` for a registered model's STAC id. The author, the model's owner and admins read a label; the author or an admin edits or deletes it. KPI and profile counts read it.           |
+| `validation`    | `ValidationProject` (a draft, published or finished check of one built dataset or a prediction with `results_ready`) and `ValidationAnswer` (one yes or no per tile and respondent, an account or a guest device). A worker builds and refreshes each project's files (see [API](api.md#validation-endpoints)). |
 | `notifications` | Site-wide announcement banners, managed in the Django admin and listed publicly.                                                                                                                                                                                         |
 | `stars`         | Starring a model or dataset. Star counts are public; starring needs a signed-in user.                                                                                                                                                                                    |
 | `system`        | Health and KPI endpoints.                                                                                                                                                                                                                                                |
@@ -44,10 +45,12 @@ erDiagram
     OsmUser ||--o{ LocalModel : owns
     OsmUser ||--o{ TrainingRunRef : owns
     OsmUser ||--o{ Prediction : owns
+    OsmUser ||--o{ ValidationProject : owns
 
     Dataset ||--o{ AOI : "has many"
     Dataset ||--o{ TrainingRunRef : "is input to (PROTECT)"
     LocalModel ||--o{ TrainingRunRef : "has many versions"
+    ValidationProject ||--o{ ValidationAnswer : "has many"
 
 ```
 

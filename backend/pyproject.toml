@@ -27,6 +27,7 @@ dependencies = [
   "gunicorn>=23.0",
   "hotosm-auth[django]==0.2.12",
   "httpx>=0.28.1",
+  "pmtiles>=3.8.1",
   "psycopg-pool>=3.3.1",
   "psycopg[binary]>=3.2",
   "pyarrow>=23.0.1",

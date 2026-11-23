@@ -44,6 +44,14 @@ class StoragePaths:
     PREDICTION_GEOJSON_FILENAME = "predictions.geojson"
     PREDICTION_GEOPARQUET_FILENAME = "predictions.parquet"
     PREDICTION_PMTILES_FILENAME = "predictions.pmtiles"
+    VALIDATION_ROOT = "validation"
+    VALIDATION_FILES = (
+        "tiles.bin",
+        "imagery.pmtiles",
+        "labels.pmtiles",
+        "done.bin",
+        "results.parquet",
+    )
 
     @staticmethod
     def _bucket() -> str:
@@ -138,6 +146,20 @@ class StoragePaths:
     @classmethod
     def prediction_pmtiles_uri(cls, prediction_id: int) -> str:
         return cls._uri(cls.prediction_pmtiles_key(prediction_id))
+
+    #  validation projects
+
+    @classmethod
+    def validation_dir_uri(cls, project_id: int) -> str:
+        return cls._uri(f"{_folder()}{cls.VALIDATION_ROOT}/{project_id}")
+
+    @classmethod
+    def validation_file_key(cls, project_id: int, filename: str) -> str:
+        return f"{_folder()}{cls.VALIDATION_ROOT}/{project_id}/{filename}"
+
+    @classmethod
+    def validation_file_uri(cls, project_id: int, filename: str) -> str:
+        return cls._uri(cls.validation_file_key(project_id, filename))
 
 
 class BackendDatasetPaths(DatasetStoragePaths):

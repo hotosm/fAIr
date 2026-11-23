@@ -106,6 +106,9 @@ class Settings(BaseSettings):
     training_rate_limit: str = "10/h"
     prediction_rate_limit: str = "50/h"
     model_run_rate_limit: str = "600/h"
+    validation_answer_rate_limit: str = "1200/h"
+    validation_answer_network_rate_limit: str = "12000/h"
+    validation_read_network_rate_limit: str = "6000/h"
 
     # OSM raw-data API
     raw_data_api_url: AnyHttpUrl = AnyHttpUrl("https://api-prod.raw-data.hotosm.org/v1")
@@ -138,6 +141,8 @@ class Settings(BaseSettings):
     stac_bulk_fetch_workers: int = 16
     pmtiles_min_zoom: int = 10
     pmtiles_max_zoom: int = 20
+    validation_refresh_interval: int = 300
+    validation_build_timeout: int = 3600
 
     @field_validator(
         "allowed_hosts",

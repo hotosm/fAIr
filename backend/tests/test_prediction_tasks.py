@@ -13,7 +13,7 @@ from fair.zenml.runs import LogEntry
 
 from predictions.tasks import (
     MAX_POST_RUN_ATTEMPTS,
-    _materialize_prediction_input,
+    materialize_prediction_input,
     submit_prediction,
     sync_prediction_status,
 )
@@ -47,7 +47,7 @@ def test_failed_submission_marks_prediction_failed_and_deletes_its_tiles(
     mock_remove, prediction: Prediction
 ) -> None:
     with patch(
-        "predictions.tasks._materialize_prediction_input", side_effect=RuntimeError("no tiles")
+        "predictions.tasks.materialize_prediction_input", side_effect=RuntimeError("no tiles")
     ):
         submit_prediction.enqueue(prediction_id=prediction.id)
 
@@ -63,7 +63,7 @@ def test_failed_submission_marks_prediction_failed_and_deletes_its_tiles(
 @patch("predictions.tasks.remove_dir", side_effect=OSError("still exists after delete"))
 def test_failed_submission_survives_a_refused_tile_delete(_, prediction: Prediction) -> None:
     with patch(
-        "predictions.tasks._materialize_prediction_input", side_effect=RuntimeError("no tiles")
+        "predictions.tasks.materialize_prediction_input", side_effect=RuntimeError("no tiles")
     ):
         submit_prediction.enqueue(prediction_id=prediction.id)
 
@@ -89,7 +89,7 @@ def test_tilejson_input_requests_tilejson_resolution_and_at_least_one_tile(
         patch("geomltoolkits.downloader.tms.download_tiles", download_tiles),
         pytest.raises(_DownloadRequested),
     ):
-        _materialize_prediction_input(prediction)
+        materialize_prediction_input(prediction)
 
     assert requested["is_tilejson"] is True
     assert requested["max_failures"] == 3
@@ -104,7 +104,7 @@ def test_aoi_without_a_whole_tile_fails_before_downloading(prediction: Predictio
     }
 
     with pytest.raises(ValueError, match="covers no whole tile"):
-        _materialize_prediction_input(prediction)
+        materialize_prediction_input(prediction)
 
 
 def test_submit_forwards_the_prediction_params_to_the_pipeline(prediction: Prediction) -> None:
@@ -113,7 +113,7 @@ def test_submit_forwards_the_prediction_params_to_the_pipeline(prediction: Predi
     client = MagicMock()
     client.submit_predict.return_value = "run-1"
     with (
-        patch("predictions.tasks._materialize_prediction_input", return_value={"image": "s3://bucket/in"}),
+        patch("predictions.tasks.materialize_prediction_input", return_value={"image": "s3://bucket/in"}),
         patch("predictions.tasks.for_user", return_value=client),
         patch("predictions.tasks.sync_prediction_status"),
     ):
@@ -156,7 +156,7 @@ def test_each_input_stages_only_the_tiles_every_input_has(prediction: Prediction
         patch("predictions.tasks._download_input_tiles", side_effect=_downloads_by_url(tmp_path, tiles)),
         patch("predictions.tasks.UPath", side_effect=_in_memory),
     ):
-        chips_by_input = _materialize_prediction_input(_post_pre_prediction(prediction))
+        chips_by_input = materialize_prediction_input(_post_pre_prediction(prediction))
 
     assert set(chips_by_input) == {"post", "pre"}
     for name, prefix in chips_by_input.items():
@@ -173,7 +173,7 @@ def test_inputs_without_a_shared_tile_fail_before_staging(prediction: Prediction
         patch("predictions.tasks.UPath", side_effect=_in_memory),
         pytest.raises(RuntimeError, match="no tile has imagery for every input"),
     ):
-        _materialize_prediction_input(_post_pre_prediction(prediction))
+        materialize_prediction_input(_post_pre_prediction(prediction))
 
 
 @patch("predictions.tasks.delete_input_tiles")

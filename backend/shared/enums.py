@@ -40,3 +40,20 @@ class BaseModelStatus(models.TextChoices):
 class FeedbackAction(models.TextChoices):
     ACCEPT = "accept", "Accept"
     REJECT = "reject", "Reject"
+
+
+class ValidationType(models.TextChoices):
+    TRAINING = "training", "Training"
+    PREDICTION = "prediction", "Prediction"
+
+
+class ValidationStatus(models.TextChoices):
+    DRAFT = "draft", "Draft"
+    PUBLISHED = "published", "Published"
+    FINISHED = "finished", "Finished"
+
+
+class ValidationBuildStatus(models.TextChoices):
+    BUILDING = "building", "Building"
+    BUILT = "built", "Built"
+    FAILED = "failed", "Failed"

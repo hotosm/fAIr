@@ -5,6 +5,7 @@ from urllib.parse import urlparse
 import boto3
 import dj_database_url
 from botocore.config import Config
+from corsheaders.defaults import default_headers
 from pydantic import SecretStr
 
 from config.env import AuthProvider, settings
@@ -113,6 +114,7 @@ INSTALLED_APPS = [
     "notifications",
     "stars",
     "userstate",
+    "validation",
 ]
 
 if settings.auth_provider is AuthProvider.HANKO:
@@ -181,6 +183,9 @@ REST_FRAMEWORK = {
         "training_submit": settings.training_rate_limit,
         "prediction_submit": settings.prediction_rate_limit,
         "model_run": settings.model_run_rate_limit,
+        "validation_answers": settings.validation_answer_rate_limit,
+        "validation_answers_network": settings.validation_answer_network_rate_limit,
+        "validation_read_network": settings.validation_read_network_rate_limit,
     },
 }
 
@@ -285,6 +290,8 @@ STAC_CACHE_TTL = settings.stac_cache_ttl
 STAC_BULK_FETCH_WORKERS = settings.stac_bulk_fetch_workers
 PMTILES_MIN_ZOOM = settings.pmtiles_min_zoom
 PMTILES_MAX_ZOOM = settings.pmtiles_max_zoom
+VALIDATION_REFRESH_INTERVAL = settings.validation_refresh_interval
+VALIDATION_BUILD_TIMEOUT = settings.validation_build_timeout
 
 AUTH_USER_MODEL = "accounts.OsmUser"
 
@@ -345,6 +352,8 @@ def _extract_domain(url: str) -> str | None:
 
 
 CORS_ALLOW_CREDENTIALS = True
+# Older browsers preflight a Range header, which cross-origin clients send to read file byte ranges.
+CORS_ALLOW_HEADERS = (*default_headers, "range")
 if DEBUG or settings.cors_allow_all_origins:
     CORS_ALLOW_ALL_ORIGINS = True
 else:

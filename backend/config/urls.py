@@ -55,6 +55,7 @@ v1_patterns = [
     path("", include("stars.urls")),
     path("", include("userstate.urls")),
     path("", include("feedback.urls")),
+    path("", include("validation.urls")),
 ]
 
 urlpatterns = [
