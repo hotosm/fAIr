@@ -6,6 +6,7 @@ from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from django_filters.rest_framework import CharFilter, FilterSet
 from drf_spectacular.utils import OpenApiExample, extend_schema, extend_schema_view
 from rest_framework import mixins, serializers, status, viewsets
 from rest_framework.decorators import action
@@ -19,11 +20,11 @@ from accounts.permissions import (
     PublishedReadOrAuthenticatedWrite,
     is_admin,
 )
-from shared.enums import ValidationBuildStatus, ValidationStatus, Visibility
+from shared.enums import ValidationBuildStatus, ValidationStatus
 from shared.storage import StoragePaths, presigned_get_url
 
 from .models import ValidationAnswer, ValidationProject
-from .serializers import AnswerBatchSerializer, ValidationProjectSerializer, project_source
+from .serializers import AnswerBatchSerializer, ValidationProjectSerializer, all_sources_public
 from .tasks import build_project, refresh_project
 from .throttles import (
     AnswerRateThrottle,
@@ -34,10 +35,22 @@ from .throttles import (
 
 _VISIBLE = [ValidationStatus.PUBLISHED, ValidationStatus.FINISHED]
 
+
+class ValidationProjectFilter(FilterSet):
+    source_id = CharFilter(method="filter_source", help_text="Projects using this source.")
+
+    class Meta:
+        model = ValidationProject
+        fields = ["type", "status"]
+
+    def filter_source(self, queryset, name: str, value: str):
+        return queryset.filter(source_ids__contains=[value])
+
+
 _CREATE_EXAMPLE = OpenApiExample(
     "Validate a built dataset",
     value={
-        "source_id": "freetown-buildings-vhr",
+        "source_ids": ["freetown-buildings-vhr"],
         "type": "training",
         "title": "Freetown buildings, VHR",
         "description": "Are the building outlines correct? Yes if every building is outlined.",
@@ -103,7 +116,7 @@ class ValidationProjectViewSet(
     queryset = ValidationProject.objects.all()
     serializer_class = ValidationProjectSerializer
     permission_classes = [PublishedReadOrAuthenticatedWrite, IsOwnerOrAdminOrReadOnly]
-    filterset_fields = ["type", "status", "source_id"]
+    filterset_class = ValidationProjectFilter
     http_method_names = ["get", "post", "patch", "head", "options"]
     throttle_classes = [SignedInRateThrottle, GuestReadRateThrottle]
 
@@ -218,8 +231,7 @@ class ValidationProjectViewSet(
         if name not in StoragePaths.VALIDATION_FILES:
             raise NotFound("Unknown project file.")
         owner = project.user == request.user or is_admin(request.user)
-        source = project_source(project.type, project.source_id)
-        if not owner and (source is None or source.visibility != Visibility.PUBLIC):
+        if not owner and not all_sources_public(project):
             raise NotFound("This project's source is private.")
         # S3 answers 403 for a missing key without s3:ListBucket (S3 GetObject API reference).
         refreshed = name in ("done.bin", "results.parquet")

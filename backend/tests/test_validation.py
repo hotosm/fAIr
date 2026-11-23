@@ -57,7 +57,7 @@ def _project(
     user: OsmUser, status: str = ValidationProject.Status.PUBLISHED, **fields
 ) -> ValidationProject:
     defaults = {
-        "source_id": "freetown",
+        "source_ids": ["freetown"],
         "type": "training",
         "title": "Freetown",
         "status": status,
@@ -68,7 +68,7 @@ def _project(
 
 
 def _create_body(**fields) -> dict:
-    return {"source_id": "freetown", "type": "training", "title": "Freetown buildings", **fields}
+    return {"source_ids": ["freetown"], "type": "training", "title": "Freetown buildings", **fields}
 
 
 def _answers(project: ValidationProject, client: APIClient, answers: list[dict], **extra):
@@ -123,7 +123,7 @@ def test_prediction_projects_need_a_finished_prediction(mock_build, client, user
         results_ready=False,
         user=user,
     )
-    body = {"source_id": str(prediction.id), "type": "prediction", "title": "Check predictions"}
+    body = {"source_ids": [str(prediction.id)], "type": "prediction", "title": "Check predictions"}
 
     assert client.post(URL, body, format="json").status_code == 400
     Prediction.objects.filter(id=prediction.id).update(results_ready=True, feature_count=5)
@@ -172,7 +172,7 @@ def test_publish_waits_for_a_successful_build(
 
 
 @pytest.mark.parametrize(
-    "body", [{"status": "draft"}, {"source_id": "elsewhere"}, {"type": "prediction"}]
+    "body", [{"status": "draft"}, {"source_ids": ["elsewhere"]}, {"type": "prediction"}]
 )
 def test_published_project_rejects_invalid_changes(client, user, body) -> None:
     project = _project(user)
@@ -304,7 +304,7 @@ def test_imagery_pmtiles_holds_every_chip_and_lists_their_tile_ids(tmp_path: Pat
     (chips / "notes.txt").write_text("not a chip")
     target = tmp_path / "imagery.pmtiles"
 
-    zoom, tile_ids = tasks._write_imagery(UPath(chips), target)
+    zoom, tile_ids = tasks._write_imagery([UPath(chips)], target)
 
     data = target.read_bytes()
     reader = Reader(lambda offset, length: data[offset : offset + length])
@@ -333,7 +333,7 @@ def test_imagery_rejects_chips_from_several_zooms(tmp_path: Path) -> None:
     _write_chip(tmp_path, 116825, 122660, 18)
 
     with pytest.raises(ValueError, match="several zooms"):
-        tasks._write_imagery(UPath(tmp_path), tmp_path / "imagery.pmtiles")
+        tasks._write_imagery([UPath(tmp_path)], tmp_path / "imagery.pmtiles")
 
 
 @pytest.mark.skipif(
@@ -347,7 +347,7 @@ def test_labels_pmtiles_is_built_at_the_chip_zoom(tmp_path: Path) -> None:
         "[-13.2984,8.4941],[-13.2985,8.4941],[-13.2985,8.4940]]]}}]}"
     )
 
-    target = tasks._write_labels(UPath(labels), 19, tmp_path)
+    target = tasks._write_labels([UPath(labels)], 19, tmp_path)
 
     data = target.read_bytes()
     header = Reader(lambda offset, length: data[offset : offset + length]).header()
@@ -365,7 +365,7 @@ def test_prediction_chips_are_fetched_again_only_when_deleted(user, chips_exist,
         results_ready=True,
         user=user,
     )
-    project = _project(user, source_id=str(prediction.id), type="prediction")
+    project = _project(user, source_ids=[str(prediction.id)], type="prediction")
 
     with (
         patch.object(UPath, "exists", return_value=chips_exist),
@@ -378,7 +378,7 @@ def test_prediction_chips_are_fetched_again_only_when_deleted(user, chips_exist,
 
     assert was_fetched is fetched
     assert materialize.called is fetched
-    assert str(chips).endswith("refetched/image") is fetched
+    assert str(chips[0]).endswith("refetched/image") is fetched
 
 
 @patch("validation.views.build_project")
@@ -399,7 +399,7 @@ def test_create_refuses_multi_input_sources_and_empty_predictions(mock_build, cl
     )
 
     assert client.post(URL, _create_body(), format="json").status_code == 400
-    body = {"source_id": str(empty.id), "type": "prediction", "title": "Nothing found"}
+    body = {"source_ids": [str(empty.id)], "type": "prediction", "title": "Nothing found"}
     assert client.post(URL, body, format="json").status_code == 400
     mock_build.enqueue.assert_not_called()
 
@@ -472,7 +472,7 @@ def test_refresh_ignores_tiles_outside_the_project_and_requeues_while_published(
 @pytest.mark.parametrize("fetched", [True, False])
 def test_fetched_chips_are_queued_for_deletion_even_when_the_build_fails(user, fetched) -> None:
     project = _project(
-        user, source_id="7", type="prediction", status=ValidationProject.Status.DRAFT
+        user, source_ids=["7"], type="prediction", status=ValidationProject.Status.DRAFT
     )
     chips = UPath("s3://fair-data/dev/predict/7/input/image")
 
@@ -499,8 +499,9 @@ def test_training_chips_come_from_the_dataset_input(user) -> None:
 
     chips, labels, fetched = tasks._sources(_project(user))
 
-    assert str(chips).endswith(StoragePaths.dataset_chips_dir_key("freetown", "rgb"))
-    assert str(labels).endswith(StoragePaths.dataset_labels_geojson_key("freetown"))
+    assert len(chips) == len(labels) == 1
+    assert str(chips[0]).endswith(StoragePaths.dataset_chips_dir_key("freetown", "rgb"))
+    assert str(labels[0]).endswith(StoragePaths.dataset_labels_geojson_key("freetown"))
     assert fetched is False
 
 
@@ -607,7 +608,7 @@ def test_a_failed_labels_build_reports_what_tippecanoe_said(tmp_path: Path) -> N
     labels.write_text('{"type": "FeatureCollection", "features": [')
 
     with pytest.raises(RuntimeError, match=r"tippecanoe failed: .+"):
-        tasks._write_labels(UPath(labels), 19, tmp_path)
+        tasks._write_labels([UPath(labels)], 19, tmp_path)
 
 
 @pytest.mark.parametrize("name", ["done.bin", "results.parquet"])
@@ -633,7 +634,7 @@ def test_a_tile_twice_in_one_batch_keeps_the_last_answer(anon_client, user) -> N
 
 @patch("validation.views.build_project")
 def test_a_prediction_id_with_non_ascii_digits_is_refused(mock_build, client, user) -> None:
-    body = {"source_id": "²", "type": "prediction", "title": "Odd digits"}
+    body = {"source_ids": ["²"], "type": "prediction", "title": "Odd digits"}
 
     assert client.post(URL, body, format="json").status_code == 400
     mock_build.enqueue.assert_not_called()
@@ -883,3 +884,162 @@ def test_a_cross_origin_app_may_send_a_range_header() -> None:
     )
 
     assert "range" in response["Access-Control-Allow-Headers"].split(", ")
+
+
+@patch("validation.views.build_project")
+def test_a_project_combines_datasets_over_the_same_imagery(mock_build, client, user) -> None:
+    _dataset(user)
+    _dataset(user, stac_id="freetown-groups")
+
+    response = client.post(
+        URL, _create_body(source_ids=["freetown", "freetown-groups"]), format="json"
+    )
+
+    assert response.status_code == 202
+    assert response.data["source_ids"] == ["freetown", "freetown-groups"]
+
+
+@pytest.mark.parametrize(
+    "extras",
+    [
+        ["freetown"],
+        ["freetown-groups", "freetown-groups"],
+        ["missing"],
+        ["elsewhere"],
+        ["someone-elses"],
+        ["a", "b", "c", "d", "e"],
+    ],
+)
+@patch("validation.views.build_project")
+def test_sources_must_be_distinct_built_owned_and_on_the_same_imagery(
+    mock_build, client, user, other_user, extras
+) -> None:
+    _dataset(user)
+    _dataset(user, stac_id="freetown-groups")
+    _dataset(user, stac_id="elsewhere", imagery={"image": "https://other.example/{z}/{x}/{y}"})
+    _dataset(other_user, stac_id="someone-elses")
+
+    response = client.post(URL, _create_body(source_ids=["freetown", *extras]), format="json")
+
+    assert response.status_code == 400
+    assert "source_ids" in response.data["error"]["details"]
+
+
+@patch("validation.views.build_project")
+def test_a_prediction_project_has_exactly_one_source(mock_build, client, user) -> None:
+    first, second = (
+        Prediction.objects.create(
+            local_model_stac_id="m",
+            imagery={"image": "https://tiles.example/{z}/{x}/{y}.png"},
+            primary_input="image",
+            geometry={},
+            zoom=19,
+            results_ready=True,
+            feature_count=3,
+            user=user,
+        )
+        for _ in range(2)
+    )
+
+    response = client.post(
+        URL,
+        _create_body(source_ids=[str(first.id), str(second.id)], type="prediction"),
+        format="json",
+    )
+
+    assert response.status_code == 400
+    assert "one source" in str(response.data["error"]["details"]["source_ids"])
+
+
+def test_publish_is_refused_while_any_dataset_is_private(client, user) -> None:
+    _dataset(user, visibility="public")
+    _dataset(user, stac_id="freetown-groups", visibility="private")
+    project = _project(
+        user, status=ValidationProject.Status.DRAFT, source_ids=["freetown", "freetown-groups"]
+    )
+
+    response = client.patch(f"{URL}{project.id}/", {"status": "published"}, format="json")
+
+    assert response.status_code == 400
+    assert "status" in response.data["error"]["details"]
+
+
+def test_files_stay_hidden_while_any_dataset_is_private(anon_client, client, user) -> None:
+    _dataset(user, visibility="public")
+    _dataset(user, stac_id="freetown-groups", visibility="private")
+    project = _project(user, source_ids=["freetown", "freetown-groups"])
+    url = f"{URL}{project.id}/files/imagery.pmtiles/"
+
+    with patch("validation.views.presigned_get_url", return_value="https://signed.example/f"):
+        assert anon_client.get(url).status_code == 404
+        assert client.get(url).status_code == 302
+
+
+def test_sources_cannot_change_after_creation(client, user) -> None:
+    project = _project(user, status=ValidationProject.Status.DRAFT)
+
+    response = client.patch(
+        f"{URL}{project.id}/", {"source_ids": ["freetown", "freetown-groups"]}, format="json"
+    )
+
+    assert response.status_code == 400
+    assert "source_ids" in response.data["error"]["details"]
+
+
+def test_the_build_reads_every_dataset_of_the_project(user) -> None:
+    _dataset(user)
+    _dataset(user, stac_id="freetown-groups")
+
+    chips, labels, _ = tasks._sources(_project(user, source_ids=["freetown", "freetown-groups"]))
+
+    assert len(chips) == len(labels) == 2
+    assert str(chips[0]).endswith(StoragePaths.dataset_chips_dir_key("freetown", "image"))
+    assert str(chips[1]).endswith(StoragePaths.dataset_chips_dir_key("freetown-groups", "image"))
+    assert str(labels[1]).endswith(StoragePaths.dataset_labels_geojson_key("freetown-groups"))
+
+
+def test_imagery_from_several_datasets_keeps_each_tile_once(tmp_path: Path) -> None:
+    first, second = tmp_path / "first", tmp_path / "second"
+    first.mkdir()
+    second.mkdir()
+    _write_chip(first, 233651, 245320, 19)
+    _write_chip(second, 233651, 245320, 19)
+    _write_chip(second, 233652, 245320, 19)
+
+    _, tile_ids = tasks._write_imagery([UPath(first), UPath(second)], tmp_path / "i.pmtiles")
+
+    assert tile_ids == sorted(zxy_to_tileid(19, x, 245320) for x in (233651, 233652))
+
+
+@pytest.mark.skipif(
+    shutil.which("tippecanoe") is None, reason="tippecanoe is only in the worker image"
+)
+def test_labels_from_several_datasets_share_one_layer(tmp_path: Path) -> None:
+    points = tmp_path / "points.geojson"
+    points.write_text(
+        '{"type":"FeatureCollection","features":[{"type":"Feature","properties":{"class":"tree"},'
+        '"geometry":{"type":"Point","coordinates":[-13.29845,8.49405]}}]}'
+    )
+    groups = tmp_path / "groups.geojson"
+    groups.write_text(
+        '{"type":"FeatureCollection","features":[{"type":"Feature",'
+        '"properties":{"class":"tree_group"},"geometry":{"type":"Polygon","coordinates":'
+        "[[[-13.2985,8.4940],[-13.2984,8.4940],[-13.2984,8.4941],[-13.2985,8.4941],"
+        "[-13.2985,8.4940]]]}}]}"
+    )
+
+    target = tasks._write_labels([UPath(points), UPath(groups)], 19, tmp_path)
+
+    data = target.read_bytes()
+    stats = Reader(lambda offset, length: data[offset : offset + length]).metadata()["tilestats"]
+    assert [layer["layer"] for layer in stats["layers"]] == ["labels"]
+    assert sorted(stats["layers"][0]["attributes"][0]["values"]) == ["tree", "tree_group"]
+
+
+def test_filtering_by_source_finds_projects_that_use_it_anywhere(client, user) -> None:
+    combined = _project(user, source_ids=["freetown", "freetown-groups"])
+    _project(user, source_ids=["elsewhere"])
+
+    response = client.get(URL, {"source_id": "freetown-groups"})
+
+    assert [project["id"] for project in response.data["results"]] == [combined.id]

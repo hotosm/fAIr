@@ -11,6 +11,7 @@ from shared.enums import DatasetStatus, ValidationStatus, ValidationType, Visibi
 from .models import ValidationProject
 
 ANSWERS_PER_REQUEST = 50
+MAX_SOURCES = 5
 # pmtiles' tileid_to_zxy raises OverflowError past the last zoom-31 tile id.
 MAX_TILE_ID = (4**32 - 1) // 3 - 1
 _NEXT_STATUS = {
@@ -27,14 +28,27 @@ def project_source(project_type: str, source_id: str) -> Dataset | Prediction | 
     return Prediction.objects.filter(id=int(source_id), results_ready=True).first()
 
 
+def all_sources_public(project: ValidationProject) -> bool:
+    kind = str(project.type)
+    source_ids: list[str] = project.source_ids  # type: ignore[assignment]
+    sources = [project_source(kind, source_id) for source_id in source_ids]
+    return all(source is not None and source.visibility == Visibility.PUBLIC for source in sources)
+
+
 class ValidationProjectSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
+    source_ids = serializers.ListField(
+        child=serializers.CharField(max_length=200),
+        min_length=1,
+        max_length=MAX_SOURCES,
+        help_text="Dataset STAC ids on the same imagery, or one prediction id.",
+    )
 
     class Meta:
         model = ValidationProject
         fields = [
             "id",
-            "source_id",
+            "source_ids",
             "type",
             "title",
             "description",
@@ -62,31 +76,49 @@ class ValidationProjectSerializer(serializers.ModelSerializer):
         instance.save(update_fields=list(validated_data))
         return instance
 
-    def validate(self, attrs: dict) -> dict:
-        if self.instance is None:
-            if attrs.get("status", ValidationStatus.DRAFT) != ValidationStatus.DRAFT:
-                raise serializers.ValidationError({"status": "A new project starts as a draft."})
-            source = project_source(attrs["type"], attrs["source_id"])
+    def _check_sources(self, attrs: dict) -> None:
+        source_ids: list[str] = attrs["source_ids"]
+        kind = attrs["type"]
+        if kind == ValidationType.PREDICTION and len(source_ids) != 1:
+            raise serializers.ValidationError(
+                {"source_ids": "A prediction project has one source."}
+            )
+        if len(set(source_ids)) != len(source_ids):
+            raise serializers.ValidationError({"source_ids": "List each source once."})
+        user = self.context["request"].user
+        first: Dataset | Prediction | None = None
+        for source_id in source_ids:
+            source = project_source(kind, source_id)
             if source is None:
                 raise serializers.ValidationError(
-                    {"source_id": "No built dataset or finished prediction with this id."}
+                    {"source_ids": f"No built dataset or finished prediction with id {source_id}."}
                 )
-            user = self.context["request"].user
             if source.user != user and not is_admin(user):
                 raise serializers.ValidationError(
-                    {"source_id": "Only its owner or an admin can validate it."}
+                    {"source_ids": f"Only its owner or an admin can validate {source_id}."}
                 )
             imagery: dict[str, str] = source.imagery  # type: ignore[assignment]
             if len(imagery) != 1:
                 raise serializers.ValidationError(
-                    {"source_id": "Only sources with one imagery input can be validated."}
+                    {"source_ids": "Only sources with one imagery input can be validated."}
                 )
             if isinstance(source, Prediction) and not source.feature_count:
-                raise serializers.ValidationError({"source_id": "This prediction found nothing."})
+                raise serializers.ValidationError({"source_ids": "This prediction found nothing."})
+            if first is not None and source.imagery != first.imagery:
+                raise serializers.ValidationError(
+                    {"source_ids": f"{source_id} uses other imagery or input than {source_ids[0]}."}
+                )
+            first = first or source
+
+    def validate(self, attrs: dict) -> dict:
+        if self.instance is None:
+            if attrs.get("status", ValidationStatus.DRAFT) != ValidationStatus.DRAFT:
+                raise serializers.ValidationError({"status": "A new project starts as a draft."})
+            self._check_sources(attrs)
             return attrs
         if self.instance.status == ValidationStatus.FINISHED:
             raise serializers.ValidationError({"status": "A finished project cannot change."})
-        for field in ("source_id", "type"):
+        for field in ("source_ids", "type"):
             if field in attrs and attrs[field] != getattr(self.instance, field):
                 raise serializers.ValidationError({field: "Cannot change after creation."})
         status = attrs.get("status", self.instance.status)
@@ -94,12 +126,13 @@ class ValidationProjectSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 {"status": f"Cannot move from {self.instance.status} to {status}."}
             )
-        if status == ValidationStatus.PUBLISHED and self.instance.status == ValidationStatus.DRAFT:
-            source = project_source(self.instance.type, self.instance.source_id)
-            if source is None or source.visibility != Visibility.PUBLIC:
-                raise serializers.ValidationError(
-                    {"status": "Make the dataset or prediction public before publishing."}
-                )
+        publishing = (
+            status == ValidationStatus.PUBLISHED and self.instance.status == ValidationStatus.DRAFT
+        )
+        if publishing and not all_sources_public(self.instance):
+            raise serializers.ValidationError(
+                {"status": "Make every dataset or the prediction public before publishing."}
+            )
         return attrs
 
 

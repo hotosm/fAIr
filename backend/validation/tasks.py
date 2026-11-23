@@ -36,24 +36,26 @@ _WEBP_QUALITY = 80
 _TILE_ID = np.dtype("<u8")
 
 
-def _sources(project: ValidationProject) -> tuple[UPath, UPath, bool]:
-    source_id = str(project.source_id)
+def _sources(project: ValidationProject) -> tuple[list[UPath], list[UPath], bool]:
+    source_ids: list[str] = project.source_ids  # type: ignore[assignment]
     if project.type == ValidationType.TRAINING:
-        dataset = Dataset.objects.get(stac_id=source_id)
-        labels_dir = UPath(StoragePaths.dataset_labels_dir_uri(source_id))
-        return (
-            UPath(StoragePaths.dataset_chips_dir_uri(source_id, dataset.primary_input)),
-            labels_dir / StoragePaths.LABELS_GEOJSON_FILENAME,
-            False,
-        )
-    prediction = Prediction.objects.get(id=int(source_id))
-    labels = UPath(StoragePaths.prediction_geojson_uri(prediction.id))
+        chips, labels = [], []
+        for stac_id in source_ids:
+            dataset = Dataset.objects.get(stac_id=stac_id)
+            chips.append(UPath(StoragePaths.dataset_chips_dir_uri(stac_id, dataset.primary_input)))
+            labels.append(
+                UPath(StoragePaths.dataset_labels_dir_uri(stac_id))
+                / StoragePaths.LABELS_GEOJSON_FILENAME
+            )
+        return chips, labels, False
+    prediction = Prediction.objects.get(id=int(source_ids[0]))
+    labels = [UPath(StoragePaths.prediction_geojson_uri(prediction.id))]
     image = prediction.primary_input
     chips = UPath(StoragePaths.prediction_input_dir_uri(prediction.id, image))
     if chips.exists():
-        return chips, labels, False
+        return [chips], labels, False
     # Prediction input tiles may be deleted after the run (DELETE_PREDICTION_INPUT_TILES).
-    return UPath(materialize_prediction_input(prediction)[image]), labels, True
+    return [UPath(materialize_prediction_input(prediction)[image])], labels, True
 
 
 def _tile_lonlat(x: int, y: int, z: int) -> tuple[float, float]:
@@ -74,14 +76,15 @@ def _webp(chip: UPath) -> bytes:
     return out.getvalue()
 
 
-def _write_imagery(chips_dir: UPath, target: Path) -> tuple[int, list[int]]:
+def _write_imagery(chips_dirs: list[UPath], target: Path) -> tuple[int, list[int]]:
     chips = {}
-    for chip in chips_dir.iterdir():
-        if tile := _chip_tile(chip.name):
-            x, y, z = tile
-            chips[zxy_to_tileid(z, x, y)] = (chip, x, y, z)
+    for chips_dir in chips_dirs:
+        for chip in chips_dir.iterdir():
+            if tile := _chip_tile(chip.name):
+                x, y, z = tile
+                chips.setdefault(zxy_to_tileid(z, x, y), (chip, x, y, z))
     if not chips:
-        raise ValueError(f"No OAM-x-y-z chips in {chips_dir}")
+        raise ValueError(f"No OAM-x-y-z chips in {', '.join(map(str, chips_dirs))}")
     zooms = {z for _, _, _, z in chips.values()}
     if len(zooms) != 1:
         raise ValueError(f"Chips span several zooms {sorted(zooms)}; expected one")
@@ -110,11 +113,14 @@ def _write_imagery(chips_dir: UPath, target: Path) -> tuple[int, list[int]]:
     return zoom, tile_ids
 
 
-def _write_labels(labels: UPath, zoom: int, workdir: Path) -> Path:
+def _write_labels(labels: list[UPath], zoom: int, workdir: Path) -> Path:
     if shutil.which("tippecanoe") is None:
         raise RuntimeError("tippecanoe not found in PATH; the worker image installs it.")
-    geojson = workdir / "labels.geojson"
-    geojson.write_bytes(labels.read_bytes())
+    inputs = []
+    for index, source in enumerate(labels):
+        geojson = workdir / f"labels-{index}.geojson"
+        geojson.write_bytes(source.read_bytes())
+        inputs.append(str(geojson))
     target = workdir / "labels.pmtiles"
     try:
         subprocess.run(
@@ -131,7 +137,7 @@ def _write_labels(labels: UPath, zoom: int, workdir: Path) -> Path:
                 "--force",
                 "--no-tile-size-limit",
                 "--no-feature-limit",
-                str(geojson),
+                *inputs,
             ],
             check=True,
             capture_output=True,
@@ -167,12 +173,12 @@ def build_project(*, project_id: int, requested_at: str) -> None:
 
 def _build_files(project: ValidationProject) -> tuple[int, int] | None:
     project_id = project.id
-    chips_dir, labels, fetched = _sources(project)
+    chips_dirs, labels, fetched = _sources(project)
     try:
         with tempfile.TemporaryDirectory(prefix=f"fair-validation-{project_id}-") as tmp:
             workdir = Path(tmp)
             imagery = workdir / "imagery.pmtiles"
-            zoom, tile_ids = _write_imagery(chips_dir, imagery)
+            zoom, tile_ids = _write_imagery(chips_dirs, imagery)
             tile_list = workdir / "tiles.bin"
             tile_list.write_bytes(np.array(tile_ids, dtype=_TILE_ID).tobytes())
             labels_pmtiles = _write_labels(labels, zoom, workdir)
@@ -186,7 +192,8 @@ def _build_files(project: ValidationProject) -> tuple[int, int] | None:
                 target.fs.put_file(str(local), target.path)
     finally:
         if fetched:
-            delete_prediction_input_tiles.enqueue(prediction_id=int(str(project.source_id)))
+            source_ids: list[str] = project.source_ids  # type: ignore[assignment]
+            delete_prediction_input_tiles.enqueue(prediction_id=int(source_ids[0]))
     return zoom, len(tile_ids)
 
 

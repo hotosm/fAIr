@@ -1,3 +1,4 @@
+from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
@@ -10,10 +11,10 @@ class ValidationProject(models.Model):
     Status = ValidationStatus
     BuildStatus = ValidationBuildStatus
 
-    source_id = models.CharField(
-        max_length=200,
-        db_index=True,
-        help_text="Dataset STAC id, or the prediction id.",
+    source_ids = ArrayField(
+        models.CharField(max_length=200),
+        default=list,
+        help_text="Dataset STAC ids on the same imagery, or the one prediction id.",
     )
     type = models.CharField(max_length=10, choices=ValidationType.choices)
     title = models.CharField(max_length=200)

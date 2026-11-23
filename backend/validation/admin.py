@@ -18,12 +18,12 @@ class ValidationProjectAdmin(admin.ModelAdmin):
         "type",
         "status",
         "build_status",
-        "source_id",
+        "source_ids",
         "user",
         "created_at",
     ]
     list_filter = ["type", "status", "build_status"]
-    search_fields = ["title", "source_id", "user__username"]
+    search_fields = ["title", "user__username"]
     autocomplete_fields = ["user"]
 
     def delete_model(self, request, obj: ValidationProject) -> None:
