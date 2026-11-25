@@ -1,9 +1,12 @@
 import secrets
 import shutil
+import tempfile
+import zipfile
 
+from django.conf import settings
 from django.db import transaction
 from django.db.models import Q
-from django.http import HttpResponse
+from django.http import FileResponse, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.text import slugify
 from django_filters.rest_framework import DjangoFilterBackend
@@ -131,6 +134,47 @@ class DatasetViewSet(
         dataset.visibility = Visibility.PRIVATE
         dataset.save(update_fields=["visibility", "last_modified"])
         return Response(self.get_serializer(dataset).data, status=status.HTTP_200_OK)
+
+    @extend_schema(
+        description=(
+            "Download a built dataset as a zip of its chips and labels. "
+            "409 if the dataset is not built yet."
+        ),
+        responses={
+            (200, "application/zip"): OpenApiResponse(OpenApiTypes.BINARY),
+            409: OpenApiResponse(description="Dataset is not built."),
+        },
+    )
+    @action(detail=True, methods=["get"], url_path="download")
+    def download(self, request, pk: int | None = None):
+        dataset = self.get_object()
+        if dataset.status != Dataset.Status.BUILT:
+            return Response(
+                {"detail": "Only built datasets can be downloaded."},
+                status=status.HTTP_409_CONFLICT,
+            )
+
+        stac_id = str(dataset.stac_id)
+        root = f"{StoragePaths.dataset_labels_dir_key(stac_id).rsplit('/', 1)[0]}/"
+        keys = [StoragePaths.dataset_labels_geojson_key(stac_id)]
+        paginator = settings.S3_CLIENT.get_paginator("list_objects_v2")
+        for name in dataset.imagery:
+            prefix = f"{StoragePaths.dataset_chips_dir_key(stac_id, name)}/"
+            for page in paginator.paginate(Bucket=settings.BUCKET_NAME, Prefix=prefix):
+                keys.extend(obj["Key"] for obj in page.get("Contents", []))
+
+        # Spill to disk past 64 MB so large datasets don't sit in memory. Not a `with`:
+        # FileResponse streams the file after we return and closes it when done.
+        archive = tempfile.SpooledTemporaryFile(max_size=64 * 1024 * 1024)  # noqa: SIM115
+        with zipfile.ZipFile(archive, "w", zipfile.ZIP_DEFLATED) as zf:
+            for key in keys:
+                body = settings.S3_CLIENT.get_object(Bucket=settings.BUCKET_NAME, Key=key)["Body"]
+                with zf.open(f"{stac_id}/{key.removeprefix(root)}", "w") as entry:
+                    shutil.copyfileobj(body, entry)
+        archive.seek(0)
+        return FileResponse(
+            archive, as_attachment=True, filename=f"{stac_id}.zip", content_type="application/zip"
+        )
 
     @action(detail=True, methods=["patch"], url_path="pin")
     def pin(self, request, pk: int | None = None) -> Response:
