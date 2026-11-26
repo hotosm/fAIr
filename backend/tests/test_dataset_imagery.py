@@ -125,15 +125,19 @@ def _dataset(user: OsmUser, aoi: AOI) -> Dataset:
 
 
 def _materialize(dataset: Dataset):
-    return _materialize_dataset_assets(
-        dataset,
-        zoom=19,
-        geometry_type="polygon",
-        osm_tags={"building": ["*"]},
-        labels_url=None,
-        labels_file_uri=None,
-        class_property="class",
-    )
+    with patch("datasets.tasks.write_bundle", return_value={}):
+        built, _ = _materialize_dataset_assets(
+            dataset,
+            zoom=19,
+            geometry_type="polygon",
+            osm_tags={"building": ["*"]},
+            labels_url=None,
+            labels_file_uri=None,
+            class_property="class",
+            bundle_dir=Path("unused"),
+            imagery_quality="high",
+        )
+    return built
 
 
 def _downloads(files_by_url: dict[str, list[str]]):
@@ -227,13 +231,16 @@ def test_build_registers_the_primary_imagery_as_source_imagery(mock_materialize,
     dataset = _dataset(user, aoi)
     dataset.imagery = {"pre": PRE_TMS, "post": POST_TMS}
     dataset.save(update_fields=["imagery"])
-    mock_materialize.return_value = MaterializedDataset(
-        chips_dirs={"post": "s3://c/post", "pre": "s3://c/pre"},
-        labels_file="s3://c/labels",
-        geometry={},
-        bbox=[0, 0, 1, 1],
-        label_properties=["building"],
-        label_classes=[{"name": "building", "classes": ["yes"]}],
+    mock_materialize.return_value = (
+        MaterializedDataset(
+            chips_dirs={"post": "s3://c/post", "pre": "s3://c/pre"},
+            labels_file="s3://c/labels",
+            geometry={},
+            bbox=[0, 0, 1, 1],
+            label_properties=["building"],
+            label_classes=[{"name": "building", "classes": ["yes"]}],
+        ),
+        {"labels_parquet": Path("/tmp/b/labels.parquet")},
     )
     mock_for_user.return_value.register_dataset.return_value = dataset.stac_id
 
@@ -254,6 +261,7 @@ def test_build_registers_the_primary_imagery_as_source_imagery(mock_materialize,
     assert params.label_properties == ["building"]
     assert params.label_classes == [{"name": "building", "classes": ["yes"]}]
     assert params.license_id == "ODbL-1.0"
+    assert params.bundle_hrefs == {"labels_parquet": "/tmp/b/labels.parquet"}
 
 
 @patch("datasets.tasks._materialize_dataset_assets", side_effect=RuntimeError("no tile has every input"))
@@ -274,3 +282,33 @@ def test_a_failed_build_marks_the_dataset_failed_with_the_error(mock_materialize
     dataset.refresh_from_db()
     assert dataset.status == Dataset.Status.FAILED
     assert dataset.error == "RuntimeError: no tile has every input"
+
+
+@patch("datasets.tasks.UPath", MagicMock())
+@patch("geomltoolkits.downloader.osm.download_osm_data", AsyncMock(return_value={"features": [_BUILDING]}))
+def test_the_bundle_gets_only_the_tiles_every_input_has(user, aoi):
+    dataset = _dataset(user, aoi)
+    files = {POST_TMS: ["OAM-1-2-19.tif", "OAM-1-3-19.tif"], PRE_TMS: ["OAM-1-2-19.tif", "OAM-1-4-19.tif"]}
+    with (
+        patch("datasets.tasks._download_chips", side_effect=_downloads(files)),
+        patch("datasets.tasks.upload_chips"),
+        patch("datasets.tasks.write_bundle", return_value={}) as write,
+    ):
+        _materialize_dataset_assets(
+            dataset,
+            zoom=19,
+            geometry_type="polygon",
+            osm_tags={"building": ["*"]},
+            labels_url=None,
+            labels_file_uri=None,
+            class_property="class",
+            bundle_dir=Path("unused"),
+            imagery_quality="high",
+        )
+
+    chips_by_input = write.call_args.args[0]
+    assert sorted(chips_by_input) == ["post", "pre"]
+    assert {name: list(chips) for name, chips in chips_by_input.items()} == {
+        "post": ["OAM-1-2-19"],
+        "pre": ["OAM-1-2-19"],
+    }

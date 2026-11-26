@@ -955,6 +955,7 @@ name = "fair-backend"
 version = "3.1.5"
 source = { virtual = "." }
 dependencies = [
+    { name = "aiohttp" },
     { name = "boto3" },
     { name = "botocore" },
     { name = "dj-database-url" },
@@ -966,13 +967,15 @@ dependencies = [
     { name = "djangorestframework" },
     { name = "djangorestframework-gis" },
     { name = "drf-spectacular" },
-    { name = "fair-py-ops", extra = ["k8s"] },
+    { name = "fair-py-ops", extra = ["bundle", "k8s"] },
+    { name = "fsspec" },
     { name = "geomltoolkits" },
     { name = "geopandas" },
     { name = "gpxpy" },
     { name = "gunicorn" },
     { name = "hotosm-auth", extra = ["django"] },
     { name = "httpx" },
+    { name = "mercantile" },
     { name = "pmtiles" },
     { name = "psycopg", extra = ["binary"] },
     { name = "psycopg-pool" },
@@ -984,6 +987,7 @@ dependencies = [
     { name = "shapely" },
     { name = "universal-pathlib" },
     { name = "whitenoise" },
+    { name = "yarl" },
     { name = "zenml" },
 ]
 
@@ -1003,6 +1007,7 @@ test = [
 
 [package.metadata]
 requires-dist = [
+    { name = "aiohttp", specifier = ">=3.14.5" },
     { name = "boto3", specifier = ">=1.40" },
     { name = "botocore", specifier = ">=1.43" },
     { name = "dj-database-url", specifier = ">=2.3" },
@@ -1014,13 +1019,15 @@ requires-dist = [
     { name = "djangorestframework", specifier = ">=3.15" },
     { name = "djangorestframework-gis", specifier = ">=1.1" },
     { name = "drf-spectacular", specifier = ">=0.29" },
-    { name = "fair-py-ops", extras = ["k8s"], specifier = "==0.3.35" },
+    { name = "fair-py-ops", extras = ["bundle", "k8s"], specifier = "==0.3.36" },
+    { name = "fsspec", specifier = ">=2026.4.0" },
     { name = "geomltoolkits", specifier = ">=2.1.0" },
-    { name = "geopandas", specifier = ">=1.0" },
+    { name = "geopandas", specifier = ">=1.2" },
     { name = "gpxpy", specifier = ">=1.6" },
     { name = "gunicorn", specifier = ">=23.0" },
     { name = "hotosm-auth", extras = ["django"], specifier = "==0.2.12" },
     { name = "httpx", specifier = ">=0.28.1" },
+    { name = "mercantile", specifier = ">=1.2.1" },
     { name = "pmtiles", specifier = ">=3.8.1" },
     { name = "psycopg", extras = ["binary"], specifier = ">=3.2" },
     { name = "psycopg-pool", specifier = ">=3.3.1" },
@@ -1032,6 +1039,7 @@ requires-dist = [
     { name = "shapely", specifier = ">=2.1" },
     { name = "universal-pathlib", specifier = ">=0.3.10" },
     { name = "whitenoise", specifier = ">=6.6" },
+    { name = "yarl", specifier = ">=1.25.1" },
     { name = "zenml", specifier = ">=0.94.2" },
 ]
 
@@ -1047,7 +1055,7 @@ test = [{ name = "pytest-django", specifier = ">=4.5" }]
 
 [[package]]
 name = "fair-py-ops"
-version = "0.3.35"
+version = "0.3.36"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiohttp" },
@@ -1060,12 +1068,20 @@ dependencies = [
     { name = "universal-pathlib" },
     { name = "zenml" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/46/fc/696a50642913b063df6b7996fb5d0bdebf750d43cea12a00d056a1143d1e/fair_py_ops-0.3.35.tar.gz", hash = "sha256:d6d57a5d63d3a127a3d64c0680622e93940d74ca03a81d8a177f5432e4d01705", size = 5982022, upload-time = "2026-11-17T15:10:08.341Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/d0/68/a44b4e81acb06fd48417f9b4ae4c410a4d5d6122bc1cbe81442989d5fa80/fair_py_ops-0.3.36.tar.gz", hash = "sha256:2b4d9436c82bbf5df2b660ed19f0780ef276eb6749ef806b0bffa6981907a569", size = 6000764, upload-time = "2026-11-26T14:55:12.043Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d6/3c/96ca9d51f3edac0991297a70976410da14b6fb2c9017bec4963c2cb792d1/fair_py_ops-0.3.35-py3-none-any.whl", hash = "sha256:40214bca8b2d6819f9c2cb8b367019a968b28d4e7255f9cf2885d2e7ed5caa3c", size = 107319, upload-time = "2026-11-17T15:10:06.957Z" },
+    { url = "https://files.pythonhosted.org/packages/d5/ed/1df71ee049d2b01d6cc6b62ab31824c5ca1f4fd2fc1c4767be05fd053f9f/fair_py_ops-0.3.36-py3-none-any.whl", hash = "sha256:6eaa4f71d9a9db5f29e395c74757c513c34c164190274ee69f75a4256877034b", size = 112309, upload-time = "2026-11-26T14:55:10.359Z" },
 ]
 
 [package.optional-dependencies]
+bundle = [
+    { name = "geopandas" },
+    { name = "mercantile" },
+    { name = "pillow" },
+    { name = "pmtiles" },
+    { name = "pyarrow" },
+    { name = "rasterio" },
+]
 k8s = [
     { name = "kubernetes" },
     { name = "opentelemetry-proto" },
@@ -1325,7 +1341,7 @@ wheels = [
 
 [[package]]
 name = "geopandas"
-version = "1.1.3"
+version = "1.2.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "numpy" },
@@ -1335,9 +1351,9 @@ dependencies = [
     { name = "pyproj" },
     { name = "shapely" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/85/ba/8e6b2091878e99e86a36a814dcaeff652ed48bdb03d53e78e15aaa63a914/geopandas-1.1.3.tar.gz", hash = "sha256:91a31989b6f566012838d21d5f8033f37dce882079ccb7cfdc40d5ccce7f284f", size = 336718, upload-time = "2026-03-09T21:49:09.545Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/d3/6b/079d42d468f6537b0e8ba04ad411d53fe6b03070801e5b85328b01d28772/geopandas-1.2.0.tar.gz", hash = "sha256:72425b0dec1b77122b1e00f72c2b3b91f320cf0331ae236d37e26865e8808628", size = 337713, upload-time = "2026-09-28T15:53:57.721Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/3c/78/6a04792ace63a93e162f1305392d500ae8ddcb620e7eb88a22fd622b35bb/geopandas-1.1.3-py3-none-any.whl", hash = "sha256:90d62a64f95eaa3be2ccc115c5f3d6e24208bb11983b390fdc0621a3eccd0230", size = 342514, upload-time = "2026-03-09T21:49:07.973Z" },
+    { url = "https://files.pythonhosted.org/packages/c7/26/10e1061c79b388621b7bae46fcd4942a8c62f960018adf4c38719e9e91ac/geopandas-1.2.0-py3-none-any.whl", hash = "sha256:948fd57df4f713697d5cce149333c0e4714965320c9f5ffa411666c577962eba", size = 368068, upload-time = "2026-09-28T15:53:55.62Z" },
 ]
 
 [[package]]

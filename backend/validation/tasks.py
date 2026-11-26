@@ -1,23 +1,28 @@
 import io
 import logging
 import math
-import re
-import shutil
-import subprocess
 import tempfile
 from datetime import timedelta
 from pathlib import Path
 
 import geopandas as gpd
+import mercantile
 import numpy as np
-import rasterio
 from django.conf import settings
 from django.db.models import Count, Q
 from django.utils import timezone
 from django_tasks import task
-from PIL import Image
-from pmtiles.tile import Compression, TileType, tileid_to_zxy, zxy_to_tileid
-from pmtiles.writer import Writer
+from fair.bundle import (
+    chip_bounds,
+    collect_chips,
+    grid_tiles,
+    pmtiles_tile_id,
+    read_tile_ids,
+    write_imagery_pmtiles,
+    write_labels_pmtiles,
+)
+from fair.utils.data import http_url_to_s3_uri
+from pmtiles.tile import tileid_to_zxy
 from shapely.geometry import box
 from upath import UPath
 
@@ -25,14 +30,13 @@ from datasets.models import Dataset
 from predictions.models import Prediction
 from predictions.tasks import delete_prediction_input_tiles, materialize_prediction_input
 from shared.enums import ValidationBuildStatus, ValidationStatus, ValidationType
+from shared.integrations.stac import get_dataset
 from shared.storage import StoragePaths
 
 from .models import ValidationProject
 
 logger = logging.getLogger(__name__)
 
-_CHIP_NAME = re.compile(r"OAM-(\d+)-(\d+)-(\d+)\.tiff?")
-_WEBP_QUALITY = 80
 _TILE_ID = np.dtype("<u8")
 
 
@@ -58,93 +62,40 @@ def _sources(project: ValidationProject) -> tuple[list[UPath], list[UPath], bool
     return [UPath(materialize_prediction_input(prediction)[image])], labels, True
 
 
-def _tile_lonlat(x: int, y: int, z: int) -> tuple[float, float]:
-    n = 2**z
-    return x / n * 360 - 180, math.degrees(math.atan(math.sinh(math.pi * (1 - 2 * y / n))))
-
-
-def _chip_tile(name: str) -> tuple[int, int, int] | None:
-    match = _CHIP_NAME.fullmatch(name)
-    return (int(match[1]), int(match[2]), int(match[3])) if match else None
-
-
-def _webp(chip: UPath) -> bytes:
-    with rasterio.MemoryFile(chip.read_bytes()) as memfile, memfile.open() as src:
-        rgb = np.moveaxis(src.read([1, 2, 3]), 0, -1)
-    out = io.BytesIO()
-    Image.fromarray(rgb).save(out, format="WEBP", quality=_WEBP_QUALITY)
-    return out.getvalue()
-
-
 def _write_imagery(chips_dirs: list[UPath], target: Path) -> tuple[int, list[int]]:
-    chips = {}
-    for chips_dir in chips_dirs:
-        for chip in chips_dir.iterdir():
-            if tile := _chip_tile(chip.name):
-                x, y, z = tile
-                chips.setdefault(zxy_to_tileid(z, x, y), (chip, x, y, z))
-    if not chips:
-        raise ValueError(f"No OAM-x-y-z chips in {', '.join(map(str, chips_dirs))}")
-    zooms = {z for _, _, _, z in chips.values()}
-    if len(zooms) != 1:
-        raise ValueError(f"Chips span several zooms {sorted(zooms)}; expected one")
-    zoom = zooms.pop()
-    xs = [x for _, x, _, _ in chips.values()]
-    ys = [y for _, _, y, _ in chips.values()]
-    west, north = _tile_lonlat(min(xs), min(ys), zoom)
-    east, south = _tile_lonlat(max(xs) + 1, max(ys) + 1, zoom)
-    tile_ids = sorted(chips)
-    with target.open("wb") as handle:
-        writer = Writer(handle)
-        for tile_id in tile_ids:
-            writer.write_tile(tile_id, _webp(chips[tile_id][0]))
-        writer.finalize(
-            {
-                "tile_type": TileType.WEBP,
-                "tile_compression": Compression.NONE,
-                "min_lon_e7": int(west * 1e7),
-                "min_lat_e7": int(south * 1e7),
-                "max_lon_e7": int(east * 1e7),
-                "max_lat_e7": int(north * 1e7),
-                "center_zoom": zoom,
-            },
-            {"zoom": zoom, "tiles": len(tile_ids)},
-        )
-    return zoom, tile_ids
+    chips = collect_chips(chips_dirs)
+    tiles = grid_tiles(chip_bounds(chips))
+    if tiles is None:
+        raise ValueError("Validation needs chips that are distinct web-mercator tiles at one zoom")
+    write_imagery_pmtiles(
+        {tile: chips[chip_id] for tile, chip_id in tiles.items()}, target, "medium"
+    )
+    return next(iter(tiles)).z, sorted(pmtiles_tile_id(tile) for tile in tiles)
 
 
 def _write_labels(labels: list[UPath], zoom: int, workdir: Path) -> Path:
-    if shutil.which("tippecanoe") is None:
-        raise RuntimeError("tippecanoe not found in PATH; the worker image installs it.")
-    inputs = []
+    local = []
     for index, source in enumerate(labels):
         geojson = workdir / f"labels-{index}.geojson"
         geojson.write_bytes(source.read_bytes())
-        inputs.append(str(geojson))
+        local.append(geojson)
     target = workdir / "labels.pmtiles"
-    try:
-        subprocess.run(
-            [
-                "tippecanoe",
-                "-o",
-                str(target),
-                "-z",
-                str(zoom),
-                "-Z",
-                str(zoom),
-                "-l",
-                "labels",
-                "--force",
-                "--no-tile-size-limit",
-                "--no-feature-limit",
-                *inputs,
-            ],
-            check=True,
-            capture_output=True,
-        )
-    except subprocess.CalledProcessError as error:
-        raise RuntimeError(f"tippecanoe failed: {error.stderr.decode()[-2000:]}") from error
+    write_labels_pmtiles(local, zoom, target)
     return target
+
+
+def _dataset_bundle(project: ValidationProject) -> dict[str, UPath] | None:
+    source_ids: list[str] = project.source_ids  # type: ignore[assignment]
+    if project.type != ValidationType.TRAINING or len(source_ids) != 1:
+        return None
+    assets = get_dataset(source_ids[0]).assets
+    keys = ("imagery_pmtiles", "labels_pmtiles", "tiles_parquet")
+    if not all(key in assets for key in keys):
+        return None
+    uris = {key: http_url_to_s3_uri(assets[key].href) for key in keys}
+    if unmapped := [uri for uri in uris.values() if uri.startswith(("http://", "https://"))]:
+        raise ValueError(f"Dataset bundle files are outside the bucket: {unmapped}")
+    return {key: UPath(uri) for key, uri in uris.items()}
 
 
 @task()
@@ -173,23 +124,38 @@ def build_project(*, project_id: int, requested_at: str) -> None:
 
 def _build_files(project: ValidationProject) -> tuple[int, int] | None:
     project_id = project.id
-    chips_dirs, labels, fetched = _sources(project)
+    bundle = _dataset_bundle(project)
+    fetched = False
     try:
         with tempfile.TemporaryDirectory(prefix=f"fair-validation-{project_id}-") as tmp:
             workdir = Path(tmp)
-            imagery = workdir / "imagery.pmtiles"
-            zoom, tile_ids = _write_imagery(chips_dirs, imagery)
             tile_list = workdir / "tiles.bin"
+            copies: dict[str, UPath] = {}
+            if bundle is not None:
+                tile_ids = read_tile_ids(bundle["tiles_parquet"])
+                zoom = tileid_to_zxy(tile_ids[0])[0]
+                copies = {
+                    "imagery.pmtiles": bundle["imagery_pmtiles"],
+                    "labels.pmtiles": bundle["labels_pmtiles"],
+                }
+                written = [tile_list]
+            else:
+                chips_dirs, labels, fetched = _sources(project)
+                imagery = workdir / "imagery.pmtiles"
+                zoom, tile_ids = _write_imagery(chips_dirs, imagery)
+                written = [tile_list, imagery, _write_labels(labels, zoom, workdir)]
             tile_list.write_bytes(np.array(tile_ids, dtype=_TILE_ID).tobytes())
-            labels_pmtiles = _write_labels(labels, zoom, workdir)
             superseded = not ValidationProject.objects.filter(
                 id=project_id, build_requested_at=project.build_requested_at
             ).exists()
             if superseded:
                 return None
-            for local in (tile_list, imagery, labels_pmtiles):
+            for local in written:
                 target = UPath(StoragePaths.validation_file_uri(project_id, local.name))
                 target.fs.put_file(str(local), target.path)
+            for name, source in copies.items():
+                target = UPath(StoragePaths.validation_file_uri(project_id, name))
+                source.fs.copy(source.path, target.path)
     finally:
         if fetched:
             source_ids: list[str] = project.source_ids  # type: ignore[assignment]
@@ -230,8 +196,7 @@ def _results(tallies: list[dict], needed: int) -> gpd.GeoDataFrame:
     rows = []
     for row in tallies:
         z, x, y = tileid_to_zxy(row["tile_id"])
-        west, north = _tile_lonlat(x, y, z)
-        east, south = _tile_lonlat(x + 1, y + 1, z)
+        west, south, east, north = mercantile.bounds(x, y, z)
         rows.append(
             {
                 "tile_id": row["tile_id"],

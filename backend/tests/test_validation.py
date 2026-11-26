@@ -3,8 +3,10 @@ import shutil
 import uuid
 from datetime import timedelta
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
+import geopandas as gpd
+import mercantile
 import numpy as np
 import pandas as pd
 import pytest
@@ -16,8 +18,9 @@ from django.utils import timezone
 from django_tasks_db.models import DBTaskResult
 from pmtiles.reader import Reader
 from pmtiles.tile import zxy_to_tileid
-from rasterio.transform import from_origin
+from rasterio.transform import from_bounds
 from rest_framework.test import APIClient
+from shapely.geometry import box
 from upath import UPath
 
 from accounts.models import OsmUser
@@ -85,6 +88,7 @@ def test_create_makes_a_draft_and_queues_the_build(
         response = client.post(URL, _create_body(), format="json")
 
     assert response.status_code == 202
+    assert response.json()["respondent_count"] == 0
     project = ValidationProject.objects.get(id=response.json()["id"])
     assert project.status == ValidationProject.Status.DRAFT
     assert project.build_status == ValidationProject.BuildStatus.BUILDING
@@ -140,6 +144,19 @@ def test_drafts_are_listed_only_for_their_owner(client, anon_client, user, other
 
     assert titles(anon_client) == {"Published"}
     assert titles(client) == {"Published", "My draft"}
+
+
+def test_projects_count_each_respondent_once(anon_client, user, other_user) -> None:
+    project = _project(user)
+    _project(user, title="Unanswered")
+    for tile_id, respondent in [(1, "g:a"), (2, "g:a"), (1, "u:1003")]:
+        ValidationAnswer.objects.create(project=project, tile_id=tile_id, respondent=respondent, valid=True)
+
+    counts = {row["title"]: row["respondent_count"] for row in anon_client.get(URL).json()["results"]}
+
+    assert counts == {"Freetown": 2, "Unanswered": 0}
+    assert [row["title"] for row in anon_client.get(URL).json()["results"]] == ["Unanswered", "Freetown"]
+    assert anon_client.get(f"{URL}{project.id}/").json()["respondent_count"] == 2
 
 
 @patch("validation.views.refresh_project")
@@ -291,7 +308,7 @@ def _write_chip(folder: Path, x: int, y: int, z: int) -> None:
         count=3,
         dtype="uint8",
         crs="EPSG:3857",
-        transform=from_origin(x * 76.4, -y * 76.4, 0.3, 0.3),
+        transform=from_bounds(*mercantile.xy_bounds(x, y, z), 256, 256),
     ) as chip:
         chip.write(pixels)
 
@@ -316,23 +333,11 @@ def test_imagery_pmtiles_holds_every_chip_and_lists_their_tile_ids(tmp_path: Pat
     assert reader.get(19, 233652, 245321) is None
 
 
-@pytest.mark.parametrize(
-    ("name", "tile"),
-    [
-        ("OAM-233651-245320-19.tif", (233651, 245320, 19)),
-        ("OAM-233651-245320-19.tif.aux.xml", None),
-        ("labels.geojson", None),
-    ],
-)
-def test_only_geotiff_chips_count_as_tiles(name: str, tile: tuple | None) -> None:
-    assert tasks._chip_tile(name) == tile
-
-
 def test_imagery_rejects_chips_from_several_zooms(tmp_path: Path) -> None:
     _write_chip(tmp_path, 233651, 245320, 19)
     _write_chip(tmp_path, 116825, 122660, 18)
 
-    with pytest.raises(ValueError, match="several zooms"):
+    with pytest.raises(ValueError, match="tiles at one zoom"):
         tasks._write_imagery([UPath(tmp_path)], tmp_path / "imagery.pmtiles")
 
 
@@ -526,6 +531,7 @@ def test_build_uploads_the_tile_list_and_both_pmtiles(user, tmp_path) -> None:
 
     with (
         patch("validation.tasks._sources", return_value=(UPath(tmp_path), UPath(labels), False)),
+        patch("validation.tasks._dataset_bundle", return_value=None),
         patch("validation.tasks._write_imagery", side_effect=write_imagery),
         patch("validation.tasks._write_labels", return_value=labels),
         patch.object(StoragePaths, "validation_file_uri", side_effect=stored),
@@ -559,6 +565,7 @@ def test_a_build_superseded_while_running_uploads_nothing(user, tmp_path) -> Non
 
     with (
         patch("validation.tasks._sources", return_value=(UPath(tmp_path), UPath(labels), False)),
+        patch("validation.tasks._dataset_bundle", return_value=None),
         patch("validation.tasks._write_imagery", side_effect=write_imagery),
         patch("validation.tasks._write_labels", return_value=labels),
         patch.object(StoragePaths, "validation_file_uri") as stored,
@@ -603,11 +610,11 @@ def test_admin_delete_removes_the_projects_stored_files(user) -> None:
 @pytest.mark.skipif(
     shutil.which("tippecanoe") is None, reason="tippecanoe is only in the worker image"
 )
-def test_a_failed_labels_build_reports_what_tippecanoe_said(tmp_path: Path) -> None:
+def test_a_broken_labels_file_fails_the_labels_build_with_its_reason(tmp_path: Path) -> None:
     labels = tmp_path / "broken.geojson"
     labels.write_text('{"type": "FeatureCollection", "features": [')
 
-    with pytest.raises(RuntimeError, match=r"tippecanoe failed: .+"):
+    with pytest.raises(RuntimeError, match="Unterminated array"):
         tasks._write_labels([UPath(labels)], 19, tmp_path)
 
 
@@ -1043,3 +1050,82 @@ def test_filtering_by_source_finds_projects_that_use_it_anywhere(client, user) -
     response = client.get(URL, {"source_id": "freetown-groups"})
 
     assert [project["id"] for project in response.data["results"]] == [combined.id]
+
+
+def test_a_single_dataset_project_copies_the_dataset_pmtiles(user, tmp_path) -> None:
+    project = _project(
+        user,
+        status=ValidationProject.Status.DRAFT,
+        build_status=ValidationProject.BuildStatus.BUILDING,
+    )
+    bundle = tmp_path / "bundle"
+    bundle.mkdir()
+    (bundle / "imagery.pmtiles").write_bytes(b"imagery")
+    (bundle / "labels.pmtiles").write_bytes(b"labels")
+    gpd.GeoDataFrame(
+        {"chip_id": ["OAM-233652-245320-19", "OAM-233651-245320-19"]},
+        geometry=[box(*mercantile.bounds(x, 245320, 19)) for x in (233652, 233651)],
+        crs="EPSG:4326",
+    ).to_parquet(bundle / "tiles.parquet")
+    item = MagicMock()
+    item.assets = {
+        key: MagicMock(href=str(bundle / name))
+        for key, name in [
+            ("imagery_pmtiles", "imagery.pmtiles"),
+            ("labels_pmtiles", "labels.pmtiles"),
+            ("tiles_parquet", "tiles.parquet"),
+        ]
+    }
+
+    with (
+        patch("validation.tasks.get_dataset", return_value=item),
+        patch("validation.tasks._write_imagery") as convert,
+        patch.object(
+            StoragePaths, "validation_file_uri", side_effect=lambda _id, name: str(tmp_path / name)
+        ),
+    ):
+        tasks.build_project.call(
+            project_id=project.id, requested_at=project.build_requested_at.isoformat()
+        )
+
+    convert.assert_not_called()
+    assert (tmp_path / "imagery.pmtiles").read_bytes() == b"imagery"
+    assert (tmp_path / "labels.pmtiles").read_bytes() == b"labels"
+    listed = np.frombuffer((tmp_path / "tiles.bin").read_bytes(), dtype="<u8").tolist()
+    assert listed == sorted(zxy_to_tileid(19, x, 245320) for x in (233651, 233652))
+    project.refresh_from_db()
+    assert project.build_status == ValidationProject.BuildStatus.BUILT
+
+
+@pytest.mark.parametrize(
+    "fields", [{"source_ids": ["freetown", "bo"]}, {"type": "prediction"}]
+)
+def test_only_a_single_dataset_training_project_looks_up_a_bundle(user, fields) -> None:
+    project = _project(user, status=ValidationProject.Status.DRAFT, **fields)
+
+    with patch("validation.tasks.get_dataset", side_effect=AssertionError("looked up")):
+        assert tasks._dataset_bundle(project) is None
+
+
+def test_a_dataset_without_bundle_assets_has_no_bundle(user) -> None:
+    project = _project(user, status=ValidationProject.Status.DRAFT)
+    item = MagicMock()
+    item.assets = {"labels": MagicMock(href="s3://b/labels")}
+
+    with patch("validation.tasks.get_dataset", return_value=item):
+        assert tasks._dataset_bundle(project) is None
+
+
+def test_bundle_files_outside_the_bucket_fail_loudly(user) -> None:
+    project = _project(user, status=ValidationProject.Status.DRAFT)
+    item = MagicMock()
+    item.assets = {
+        key: MagicMock(href=f"https://elsewhere.example/{key}")
+        for key in ("imagery_pmtiles", "labels_pmtiles", "tiles_parquet")
+    }
+
+    with (
+        patch("validation.tasks.get_dataset", return_value=item),
+        pytest.raises(ValueError, match="outside the bucket"),
+    ):
+        tasks._dataset_bundle(project)

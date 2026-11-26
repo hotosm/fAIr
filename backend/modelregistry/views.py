@@ -17,7 +17,7 @@ from drf_spectacular.utils import (
 )
 from rest_framework import filters, mixins, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import NotFound, ValidationError
+from rest_framework.exceptions import AuthenticationFailed, NotFound, ValidationError
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.throttling import ScopedRateThrottle
@@ -565,9 +565,26 @@ class BaseModelViewSet(
         delete_base_model(instance)
 
 
+def _require_dataset_access(request, stac_id: str) -> None:
+    from accounts.authentication import OsmAuthentication
+    from datasets.models import Dataset
+
+    dataset = Dataset.objects.filter(stac_id=stac_id).only("user_id", "visibility").first()
+    if dataset is None:
+        raise NotFound("Unknown artifact.")
+    if dataset.visibility == Visibility.PUBLIC:
+        return
+    try:
+        signed_in = OsmAuthentication().authenticate(request)
+    except AuthenticationFailed as exc:  # a bad token must not reveal that a private dataset exists
+        raise NotFound("Unknown artifact.") from exc
+    user = signed_in[0] if signed_in else None
+    if not (is_admin(user) or (user is not None and dataset.user_id == user.osm_id)):
+        raise NotFound("Unknown artifact.")
+
+
 class StacAssetDownloadView(APIView):
-    """Public 302 to a fresh presigned URL for a mirrored STAC asset. The object
-    stays private in the bucket; the STAC href stays stable and downloadable."""
+    """Presigns a mirrored STAC asset; a private dataset's assets need its owner or an admin."""
 
     authentication_classes: list = []
     permission_classes = [AllowAny]
@@ -583,6 +600,8 @@ class StacAssetDownloadView(APIView):
 
         if collection not in self._COLLECTIONS or asset not in DOWNLOADABLE_STAC_ASSETS:
             raise NotFound("Unknown STAC asset.")
+        if collection == DATASETS_COLLECTION:
+            _require_dataset_access(request, item_id)
         prefix = StoragePaths.stac_download_prefix(collection, item_id, asset)
         listing = settings.S3_CLIENT.list_objects_v2(
             Bucket=settings.BUCKET_NAME, Prefix=prefix, MaxKeys=1
@@ -594,16 +613,24 @@ class StacAssetDownloadView(APIView):
 
 
 class ArtifactPresignView(APIView):
-    """Artifacts stay private; HEAD answers fair's public asset-URL check, GET presigns them."""
+    """Presigns artifacts; HEAD serves fair's URL check, private dataset files need owner/admin."""
 
     authentication_classes: list = []
     permission_classes = [AllowAny]
 
     @staticmethod
-    def _validated_key(bucket: str, key: str) -> str:
-        allowed = tuple(
-            f"{settings.PARENT_BUCKET_FOLDER}/zenml/{collection}/"
-            for collection in (BASE_MODELS_COLLECTION, LOCAL_MODELS_COLLECTION, DATASETS_COLLECTION)
+    def _dataset_root() -> str:
+        from shared.storage import BackendDatasetPaths
+
+        # fair uploads dataset assets under BackendDatasetPaths.ROOT, which carries the env folder.
+        return f"{settings.PARENT_BUCKET_FOLDER}/zenml/{BackendDatasetPaths.ROOT}/"
+
+    @classmethod
+    def _validated_key(cls, bucket: str, key: str) -> str:
+        roots = (BASE_MODELS_COLLECTION, LOCAL_MODELS_COLLECTION)
+        allowed = (
+            *(f"{settings.PARENT_BUCKET_FOLDER}/zenml/{root}/" for root in roots),
+            cls._dataset_root(),
         )
         if bucket != settings.BUCKET_NAME or ".." in key or not key.startswith(allowed):
             raise NotFound("Unknown artifact.")
@@ -629,7 +656,15 @@ class ArtifactPresignView(APIView):
     def get(self, request, bucket: str, key: str) -> HttpResponseRedirect:
         from shared.storage import presigned_get_url
 
-        return HttpResponseRedirect(presigned_get_url(self._validated_key(bucket, key)))
+        resolved = self._validated_key(bucket, key)
+        self._check_dataset_access(request, resolved)
+        return HttpResponseRedirect(presigned_get_url(resolved))
+
+    @classmethod
+    def _check_dataset_access(cls, request, key: str) -> None:
+        root = cls._dataset_root()
+        if key.startswith(root):
+            _require_dataset_access(request, key.removeprefix(root).split("/", 1)[0])
 
 
 @extend_schema_view(

@@ -12,7 +12,7 @@ The backend is a Django REST Framework service organized into feature apps. It o
 | App             | Responsibility                                                                                                                                                                                                                                                           |
 | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `accounts`      | Custom `OsmUser` keyed by `osm_id`. Supports a static dev token and Hanko SSO. Deleting a user in the Django admin removes their private records and files, including unpublished models and their runs, and moves public or in-use records to a "Deleted user" account. |
-| `datasets`      | `Dataset` (a pointer to a STAC item) and `AOI` (a PostGIS polygon). Async build downloads imagery tiles and OSM labels, uploads chips and `labels.geojson`, and registers the STAC item.                                                                                 |
+| `datasets`      | `Dataset` (a pointer to a STAC item) and `AOI` (a PostGIS polygon). Async build downloads imagery tiles and labels (OSM, GeoJSON or GeoParquet), uploads chips, `labels.geojson`, GeoParquet and PMTiles files, and registers the STAC item.                                                                                 |
 | `modelregistry` | `Category`, `BaseModel` (a pretrained model family), and `LocalModel` (a finetuned family). Endpoints for base models, local models, and categories.                                                                                                                     |
 | `trainings`     | `TrainingRunRef`, one row per finetune run, with the hyperparameter overrides and status. Submits ZenML pipelines and polls their state.                                                                                                                                 |
 | `predictions`   | `Prediction`, with the geometry, zoom, params, a `results_ready` flag and a `feature_count` (null until post-run counts the features). Post-run writes each prediction's results as GeoJSON, GeoParquet and, when it has features, PMTiles. Deleting a finished prediction in the Django admin also removes its stored files.                                                              |
@@ -54,6 +54,6 @@ erDiagram
 
 ```
 
-`visibility` controls access through the fAIr API only. A private dataset, local model or prediction is hidden from other users in fAIr's lists, search and detail endpoints. Its STAC item and download links in the open STAC catalog stay reachable to anyone who has them.
+`visibility` controls access through the fAIr API. A private dataset, local model or prediction is hidden from other users in fAIr's lists, search and detail endpoints. Its STAC item stays readable in the open STAC catalog; for a private dataset, the item's download links (`/stac-assets/{collection}/{item_id}/{asset}/` and `/artifacts/{bucket}/{key}`) return 404 to anyone but its owner or an admin.
 
 The endpoints are on [API](api.md).

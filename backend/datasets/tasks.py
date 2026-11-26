@@ -7,6 +7,12 @@ from typing import Any, Literal, cast
 
 from django.conf import settings
 from django_tasks import task
+from fair.bundle import (
+    DEFAULT_IMAGERY_QUALITY,
+    index_chips,
+    read_labels,
+    write_bundle,
+)
 from fair.datasets import (
     DEFAULT_CLASS_PROPERTY,
     MaterializedDataset,
@@ -15,6 +21,7 @@ from fair.datasets import (
     osm_label_features,
     select_labels,
 )
+from shapely.geometry import shape
 from upath import UPath
 
 from shared.chips import chip_files, chips_every_input_has, upload_chips
@@ -22,7 +29,7 @@ from shared.integrations.stac import DATASETS_COLLECTION, invalidate_stac_cache
 from shared.integrations.zenml import for_user
 from shared.storage import BackendDatasetPaths, StoragePaths
 
-from .label_sources import fetch_labels_geojson, parse_labels_geojson
+from .label_sources import download_labels
 from .models import AOI, Dataset
 
 logger = logging.getLogger(__name__)
@@ -44,6 +51,7 @@ def build_dataset(
     labels_url: str | None = None,
     labels_file_uri: str | None = None,
     class_property: str = DEFAULT_CLASS_PROPERTY,
+    imagery_quality: str = DEFAULT_IMAGERY_QUALITY,
 ) -> None:
     """Materialize chips + labels for the AOIs attached to `dataset_id`,
     upload to S3, and register the result as a STAC dataset item.
@@ -52,51 +60,57 @@ def build_dataset(
 
     try:
         dataset = Dataset.objects.get(id=dataset_id)
-        try:
-            built = _materialize_dataset_assets(
-                dataset,
-                zoom=zoom,
-                geometry_type=geometry_type,
-                osm_tags=osm_tags,
-                labels_url=labels_url,
-                labels_file_uri=labels_file_uri,
-                class_property=class_property,
-            )
-            params = DatasetItemParams(
-                label_type=cast(Literal["vector", "raster"], label_type),
-                label_tasks=label_tasks,
-                label_classes=built.label_classes,
-                label_properties=built.label_properties,
-                keywords=keywords,
-                chips_hrefs=built.chips_dirs,
-                labels_href=built.labels_file,
-                title=dataset.title,
-                description=description,
-                user_id=str(dataset.user.osm_id),
-                item_id=dataset.stac_id,
-                providers=[dataset.user.stac_producer()],
-                source_imagery=dataset.primary_imagery,
-                imagery_hrefs=dict(dataset.imagery),
-                geometry=built.geometry,
-                bbox=built.bbox,
-                geometry_type=cast(Literal["point", "line", "polygon"], geometry_type),
-                license_id=OSM_LICENSE if osm_tags else None,
-            )
-            client = for_user(str(dataset.user.osm_id))
-            published_id = client.register_dataset(params, paths=BackendDatasetPaths)
-            dataset.stac_id = published_id
-            dataset.status = Dataset.Status.BUILT
-            dataset.save(update_fields=["stac_id", "status", "last_modified"])
-            invalidate_stac_cache(DATASETS_COLLECTION, published_id)
-            from modelregistry.tasks import mirror_stac_assets_task
+        with tempfile.TemporaryDirectory(prefix=f"fair-bundle-{dataset_id}-") as bundle_dir:
+            try:
+                built, bundle = _materialize_dataset_assets(
+                    dataset,
+                    zoom=zoom,
+                    geometry_type=geometry_type,
+                    osm_tags=osm_tags,
+                    labels_url=labels_url,
+                    labels_file_uri=labels_file_uri,
+                    class_property=class_property,
+                    bundle_dir=Path(bundle_dir),
+                    imagery_quality=imagery_quality,
+                )
+                params = DatasetItemParams(
+                    label_type=cast(Literal["vector", "raster"], label_type),
+                    label_tasks=label_tasks,
+                    label_classes=built.label_classes,
+                    label_properties=built.label_properties,
+                    keywords=keywords,
+                    chips_hrefs=built.chips_dirs,
+                    labels_href=built.labels_file,
+                    title=dataset.title,
+                    description=description,
+                    user_id=str(dataset.user.osm_id),
+                    item_id=dataset.stac_id,
+                    providers=[dataset.user.stac_producer()],
+                    source_imagery=dataset.primary_imagery,
+                    imagery_hrefs=dict(dataset.imagery),
+                    geometry=built.geometry,
+                    bbox=built.bbox,
+                    geometry_type=cast(Literal["point", "line", "polygon"], geometry_type),
+                    license_id=OSM_LICENSE if osm_tags else None,
+                    bundle_hrefs={key: str(path) for key, path in bundle.items()},
+                )
+                client = for_user(str(dataset.user.osm_id))
+                published_id = client.register_dataset(params, paths=BackendDatasetPaths)
+                dataset.stac_id = published_id
+                dataset.status = Dataset.Status.BUILT
+                dataset.save(update_fields=["stac_id", "status", "last_modified"])
+                invalidate_stac_cache(DATASETS_COLLECTION, published_id)
+                from modelregistry.tasks import mirror_stac_assets_task
 
-            mirror_stac_assets_task.enqueue(collection_id=DATASETS_COLLECTION, item_id=published_id)
-        except Exception as exc:
-            logger.exception("dataset build failed for %s", dataset_id)
-            dataset.status = Dataset.Status.FAILED
-            dataset.error = f"{type(exc).__name__}: {exc}"
-            dataset.save(update_fields=["status", "error", "last_modified"])
-            raise
+                mirror_stac_assets_task.enqueue(
+                    collection_id=DATASETS_COLLECTION, item_id=published_id
+                )
+            except Exception as exc:
+                logger.exception("dataset build failed for %s", dataset_id)
+                dataset.status = Dataset.Status.FAILED
+                dataset.error = f"{type(exc).__name__}: {exc}"
+                dataset.save(update_fields=["status", "error", "last_modified"])
+                raise
     finally:
         if labels_file_uri:
             UPath(labels_file_uri).unlink(missing_ok=True)
@@ -111,7 +125,9 @@ def _materialize_dataset_assets(
     labels_url: str | None,
     labels_file_uri: str | None,
     class_property: str,
-) -> MaterializedDataset:
+    bundle_dir: Path,
+    imagery_quality: str,
+) -> tuple[MaterializedDataset, dict[str, Path]]:
     from django.contrib.gis.db.models import Union as GeomUnion
     from geomltoolkits.downloader.osm import download_osm_data
 
@@ -123,6 +139,7 @@ def _materialize_dataset_assets(
     imagery: dict[str, str] = dataset.imagery  # type: ignore[assignment]
     prefixes = {name: UPath(StoragePaths.dataset_chips_dir_uri(stac_id, name)) for name in imagery}
     chip_names: set[str] = set()
+    local_chips: dict[str, dict[str, Path]] = {name: {} for name in imagery}
     labels_prefix = UPath(StoragePaths.dataset_labels_dir_uri(stac_id))
     labels_file = labels_prefix / StoragePaths.LABELS_GEOJSON_FILENAME
 
@@ -135,17 +152,14 @@ def _materialize_dataset_assets(
     # Dedupe overlapping-AOI features by OSM identity. Chip filenames are
     # tile-coord-deterministic so overlapping writes are idempotent.
     osm_features: dict[tuple[Any, Any], dict[str, Any]] = {}
-    # Read and checked first so unusable labels fail before any chip is downloaded.
-    labels_source = _read_labels_source(labels_url, labels_file_uri)
-    if labels_source is None and not osm_tags:
+    if not (labels_url or labels_file_uri or osm_tags):
         raise ValueError(f"Dataset {dataset.id} needs osm_tags, labels_url or labels_file_uri")
     tags = osm_tags or {}
-    selected = (
-        select_labels(labels_source, geometry, geometry_type, class_property)
-        if labels_source is not None
-        else None
-    )
     with tempfile.TemporaryDirectory(prefix=f"fair-build-{dataset.id}-") as tmp:
+        # Read and checked first so unusable labels fail before any chip is downloaded.
+        selected = _select_source_labels(
+            labels_url, labels_file_uri, Path(tmp), geometry, geometry_type, class_property
+        )
         for aoi in aois:
             aoi_geojson = aoi.geom.geojson
             downloads = {
@@ -155,9 +169,10 @@ def _materialize_dataset_assets(
             shared = chips_every_input_has(downloads, f"Dataset {dataset.id} AOI {aoi.id}")
             for name, files in downloads.items():
                 upload_chips(files, shared, prefixes[name])
+                local_chips[name].update({chip: files[chip] for chip in shared})
             chip_names |= shared
 
-            if labels_source is not None:
+            if selected is not None:
                 continue
             osm = asyncio.run(
                 download_osm_data(
@@ -172,20 +187,23 @@ def _materialize_dataset_assets(
                 key = (props.get("osm_id"), props.get("osm_type"))
                 osm_features.setdefault(key, feat)
 
-    if not chip_names:
-        raise RuntimeError(
-            f"Dataset {dataset.id}: no tile has imagery for every input {sorted(imagery)}"
-        )
+        if not chip_names:
+            raise RuntimeError(
+                f"Dataset {dataset.id}: no tile has imagery for every input {sorted(imagery)}"
+            )
 
-    if selected is not None:
-        features = selected
-        names = [class_property]
-    else:
-        features = osm_label_features(list(osm_features.values()), tags)
-        names = list(tags)
-    if not features:
-        raise ValueError(f"Dataset {dataset.id}: no label inside the AOIs")
-    label_classes = label_classes_of(features, names)
+        if selected is not None:
+            features = selected
+            names = [class_property]
+        else:
+            features = osm_label_features(list(osm_features.values()), tags)
+            names = list(tags)
+        if not features:
+            raise ValueError(f"Dataset {dataset.id}: no label inside the AOIs")
+        label_classes = label_classes_of(features, names)
+
+        chips_by_input = {name: index_chips(files.values()) for name, files in local_chips.items()}
+        bundle = write_bundle(chips_by_input, features, names, bundle_dir, imagery_quality)
 
     labels_file.write_text(json.dumps({"type": "FeatureCollection", "features": features}))
 
@@ -199,7 +217,7 @@ def _materialize_dataset_assets(
         labels_prefix,
         len(features),
     )
-    return MaterializedDataset(
+    materialized = MaterializedDataset(
         chips_dirs=chips_hrefs,
         labels_file=str(labels_prefix),
         geometry=geometry,
@@ -207,16 +225,26 @@ def _materialize_dataset_assets(
         label_properties=[cls["name"] for cls in label_classes],
         label_classes=label_classes,
     )
+    return materialized, bundle
 
 
-def _read_labels_source(
-    labels_url: str | None, labels_file_uri: str | None
-) -> dict[str, Any] | None:
+def _select_source_labels(
+    labels_url: str | None,
+    labels_file_uri: str | None,
+    workdir: Path,
+    geometry: dict[str, Any],
+    geometry_type: str,
+    class_property: str,
+) -> list[dict[str, Any]] | None:
+    if not (labels_url or labels_file_uri):
+        return None
     if labels_url:
-        return fetch_labels_geojson(labels_url)
-    if labels_file_uri:
-        return parse_labels_geojson(UPath(labels_file_uri).read_bytes())
-    return None
+        download_labels(labels_url, workdir / "labels")
+    source = workdir / "labels" if labels_url else UPath(labels_file_uri)
+    labels = read_labels(source.read_bytes(), shape(geometry), class_property)
+    labels[class_property] = labels[class_property].astype("string")
+    collection = labels.to_geo_dict(drop_id=True)
+    return select_labels(collection, geometry, geometry_type, class_property)
 
 
 def _download_chips(tms: str, zoom: int, aoi_geojson: str, local_dir: Path) -> dict[str, Path]:

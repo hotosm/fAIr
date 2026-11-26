@@ -3,6 +3,7 @@ from django.core.files.uploadedfile import UploadedFile
 from django.utils.http import MAX_URL_LENGTH
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
+from fair.bundle import DEFAULT_IMAGERY_QUALITY, IMAGERY_QUALITIES
 from fair.datasets import DEFAULT_CLASS_PROPERTY
 from rest_framework import serializers
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
@@ -25,10 +26,11 @@ from shared.serializers import (
 
 from .label_sources import (
     LABELS_MAX_BYTES,
+    LABELS_PARQUET_MAX_BYTES,
     LABELS_URL_MAX_REDIRECTS,
-    LABELS_URL_TOTAL_SECONDS,
-    LabelsSourceError,
-    parse_labels_geojson,
+    LABELS_URL_TIMEOUT_SECONDS,
+    PARQUET_MAGIC,
+    labels_max_bytes,
 )
 from .models import AOI, Dataset
 
@@ -92,16 +94,20 @@ class DatasetCreateSerializer(serializers.Serializer):
     labels_file = serializers.FileField(
         required=False,
         help_text=(
-            f"GeoJSON FeatureCollection upload, up to {LABELS_MAX_BYTES // 2**20} MB, sent as "
-            "multipart/form-data; each feature names its class in class_property."
+            f"GeoJSON FeatureCollection (up to {LABELS_MAX_BYTES // 2**20} MiB) or GeoParquet "
+            f"(up to {LABELS_PARQUET_MAX_BYTES // 2**20} MiB) upload, sent as "
+            "multipart/form-data; each feature "
+            "names its class in class_property."
         ),
     )
     labels_url = serializers.URLField(
         required=False,
         help_text=(
-            "Public https URL of a GeoJSON FeatureCollection; each feature names its class in "
-            "class_property. It is downloaded when the dataset builds, up to "
-            f"{LABELS_MAX_BYTES // 2**20} MB within {LABELS_URL_TOTAL_SECONDS} s, following up "
+            "Public https URL of a GeoJSON FeatureCollection or a GeoParquet file; each feature "
+            "names its class in class_property. It is downloaded when the dataset builds, up to "
+            f"{LABELS_MAX_BYTES // 2**20} MiB for GeoJSON or "
+            f"{LABELS_PARQUET_MAX_BYTES // 2**20} MiB for "
+            f"GeoParquet, within {LABELS_URL_TIMEOUT_SECONDS} s, following up "
             f"to {LABELS_URL_MAX_REDIRECTS} redirects to other public https URLs."
         ),
     )
@@ -109,6 +115,14 @@ class DatasetCreateSerializer(serializers.Serializer):
         required=False,
         max_length=200,
         help_text=(f'Feature property holding the class (default "{DEFAULT_CLASS_PROPERTY}").'),
+    )
+    imagery_quality = serializers.ChoiceField(
+        choices=list(IMAGERY_QUALITIES),
+        default=DEFAULT_IMAGERY_QUALITY,
+        help_text=(
+            f"WebP quality of the dataset's imagery PMTiles (default {DEFAULT_IMAGERY_QUALITY}); "
+            "lossless keeps every pixel, high and medium are smaller."
+        ),
     )
     keywords = JSONFormListField(child=serializers.CharField(max_length=80), min_length=1)
     label_type = serializers.ChoiceField(choices=["vector", "raster"], default="vector")
@@ -133,18 +147,20 @@ class DatasetCreateSerializer(serializers.Serializer):
             )
         return value
 
+    def validate_class_property(self, value: str) -> str:
+        if value in {"geometry", "bbox"}:
+            raise serializers.ValidationError(f"{value!r} is a column of labels.parquet itself")
+        return value
+
     def validate_labels_url(self, value: str) -> str:
         return validate_public_url(value, ("https",))
 
     def validate_labels_file(self, value: UploadedFile) -> UploadedFile:
-        if value.size is None or value.size > LABELS_MAX_BYTES:
-            raise serializers.ValidationError(
-                f"labels_file is larger than {LABELS_MAX_BYTES} bytes"
-            )
-        try:
-            parse_labels_geojson(value.read())
-        except LabelsSourceError as exc:
-            raise serializers.ValidationError(str(exc)) from exc
+        head = value.read(len(PARQUET_MAGIC))
+        value.seek(0)
+        limit = labels_max_bytes(head)
+        if value.size is None or value.size > limit:
+            raise serializers.ValidationError(f"labels_file is larger than {limit} bytes")
         return value
 
     def validate(self, attrs: dict) -> dict:

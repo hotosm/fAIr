@@ -1,66 +1,65 @@
-"""Read a user-supplied labels GeoJSON from a public https URL or an upload."""
+"""Download user-supplied labels, GeoJSON or GeoParquet, from a public https URL."""
 
-import json
-import time
-from typing import Any
+from pathlib import Path
+from types import SimpleNamespace
 
-import httpx
+import aiohttp
+import fsspec
+import yarl
 
 from shared.public_urls import require_public_url
 
-LABELS_URL_TIMEOUT = httpx.Timeout(30.0)
-LABELS_URL_TOTAL_SECONDS = 120
+LABELS_URL_TIMEOUT_SECONDS = 120
 LABELS_MAX_BYTES = 50 * 1024 * 1024
+LABELS_PARQUET_MAX_BYTES = 100 * 1024 * 1024
 LABELS_URL_MAX_REDIRECTS = 5
+PARQUET_MAGIC = b"PAR1"
 
 
 class LabelsSourceError(ValueError):
     pass
 
 
-def _download(url: str) -> bytes:
-    """Every hop, redirects included, must pass the public https check before it is requested.
-
-    httpx's own redirect handling reads each redirect body in full, outside the size cap."""
-    body = bytearray()
-    deadline = time.monotonic() + LABELS_URL_TOTAL_SECONDS
-    for _ in range(LABELS_URL_MAX_REDIRECTS + 1):
-        require_public_url(url, ("https",))
-        with httpx.stream(
-            "GET", url, timeout=LABELS_URL_TIMEOUT, follow_redirects=False
-        ) as response:
-            if response.next_request is not None:
-                url = str(response.next_request.url)
-                continue
-            if response.status_code != httpx.codes.OK:
-                raise LabelsSourceError(f"labels_url returned HTTP {response.status_code}")
-            for chunk in response.iter_bytes():
-                if time.monotonic() > deadline:
-                    raise LabelsSourceError(
-                        f"labels_url took longer than {LABELS_URL_TOTAL_SECONDS} s to download"
-                    )
-                body.extend(chunk)
-                if len(body) > LABELS_MAX_BYTES:
-                    raise LabelsSourceError(f"labels_url is larger than {LABELS_MAX_BYTES} bytes")
-            return bytes(body)
-    raise LabelsSourceError(f"labels_url redirected more than {LABELS_URL_MAX_REDIRECTS} times")
+def labels_max_bytes(head: bytes) -> int:
+    return LABELS_PARQUET_MAX_BYTES if head.startswith(PARQUET_MAGIC) else LABELS_MAX_BYTES
 
 
-def parse_labels_geojson(body: bytes) -> dict[str, Any]:
-    """The FeatureCollection in `body`; fails on invalid JSON or any other GeoJSON type."""
-    try:
-        collection = json.loads(body)
-    except (json.JSONDecodeError, UnicodeDecodeError, RecursionError) as exc:
-        raise LabelsSourceError(f"labels are not valid JSON: {exc}") from exc
-    if (
-        not isinstance(collection, dict)
-        or collection.get("type") != "FeatureCollection"
-        or not isinstance(collection.get("features"), list)
-    ):
-        raise LabelsSourceError("labels must be a GeoJSON FeatureCollection")
-    return collection
+async def _check_redirect(
+    session: aiohttp.ClientSession,
+    context: SimpleNamespace,
+    params: aiohttp.TraceRequestRedirectParams,
+) -> None:
+    location = params.response.headers.get("Location") or params.response.headers.get("URI")
+    if location is None:
+        raise LabelsSourceError("labels_url redirected without a Location header")
+    require_public_url(str(params.response.url.join(yarl.URL(location))), ("https",))
 
 
-def fetch_labels_geojson(url: str) -> dict[str, Any]:
-    """Download and parse a FeatureCollection, within the public-host, size and time limits."""
-    return parse_labels_geojson(_download(url))
+class _SizeCap(fsspec.callbacks.Callback):
+    def __init__(self, limit: int) -> None:
+        super().__init__()
+        self.limit = limit
+
+    def call(self, *args: object, **kwargs: object) -> None:
+        if max(self.value, self.size or 0) > self.limit:
+            raise LabelsSourceError(f"labels_url is larger than {self.limit} bytes")
+
+
+def download_labels(url: str, target: Path) -> None:
+    """Download `url` to `target`, refusing private redirects, slow replies and oversized files."""
+    require_public_url(url, ("https",))
+    trace = aiohttp.TraceConfig()
+    trace.on_request_redirect.append(_check_redirect)
+    timeout = aiohttp.ClientTimeout(total=LABELS_URL_TIMEOUT_SECONDS)
+    https = fsspec.filesystem(
+        "https",
+        client_kwargs={"trace_configs": [trace], "timeout": timeout},
+        max_redirects=LABELS_URL_MAX_REDIRECTS + 1,  # aiohttp raises on reaching the limit
+        skip_instance_cache=True,
+    )
+    largest = max(LABELS_PARQUET_MAX_BYTES, LABELS_MAX_BYTES)
+    https.get_file(url, str(target), callback=_SizeCap(largest))
+    with target.open("rb") as handle:
+        limit = labels_max_bytes(handle.read(len(PARQUET_MAGIC)))
+    if target.stat().st_size > limit:
+        raise LabelsSourceError(f"labels_url is larger than {limit} bytes")

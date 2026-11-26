@@ -258,6 +258,7 @@ class DatasetViewSet(
                     labels_url=payload.get("labels_url"),
                     labels_file_uri=labels_file_uri,
                     class_property=payload["class_property"],
+                    imagery_quality=payload["imagery_quality"],
                 )
         except Exception:
             if labels_file_uri:

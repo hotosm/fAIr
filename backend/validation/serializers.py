@@ -43,6 +43,9 @@ class ValidationProjectSerializer(serializers.ModelSerializer):
         max_length=MAX_SOURCES,
         help_text="Dataset STAC ids on the same imagery, or one prediction id.",
     )
+    respondent_count = serializers.IntegerField(
+        read_only=True, default=0, help_text="Accounts and distinct guest ids that answered."
+    )
 
     class Meta:
         model = ValidationProject
@@ -59,6 +62,7 @@ class ValidationProjectSerializer(serializers.ModelSerializer):
             "build_requested_at",
             "user",
             "created_at",
+            "respondent_count",
         ]
         read_only_fields = [
             "id",

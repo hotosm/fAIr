@@ -2,7 +2,8 @@ from datetime import datetime, timedelta
 
 from django.conf import settings
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Count, OuterRef, Q, Subquery
+from django.db.models.functions import Coalesce
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -121,7 +122,17 @@ class ValidationProjectViewSet(
     throttle_classes = [SignedInRateThrottle, GuestReadRateThrottle]
 
     def get_queryset(self):
-        queryset = ValidationProject.objects.select_related("user")
+        respondents = (
+            ValidationAnswer.objects.filter(project=OuterRef("pk"))
+            .order_by()
+            .values("project")
+            .annotate(count=Count("respondent", distinct=True))
+            .values("count")
+        )
+        # A subquery keeps Meta.ordering, which a GROUP BY from an aggregate join would drop.
+        queryset = ValidationProject.objects.select_related("user").annotate(
+            respondent_count=Coalesce(Subquery(respondents), 0)
+        )
         user = self.request.user
         if is_admin(user):
             return queryset
