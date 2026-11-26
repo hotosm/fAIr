@@ -352,7 +352,7 @@ def test_labels_pmtiles_is_built_at_the_chip_zoom(tmp_path: Path) -> None:
         "[-13.2984,8.4941],[-13.2985,8.4941],[-13.2985,8.4940]]]}}]}"
     )
 
-    target = tasks._write_labels([UPath(labels)], 19, tmp_path)
+    target = tasks._write_labels([UPath(labels)], 19, tmp_path, {})
 
     data = target.read_bytes()
     header = Reader(lambda offset, length: data[offset : offset + length]).header()
@@ -615,7 +615,7 @@ def test_a_broken_labels_file_fails_the_labels_build_with_its_reason(tmp_path: P
     labels.write_text('{"type": "FeatureCollection", "features": [')
 
     with pytest.raises(RuntimeError, match="Unterminated array"):
-        tasks._write_labels([UPath(labels)], 19, tmp_path)
+        tasks._write_labels([UPath(labels)], 19, tmp_path, {})
 
 
 @pytest.mark.parametrize("name", ["done.bin", "results.parquet"])
@@ -1035,7 +1035,7 @@ def test_labels_from_several_datasets_share_one_layer(tmp_path: Path) -> None:
         "[-13.2985,8.4940]]]}}]}"
     )
 
-    target = tasks._write_labels([UPath(points), UPath(groups)], 19, tmp_path)
+    target = tasks._write_labels([UPath(points), UPath(groups)], 19, tmp_path, {})
 
     data = target.read_bytes()
     stats = Reader(lambda offset, length: data[offset : offset + length]).metadata()["tilestats"]
@@ -1116,6 +1116,20 @@ def test_a_dataset_without_bundle_assets_has_no_bundle(user) -> None:
         assert tasks._dataset_bundle(project) is None
 
 
+def test_a_class_map_needs_the_bundle_labels_parquet(user) -> None:
+    project = _project(
+        user, status=ValidationProject.Status.DRAFT, class_map={"roof:material=tiles": "roof_tiles"}
+    )
+    item = MagicMock()
+    item.assets = {
+        key: MagicMock(href=f"s3://b/{key}")
+        for key in ("imagery_pmtiles", "labels_pmtiles", "tiles_parquet")
+    }
+
+    with patch("validation.tasks.get_dataset", return_value=item):
+        assert tasks._dataset_bundle(project) is None
+
+
 def test_bundle_files_outside_the_bucket_fail_loudly(user) -> None:
     project = _project(user, status=ValidationProject.Status.DRAFT)
     item = MagicMock()
@@ -1129,3 +1143,233 @@ def test_bundle_files_outside_the_bucket_fail_loudly(user) -> None:
         pytest.raises(ValueError, match="outside the bucket"),
     ):
         tasks._dataset_bundle(project)
+
+
+_ROOFS = {
+    "label:properties": ["roof:material"],
+    "label:classes": [{"name": "roof:material", "classes": ["metal", "metal_sheet", "tiles"]}],
+}
+
+
+@patch("validation.views.build_project")
+def test_create_keeps_a_class_map_of_declared_classes(mock_build, client, user) -> None:
+    _dataset(user)
+    class_map = {"roof:material=metal_sheet": "metal", "roof:material=tiles": "roof_tiles"}
+
+    with patch("validation.serializers.get_dataset", return_value=MagicMock(properties=_ROOFS)):
+        response = client.post(URL, _create_body(class_map=class_map), format="json")
+
+    assert response.status_code == 202
+    assert ValidationProject.objects.get(id=response.json()["id"]).class_map == class_map
+
+
+@pytest.mark.parametrize(
+    "class_map",
+    [{"roof:material=slate": "metal"}, {"metal_sheet": "metal"}, {"roof:material=tiles": ""}],
+    ids=["undeclared-class", "missing-property", "blank-target"],
+)
+@patch("validation.views.build_project")
+def test_create_refuses_a_class_map_it_cannot_apply(
+    mock_build, client, user, class_map, django_capture_on_commit_callbacks
+) -> None:
+    _dataset(user)
+
+    with (
+        patch("validation.serializers.get_dataset", return_value=MagicMock(properties=_ROOFS)),
+        django_capture_on_commit_callbacks(execute=True),
+    ):
+        response = client.post(URL, _create_body(class_map=class_map), format="json")
+
+    assert response.status_code == 400
+    assert "class_map" in response.json()["error"]["details"]
+    mock_build.enqueue.assert_not_called()
+
+
+@patch("validation.views.build_project")
+def test_create_refuses_a_class_map_on_a_source_without_classes(
+    mock_build, client, user, django_capture_on_commit_callbacks
+) -> None:
+    _dataset(user)
+
+    with (
+        patch("validation.serializers.get_dataset", return_value=MagicMock(properties={})),
+        django_capture_on_commit_callbacks(execute=True),
+    ):
+        response = client.post(
+            URL, _create_body(class_map={"roof:material=tiles": "roof_tiles"}), format="json"
+        )
+
+    assert response.status_code == 400
+    assert "class_map" in response.json()["error"]["details"]
+    mock_build.enqueue.assert_not_called()
+
+
+@patch("validation.views.build_project")
+def test_a_prediction_project_cannot_merge_classes(
+    mock_build, client, user, django_capture_on_commit_callbacks
+) -> None:
+    prediction = Prediction.objects.create(
+        local_model_stac_id="m",
+        imagery={"image": "https://tiles.example/{z}/{x}/{y}.png"},
+        primary_input="image",
+        geometry={},
+        zoom=19,
+        results_ready=True,
+        feature_count=3,
+        user=user,
+    )
+    body = {
+        "source_ids": [str(prediction.id)],
+        "type": "prediction",
+        "title": "Roofs",
+        "class_map": {"class=metal_sheet": "metal"},
+    }
+
+    with django_capture_on_commit_callbacks(execute=True):
+        response = client.post(URL, body, format="json")
+
+    assert response.status_code == 400
+    assert "class_map" in response.json()["error"]["details"]
+    mock_build.enqueue.assert_not_called()
+
+
+def test_a_class_map_cannot_change_after_creation(client, user) -> None:
+    project = _project(user, status=ValidationProject.Status.DRAFT)
+
+    response = client.patch(
+        f"{URL}{project.id}/", {"class_map": {"roof:material=tiles": "roof_tiles"}}, format="json"
+    )
+
+    assert response.status_code == 400
+    project.refresh_from_db()
+    assert project.class_map == {}
+
+
+@pytest.mark.skipif(
+    shutil.which("tippecanoe") is None, reason="tippecanoe is only in the worker image"
+)
+@pytest.mark.parametrize("suffix", [".geojson", ".parquet"])
+@pytest.mark.parametrize(
+    ("class_map", "expected"),
+    [
+        (
+            {"roof:material=metal_sheet": "metal", "roof:material=tiles": "roof_tiles"},
+            ["metal", "roof_tiles"],
+        ),
+        (
+            {"roof:material=metal_sheet": "metal", "roof:material=metal": "iron"},
+            ["iron", "metal", "tiles"],
+        ),
+    ],
+    ids=["merge", "each-class-maps-once"],
+)
+def test_a_class_map_merges_classes_in_the_tile_labels(
+    tmp_path: Path, suffix: str, class_map: dict[str, str], expected: list[str]
+) -> None:
+    labels = gpd.GeoDataFrame(
+        {"roof:material": ["metal", "metal_sheet", "tiles", None]},
+        geometry=[
+            box(-13.2985 + i * 0.0001, 8.494, -13.29845 + i * 0.0001, 8.49405) for i in range(4)
+        ],
+        crs="EPSG:4326",
+    )
+    source = tmp_path / f"source{suffix}"
+    if suffix == ".parquet":
+        labels.to_parquet(source)
+    else:
+        labels.to_file(source, driver="GeoJSON")
+    work = tmp_path / "work"
+    work.mkdir()
+
+    target = tasks._write_labels([UPath(source)], 19, work, class_map)
+
+    data = target.read_bytes()
+    stats = Reader(lambda offset, length: data[offset : offset + length]).metadata()["tilestats"]
+    assert sorted(stats["layers"][0]["attributes"][0]["values"]) == expected
+
+
+def _roofs_and_trees(tmp_path: Path) -> list[UPath]:
+    roofs = gpd.GeoDataFrame(
+        {"roof:material": ["metal_sheet"]},
+        geometry=[box(-13.2985, 8.494, -13.29845, 8.49405)],
+        crs="EPSG:4326",
+    )
+    trees = gpd.GeoDataFrame(
+        {"natural": ["tree"]}, geometry=[box(-13.2984, 8.494, -13.29835, 8.49405)], crs="EPSG:4326"
+    )
+    roofs.to_parquet(tmp_path / "roofs.parquet")
+    trees.to_parquet(tmp_path / "trees.parquet")
+    return [UPath(tmp_path / "roofs.parquet"), UPath(tmp_path / "trees.parquet")]
+
+
+@pytest.mark.skipif(
+    shutil.which("tippecanoe") is None, reason="tippecanoe is only in the worker image"
+)
+def test_a_class_map_property_needs_one_labels_file_that_has_it(tmp_path: Path) -> None:
+    work = tmp_path / "work"
+    work.mkdir()
+
+    target = tasks._write_labels(
+        _roofs_and_trees(tmp_path), 19, work, {"roof:material=metal_sheet": "metal"}
+    )
+
+    assert target.exists()
+
+
+def test_a_class_map_property_in_no_labels_file_fails_the_labels_build(tmp_path: Path) -> None:
+    work = tmp_path / "work"
+    work.mkdir()
+
+    with pytest.raises(ValueError, match="building"):
+        tasks._write_labels(_roofs_and_trees(tmp_path), 19, work, {"building=yes": "house"})
+
+
+def test_a_bundle_project_with_a_class_map_writes_merged_labels(user, tmp_path) -> None:
+    class_map = {"roof:material=metal_sheet": "metal"}
+    project = _project(
+        user,
+        status=ValidationProject.Status.DRAFT,
+        build_status=ValidationProject.BuildStatus.BUILDING,
+        class_map=class_map,
+    )
+    bundle = tmp_path / "bundle"
+    bundle.mkdir()
+    for name in ("imagery.pmtiles", "labels.pmtiles", "labels.parquet"):
+        (bundle / name).write_bytes(name.encode())
+    gpd.GeoDataFrame(
+        {"chip_id": ["OAM-233651-245320-19"]},
+        geometry=[box(*mercantile.bounds(233651, 245320, 19))],
+        crs="EPSG:4326",
+    ).to_parquet(bundle / "tiles.parquet")
+    item = MagicMock()
+    item.assets = {
+        key: MagicMock(href=str(bundle / name))
+        for key, name in [
+            ("imagery_pmtiles", "imagery.pmtiles"),
+            ("labels_pmtiles", "labels.pmtiles"),
+            ("labels_parquet", "labels.parquet"),
+            ("tiles_parquet", "tiles.parquet"),
+        ]
+    }
+
+    def merged(labels, zoom, workdir, mapping):
+        target = workdir / "labels.pmtiles"
+        target.write_bytes(b"merged")
+        return target
+
+    with (
+        patch("validation.tasks.get_dataset", return_value=item),
+        patch("validation.tasks._write_labels", side_effect=merged) as write_labels,
+        patch.object(
+            StoragePaths, "validation_file_uri", side_effect=lambda _id, name: str(tmp_path / name)
+        ),
+    ):
+        tasks.build_project.call(
+            project_id=project.id, requested_at=project.build_requested_at.isoformat()
+        )
+
+    sources, zoom, _, mapping = write_labels.call_args.args
+    assert [str(source) for source in sources] == [str(bundle / "labels.parquet")]
+    assert (zoom, mapping) == (19, class_map)
+    assert (tmp_path / "labels.pmtiles").read_bytes() == b"merged"
+    assert (tmp_path / "imagery.pmtiles").read_bytes() == b"imagery.pmtiles"

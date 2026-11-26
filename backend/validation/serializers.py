@@ -1,5 +1,6 @@
 import re
 
+from fair.stac.label_classes import LabelClassError, class_key, dataset_classes
 from rest_framework import serializers
 
 from accounts.permissions import is_admin
@@ -7,6 +8,7 @@ from accounts.serializers import UserSerializer
 from datasets.models import Dataset
 from predictions.models import Prediction
 from shared.enums import DatasetStatus, ValidationStatus, ValidationType, Visibility
+from shared.integrations.stac import get_dataset
 
 from .models import ValidationProject
 
@@ -43,6 +45,15 @@ class ValidationProjectSerializer(serializers.ModelSerializer):
         max_length=MAX_SOURCES,
         help_text="Dataset STAC ids on the same imagery, or one prediction id.",
     )
+    class_map = serializers.DictField(
+        child=serializers.CharField(max_length=200),
+        required=False,
+        default=dict,
+        help_text=(
+            'Dataset classes ("property=value") merged into the class shown on tiles, '
+            'e.g. {"roof:material=metal_sheet": "metal"}. Set at creation.'
+        ),
+    )
     respondent_count = serializers.IntegerField(
         read_only=True, default=0, help_text="Accounts and distinct guest ids that answered."
     )
@@ -53,6 +64,7 @@ class ValidationProjectSerializer(serializers.ModelSerializer):
             "id",
             "source_ids",
             "type",
+            "class_map",
             "title",
             "description",
             "answers_needed",
@@ -114,15 +126,37 @@ class ValidationProjectSerializer(serializers.ModelSerializer):
                 )
             first = first or source
 
+    def _check_class_map(self, attrs: dict) -> None:
+        class_map: dict[str, str] = attrs.get("class_map", {})
+        if not class_map:
+            return
+        if attrs["type"] != ValidationType.TRAINING:
+            raise serializers.ValidationError(
+                {"class_map": "Only a training project can merge classes."}
+            )
+        try:
+            declared = {
+                class_key(*pair)
+                for source_id in attrs["source_ids"]
+                for pair in dataset_classes(get_dataset(source_id).properties)
+            }
+        except LabelClassError as error:
+            raise serializers.ValidationError({"class_map": str(error)}) from error
+        if unknown := sorted(set(class_map) - declared):
+            raise serializers.ValidationError(
+                {"class_map": f"No source declares {unknown}; keys look like property=value."}
+            )
+
     def validate(self, attrs: dict) -> dict:
         if self.instance is None:
             if attrs.get("status", ValidationStatus.DRAFT) != ValidationStatus.DRAFT:
                 raise serializers.ValidationError({"status": "A new project starts as a draft."})
             self._check_sources(attrs)
+            self._check_class_map(attrs)
             return attrs
         if self.instance.status == ValidationStatus.FINISHED:
             raise serializers.ValidationError({"status": "A finished project cannot change."})
-        for field in ("source_ids", "type"):
+        for field in ("source_ids", "type", "class_map"):
             if field in attrs and attrs[field] != getattr(self.instance, field):
                 raise serializers.ValidationError({field: "Cannot change after creation."})
         status = attrs.get("status", self.instance.status)

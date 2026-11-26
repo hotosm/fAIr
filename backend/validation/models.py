@@ -17,6 +17,11 @@ class ValidationProject(models.Model):
         help_text="Dataset STAC ids on the same imagery, or the one prediction id.",
     )
     type = models.CharField(max_length=10, choices=ValidationType.choices)
+    class_map = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text='Dataset classes ("property=value") merged into the class shown on tiles.',
+    )
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     answers_needed = models.PositiveSmallIntegerField(

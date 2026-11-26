@@ -73,12 +73,37 @@ def _write_imagery(chips_dirs: list[UPath], target: Path) -> tuple[int, list[int
     return next(iter(tiles)).z, sorted(pmtiles_tile_id(tile) for tile in tiles)
 
 
-def _write_labels(labels: list[UPath], zoom: int, workdir: Path) -> Path:
+def _merge_classes(path: Path, by_column: dict[str, dict[str, str]]) -> set[str]:
+    parquet = path.suffix == ".parquet"
+    frame = gpd.read_parquet(path) if parquet else gpd.read_file(path)
+    # Each source declares its own classes, so a key may not apply to this file.
+    present = set(by_column) & set(frame.columns)
+    if not present:
+        return present
+    frame = frame.replace({column: by_column[column] for column in present})
+    if parquet:
+        frame.to_parquet(path)
+    else:
+        frame.to_file(path, driver="GeoJSON")
+    return present
+
+
+def _write_labels(labels: list[UPath], zoom: int, workdir: Path, class_map: dict[str, str]) -> Path:
+    by_column: dict[str, dict[str, str]] = {}
+    for key, target in class_map.items():
+        column, value = key.split("=", 1)
+        by_column.setdefault(column, {})[value] = target
     local = []
+    found: set[str] = set()
     for index, source in enumerate(labels):
-        geojson = workdir / f"labels-{index}.geojson"
-        geojson.write_bytes(source.read_bytes())
-        local.append(geojson)
+        suffix = ".parquet" if source.name.endswith(".parquet") else ".geojson"
+        copy = workdir / f"labels-{index}{suffix}"
+        copy.write_bytes(source.read_bytes())
+        if by_column:
+            found |= _merge_classes(copy, by_column)
+        local.append(copy)
+    if missing := sorted(set(by_column) - found):
+        raise ValueError(f"No labels file has the class_map properties {missing}")
     target = workdir / "labels.pmtiles"
     write_labels_pmtiles(local, zoom, target)
     return target
@@ -90,6 +115,8 @@ def _dataset_bundle(project: ValidationProject) -> dict[str, UPath] | None:
         return None
     assets = get_dataset(source_ids[0]).assets
     keys = ("imagery_pmtiles", "labels_pmtiles", "tiles_parquet")
+    if project.class_map:
+        keys += ("labels_parquet",)
     if not all(key in assets for key in keys):
         return None
     uris = {key: http_url_to_s3_uri(assets[key].href) for key in keys}
@@ -124,6 +151,7 @@ def build_project(*, project_id: int, requested_at: str) -> None:
 
 def _build_files(project: ValidationProject) -> tuple[int, int] | None:
     project_id = project.id
+    class_map: dict[str, str] = project.class_map  # type: ignore[assignment]
     bundle = _dataset_bundle(project)
     fetched = False
     try:
@@ -134,16 +162,19 @@ def _build_files(project: ValidationProject) -> tuple[int, int] | None:
             if bundle is not None:
                 tile_ids = read_tile_ids(bundle["tiles_parquet"])
                 zoom = tileid_to_zxy(tile_ids[0])[0]
-                copies = {
-                    "imagery.pmtiles": bundle["imagery_pmtiles"],
-                    "labels.pmtiles": bundle["labels_pmtiles"],
-                }
+                copies = {"imagery.pmtiles": bundle["imagery_pmtiles"]}
                 written = [tile_list]
+                if class_map:
+                    written.append(
+                        _write_labels([bundle["labels_parquet"]], zoom, workdir, class_map)
+                    )
+                else:
+                    copies["labels.pmtiles"] = bundle["labels_pmtiles"]
             else:
                 chips_dirs, labels, fetched = _sources(project)
                 imagery = workdir / "imagery.pmtiles"
                 zoom, tile_ids = _write_imagery(chips_dirs, imagery)
-                written = [tile_list, imagery, _write_labels(labels, zoom, workdir)]
+                written = [tile_list, imagery, _write_labels(labels, zoom, workdir, class_map)]
             tile_list.write_bytes(np.array(tile_ids, dtype=_TILE_ID).tobytes())
             superseded = not ValidationProject.objects.filter(
                 id=project_id, build_requested_at=project.build_requested_at
