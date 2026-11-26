@@ -151,7 +151,7 @@ Only checked when `DEBUG=false`.
 | `PMTILES_MIN_ZOOM`              | no       | `10`    | Min zoom passed to `tippecanoe` for PMTiles generation.                                                                                        |
 | `PMTILES_MAX_ZOOM`              | no       | `20`    | Max zoom passed to `tippecanoe` for PMTiles generation.                                                                                        |
 | `VALIDATION_REFRESH_INTERVAL` | no | `300` | Seconds between rewrites of a published validation project's `done.bin` and `results.parquet`. |
-| `VALIDATION_BUILD_TIMEOUT` | no | `3600` | Seconds a validation build may stay `building` before the next `GET /validation/projects/{id}/` queues it again. That discards the result of a build still running, so set it above the longest build. |
+| `VALIDATION_BUILD_TIMEOUT` | no | `3600` | Seconds a validation build may stay `building` before the next `GET /validation/projects/{slug}/` queues it again. That discards the result of a build still running, so set it above the longest build. |
 
 ## Frontend
 

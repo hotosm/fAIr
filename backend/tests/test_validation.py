@@ -75,7 +75,7 @@ def _create_body(**fields) -> dict:
 
 
 def _answers(project: ValidationProject, client: APIClient, answers: list[dict], **extra):
-    return client.post(f"{URL}{project.id}/answers/", {"answers": answers, **extra}, format="json")
+    return client.post(f"{URL}{project.slug}/answers/", {"answers": answers, **extra}, format="json")
 
 
 @patch("validation.views.build_project")
@@ -94,6 +94,47 @@ def test_create_makes_a_draft_and_queues_the_build(
     assert project.build_status == ValidationProject.BuildStatus.BUILDING
     mock_build.enqueue.assert_called_once()
     assert mock_build.enqueue.call_args.kwargs["project_id"] == project.id
+
+
+@patch("validation.views.build_project")
+def test_create_gives_the_project_an_unguessable_slug(mock_build, client, user) -> None:
+    _dataset(user)
+
+    response = client.post(URL, _create_body(), format="json")
+
+    slug = response.json()["slug"]
+    assert slug.startswith("freetown-buildings-")
+    assert len(slug.rsplit("-", 1)[1]) == 8
+    assert client.get(f"{URL}{slug}/").json()["id"] == response.json()["id"]
+
+
+def test_projects_with_one_title_get_different_slugs(user) -> None:
+    assert _project(user).slug != _project(user).slug
+
+
+def test_a_title_without_latin_letters_still_gets_a_slug(user) -> None:
+    assert len(_project(user, title="नेपाल").slug) == 8
+
+
+def test_a_slug_stays_when_the_title_changes(client, user) -> None:
+    project = _project(user, status=ValidationProject.Status.DRAFT)
+    slug = project.slug
+
+    response = client.patch(f"{URL}{slug}/", {"title": "Bo"}, format="json")
+
+    assert response.status_code == 200
+    project.refresh_from_db()
+    project.title = "Kenema"
+    project.save()
+    project.refresh_from_db()
+    assert (project.title, project.slug) == ("Kenema", slug)
+
+
+def test_a_project_is_not_found_by_its_number(anon_client, user) -> None:
+    project = _project(user)
+
+    assert anon_client.get(f"{URL}{project.id}/").status_code == 404
+    assert anon_client.post(f"{URL}{project.id}/answers/", {}, format="json").status_code == 404
 
 
 @pytest.mark.parametrize(
@@ -156,7 +197,7 @@ def test_projects_count_each_respondent_once(anon_client, user, other_user) -> N
 
     assert counts == {"Freetown": 2, "Unanswered": 0}
     assert [row["title"] for row in anon_client.get(URL).json()["results"]] == ["Unanswered", "Freetown"]
-    assert anon_client.get(f"{URL}{project.id}/").json()["respondent_count"] == 2
+    assert anon_client.get(f"{URL}{project.slug}/").json()["respondent_count"] == 2
 
 
 @patch("validation.views.refresh_project")
@@ -169,7 +210,7 @@ def test_publish_waits_for_a_successful_build(
         status=ValidationProject.Status.DRAFT,
         build_status=ValidationProject.BuildStatus.BUILDING,
     )
-    url = f"{URL}{project.id}/"
+    url = f"{URL}{project.slug}/"
 
     assert client.patch(url, {"status": "published"}, format="json").status_code == 400
     ValidationProject.objects.filter(id=project.id).update(
@@ -194,14 +235,14 @@ def test_publish_waits_for_a_successful_build(
 def test_published_project_rejects_invalid_changes(client, user, body) -> None:
     project = _project(user)
 
-    assert client.patch(f"{URL}{project.id}/", body, format="json").status_code == 400
+    assert client.patch(f"{URL}{project.slug}/", body, format="json").status_code == 400
 
 
 def test_only_the_owner_edits(client, other_user) -> None:
     project = _project(other_user)
 
     assert (
-        client.patch(f"{URL}{project.id}/", {"title": "Mine now"}, format="json").status_code == 403
+        client.patch(f"{URL}{project.slug}/", {"title": "Mine now"}, format="json").status_code == 403
     )
 
 
@@ -245,11 +286,11 @@ def test_files_redirect_for_visible_projects_only(mock_presign, anon_client, use
     published = _project(user)
     draft = _project(user, status=ValidationProject.Status.DRAFT)
 
-    response = anon_client.get(f"{URL}{published.id}/files/imagery.pmtiles/")
+    response = anon_client.get(f"{URL}{published.slug}/files/imagery.pmtiles/")
     assert response.status_code == 302
     assert response["Location"] == "https://signed.example/imagery"
-    assert anon_client.get(f"{URL}{published.id}/files/secrets.txt/").status_code == 404
-    assert anon_client.get(f"{URL}{draft.id}/files/imagery.pmtiles/").status_code == 404
+    assert anon_client.get(f"{URL}{published.slug}/files/secrets.txt/").status_code == 404
+    assert anon_client.get(f"{URL}{draft.slug}/files/imagery.pmtiles/").status_code == 404
 
 
 @patch("validation.views.presigned_get_url", return_value="https://signed.example/imagery")
@@ -258,7 +299,7 @@ def test_files_of_a_source_made_private_are_for_the_owner_only(
 ) -> None:
     _dataset(user, visibility="private")
     project = _project(user)
-    url = f"{URL}{project.id}/files/imagery.pmtiles/"
+    url = f"{URL}{project.slug}/files/imagery.pmtiles/"
 
     assert anon_client.get(url).status_code == 404
     assert client.get(url).status_code == 302
@@ -413,7 +454,7 @@ def test_publish_is_refused_for_a_private_source(client, user) -> None:
     _dataset(user, visibility="private")
     project = _project(user, status=ValidationProject.Status.DRAFT)
 
-    response = client.patch(f"{URL}{project.id}/", {"status": "published"}, format="json")
+    response = client.patch(f"{URL}{project.slug}/", {"status": "published"}, format="json")
 
     assert response.status_code == 400
     project.refresh_from_db()
@@ -433,7 +474,7 @@ def test_answers_to_a_finished_project_are_gone(anon_client, user) -> None:
 
 def test_malformed_answer_bodies_get_a_400(anon_client, user) -> None:
     project = _project(user)
-    url = f"{URL}{project.id}/answers/"
+    url = f"{URL}{project.slug}/answers/"
 
     assert (
         anon_client.post(url, [{"tile_id": TILE, "valid": True}], format="json").status_code == 400
@@ -624,7 +665,7 @@ def test_refreshed_files_answer_404_before_the_first_refresh(anon_client, user, 
     project = _project(user)
 
     with patch.object(UPath, "exists", return_value=False):
-        response = anon_client.get(f"{URL}{project.id}/files/{name}/")
+        response = anon_client.get(f"{URL}{project.slug}/files/{name}/")
 
     assert response.status_code == 404
 
@@ -650,7 +691,7 @@ def test_a_prediction_id_with_non_ascii_digits_is_refused(mock_build, client, us
 def test_a_finished_project_cannot_change(client, user) -> None:
     project = _project(user, status=ValidationProject.Status.FINISHED)
 
-    response = client.patch(f"{URL}{project.id}/", {"answers_needed": 3}, format="json")
+    response = client.patch(f"{URL}{project.slug}/", {"answers_needed": 3}, format="json")
 
     assert response.status_code == 400
     project.refresh_from_db()
@@ -732,7 +773,7 @@ def test_opening_a_stale_build_queues_it_again(
     )
 
     with django_capture_on_commit_callbacks(execute=True):
-        client.get(f"{URL}{project.id}/")
+        client.get(f"{URL}{project.slug}/")
 
     mock_build.enqueue.assert_called_once()
     assert mock_build.enqueue.call_args.kwargs["project_id"] == project.id
@@ -752,7 +793,7 @@ def test_opening_a_build_in_progress_leaves_it_alone(
     )
 
     with django_capture_on_commit_callbacks(execute=True):
-        client.get(f"{URL}{project.id}/")
+        client.get(f"{URL}{project.slug}/")
 
     mock_build.enqueue.assert_not_called()
 
@@ -769,7 +810,7 @@ def test_the_owner_can_build_a_failed_draft_again(
     )
 
     with django_capture_on_commit_callbacks(execute=True):
-        response = client.post(f"{URL}{project.id}/build/")
+        response = client.post(f"{URL}{project.slug}/build/")
 
     assert response.status_code == 202
     assert response.json()["build_status"] == "building"
@@ -783,11 +824,11 @@ def test_only_the_owner_builds_and_only_drafts(mock_build, client, other_user, u
     published = _project(user)
     draft = _project(user, status=ValidationProject.Status.DRAFT)
 
-    assert client.post(f"{URL}{published.id}/build/").status_code == 400
+    assert client.post(f"{URL}{published.slug}/build/").status_code == 400
     other = APIClient()
     other.force_authenticate(other_user)
-    assert other.post(f"{URL}{published.id}/build/").status_code == 403
-    assert other.post(f"{URL}{draft.id}/build/").status_code == 404
+    assert other.post(f"{URL}{published.slug}/build/").status_code == 403
+    assert other.post(f"{URL}{draft.slug}/build/").status_code == 404
     mock_build.enqueue.assert_not_called()
 
 
@@ -798,7 +839,7 @@ def test_an_admin_can_build_any_draft_again(
     draft = _project(user, status=ValidationProject.Status.DRAFT)
 
     with django_capture_on_commit_callbacks(execute=True):
-        assert admin_client.post(f"{URL}{draft.id}/build/").status_code == 202
+        assert admin_client.post(f"{URL}{draft.slug}/build/").status_code == 202
 
     mock_build.enqueue.assert_called_once()
 
@@ -847,8 +888,8 @@ def test_guests_get_429_beyond_the_read_rate(anon_client, user) -> None:
 
     cache.clear()
     with patch.dict(GuestReadRateThrottle.THROTTLE_RATES, rates):
-        first = anon_client.get(f"{URL}{project.id}/")
-        second = anon_client.get(f"{URL}{project.id}/")
+        first = anon_client.get(f"{URL}{project.slug}/")
+        second = anon_client.get(f"{URL}{project.slug}/")
     cache.clear()
 
     assert first.status_code == 200
@@ -861,7 +902,7 @@ def test_guests_are_not_held_to_the_signed_in_rate(anon_client, user) -> None:
 
     cache.clear()
     with patch.dict(GuestReadRateThrottle.THROTTLE_RATES, rates):
-        statuses = [anon_client.get(f"{URL}{project.id}/").status_code for _ in range(2)]
+        statuses = [anon_client.get(f"{URL}{project.slug}/").status_code for _ in range(2)]
     cache.clear()
 
     assert statuses == [200, 200]
@@ -873,7 +914,7 @@ def test_signed_in_users_are_not_held_to_the_guest_rate(client, user) -> None:
 
     cache.clear()
     with patch.dict(GuestReadRateThrottle.THROTTLE_RATES, rates):
-        statuses = [client.get(f"{URL}{project.id}/").status_code for _ in range(2)]
+        statuses = [client.get(f"{URL}{project.slug}/").status_code for _ in range(2)]
     cache.clear()
 
     assert statuses == [200, 200]
@@ -884,7 +925,7 @@ def test_signed_in_users_are_not_held_to_the_guest_rate(client, user) -> None:
 )
 def test_a_cross_origin_app_may_send_a_range_header() -> None:
     response = APIClient().options(
-        "/api/v1/validation/projects/1/files/tiles.bin/",
+        "/api/v1/validation/projects/freetown-abcdefgh/files/tiles.bin/",
         HTTP_ORIGIN="https://kshitijrajsharma.github.io",
         HTTP_ACCESS_CONTROL_REQUEST_METHOD="GET",
         HTTP_ACCESS_CONTROL_REQUEST_HEADERS="range",
@@ -965,7 +1006,7 @@ def test_publish_is_refused_while_any_dataset_is_private(client, user) -> None:
         user, status=ValidationProject.Status.DRAFT, source_ids=["freetown", "freetown-groups"]
     )
 
-    response = client.patch(f"{URL}{project.id}/", {"status": "published"}, format="json")
+    response = client.patch(f"{URL}{project.slug}/", {"status": "published"}, format="json")
 
     assert response.status_code == 400
     assert "status" in response.data["error"]["details"]
@@ -975,7 +1016,7 @@ def test_files_stay_hidden_while_any_dataset_is_private(anon_client, client, use
     _dataset(user, visibility="public")
     _dataset(user, stac_id="freetown-groups", visibility="private")
     project = _project(user, source_ids=["freetown", "freetown-groups"])
-    url = f"{URL}{project.id}/files/imagery.pmtiles/"
+    url = f"{URL}{project.slug}/files/imagery.pmtiles/"
 
     with patch("validation.views.presigned_get_url", return_value="https://signed.example/f"):
         assert anon_client.get(url).status_code == 404
@@ -986,7 +1027,7 @@ def test_sources_cannot_change_after_creation(client, user) -> None:
     project = _project(user, status=ValidationProject.Status.DRAFT)
 
     response = client.patch(
-        f"{URL}{project.id}/", {"source_ids": ["freetown", "freetown-groups"]}, format="json"
+        f"{URL}{project.slug}/", {"source_ids": ["freetown", "freetown-groups"]}, format="json"
     )
 
     assert response.status_code == 400
@@ -1237,7 +1278,7 @@ def test_a_class_map_cannot_change_after_creation(client, user) -> None:
     project = _project(user, status=ValidationProject.Status.DRAFT)
 
     response = client.patch(
-        f"{URL}{project.id}/", {"class_map": {"roof:material=tiles": "roof_tiles"}}, format="json"
+        f"{URL}{project.slug}/", {"class_map": {"roof:material=tiles": "roof_tiles"}}, format="json"
     )
 
     assert response.status_code == 400

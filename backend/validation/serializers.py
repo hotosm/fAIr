@@ -62,6 +62,7 @@ class ValidationProjectSerializer(serializers.ModelSerializer):
         model = ValidationProject
         fields = [
             "id",
+            "slug",
             "source_ids",
             "type",
             "class_map",
@@ -78,6 +79,7 @@ class ValidationProjectSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = [
             "id",
+            "slug",
             "build_status",
             "build_error",
             "build_requested_at",

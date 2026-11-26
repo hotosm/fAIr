@@ -1,9 +1,18 @@
+import string
+
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.utils.crypto import get_random_string
+from django.utils.text import slugify
 
 from accounts.models import OsmUser
 from shared.enums import ValidationBuildStatus, ValidationStatus, ValidationType
+
+
+def new_slug(title: str) -> str:
+    suffix = get_random_string(8, string.ascii_lowercase + string.digits)
+    return "-".join(filter(None, [slugify(title)[:40].strip("-"), suffix]))
 
 
 class ValidationProject(models.Model):
@@ -23,6 +32,9 @@ class ValidationProject(models.Model):
         help_text='Dataset classes ("property=value") merged into the class shown on tiles.',
     )
     title = models.CharField(max_length=200)
+    slug = models.SlugField(
+        max_length=50, unique=True, editable=False, help_text="The project's address in links."
+    )
     description = models.TextField(blank=True)
     answers_needed = models.PositiveSmallIntegerField(
         default=1, validators=[MinValueValidator(1), MaxValueValidator(9)]
@@ -59,6 +71,11 @@ class ValidationProject(models.Model):
 
     def __str__(self) -> str:
         return self.title
+
+    def save(self, *args, **kwargs) -> None:
+        if not self.slug:
+            self.slug = new_slug(self.title)
+        super().save(*args, **kwargs)
 
 
 class ValidationAnswer(models.Model):

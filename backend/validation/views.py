@@ -116,6 +116,7 @@ class ValidationProjectViewSet(
 ):
     queryset = ValidationProject.objects.all()
     serializer_class = ValidationProjectSerializer
+    lookup_field = "slug"
     permission_classes = [PublishedReadOrAuthenticatedWrite, IsOwnerOrAdminOrReadOnly]
     filterset_class = ValidationProjectFilter
     http_method_names = ["get", "post", "patch", "head", "options"]
@@ -165,7 +166,7 @@ class ValidationProjectViewSet(
         description="Build a draft's files again (owner or admin).",
     )
     @action(detail=True, methods=["post"])
-    def build(self, request, pk=None) -> Response:
+    def build(self, request, slug=None) -> Response:
         project = self.get_object()
         if project.status != ValidationStatus.DRAFT:
             raise serializers.ValidationError(
@@ -205,8 +206,8 @@ class ValidationProjectViewSet(
         permission_classes=[AllowAny],
         throttle_classes=[AnswerRateThrottle, GuestAnswerRateThrottle],
     )
-    def answers(self, request, pk=None) -> Response:
-        project = get_object_or_404(ValidationProject, pk=pk, status__in=_VISIBLE)
+    def answers(self, request, slug=None) -> Response:
+        project = get_object_or_404(ValidationProject, slug=slug, status__in=_VISIBLE)
         if project.status == ValidationStatus.FINISHED:
             return Response({"detail": "This project is finished."}, status=status.HTTP_410_GONE)
         batch = AnswerBatchSerializer(data=request.data)
@@ -237,7 +238,7 @@ class ValidationProjectViewSet(
         description="Redirect to a presigned download of one project file.",
     )
     @action(detail=True, methods=["get"], url_path=r"files/(?P<name>[\w.]+)")
-    def files(self, request, pk=None, name: str = "") -> HttpResponseRedirect:
+    def files(self, request, slug=None, name: str = "") -> HttpResponseRedirect:
         project = self.get_object()
         if name not in StoragePaths.VALIDATION_FILES:
             raise NotFound("Unknown project file.")
