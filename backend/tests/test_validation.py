@@ -108,6 +108,16 @@ def test_create_gives_the_project_an_unguessable_slug(mock_build, client, user) 
     assert client.get(f"{URL}{slug}/").json()["id"] == response.json()["id"]
 
 
+def test_admins_find_a_project_by_its_slug(user) -> None:
+    project = _project(user)
+    _project(user)
+    admin = ValidationProjectAdmin(ValidationProject, AdminSite())
+
+    found, _ = admin.get_search_results(None, ValidationProject.objects.all(), project.slug)
+
+    assert list(found) == [project]
+
+
 def test_projects_with_one_title_get_different_slugs(user) -> None:
     assert _project(user).slug != _project(user).slug
 

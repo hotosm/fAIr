@@ -15,6 +15,7 @@ class ValidationProjectAdmin(admin.ModelAdmin):
     list_display = [
         "id",
         "title",
+        "slug",
         "type",
         "status",
         "build_status",
@@ -23,7 +24,7 @@ class ValidationProjectAdmin(admin.ModelAdmin):
         "created_at",
     ]
     list_filter = ["type", "status", "build_status"]
-    search_fields = ["title", "user__username"]
+    search_fields = ["title", "slug", "user__username"]
     autocomplete_fields = ["user"]
 
     def delete_model(self, request, obj: ValidationProject) -> None:
