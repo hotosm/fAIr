@@ -77,15 +77,21 @@ def _merge_classes(path: Path, by_column: dict[str, dict[str, str]]) -> set[str]
     parquet = path.suffix == ".parquet"
     frame = gpd.read_parquet(path) if parquet else gpd.read_file(path)
     # Each source declares its own classes, so a key may not apply to this file.
-    present = set(by_column) & set(frame.columns)
-    if not present:
-        return present
-    frame = frame.replace({column: by_column[column] for column in present})
+    mapping = {column: values for column, values in by_column.items() if column in frame}
+    if not mapping:
+        return set()
+    if non_text := sorted(
+        column
+        for column in mapping
+        if not all(isinstance(value, str) for value in frame[column].dropna())
+    ):
+        raise ValueError(f"class_map merges text classes only; {non_text} hold numbers or booleans")
+    frame = frame.replace(mapping)
     if parquet:
         frame.to_parquet(path)
     else:
         frame.to_file(path, driver="GeoJSON")
-    return present
+    return set(mapping)
 
 
 def _write_labels(labels: list[UPath], zoom: int, workdir: Path, class_map: dict[str, str]) -> Path:

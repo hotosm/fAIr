@@ -1200,7 +1200,7 @@ def test_create_refuses_a_class_map_on_a_source_without_classes(
         )
 
     assert response.status_code == 400
-    assert "class_map" in response.json()["error"]["details"]
+    assert "freetown" in str(response.json()["error"]["details"]["class_map"])
     mock_build.enqueue.assert_not_called()
 
 
@@ -1322,6 +1322,20 @@ def test_a_class_map_property_in_no_labels_file_fails_the_labels_build(tmp_path:
 
     with pytest.raises(ValueError, match="building"):
         tasks._write_labels(_roofs_and_trees(tmp_path), 19, work, {"building=yes": "house"})
+
+
+def test_a_class_map_on_numbers_fails_the_labels_build(tmp_path: Path) -> None:
+    levels = tmp_path / "levels.parquet"
+    gpd.GeoDataFrame(
+        {"building:levels": [2, 3]},
+        geometry=[box(-13.2985, 8.494, -13.29845, 8.49405)] * 2,
+        crs="EPSG:4326",
+    ).to_parquet(levels)
+    work = tmp_path / "work"
+    work.mkdir()
+
+    with pytest.raises(ValueError, match="text classes only"):
+        tasks._write_labels([UPath(levels)], 19, work, {"building:levels=2": "low"})
 
 
 def test_a_bundle_project_with_a_class_map_writes_merged_labels(user, tmp_path) -> None:

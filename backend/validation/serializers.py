@@ -134,14 +134,14 @@ class ValidationProjectSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 {"class_map": "Only a training project can merge classes."}
             )
-        try:
-            declared = {
-                class_key(*pair)
-                for source_id in attrs["source_ids"]
-                for pair in dataset_classes(get_dataset(source_id).properties)
-            }
-        except LabelClassError as error:
-            raise serializers.ValidationError({"class_map": str(error)}) from error
+        declared: set[str] = set()
+        for source_id in attrs["source_ids"]:
+            try:
+                declared |= {
+                    class_key(*pair) for pair in dataset_classes(get_dataset(source_id).properties)
+                }
+            except LabelClassError as error:
+                raise serializers.ValidationError({"class_map": f"{source_id}: {error}"}) from error
         if unknown := sorted(set(class_map) - declared):
             raise serializers.ValidationError(
                 {"class_map": f"No source declares {unknown}; keys look like property=value."}
